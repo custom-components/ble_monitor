@@ -1,0 +1,5 @@
+{
+  "name": "Xiaomi Mi temperature and humidity monitor (BLE) sensor platform",
+  "domains": "sensor",
+  "iot_class": "local push"
+}

@@ -1,0 +1,11 @@
+{
+  "domain": "mitemp_bt",
+  "name": "Xiaomi Mi temperature and humidity monitor",
+  "documentation": "https://www.home-assistant.io/integrations/mitemp_bt",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [
+    "@Ernst79",
+    "@Magalex2x14"
+  ]
+}
