@@ -4,13 +4,13 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 ![sensor](/sensor.jpg)
 
 ## HOW TO INSTALL
-**1. Install bluez-hcidump**
+**1. Install bluez-hcidump (not needed for HASSio):**
    - The package `bluez-hcidump` needs to be installed first. `bluez-hcidump` reads raw the data coming from and going to your Bluetooth device. You can install it with the following command
      ```shell
      sudo apt-get install bluez-hcidump
      ```
      
-**2. Allow hcitool and hcidump to run without root access:**
+**2. Allow hcitool and hcidump to run without root access (not needed for HASSio):**
    - This custom component uses a hcitool and hcidump commands to receive the data. Run the following commands to allow hcitool and hcidump to run without root access:
      ```shell
      sudo setcap 'cap_net_raw+ep' `readlink -f \`which hcidump\``
