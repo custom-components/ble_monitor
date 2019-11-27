@@ -86,7 +86,7 @@ sensor:
 **use_median**
 
   (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the average in any case are present as the sensor state attributes. Default value: False
-  *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the average allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values ​​will be averaged, and the higher the resolution can be achieved if necessary).*
+  *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values ​​will be averaged, and the higher the resolution can be achieved if necessary with disabled rounding).*
 
 **hcitool_active**
 
