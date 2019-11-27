@@ -36,7 +36,7 @@ A restart is required to unload the build in component and load the custom compo
 
 **5. Add the platform to your configuration.yaml file**
 
-Add the following to your `configuration.yaml` file.
+Add the following to your `configuration.yaml` file (see below for optional parameters).
 
 ```yaml
 sensor:
@@ -49,6 +49,46 @@ IMPORTANT. If you used the standard Home Assistant built ['mitemp_bt'](https://w
 **6. Restart Home Assistant again:**
 
 A second restart is required to load the component. After a few minutes, the sensors should be added to your home-assistant automatically. 
+
+
+### Configuration Variables
+An example of `configuration.yaml` with all optional parameters is:
+
+```yaml
+sensor:
+  - platform: mitemp_bt
+    rounding: True
+    decimals: 2
+    period: 60
+    log_spikes: False
+    use_median: False
+    hcitool_active: False
+```
+
+
+**rounding**
+
+  (boolean)(Optional) Enable/disable rounding of the average of all measurements taken within the number seconds specified with 'period'. Default value: True
+
+**decimals**
+
+  (positive integer)(Optional) Number of decimal places to round if rounding is enabled. Default value: 2
+
+**period**
+
+  (positive integer)(Optional) The period in seconds during which the sensor readings are collected and transmitted to Home Assistant after averaging. Default value: 60
+
+**log_spikes**
+
+  (boolean)(Optional) Puts information about each erroneous spike in the Home Assistant log. Default value: False
+
+**use_median**
+
+  (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the average in any case are present as the sensor state attributes. Default value: False
+
+**hcitool_active**
+
+  (boolean)(Optional) In active mode hcitool sends scan requests, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just reciving the advertisements sent by the BLE devices. This parameter is a subject for experiment. See the hcitool docs, --passive switch. Default value: False
 
 
 ## Credits
