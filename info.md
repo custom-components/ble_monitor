@@ -82,7 +82,7 @@ sensor:
 
   (boolean)(Optional) Puts information about each erroneous spike in the Home Assistant log. Default value: False
   
-  *There are reports (pretty rare) that some sensors tend to sometimes produce erroneous values that differ markedly from the actual ones. Therefore, if you see inexplicable sharp peaks or dips on the temperature or humidity graph, I recommend that you enable this option so that you can see in the log which values were qualified as erroneous. This component discards values that exceeds the sensor’s measurement capabilities, and this is what the log records when the option is enabled. If erroneous values are within the measurement capabilities (-40..60°C and 0..100%H), that is, there are no messages in the log, then there is no other choice but to calculate the average as the median (next option).*
+  *There are reports (pretty rare) that some sensors tend to sometimes produce erroneous values that differ markedly from the actual ones. Therefore, if you see inexplicable sharp peaks or dips on the temperature or humidity graph, I recommend that you enable this option so that you can see in the log which values were qualified as erroneous. The component discards values that exceeds the sensor’s measurement capabilities. These discarded values are given in the log records when this option is enabled. If erroneous values are within the measurement capabilities (-40..60°C and 0..100%H), there are no messages in the log. If your sensor is showing this, there is no other choice but to calculate the average as the median (next option).*
 
 **use_median**
 
