@@ -1,7 +1,7 @@
 # Xiaomi Mi Temperature and Humidity Monitor (BLE) sensor platform
-This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is emitted each second by the sensor. The packets payload contains temperature/humidity and battery data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration.
+This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is emitted each second by the sensor. The packets payload contains temperature/humidity and battery data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration. Currently only LYWSDCGQ sensor compatibility confirmed (round body, segment LCD).
 
-![sensor](/sensor.jpg)
+![LYWSDCGQ](/sensor.jpg)
 
 ## HOW TO INSTALL
 **1. Install bluez-hcidump (not needed on HASSio):**
@@ -76,14 +76,18 @@ sensor:
 **log_spikes**
 
   (boolean)(Optional) Puts information about each erroneous spike in the Home Assistant log. Default value: False
+  *There are reports (pretty rare) that some sensors tend to sometimes produce erroneous values ​​that differ markedly from the actual ones. Therefore, if you see inexplicable sharp peaks or dips on the temperature or humidity graph, I recommend that you enable this option so that you can see in the log which values ​​were qualified as erroneous. This component discards values ​​that exceeds the sensor’s measurement capabilities, and this is what the log records when the option is enabled. If erroneous values ​​are within the measurement capabilities (-40..60°C and 0..100%H), that is, there are no messages in the log, then there is no other choice but to calculate the average as the median (next option).*
 
 **use_median**
 
-  (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the average in any case are present as the sensor state attributes. Default value: False
+  (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the mean values in any case are present as the sensor state attributes. Default value: False
+  *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the average allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values ​​will be averaged, and the higher the resolution can be achieved if necessary).*
 
 **hcitool_active**
 
   (boolean)(Optional) In active mode hcitool sends scan requests, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just reciving the advertisements sent by the BLE devices. This parameter is a subject for experiment. See the hcitool docs, --passive switch. Default value: False
+
+
 
 ## Credits
 Credits and a big thanks should be given to [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) and [@Magalex](https://community.home-assistant.io/u/Magalex). The main python code for this component was originally developed by [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) and later modified by [@Magalex](https://community.home-assistant.io/u/Magalex).

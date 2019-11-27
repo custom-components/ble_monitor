@@ -243,7 +243,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         macs[data["mac"]] = data["mac"]
                     elif log_spikes:
                         _LOGGER.error(
-                            "Temperature spike: %s", (data["temperature"])
+                            "Temperature spike: %s (%s)", data["temperature"],
+                                                          data["mac"]
                         )
                 if "humidity" in data:
                     if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
@@ -252,7 +253,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         hum_m_data[data["mac"]].append(data["humidity"])
                         macs[data["mac"]] = data["mac"]
                     elif log_spikes:
-                        _LOGGER.error("Humidity spike: %s", data["humidity"])
+                        _LOGGER.error(
+                            "Humidity spike: %s (%s)", data["humidity"], 
+                                                       data["mac"]
+                        )
                 if "battery" in data:
                     batt[data["mac"]] = int(data["battery"])
                     macs[data["mac"]] = data["mac"]
