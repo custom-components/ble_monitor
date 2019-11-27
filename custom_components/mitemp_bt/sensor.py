@@ -6,6 +6,7 @@ import statistics
 import subprocess
 import sys
 import tempfile
+import voluptuous as vol
 
 
 from homeassistant.const import (
@@ -14,45 +15,46 @@ from homeassistant.const import (
     TEMP_CELSIUS,
     ATTR_BATTERY_LEVEL,
 )
+from homeassistant.components.sensor import PLATFORM_SCHEMA
+import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import track_point_in_utc_time
 import homeassistant.util.dt as dt_util
 
+from .const import (
+    DEFAULT_ROUNDING,
+    DEFAULT_DECIMALS,
+    DEFAULT_PERIOD,
+    DEFAULT_LOG_SPIKES,
+    DEFAULT_USE_MEDIAN,
+    DEFAULT_HCITOOL_ACTIVE,
+    CONF_ROUNDING,
+    CONF_DECIMALS,
+    CONF_PERIOD,
+    CONF_LOG_SPIKES,
+    CONF_USE_MEDIAN,
+    CONF_HCITOOL_ACTIVE,
+    CONF_TMIN,
+    CONF_TMAX,
+    CONF_HMIN,
+    CONF_HMAX,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 
-# ----------------------
-# SOME OPTIONS TO ADJUST
-# ----------------------
-# Enable/disable rounding of the average of all measurements taken
-# within CONF_MITEMPBT_PERIOD seconds
-CONF_MITEMPBT_ROUNDING = True
-# To how many decimal places to round if rounding is enabled
-CONF_MITEMPBT_DECIMALS = 2
-# The period in seconds during which the sensor readings are
-# collected and transmitted to HA after averaging
-CONF_MITEMPBT_PERIOD = 60
-#
-# Sensor measurement limits to exclude erroneous spikes from the results
-CONF_MITEMPBT_TMIN = -40.0
-CONF_MITEMPBT_TMAX = 60.0
-CONF_MITEMPBT_HMIN = 0.0
-CONF_MITEMPBT_HMAX = 99.9
-# Sensor measurement limits to exclude erroneous spikes from the results
-CONF_MITEMPBT_LOG_SPIKES = False
-# Use median as sensor output instead of mean (helps with "spiky" sensors)
-CONF_MITEMPBT_USE_MEDIAN = False
-# Please note that both the median and the average in any case are present
-# as the sensor state attributes
-#
-CONF_MITEMPBT_HCITOOL_ACTIVE = False
-# In active mode hcitool sends scan requests, which is most often
-# not required, but slightly increases the sensor battery consumption.
-# 'Passive mode' means that you are not sending any request to the sensor
-# but you are just reciving the advertisements sent by the BLE devices.
-# This parameter is a subject for experiment.
-# See the hcitool docs, --passive switch.
-# ----------------------
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {
+        vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.boolean,
+        vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
+        vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
+        vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
+        vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
+        vol.Optional(
+            CONF_HCITOOL_ACTIVE, default=DEFAULT_HCITOOL_ACTIVE
+        ): cv.boolean,
+    }
+)
 
 
 def parse_raw_data(data):
@@ -150,8 +152,9 @@ class BLEScanner:
     hcidump = None
     tempf = tempfile.SpooledTemporaryFile()
 
-    def start(self):
+    def start(self, config):
         """Start receiving broadcasts."""
+        hcitool_active = config[CONF_HCITOOL_ACTIVE]
         _LOGGER.debug("Temp dir used: %s", tempfile.gettempdir())
         _LOGGER.debug("Start receiving broadcasts")
         devnull = (
@@ -160,13 +163,10 @@ class BLEScanner:
             else open(os.devnull, "wb")
         )
         hcitoolcmd = ["hcitool", "lescan", "--duplicates", "--passive"]
-        if CONF_MITEMPBT_HCITOOL_ACTIVE:
+        if hcitool_active:
             hcitoolcmd = ["hcitool", "lescan", "--duplicates"]
-        # sudo setcap 'cap_net_raw+ep' `readlink -f \`which hcidump\``
         self.hcitool = subprocess.Popen(
-            hcitoolcmd,
-            stdout=devnull,
-            stderr=devnull,
+            hcitoolcmd, stdout=devnull, stderr=devnull
         )
         self.hcidump = subprocess.Popen(
             ["hcidump", "--raw", "hci"], stdout=self.tempf, stderr=None
@@ -208,15 +208,21 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
     _LOGGER.debug("Starting")
     scanner = BLEScanner()
-    scanner.start()
+    scanner.start(config)
 
     sensors_by_mac = {}
 
-    def discover_ble_devices():
+    def discover_ble_devices(config):
         """Discover Bluetooth LE devices."""
         _LOGGER.debug("Discovering Bluetooth LE devices")
+        rounding = config[CONF_ROUNDING]
+        decimals = config[CONF_DECIMALS]
+        log_spikes = config[CONF_LOG_SPIKES]
+        use_median = config[CONF_USE_MEDIAN]
+
         _LOGGER.debug("Stopping")
         scanner.stop()
+
         _LOGGER.debug("Analyzing")
         hum_m_data = {}
         temp_m_data = {}
@@ -230,38 +236,23 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
                 # store found readings per device
                 if "temperature" in data:
-                    if (
-                        CONF_MITEMPBT_TMAX
-                        >= data["temperature"]
-                        >= CONF_MITEMPBT_TMIN
-                    ):
+                    if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
                         if data["mac"] not in temp_m_data:
                             temp_m_data[data["mac"]] = []
-                        temp_m_data[data["mac"]].append(
-                            data["temperature"]
-                        )
+                        temp_m_data[data["mac"]].append(data["temperature"])
                         macs[data["mac"]] = data["mac"]
-                    elif CONF_MITEMPBT_LOG_SPIKES:
+                    elif log_spikes:
                         _LOGGER.error(
-                            "Temperature spike: %s",
-                            (data["temperature"]),
+                            "Temperature spike: %s", (data["temperature"])
                         )
                 if "humidity" in data:
-                    if (
-                        CONF_MITEMPBT_HMAX
-                        >= data["humidity"]
-                        >= CONF_MITEMPBT_HMIN
-                    ):
+                    if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
                         if data["mac"] not in hum_m_data:
                             hum_m_data[data["mac"]] = []
-                        hum_m_data[data["mac"]].append(
-                            data["humidity"]
-                        )
+                        hum_m_data[data["mac"]].append(data["humidity"])
                         macs[data["mac"]] = data["mac"]
-                    elif CONF_MITEMPBT_LOG_SPIKES:
-                        _LOGGER.error(
-                            "Humidity spike: %s", data["humidity"]
-                        )
+                    elif log_spikes:
+                        _LOGGER.error("Humidity spike: %s", data["humidity"])
                 if "battery" in data:
                     batt[data["mac"]] = int(data["battery"])
                     macs[data["mac"]] = data["mac"]
@@ -293,27 +284,23 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             humstate_mean = None
             tempstate_median = None
             humstate_median = None
-            if CONF_MITEMPBT_USE_MEDIAN:
+            if use_median:
                 textattr = "last median of"
             else:
                 textattr = "last mean of"
             if mac in temp_m_data:
                 try:
-                    if CONF_MITEMPBT_ROUNDING:
+                    if rounding:
                         tempstate_median = round(
-                            statistics.median(temp_m_data[mac]),
-                            CONF_MITEMPBT_DECIMALS,
+                            statistics.median(temp_m_data[mac]), decimals
                         )
                         tempstate_mean = round(
-                            statistics.mean(temp_m_data[mac]),
-                            CONF_MITEMPBT_DECIMALS,
+                            statistics.mean(temp_m_data[mac]), decimals
                         )
                     else:
-                        tempstate_median = statistics.median(
-                            temp_m_data[mac]
-                        )
+                        tempstate_median = statistics.median(temp_m_data[mac])
                         tempstate_mean = statistics.mean(temp_m_data[mac])
-                    if CONF_MITEMPBT_USE_MEDIAN:
+                    if use_median:
                         setattr(sensors[0], "_state", tempstate_median)
                     else:
                         setattr(sensors[0], "_state", tempstate_mean)
@@ -336,21 +323,17 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     continue
             if mac in hum_m_data:
                 try:
-                    if CONF_MITEMPBT_ROUNDING:
+                    if rounding:
                         humstate_median = round(
-                            statistics.median(hum_m_data[mac]),
-                            CONF_MITEMPBT_DECIMALS,
+                            statistics.median(hum_m_data[mac]), decimals
                         )
                         humstate_mean = round(
-                            statistics.mean(hum_m_data[mac]),
-                            CONF_MITEMPBT_DECIMALS,
+                            statistics.mean(hum_m_data[mac]), decimals
                         )
                     else:
-                        humstate_median = statistics.median(
-                            hum_m_data[mac]
-                        )
+                        humstate_median = statistics.median(hum_m_data[mac])
                         humstate_mean = statistics.mean(hum_m_data[mac])
-                    if CONF_MITEMPBT_USE_MEDIAN:
+                    if use_median:
                         setattr(sensors[1], "_state", humstate_median)
                     else:
                         setattr(sensors[1], "_state", humstate_mean)
@@ -367,26 +350,23 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 except AttributeError:
                     _LOGGER.info("Sensor %s not yet ready for update", mac)
                 except ZeroDivisionError:
-                    _LOGGER.error(
-                        "Division by zero while humidity averaging!"
-                    )
+                    _LOGGER.error("Division by zero while humidity averaging!")
                     continue
-        scanner.start()
+        scanner.start(config)
         return []
 
     def update_ble(now):
         """Lookup Bluetooth LE devices and update status."""
+        period = config[CONF_PERIOD]
         _LOGGER.debug("update_ble called")
 
         try:
-            discover_ble_devices()
+            discover_ble_devices(config)
         except RuntimeError as error:
             _LOGGER.error("Error during Bluetooth LE scan: %s", error)
 
         track_point_in_utc_time(
-            hass,
-            update_ble,
-            dt_util.utcnow() + timedelta(seconds=CONF_MITEMPBT_PERIOD),
+            hass, update_ble, dt_util.utcnow() + timedelta(seconds=period)
         )
 
     update_ble(dt_util.utcnow())
