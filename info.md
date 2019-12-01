@@ -1,7 +1,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
 {% if prerelease %}
-### NB!: This is a Beta version!
+# NB!: This is a Beta version!
 {% endif %}
 
 {% if installed and version_installed != selected_tag %}
