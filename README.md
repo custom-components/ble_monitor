@@ -1,7 +1,13 @@
-# Xiaomi Mi Temperature and Humidity Monitor (BLE) sensor platform
-This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is emitted each second by the sensor. The packets payload contains temperature/humidity and battery data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration. Currently only LYWSDCGQ sensor compatibility confirmed (round body, segment LCD).
+# Xiaomi BLE Monitor sensor platform
+This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is emitted each second by the sensor. The packets payload contains temperature/humidity and battery data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration.
 
-![LYWSDCGQ](/sensor.jpg)
+Supported sensors:
+ - LYWSDCGQ (round body, segment LCD)
+ - LYWSD02 (rectangular body, E-Ink)
+ - CGG1 (round body, E-Ink)
+ - HHCCJCY01 (MiFlora)
+
+![supported sensors](/sensors.jpg)
 
 ## HOW TO INSTALL
 **1. Install bluez-hcidump (not needed on HASSio):**
