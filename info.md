@@ -10,7 +10,8 @@ In addition to LYWSDCGQ, added support for the following Xiaomi sensors:
 
  - LYWSD02 (rectangular body, E-Ink)
  - CGG1 (round body, E-Ink)
- - HHCCJCY01 (MiFlora, it was not tested at all, reports only temperature so far. If you MiFlora owner, then you can [help](https://github.com/custom-components/sensor.mitemp_bt/issues/7)...)
+ - HHCCJCY01 (MiFlora, it was not tested at all, reports only temperature so far.
+ If you MiFlora owner, then you can [help](https://github.com/custom-components/sensor.mitemp_bt/issues/7)...)
 
 Attributes added:
 
@@ -25,7 +26,8 @@ Supported sensors:
  - LYWSDCGQ (round body, segment LCD)
  - LYWSD02 (rectangular body, E-Ink)
  - CGG1 (round body, E-Ink)
- - HHCCJCY01 (MiFlora)
+ - HHCCJCY01 (MiFlora, it was not tested at all, reports only temperature so far.
+ If you MiFlora owner, then you can [help](https://github.com/custom-components/sensor.mitemp_bt/issues/7)...)
 
 ![supported sensors](https://raw.github.com/custom-components/sensor.mitemp_bt/other-sensors-dev/sensors.jpg)
 

@@ -5,7 +5,8 @@ Supported sensors:
  - LYWSDCGQ (round body, segment LCD)
  - LYWSD02 (rectangular body, E-Ink)
  - CGG1 (round body, E-Ink)
- - HHCCJCY01 (MiFlora)
+ - HHCCJCY01 (MiFlora, it was not tested at all, reports only temperature so far.
+ If you MiFlora owner, then you can [help](https://github.com/custom-components/sensor.mitemp_bt/issues/7)...)
 
 ![supported sensors](/sensors.jpg)
 
