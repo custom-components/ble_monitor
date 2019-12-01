@@ -1,5 +1,23 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
+{% if prerelease %}
+### NB!: This is a Beta version!
+{% endif %}
+
+{% if installed and version_installed != selected_tag %}
+# Changes as compared to your installed version:
+In addition to LYWSDCGQ, added support for the following Xiaomi sensors:
+
+ - LYWSD02 (rectangular body, E-Ink)
+ - CGG1 (round body, E-Ink)
+ - HHCCJCY01 (MiFlora, it was not tested at all, reports only temperature so far. If you MiFlora owner, then you can [help](https://github.com/custom-components/sensor.mitemp_bt/issues/7)...)
+
+Attributes added:
+
+ - RSSI in dBm (Received Signal Strength Indicator)
+ - Device type
+{% endif %}
+
 # Xiaomi BLE Monitor sensor platform
 This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Engergy packets payload that is emitted each second by the sensor. The packets payload contains temperature/humidity and battery data. Advantage of this sensor is that it does not affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration. 
 
