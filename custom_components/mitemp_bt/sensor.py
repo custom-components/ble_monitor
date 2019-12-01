@@ -171,7 +171,7 @@ def parse_raw_message(data):
     xdata_point = xiaomi_index + (14 + toffset) * 2
     packet_id = int(data[xiaomi_index + 14:xiaomi_index + 16], 16)
     result = {
-        "rssi:" : rssi,
+        "rssi" : rssi,
         "mac" : reverse_mac(xiaomi_mac_reversed),
         "type" : sensor_type,
         "packet" : packet_id
