@@ -3,11 +3,11 @@ from datetime import timedelta
 import logging
 import os
 import statistics
+import struct
 import subprocess
 import sys
 import tempfile
 import voluptuous as vol
-
 
 from homeassistant.const import (
     DEVICE_CLASS_TEMPERATURE,
@@ -38,10 +38,10 @@ from .const import (
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
+    XIAOMI_TYPE_DICT
 )
 
 _LOGGER = logging.getLogger(__name__)
-
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -56,94 +56,142 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 
+# Structured objects for data conversions
+TH_STRUCT  = struct.Struct('<hH')
+H_STRUCT   = struct.Struct('<H')
+T_STRUCT   = struct.Struct('<h')
+CND_STRUCT = struct.Struct('<H')
+ILL_STRUCT = struct.Struct('<I')
 
-def parse_raw_data(data):
+def reverse_mac(rmac):
+    """change LE order to BE"""
+    if len(rmac)!=12:
+        return None
+    return (rmac[10:12]
+        + rmac[8:10]
+        + rmac[6:8]
+        + rmac[4:6]
+        + rmac[2:4]
+        + rmac[0:2])
+
+def parse_xiomi_value(hexvalue, typecode):
+    """converts a value depending on its type"""
+    vlength = len(hexvalue)/2
+    if vlength == 4:
+        if typecode == "0D":
+            temp, humi = TH_STRUCT.unpack(bytes.fromhex(hexvalue))
+            return {
+                "temperature" : temp/10,
+                "humidity" : humi/10
+            }
+    if vlength == 2:
+        if typecode == "06":
+            humi, = H_STRUCT.unpack(bytes.fromhex(hexvalue))
+            return {
+                "humidity" : humi / 10
+            }
+        if typecode == "04":
+            temp, = T_STRUCT.unpack(bytes.fromhex(hexvalue))
+            return {
+                "temperature" : temp / 10
+            }
+        if typecode == "09":
+            cond, = CND_STRUCT.unpack(bytes.fromhex(hexvalue))
+            return {
+                "conductivity" : cond
+            }
+    if vlength == 1:
+        if typecode == "0A":
+            return {
+                "battery" : int(hexvalue, 16)
+            }
+        if typecode == "08":
+            return {
+                "moisture" : int(hexvalue, 16)
+            }
+    if vlength == 3:
+        if typecode == "07":
+            illum, = ILL_STRUCT.unpack(bytes.fromhex(hexvalue + "00"))
+            return {
+                "illuminance" : illum
+            }
+    return {}
+
+def parse_raw_message(data):
     """Parse the raw data."""
-    if not data:
+    if data is None:
         return None
 
-    result = {}
+    # check for Xiaomi? service data
+    xiaomi_index = data.find("1695FE", 33)
+    if xiaomi_index == -1:
+        return None
 
-    adv_index = data.find("020106")
-
+    # check for no BR/EDR + LE General discoverable mode flags
+    adv_index = data.find("020106", 28, 34)
     if adv_index == -1:
         return None
 
-    payload_length = (len(data) - adv_index - 18 * 2) / 2
-    if payload_length < 4:
+    # check for BTLE msg size
+    msg_length = int(data[4:6], 16) * 2 + 6
+    if msg_length != len(data):
         return None
 
-    mac_reversed = data[adv_index + 24:adv_index + 36]
+    #check for MAC presence in msg and in service data
+    xiaomi_mac_reversed = data[xiaomi_index + 16:xiaomi_index + 28]
     source_mac_reversed = data[adv_index - 14:adv_index - 2]
-
-    if mac_reversed != source_mac_reversed:
+    if xiaomi_mac_reversed != source_mac_reversed:
         return None
 
-    mac = (
-        mac_reversed[10:12]
-        + mac_reversed[8:10]
-        + mac_reversed[6:8]
-        + mac_reversed[4:6]
-        + mac_reversed[2:4]
-        + mac_reversed[0:2]
-    )
-
-    packet_id = int(data[adv_index + 22:adv_index + 24], 16)
-    type_start = adv_index + 36
-    type_code = data[type_start:type_start + 2]
-    length = data[type_start + 4:type_start + 6]
-
-    if type_code == "0D" and length == "04" and payload_length in (8, 12):
-        temperature_hex = data[type_start + 6:type_start + 10]
-        humidity_hex = data[type_start + 10:type_start + 14]
-        temperature_dec = int(
-            "".join(temperature_hex[2:4] + temperature_hex[0:2]), 16
+    try:
+        sensor_type, toffset = (
+            XIAOMI_TYPE_DICT[data[xiaomi_index + 8:xiaomi_index + 14]]
         )
-        temperature = (
-            -(temperature_dec & 0x8000) | (temperature_dec & 0x7FFF)
-        ) / 10
-        humidity = (
-            (int(humidity_hex[2:4], 16) << 8) + int(humidity_hex[0:2], 16)
-        ) / 10
-        result = {
-            "temperature": temperature,
-            "humidity": humidity,
-            "mac": mac,
-            "packet": packet_id,
-        }
-        if payload_length == 12:
-            result["battery"] = int(
-                data[type_start + 20:type_start + 22], 16
-            )
-    if type_code == "04" and length == "02" and payload_length in (6, 10):
-        temperature_hex = data[type_start + 6:type_start + 10]
-        temperature_dec = int(
-            "".join(temperature_hex[2:4] + temperature_hex[0:2]), 16
+    except KeyError:
+        _LOGGER.debug(
+            "Unknown sensor type: %s",
+            data[xiaomi_index + 8:xiaomi_index + 14]
         )
-        temperature = (
-            -(temperature_dec & 0x8000) | (temperature_dec & 0x7FFF)
-        ) / 10
-        result = {"temperature": temperature, "mac": mac, "packet": packet_id}
-        if payload_length == 10:
-            result["battery"] = int(
-                data[type_start + 16:type_start + 18], 16
-            )
-    if type_code == "06" and length == "02" and payload_length in (6, 10):
-        humidity_hex = data[type_start + 6:type_start + 10]
-        humidity = (
-            (int(humidity_hex[2:4], 16) << 8) + int(humidity_hex[0:2], 16)
-        ) / 10
-        result = {"humidity": humidity, "mac": mac, "packet": packet_id}
-        if payload_length == 10:
-            result["battery"] = int(
-                data[type_start + 16:type_start + 18], 16
-            )
-    if type_code == "0A" and length == "01" and payload_length == 5:
-        battery = int(data[type_start + 6:type_start + 8], 16)
-        result = {"battery": battery, "mac": mac, "packet": packet_id}
+        return None
 
+    # xiaomi data length = message length
+    #                    -all bytes before XiaomiUUID
+    #                    -1 byte rssi
+    #                    -3 bytes sensor type -1 byte
+    #                    -1 byte packet_id
+    #                    -6 bytes MAC
+    #                    - sensortype offset
+    xdata_length = (msg_length - xiaomi_index - (12 + toffset) * 2) / 2
+    if xdata_length < 4:
+        return None
+
+    rssi, = struct.unpack('<b', bytes.fromhex(
+        data[msg_length-2:msg_length]
+    ))
+    xdata_point = xiaomi_index + (14 + toffset) * 2
+    packet_id = int(data[xiaomi_index + 14:xiaomi_index + 16], 16)
+    result = {
+        "rssi:" : rssi,
+        "mac" : reverse_mac(xiaomi_mac_reversed),
+        "type" : sensor_type,
+        "packet" : packet_id
+    }
+
+    # loop through xiaomi payload
+    # assume that the data may have several values ​​of different types,
+    # although I did not notice this behavior with my LYWSDCGQ sensors
+    while True:
+        xvalue_typecode = data[xdata_point:xdata_point+2]
+        xvalue_length = int(data[xdata_point+4:xdata_point+6], 16)
+        xnext_point = xdata_point + 6 + xvalue_length * 2
+        xvalue = (
+            data[xdata_point + 6:xnext_point]
+        )
+        result.update(parse_xiomi_value(xvalue, xvalue_typecode))
+        if xnext_point >= msg_length - 2:
+            break
+        xdata_point = xnext_point
     return result
-
 
 class BLEScanner:
     """BLE scanner."""
@@ -178,31 +226,31 @@ class BLEScanner:
         self.hcitool.kill()
         self.hcidump.kill()
 
-    def get_lines(self):
+    def messages(self):
         """Get data from hcidump."""
-        data = None
+        data = ""
         try:
             _LOGGER.debug("reading hcidump...")
             self.tempf.flush()
             self.tempf.seek(0)
             for line in self.tempf:
-                line = line.decode()
+                try: line = line.decode()
+                except AttributeError: pass
                 # _LOGGER.debug(line)
                 if line.startswith("> "):
                     yield data
                     data = line[2:].strip().replace(" ", "")
                 elif line.startswith("< "):
-                    data = None
+                    yield data
+                    data = ""
                 else:
-                    if data:
-                        data += line.strip().replace(" ", "")
+                    data += line.strip().replace(" ", "")
             self.tempf.seek(0)
             self.tempf.truncate(0)
         except RuntimeError as error:
             _LOGGER.error("Error during reading of hcidump: %s", error)
-            data = []
+            data = ""
         yield data
-
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
@@ -224,13 +272,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         scanner.stop()
 
         _LOGGER.debug("Analyzing")
+        stype = {}
         hum_m_data = {}
         temp_m_data = {}
         batt = {}  # battery
         lpacket = {}  # last packet number
+        lrssi = {}
         macs = {}  # all found macs
-        for line in scanner.get_lines():
-            data = parse_raw_data(line)
+        for msg in scanner.messages():
+            data = parse_raw_message(msg)
             if data and "mac" in data:
                 _LOGGER.debug("Parsed: %s", data)
 
@@ -254,13 +304,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         macs[data["mac"]] = data["mac"]
                     elif log_spikes:
                         _LOGGER.error(
-                            "Humidity spike: %s (%s)", data["humidity"], 
+                            "Humidity spike: %s (%s)", data["humidity"],
                                                        data["mac"]
                         )
                 if "battery" in data:
                     batt[data["mac"]] = int(data["battery"])
                     macs[data["mac"]] = data["mac"]
                 lpacket[data["mac"]] = int(data["packet"])
+                lrssi[data["mac"]] = int(data["rssi"])
+                stype[data["mac"]] = data["type"]
 
         # for every seen device
         for mac in macs:
@@ -276,6 +328,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             getattr(sensors[1], "_device_state_attributes")[
                 "last packet id"
             ] = lpacket[mac]
+            getattr(sensors[0], "_device_state_attributes")[
+                "rssi"
+            ] = lrssi[mac]
+            getattr(sensors[1], "_device_state_attributes")[
+                "rssi"
+            ] = lrssi[mac]
             if mac in batt:
                 getattr(sensors[0], "_device_state_attributes")[
                     ATTR_BATTERY_LEVEL
@@ -375,7 +433,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     update_ble(dt_util.utcnow())
 
-
 class TemperatureSensor(Entity):
     """Representation of a Sensor."""
 
@@ -425,7 +482,6 @@ class TemperatureSensor(Entity):
     def force_update(self):
         """Force update."""
         return True
-
 
 class HumiditySensor(Entity):
     """Representation of a Sensor."""

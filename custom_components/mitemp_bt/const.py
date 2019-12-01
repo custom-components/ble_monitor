@@ -23,3 +23,11 @@ CONF_TMIN = -40.0
 CONF_TMAX = 60.0
 CONF_HMIN = 0.0
 CONF_HMAX = 99.9
+
+# Xiaomi sensor types dictionary with offset for parser
+XIAOMI_TYPE_DICT = {
+    '209800': ["HHCCJCY01", 1],
+    '20AA01': ["LYWSDCGQ", 0],
+    '205B04': ["LYWSD02", 1],
+    '304703': ["CGG1", 0]
+}
