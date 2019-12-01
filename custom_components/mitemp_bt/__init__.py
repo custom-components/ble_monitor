@@ -1,1 +1,1 @@
-"""Xiaomi BLE monitor sensor custom component"""
+"""Xiaomi BLE monitor sensor custom component."""
