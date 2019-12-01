@@ -319,7 +319,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             if mac in sensors_by_mac:
                 sensors = sensors_by_mac[mac]
             else:
-                sensors = [TemperatureSensor(mac), HumiditySensor(mac)]
+                if stype[mac] == "HHCCJCY01":
+                    sensors = [TemperatureSensor(mac)]
+                else:
+                    sensors = [TemperatureSensor(mac), HumiditySensor(mac)]
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
             for sensor in sensors:
