@@ -322,18 +322,13 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 sensors = [TemperatureSensor(mac), HumiditySensor(mac)]
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
-            getattr(sensors[0], "_device_state_attributes")[
-                "last packet id"
-            ] = lpacket[mac]
-            getattr(sensors[1], "_device_state_attributes")[
-                "last packet id"
-            ] = lpacket[mac]
-            getattr(sensors[0], "_device_state_attributes")[
-                "rssi"
-            ] = lrssi[mac]
-            getattr(sensors[1], "_device_state_attributes")[
-                "rssi"
-            ] = lrssi[mac]
+            for sensor in sensors:
+                getattr(sensor, "_device_state_attributes")[
+                    "last packet id"] = lpacket[mac]
+                getattr(sensor, "_device_state_attributes")[
+                    "rssi"] = lrssi[mac]
+                getattr(sensor, "_device_state_attributes")[
+                    "sensor type"] = stype[mac]
             if mac in batt:
                 getattr(sensors[0], "_device_state_attributes")[
                     ATTR_BATTERY_LEVEL
