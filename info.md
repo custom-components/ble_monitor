@@ -27,7 +27,7 @@ Supported sensors:
  - CGG1 (round body, E-Ink)
  - HHCCJCY01 (MiFlora)
 
-![supported sensors](https://raw.github.com/custom-components/sensor.mitemp_bt/master/sensors.jpg)
+![supported sensors](https://raw.github.com/custom-components/sensor.mitemp_bt/other-sensors-dev/sensors.jpg)
 
 ## HOW TO INSTALL
 **1. Install bluez-hcidump (not needed on HASSio)**
