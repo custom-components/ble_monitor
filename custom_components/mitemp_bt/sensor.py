@@ -277,7 +277,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         temp_m_data = {}
         batt = {}  # battery
         lpacket = {}  # last packet number
-        lrssi = {}
+        rssi = {}
         macs = {}  # all found macs
         for msg in scanner.messages():
             data = parse_raw_message(msg)
@@ -310,8 +310,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 if "battery" in data:
                     batt[data["mac"]] = int(data["battery"])
                     macs[data["mac"]] = data["mac"]
+                if data["mac"] not in rssi:
+                            rssi[data["mac"]] = []
+                rssi[data["mac"]].append(int(data["rssi"]))
+
                 lpacket[data["mac"]] = int(data["packet"])
-                lrssi[data["mac"]] = int(data["rssi"])
                 stype[data["mac"]] = data["type"]
 
         # for every seen device
@@ -329,7 +332,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 getattr(sensor, "_device_state_attributes")[
                     "last packet id"] = lpacket[mac]
                 getattr(sensor, "_device_state_attributes")[
-                    "rssi"] = lrssi[mac]
+                    "rssi"] = round(statistics.mean(rssi[mac]))
                 getattr(sensor, "_device_state_attributes")[
                     "sensor type"] = stype[mac]
             if mac in batt:
