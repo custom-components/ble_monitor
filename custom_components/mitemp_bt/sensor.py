@@ -2,7 +2,7 @@
 from datetime import timedelta
 import logging
 import os
-import statistics
+import statistics as sts
 import struct
 import subprocess
 import sys
@@ -199,32 +199,47 @@ class BLEScanner:
     hcitool = None
     hcidump = None
     tempf = tempfile.SpooledTemporaryFile()
-
-    def start(self, config):
-        """Start receiving broadcasts."""
-        hcitool_active = config[CONF_HCITOOL_ACTIVE]
-        _LOGGER.debug("Temp dir used: %s", tempfile.gettempdir())
-        _LOGGER.debug("Start receiving broadcasts")
-        devnull = (
+    devnull = (
             subprocess.DEVNULL
             if sys.version_info > (3, 0)
             else open(os.devnull, "wb")
         )
+
+    def start(self, config):
+        """Start receiving broadcasts."""
+        hcitool_active = config[CONF_HCITOOL_ACTIVE]
+        #_LOGGER.debug("Temp dir used: %s", tempfile.gettempdir())
+        _LOGGER.debug("Start receiving broadcasts")
         hcitoolcmd = ["hcitool", "lescan", "--duplicates", "--passive"]
         if hcitool_active:
             hcitoolcmd = ["hcitool", "lescan", "--duplicates"]
         self.hcitool = subprocess.Popen(
-            hcitoolcmd, stdout=devnull, stderr=devnull
+            hcitoolcmd,
+            stdout=self.devnull,
+            stderr=self.devnull
         )
         self.hcidump = subprocess.Popen(
-            ["hcidump", "--raw", "hci"], stdout=self.tempf, stderr=None
+            ["hcidump", "--raw", "hci"],
+            stdout=self.tempf,
+            stderr=self.devnull
         )
 
     def stop(self):
         """Stop receiving broadcasts."""
         _LOGGER.debug("Stop receiving broadcasts")
-        self.hcitool.kill()
+        self.hcidump.terminate()
+        self.hcidump.communicate()
+        self.hcitool.terminate()
+        self.hcitool.communicate()
+
+    def shutdown_handler(self, event):
+        """homeassistant_stop event handler"""
+        _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
         self.hcidump.kill()
+        self.hcidump.communicate()
+        self.hcitool.kill()
+        self.hcitool.communicate()
+        self.tempf.close()
 
     def messages(self):
         """Get data from hcidump."""
@@ -256,6 +271,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
     _LOGGER.debug("Starting")
     scanner = BLEScanner()
+    hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
     scanner.start(config)
 
     sensors_by_mac = {}
@@ -275,6 +291,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         stype = {}
         hum_m_data = {}
         temp_m_data = {}
+        illum_m_data = {}
+        moist_m_data = {}
+        cond_m_data = {}
         batt = {}  # battery
         lpacket = {}  # last packet number
         rssi = {}
@@ -282,8 +301,18 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         for msg in scanner.messages():
             data = parse_raw_message(msg)
             if data and "mac" in data:
-                _LOGGER.debug("Parsed: %s", data)
-
+                # ignore duplicated message
+                packet = int(data["packet"])
+                if data["mac"] in lpacket:
+                    prev_packet = lpacket[data["mac"]]
+                else:
+                    prev_packet = None
+                if prev_packet == packet:
+                    _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
+                    continue
+                else:
+                    _LOGGER.debug("NEW DATA: %s", data)
+                lpacket[data["mac"]] = packet
                 # store found readings per device
                 if "temperature" in data:
                     if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
@@ -307,14 +336,27 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                             "Humidity spike: %s (%s)", data["humidity"],
                                                        data["mac"]
                         )
+                if "conductivity" in data:
+                    if data["mac"] not in cond_m_data:
+                        cond_m_data[data["mac"]] = []
+                    cond_m_data[data["mac"]].append(data["conductivity"])
+                    macs[data["mac"]] = data["mac"]
+                if "moisture" in data:
+                    if data["mac"] not in moist_m_data:
+                        moist_m_data[data["mac"]] = []
+                    moist_m_data[data["mac"]].append(data["moisture"])
+                    macs[data["mac"]] = data["mac"]
+                if "illuminance" in data:
+                    if data["mac"] not in illum_m_data:
+                        illum_m_data[data["mac"]] = []
+                    illum_m_data[data["mac"]].append(data["illuminance"])
+                    macs[data["mac"]] = data["mac"]
                 if "battery" in data:
                     batt[data["mac"]] = int(data["battery"])
                     macs[data["mac"]] = data["mac"]
                 if data["mac"] not in rssi:
                             rssi[data["mac"]] = []
                 rssi[data["mac"]].append(int(data["rssi"]))
-
-                lpacket[data["mac"]] = int(data["packet"])
                 stype[data["mac"]] = data["type"]
 
         # for every seen device
@@ -323,7 +365,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 sensors = sensors_by_mac[mac]
             else:
                 if stype[mac] == "HHCCJCY01":
-                    sensors = [TemperatureSensor(mac)]
+                    sensors = [
+                        TemperatureSensor(mac),
+                        MoistureSensor(mac),
+                        ConductivitySensor(mac),
+                        IlluminanceSensor(mac)
+                    ]
                 else:
                     sensors = [TemperatureSensor(mac), HumiditySensor(mac)]
                 sensors_by_mac[mac] = sensors
@@ -332,7 +379,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 getattr(sensor, "_device_state_attributes")[
                     "last packet id"] = lpacket[mac]
                 getattr(sensor, "_device_state_attributes")[
-                    "rssi"] = round(statistics.mean(rssi[mac]))
+                    "rssi"] = round(sts.mean(rssi[mac]))
                 getattr(sensor, "_device_state_attributes")[
                     "sensor type"] = stype[mac]
             if mac in batt:
@@ -345,8 +392,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             # averaging and states updating
             tempstate_mean = None
             humstate_mean = None
+            illumstate_mean = None
+            moiststate_mean = None
+            condstate_mean = None
             tempstate_median = None
             humstate_median = None
+            illumstate_median = None
+            moiststate_median = None
+            condstate_median = None
             if use_median:
                 textattr = "last median of"
             else:
@@ -355,14 +408,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 try:
                     if rounding:
                         tempstate_median = round(
-                            statistics.median(temp_m_data[mac]), decimals
+                            sts.median(temp_m_data[mac]), decimals
                         )
                         tempstate_mean = round(
-                            statistics.mean(temp_m_data[mac]), decimals
+                            sts.mean(temp_m_data[mac]), decimals
                         )
                     else:
-                        tempstate_median = statistics.median(temp_m_data[mac])
-                        tempstate_mean = statistics.mean(temp_m_data[mac])
+                        tempstate_median = sts.median(temp_m_data[mac])
+                        tempstate_mean = sts.mean(temp_m_data[mac])
                     if use_median:
                         setattr(sensors[0], "_state", tempstate_median)
                     else:
@@ -388,14 +441,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 try:
                     if rounding:
                         humstate_median = round(
-                            statistics.median(hum_m_data[mac]), decimals
+                            sts.median(hum_m_data[mac]), decimals
                         )
                         humstate_mean = round(
-                            statistics.mean(hum_m_data[mac]), decimals
+                            sts.mean(hum_m_data[mac]), decimals
                         )
                     else:
-                        humstate_median = statistics.median(hum_m_data[mac])
-                        humstate_mean = statistics.mean(hum_m_data[mac])
+                        humstate_median = sts.median(hum_m_data[mac])
+                        humstate_mean = sts.mean(hum_m_data[mac])
                     if use_median:
                         setattr(sensors[1], "_state", humstate_median)
                     else:
@@ -414,6 +467,99 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.info("Sensor %s not yet ready for update", mac)
                 except ZeroDivisionError:
                     _LOGGER.error("Division by zero while humidity averaging!")
+                    continue
+            if mac in moist_m_data:
+                try:
+                    if rounding:
+                        moiststate_median = round(
+                            sts.median(moist_m_data[mac]), decimals
+                        )
+                        moiststate_mean = round(
+                            sts.mean(moist_m_data[mac]), decimals
+                        )
+                    else:
+                        moiststate_median = sts.median(moist_m_data[mac])
+                        moiststate_mean = sts.mean(moist_m_data[mac])
+                    if use_median:
+                        setattr(sensors[1], "_state", moiststate_median)
+                    else:
+                        setattr(sensors[1], "_state", moiststate_mean)
+                    getattr(sensors[1], "_device_state_attributes")[
+                        textattr
+                    ] = len(moist_m_data[mac])
+                    getattr(sensors[1], "_device_state_attributes")[
+                        "median"
+                    ] = moiststate_median
+                    getattr(sensors[1], "_device_state_attributes")[
+                        "mean"
+                    ] = moiststate_mean
+                    sensors[1].async_schedule_update_ha_state()
+                except AttributeError:
+                    _LOGGER.info("Sensor %s not yet ready for update", mac)
+                except ZeroDivisionError:
+                    _LOGGER.error("Division by zero while moisture averaging!")
+                    continue
+            if mac in cond_m_data:
+                try:
+                    if rounding:
+                        condstate_median = round(
+                            sts.median(cond_m_data[mac]), decimals
+                        )
+                        condstate_mean = round(
+                            sts.mean(cond_m_data[mac]), decimals
+                        )
+                    else:
+                        condstate_median = sts.median(cond_m_data[mac])
+                        condstate_mean = sts.mean(cond_m_data[mac])
+                    if use_median:
+                        setattr(sensors[2], "_state", condstate_median)
+                    else:
+                        setattr(sensors[2], "_state", condstate_mean)
+                    getattr(sensors[2], "_device_state_attributes")[
+                        textattr
+                    ] = len(cond_m_data[mac])
+                    getattr(sensors[2], "_device_state_attributes")[
+                        "median"
+                    ] = condstate_median
+                    getattr(sensors[2], "_device_state_attributes")[
+                        "mean"
+                    ] = condstate_mean
+                    sensors[2].async_schedule_update_ha_state()
+                except AttributeError:
+                    _LOGGER.info("Sensor %s not yet ready for update", mac)
+                except ZeroDivisionError:
+                    _LOGGER.error("Division by zero while humidity averaging!")
+                    continue
+            if mac in illum_m_data:
+                try:
+                    if rounding:
+                        illumstate_median = round(
+                            sts.median(illum_m_data[mac]), decimals
+                        )
+                        illumstate_mean = round(
+                            sts.mean(illum_m_data[mac]), decimals
+                        )
+                    else:
+                        illumstate_median = sts.median(illum_m_data[mac])
+                        illumstate_mean = sts.mean(illum_m_data[mac])
+                    if use_median:
+                        setattr(sensors[3], "_state", illumstate_median)
+                    else:
+                        setattr(sensors[3], "_state", illumstate_mean)
+                    getattr(sensors[3], "_device_state_attributes")[
+                        textattr
+                    ] = len(illum_m_data[mac])
+                    getattr(sensors[3], "_device_state_attributes")[
+                        "median"
+                    ] = illumstate_median
+                    getattr(sensors[3], "_device_state_attributes")[
+                        "mean"
+                    ] = illumstate_mean
+                    sensors[3].async_schedule_update_ha_state()
+                except AttributeError:
+                    _LOGGER.info("Sensor %s not yet ready for update", mac)
+                except ZeroDivisionError:
+                    _LOGGER.error("Division by zero while illuminance averaging!")
                     continue
         scanner.start(config)
         return []
@@ -513,6 +659,156 @@ class HumiditySensor(Entity):
     def device_class(self):
         """Return the unit of measurement."""
         return DEVICE_CLASS_HUMIDITY
+
+    @property
+    def should_poll(self):
+        """No polling needed."""
+        return False
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._device_state_attributes
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        return self._unique_id
+
+    @property
+    def force_update(self):
+        """Force update."""
+        return True
+
+class MoistureSensor(Entity):
+    """Representation of a Sensor."""
+
+    def __init__(self, mac):
+        """Initialize the sensor."""
+        self._state = None
+        self._battery = None
+        self._unique_id = "m_" + mac
+        self._device_state_attributes = {}
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "mi {}".format(self._unique_id)
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return "%"
+
+    @property
+    def device_class(self):
+        """Return the unit of measurement."""
+        return DEVICE_CLASS_HUMIDITY
+
+    @property
+    def should_poll(self):
+        """No polling needed."""
+        return False
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._device_state_attributes
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        return self._unique_id
+
+    @property
+    def force_update(self):
+        """Force update."""
+        return True
+
+class ConductivitySensor(Entity):
+    """Representation of a Sensor."""
+
+    def __init__(self, mac):
+        """Initialize the sensor."""
+        self._state = None
+        self._battery = None
+        self._unique_id = "c_" + mac
+        self._device_state_attributes = {}
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "mi {}".format(self._unique_id)
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return "µS/cm"
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:flash-circle"
+
+    @property
+    def should_poll(self):
+        """No polling needed."""
+        return False
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._device_state_attributes
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        return self._unique_id
+
+    @property
+    def force_update(self):
+        """Force update."""
+        return True
+
+class IlluminanceSensor(Entity):
+    """Representation of a Sensor."""
+
+    def __init__(self, mac):
+        """Initialize the sensor."""
+        self._state = None
+        self._battery = None
+        self._unique_id = "l_" + mac
+        self._device_state_attributes = {}
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "mi {}".format(self._unique_id)
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return "lx"
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:white-balance-sunny"
 
     @property
     def should_poll(self):
