@@ -10,13 +10,18 @@ In addition to LYWSDCGQ, added support for the following Xiaomi sensors:
 
  - LYWSD02 (rectangular body, E-Ink)
  - CGG1 (round body, E-Ink)
- - HHCCJCY01 (MiFlora, it was not tested at all, reports only temperature so far.
- If you MiFlora owner, then you can [help](https://github.com/custom-components/sensor.mitemp_bt/issues/7)...)
+ - HHCCJCY01 (MiFlora)
 
 Attributes added:
 
  - RSSI in dBm (Received Signal Strength Indicator)
  - Device type
+
+ Fixed:
+
+ - Now the component correctly terminates the subprocesses,
+   there are no more zombies when restarting HA.
+
 {% endif %}
 
 # Xiaomi BLE Monitor sensor platform
@@ -26,8 +31,7 @@ Supported sensors:
  - LYWSDCGQ (round body, segment LCD)
  - LYWSD02 (rectangular body, E-Ink)
  - CGG1 (round body, E-Ink)
- - HHCCJCY01 (MiFlora, it was not tested at all, reports only temperature so far.
- If you MiFlora owner, then you can [help](https://github.com/custom-components/sensor.mitemp_bt/issues/7)...)
+ - HHCCJCY01 (MiFlora)
 
 ![supported sensors](https://raw.github.com/custom-components/sensor.mitemp_bt/other-sensors-dev/sensors.jpg)
 
