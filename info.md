@@ -30,10 +30,15 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 ![supported sensors](https://raw.github.com/custom-components/sensor.mitemp_bt/other-sensors-dev/sensors.jpg)
 
 Supported sensors:
- - LYWSDCGQ (round body, segment LCD, broadcasts temperature, humidity and battery, about 20 readings per minute)
- - LYWSD02 (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
- - CGG1 (round body, E-Ink, broadcasts temperature, humidity and battery, about 20 readings per minute)
- - HHCCJCY01 (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
+ - LYWSDCGQ
+ (round body, segment LCD, broadcasts temperature, humidity and battery, about 20 readings per minute)
+ - LYWSD02
+ (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
+ - CGG1
+ (round body, E-Ink, broadcasts temperature, humidity and battery, about 20 readings per minute)
+ - HHCCJCY01
+ (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
+ 
  *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI about -70dBm (Received Signal Strength Indicator)...*
 
 ## HOW TO INSTALL
