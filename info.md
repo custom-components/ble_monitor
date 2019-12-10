@@ -66,11 +66,11 @@ Supported sensors:
    - A restart is required to unload the build in component and load the custom component. Do this before step 5, as Home Assistant will otherwise complain that your configuration is not ok (as it still uses the build in `mitemp_bt` integration), and won't restart when hitting restart in the server management menu.
    
      
-**5. Add the platform to your configuration.yaml file (see [below](#CONFIGURATION))**
+**5. Add the platform to your configuration.yaml file (see [below](#configuration))**
 
 
 **6. Restart Home Assistant again:**
-   - A second restart is required to load the component. After a few minutes, the sensors should be added to your home-assistant automatically. 
+   - A second restart is required to load the component. After a few minutes, the sensors should be added to your home-assistant automatically (at least one [period](#configuration-variables) required).
 
 
 ## CONFIGURATION
