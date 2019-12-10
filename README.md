@@ -1,13 +1,15 @@
 # Xiaomi BLE Monitor sensor platform
-This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is emitted each second by the sensor. The packets payload contains temperature/humidity and battery data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration.
+This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration.
 
 Supported sensors:
- - LYWSDCGQ (round body, segment LCD)
- - LYWSD02 (rectangular body, E-Ink)
- - CGG1 (round body, E-Ink)
- - HHCCJCY01 (MiFlora)
 
 ![supported sensors](/sensors.jpg)
+
+ - LYWSDCGQ (round body, segment LCD, broadcasts temperature, humidity and battery, about 20 readings per minute)
+ - LYWSD02 (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
+ - CGG1 (round body, E-Ink, broadcasts temperature, humidity and battery, about 20 readings per minute)
+ - HHCCJCY01 (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
+ *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI about -75..-70dBm (Received Signal Strength Indicator)...*
 
 ## HOW TO INSTALL
 **1. Install bluez-hcidump (not needed on HASSio):**
@@ -64,6 +66,12 @@ sensor:
     hcitool_active: False
 ```
 
+IMPORTANT. This component uses temporary file to accumulate sensor data between sensor updates. Therefore, to reduce the number of write operations and extend the life of the physical medium (especially if it is an SD card, as is the case with Raspberry PI), we recommend moving `/tmp` mount point to RAM (tmpfs). To do this, add the following line to the end of your `/etc/fstab` and restart the host:
+```
+tmpfs		/tmp		tmpfs	rw,nosuid,nodev 0	0
+```
+You can check the `/tmp` mount point with the command `mount | grep /tmp`. If as a result you see something like `tmpfs on /tmp type tmpfs (rw, nosuid, nodev, relatime)`, then everything is fine.
+
 
 ### Configuration Variables
 
@@ -77,7 +85,9 @@ sensor:
 
 **period**
 
-  (positive integer)(Optional) The period in seconds during which the sensor readings are collected and transmitted to Home Assistant after averaging. Default value: 60
+  (positive integer)(Optional) The period in seconds during which the sensor readings are collected and transmitted to Home Assistant after averaging. Default value: 60. 
+
+  *To clarify the difference between the sensor broadcast interval and the component measurement period: for example, my LYWSDCGQ transmits 20-25 valuable BT LE messages (RSSI -75..-70 dBm). With the period = 60, the component accumulates all these 20-25 messages, and after the 60 seconds expires, averages them and updates the sensor status in HA. The period does not affect the consumption of the sensor. It only affects the HA sensor update rate and the number of averaged values. We cannot change the frequency with which sensor sends data.*
 
 **log_spikes**
 
