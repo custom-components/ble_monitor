@@ -17,7 +17,7 @@ Attributes added:
  - RSSI in dBm (Received Signal Strength Indicator)
  - Device type
 
- Fixed:
+Fixed:
 
  - Now the component correctly terminates the subprocesses,
    there are no more zombies when restarting HA.
@@ -39,7 +39,7 @@ Supported sensors:
  - HHCCJCY01
  (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
  
- *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI about -70dBm (Received Signal Strength Indicator)...*
+ *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
 
 ## HOW TO INSTALL
 **1. Install bluez-hcidump (not needed on HASSio):**
@@ -59,7 +59,7 @@ Supported sensors:
    
      Alternatively, you can install it manually. Just copy paste the content of the `sensor.mitemp_bt/custom_components` folder in your `config/custom_components` directory.
      
-     As example you will get the `sensor.py` file in the following path: `/config/custom_components/mitemp_bt/sensor.py`.
+     As example, you will get the `sensor.py` file in the following path: `/config/custom_components/mitemp_bt/sensor.py`.
 
 
 **4. Restart Home Assistant:**
@@ -117,7 +117,7 @@ You can check the `/tmp` mount point with the command `mount | grep /tmp`. If as
 
   (positive integer)(Optional) The period in seconds during which the sensor readings are collected and transmitted to Home Assistant after averaging. Default value: 60. 
 
-  *To clarify the difference between the sensor broadcast interval and the component measurement period: for example, my LYWSDCGQ transmits 20-25 valuable BT LE messages (RSSI is -75..-70 dBm). With the period = 60, the component accumulates all these 20-25 messages, and after the 60 seconds expires, averages them and updates the sensor status in HA. The period does not affect the consumption of the sensor. It only affects the HA sensor update rate and the number of averaged values. We cannot change the frequency with which sensor sends data.*
+  *To clarify the difference between the sensor broadcast interval and the component measurement period: The LYWSDCGQ transmits 20-25 valuable BT LE messages (RSSI is -75..-70 dBm). With the period = 60 (seconds), the component accumulates all these 20-25 messages, and after the 60 seconds expires, averages them and updates the sensor status in Home Assistant. The period does not affect the consumption of the sensor. It only affects the Home Assistant sensor update rate and the number of averaged values. We cannot change the frequency with which sensor sends data.*
 
 **log_spikes**
 
