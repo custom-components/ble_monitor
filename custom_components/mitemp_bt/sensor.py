@@ -198,7 +198,8 @@ class BLEScanner:
 
     hcitool = None
     hcidump = None
-    tempf = tempfile.SpooledTemporaryFile()
+    #tempfile.SpooledTemporaryFile()
+    tempf = tempfile.TemporaryFile(mode = "w+b")
     devnull = (
             subprocess.DEVNULL
             if sys.version_info > (3, 0)
@@ -249,22 +250,23 @@ class BLEScanner:
             self.tempf.flush()
             self.tempf.seek(0)
             for line in self.tempf:
-                try: line = line.decode()
-                except AttributeError: pass
+                try: sline = line.decode()
+                except AttributeError:
+                    _LOGGER.debug("Error decoding line: %s", line)
                 # _LOGGER.debug(line)
-                if line.startswith("> "):
+                if sline.startswith("> "):
                     yield data
-                    data = line[2:].strip().replace(" ", "")
-                elif line.startswith("< "):
+                    data = sline[2:].strip().replace(" ", "")
+                elif sline.startswith("< "):
                     yield data
                     data = ""
                 else:
-                    data += line.strip().replace(" ", "")
-            self.tempf.seek(0)
-            self.tempf.truncate(0)
+                    data += sline.strip().replace(" ", "")
         except RuntimeError as error:
             _LOGGER.error("Error during reading of hcidump: %s", error)
             data = ""
+        self.tempf.seek(0)
+        self.tempf.truncate(0)
         yield data
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
