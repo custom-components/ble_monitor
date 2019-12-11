@@ -153,22 +153,31 @@ def parse_raw_message(data):
             data[xiaomi_index + 8:xiaomi_index + 14]
         )
         return None
-
-    # xiaomi data length = message length
-    #                    -all bytes before XiaomiUUID
-    #                    -1 byte rssi
-    #                    -3 bytes sensor type -1 byte
-    #                    -1 byte packet_id
-    #                    -6 bytes MAC
-    #                    - sensortype offset
-    xdata_length = (msg_length - xiaomi_index - (12 + toffset) * 2) / 2
-    if xdata_length < 4:
-        return None
-
+    
+    # check if RSSI is valid
     rssi, = struct.unpack('<b', bytes.fromhex(
         data[msg_length-2:msg_length]
     ))
+    if not 0 >= rssi >= -127:
+        return None
+
+    # xiaomi data length = message length
+    #                    -all bytes before XiaomiUUID
+    #                    -3 bytes Xiaomi UUID + ADtype
+    #                    -1 byte rssi
+    #                    -3+1 bytes sensor type
+    #                    -1 byte packet_id
+    #                    -6 bytes MAC
+    #                    - sensortype offset
+    xdata_length = msg_length - xiaomi_index - 30 - toffset * 2
+    if xdata_length < 8:
+        return None
     xdata_point = xiaomi_index + (14 + toffset) * 2
+    xnext_point = xdata_point + 6
+    # check if xiaomi data start and length is valid
+    if xdata_length != len(data[xdata_point:-2]):
+        return None
+
     packet_id = int(data[xiaomi_index + 14:xiaomi_index + 16], 16)
     result = {
         "rssi" : rssi,
@@ -182,13 +191,19 @@ def parse_raw_message(data):
     # although I did not notice this behavior with my LYWSDCGQ sensors
     while True:
         xvalue_typecode = data[xdata_point:xdata_point+2]
-        xvalue_length = int(data[xdata_point+4:xdata_point+6], 16)
+        try:
+            xvalue_length = int(data[xdata_point+4:xdata_point+6], 16)
+        except ValueError as error:
+            _LOGGER.debug("xvalue_length conv. error: %s", error)
+            result = {}
+            break
         xnext_point = xdata_point + 6 + xvalue_length * 2
         xvalue = (
             data[xdata_point + 6:xnext_point]
         )
-        result.update(parse_xiomi_value(xvalue, xvalue_typecode))
-        if xnext_point >= msg_length - 2:
+        res = parse_xiomi_value(xvalue, xvalue_typecode)
+        if res: result.update(res)
+        if xnext_point > msg_length - 6:
             break
         xdata_point = xnext_point
     return result
