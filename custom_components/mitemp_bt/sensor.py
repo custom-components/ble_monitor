@@ -153,7 +153,7 @@ def parse_raw_message(data):
             data[xiaomi_index + 8:xiaomi_index + 14]
         )
         return None
-    
+
     # check if RSSI is valid
     rssi, = struct.unpack('<b', bytes.fromhex(
         data[msg_length-2:msg_length]
