@@ -143,22 +143,22 @@ def parse_raw_message(data):
     if xiaomi_mac_reversed != source_mac_reversed:
         return None
 
-    try:
-        sensor_type, toffset = (
-            XIAOMI_TYPE_DICT[data[xiaomi_index + 8:xiaomi_index + 14]]
-        )
-    except KeyError:
-        _LOGGER.debug(
-            "Unknown sensor type: %s",
-            data[xiaomi_index + 8:xiaomi_index + 14]
-        )
-        return None
-
     # check if RSSI is valid
     rssi, = struct.unpack('<b', bytes.fromhex(
         data[msg_length-2:msg_length]
     ))
     if not 0 >= rssi >= -127:
+        return None
+
+    try:
+        sensor_type, toffset = (
+            XIAOMI_TYPE_DICT[data[xiaomi_index + 8:xiaomi_index + 14]]
+        )
+    except KeyError:
+        _LOGGER.info(
+            "Unknown sensor type: %s",
+            data[xiaomi_index + 8:xiaomi_index + 14]
+        )
         return None
 
     # xiaomi data length = message length
@@ -399,13 +399,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     "rssi"] = round(sts.mean(rssi[mac]))
                 getattr(sensor, "_device_state_attributes")[
                     "sensor type"] = stype[mac]
-            if mac in batt:
-                getattr(sensors[0], "_device_state_attributes")[
-                    ATTR_BATTERY_LEVEL
-                ] = batt[mac]
-                getattr(sensors[1], "_device_state_attributes")[
-                    ATTR_BATTERY_LEVEL
-                ] = batt[mac]
+                if mac in batt:
+                    getattr(sensor, "_device_state_attributes")[
+                        ATTR_BATTERY_LEVEL
+                    ] = batt[mac]
             # averaging and states updating
             tempstate_mean = None
             humstate_mean = None
@@ -454,6 +451,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         "Division by zero while temperature averaging!"
                     )
                     continue
+                except IndexError as error:
+                    _LOGGER.error("Sensor %s (%s, temp.) update error:",
+                        mac, stype[mac]
+                    )
+                    _LOGGER.error("%s. Index is 0!", error)
+                    _LOGGER.error("sensors list size: %i", len(sensors))
             if mac in hum_m_data:
                 try:
                     if rounding:
@@ -485,6 +488,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 except ZeroDivisionError:
                     _LOGGER.error("Division by zero while humidity averaging!")
                     continue
+                except IndexError as error:
+                    _LOGGER.error("Sensor %s (%s, hum.) update error:",
+                        mac, stype[mac]
+                    )
+                    _LOGGER.error("%s. Index is 1!", error)
+                    _LOGGER.error("sensors list size: %i", len(sensors))
             if mac in moist_m_data:
                 try:
                     if rounding:
@@ -516,6 +525,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 except ZeroDivisionError:
                     _LOGGER.error("Division by zero while moisture averaging!")
                     continue
+                except IndexError as error:
+                    _LOGGER.error("Sensor %s (%s, moist.) update error:",
+                        mac, stype[mac]
+                    )
+                    _LOGGER.error("%s. Index is 1!", error)
+                    _LOGGER.error("sensors list size: %i", len(sensors))
             if mac in cond_m_data:
                 try:
                     if rounding:
@@ -547,6 +562,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 except ZeroDivisionError:
                     _LOGGER.error("Division by zero while humidity averaging!")
                     continue
+                except IndexError as error:
+                    _LOGGER.error("Sensor %s (%s, cond.) update error:",
+                        mac, stype[mac]
+                    )
+                    _LOGGER.error("%s. Index is 2!", error)
+                    _LOGGER.error("sensors list size: %i", len(sensors))
             if mac in illum_m_data:
                 try:
                     if rounding:
@@ -578,6 +599,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 except ZeroDivisionError:
                     _LOGGER.error("Division by zero while illuminance averaging!")
                     continue
+                except IndexError as error:
+                    _LOGGER.error("Sensor %s (%s, illum.) update error:",
+                        mac, stype[mac]
+                    )
+                    _LOGGER.error("%s. Index is 3!", error)
+                    _LOGGER.error("sensors list size: %i", len(sensors))
         scanner.start(config)
         return []
 
