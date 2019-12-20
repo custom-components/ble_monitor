@@ -1,4 +1,4 @@
-"""Constants for the Xiaomi Mi temperature and humidity monitor integration."""
+"""Constants for the Xiaomi BLE monitor integration."""
 
 # Configuration options
 CONF_ROUNDING = "rounding"
@@ -26,8 +26,8 @@ CONF_HMAX = 99.9
 
 # Xiaomi sensor types dictionary with offset for parser
 XIAOMI_TYPE_DICT = {
-    '209800': ["HHCCJCY01", 1],
-    '20AA01': ["LYWSDCGQ", 0],
-    '205B04': ["LYWSD02", 1],
-    '304703': ["CGG1", 0]
+    "209800": ["HHCCJCY01", 1],
+    "20AA01": ["LYWSDCGQ", 0],
+    "205B04": ["LYWSD02", 1],
+    "304703": ["CGG1", 0],
 }
