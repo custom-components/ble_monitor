@@ -1,4 +1,4 @@
-"""Xiaomi Mi temperature and humidity monitor integration."""
+"""Xiaomi Mi BLE monitor integration."""
 from datetime import timedelta
 import logging
 import os
@@ -38,7 +38,7 @@ from .const import (
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
-    XIAOMI_TYPE_DICT
+    XIAOMI_TYPE_DICT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -57,72 +57,62 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 # Structured objects for data conversions
-TH_STRUCT  = struct.Struct('<hH')
-H_STRUCT   = struct.Struct('<H')
-T_STRUCT   = struct.Struct('<h')
-CND_STRUCT = struct.Struct('<H')
-ILL_STRUCT = struct.Struct('<I')
+TH_STRUCT = struct.Struct("<hH")
+H_STRUCT = struct.Struct("<H")
+T_STRUCT = struct.Struct("<h")
+CND_STRUCT = struct.Struct("<H")
+ILL_STRUCT = struct.Struct("<I")
+
 
 def reverse_mac(rmac):
-    """change LE order to BE"""
-    if len(rmac)!=12:
+    """Change LE order to BE."""
+    if len(rmac) != 12:
         return None
-    return (rmac[10:12]
+    return (
+        rmac[10:12]
         + rmac[8:10]
         + rmac[6:8]
         + rmac[4:6]
         + rmac[2:4]
-        + rmac[0:2])
+        + rmac[0:2]
+    )
+
 
 def parse_xiomi_value(hexvalue, typecode):
-    """converts a value depending on its type"""
-    vlength = len(hexvalue)/2
+    """Convert value depending on its type."""
+    vlength = len(hexvalue) / 2
     if vlength == 4:
         if typecode == "0D":
             temp, humi = TH_STRUCT.unpack(bytes.fromhex(hexvalue))
-            return {
-                "temperature" : temp/10,
-                "humidity" : humi/10
-            }
+            return {"temperature": temp / 10, "humidity": humi / 10}
     if vlength == 2:
         if typecode == "06":
             humi, = H_STRUCT.unpack(bytes.fromhex(hexvalue))
-            return {
-                "humidity" : humi / 10
-            }
+            return {"humidity": humi / 10}
         if typecode == "04":
             temp, = T_STRUCT.unpack(bytes.fromhex(hexvalue))
-            return {
-                "temperature" : temp / 10
-            }
+            return {"temperature": temp / 10}
         if typecode == "09":
             cond, = CND_STRUCT.unpack(bytes.fromhex(hexvalue))
-            return {
-                "conductivity" : cond
-            }
+            return {"conductivity": cond}
     if vlength == 1:
         if typecode == "0A":
-            return {
-                "battery" : int(hexvalue, 16)
-            }
+            return {"battery": int(hexvalue, 16)}
         if typecode == "08":
-            return {
-                "moisture" : int(hexvalue, 16)
-            }
+            return {"moisture": int(hexvalue, 16)}
     if vlength == 3:
         if typecode == "07":
             illum, = ILL_STRUCT.unpack(bytes.fromhex(hexvalue + "00"))
-            return {
-                "illuminance" : illum
-            }
+            return {"illuminance": illum}
     return {}
+
 
 def parse_raw_message(data):
     """Parse the raw data."""
     if data is None:
         return None
 
-    # check for Xiaomi? service data
+    # check for Xiaomi service data
     xiaomi_index = data.find("1695FE", 33)
     if xiaomi_index == -1:
         return None
@@ -137,38 +127,38 @@ def parse_raw_message(data):
     if msg_length != len(data):
         return None
 
-    #check for MAC presence in msg and in service data
+    # check for MAC presence in message and in service data
     xiaomi_mac_reversed = data[xiaomi_index + 16:xiaomi_index + 28]
     source_mac_reversed = data[adv_index - 14:adv_index - 2]
     if xiaomi_mac_reversed != source_mac_reversed:
         return None
 
     # check if RSSI is valid
-    rssi, = struct.unpack('<b', bytes.fromhex(
-        data[msg_length-2:msg_length]
-    ))
+    rssi, = struct.unpack(
+        "<b", bytes.fromhex(data[msg_length - 2:msg_length])
+    )
     if not 0 >= rssi >= -127:
         return None
 
     try:
-        sensor_type, toffset = (
-            XIAOMI_TYPE_DICT[data[xiaomi_index + 8:xiaomi_index + 14]]
-        )
+        sensor_type, toffset = XIAOMI_TYPE_DICT[
+            data[xiaomi_index + 8:xiaomi_index + 14]
+        ]
     except KeyError:
         _LOGGER.error(
             "Unknown sensor type: %s",
-            data[xiaomi_index + 8:xiaomi_index + 14]
+            data[xiaomi_index + 8:xiaomi_index + 14],
         )
         return None
 
     # xiaomi data length = message length
-    #                    -all bytes before XiaomiUUID
-    #                    -3 bytes Xiaomi UUID + ADtype
-    #                    -1 byte rssi
-    #                    -3+1 bytes sensor type
-    #                    -1 byte packet_id
-    #                    -6 bytes MAC
-    #                    - sensortype offset
+    #     -all bytes before XiaomiUUID
+    #     -3 bytes Xiaomi UUID + ADtype
+    #     -1 byte rssi
+    #     -3+1 bytes sensor type
+    #     -1 byte packet_id
+    #     -6 bytes MAC
+    #     - sensortype offset
     xdata_length = msg_length - xiaomi_index - 30 - toffset * 2
     if xdata_length < 8:
         return None
@@ -180,64 +170,58 @@ def parse_raw_message(data):
 
     packet_id = int(data[xiaomi_index + 14:xiaomi_index + 16], 16)
     result = {
-        "rssi" : rssi,
-        "mac" : reverse_mac(xiaomi_mac_reversed),
-        "type" : sensor_type,
-        "packet" : packet_id
+        "rssi": rssi,
+        "mac": reverse_mac(xiaomi_mac_reversed),
+        "type": sensor_type,
+        "packet": packet_id,
     }
 
     # loop through xiaomi payload
     # assume that the data may have several values ​​of different types,
     # although I did not notice this behavior with my LYWSDCGQ sensors
     while True:
-        xvalue_typecode = data[xdata_point:xdata_point+2]
+        xvalue_typecode = data[xdata_point:xdata_point + 2]
         try:
-            xvalue_length = int(data[xdata_point+4:xdata_point+6], 16)
+            xvalue_length = int(data[xdata_point + 4:xdata_point + 6], 16)
         except ValueError as error:
-            _LOGGER.debug("xvalue_length conv. error: %s", error)
+            _LOGGER.error("xvalue_length conv. error: %s", error)
             result = {}
             break
         xnext_point = xdata_point + 6 + xvalue_length * 2
-        xvalue = (
-            data[xdata_point + 6:xnext_point]
-        )
+        xvalue = data[xdata_point + 6:xnext_point]
         res = parse_xiomi_value(xvalue, xvalue_typecode)
-        if res: result.update(res)
+        if res:
+            result.update(res)
         if xnext_point > msg_length - 6:
             break
         xdata_point = xnext_point
     return result
+
 
 class BLEScanner:
     """BLE scanner."""
 
     hcitool = None
     hcidump = None
-    #tempfile.SpooledTemporaryFile()
-    tempf = tempfile.TemporaryFile(mode = "w+b")
+    tempf = tempfile.TemporaryFile(mode="w+b")
     devnull = (
-            subprocess.DEVNULL
-            if sys.version_info > (3, 0)
-            else open(os.devnull, "wb")
-        )
+        subprocess.DEVNULL
+        if sys.version_info > (3, 0)
+        else open(os.devnull, "wb")
+    )
 
     def start(self, config):
         """Start receiving broadcasts."""
         hcitool_active = config[CONF_HCITOOL_ACTIVE]
-        #_LOGGER.debug("Temp dir used: %s", tempfile.gettempdir())
         _LOGGER.debug("Start receiving broadcasts")
         hcitoolcmd = ["hcitool", "lescan", "--duplicates", "--passive"]
         if hcitool_active:
             hcitoolcmd = ["hcitool", "lescan", "--duplicates"]
         self.hcitool = subprocess.Popen(
-            hcitoolcmd,
-            stdout=self.devnull,
-            stderr=self.devnull
+            hcitoolcmd, stdout=self.devnull, stderr=self.devnull
         )
         self.hcidump = subprocess.Popen(
-            ["hcidump", "--raw", "hci"],
-            stdout=self.tempf,
-            stderr=self.devnull
+            ["hcidump", "--raw", "hci"], stdout=self.tempf, stderr=self.devnull
         )
 
     def stop(self):
@@ -249,7 +233,7 @@ class BLEScanner:
         self.hcitool.communicate()
 
     def shutdown_handler(self, event):
-        """homeassistant_stop event handler"""
+        """Run homeassistant_stop event handler."""
         _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
         self.hcidump.kill()
         self.hcidump.communicate()
@@ -265,7 +249,8 @@ class BLEScanner:
             self.tempf.flush()
             self.tempf.seek(0)
             for line in self.tempf:
-                try: sline = line.decode()
+                try:
+                    sline = line.decode()
                 except AttributeError:
                     _LOGGER.debug("Error decoding line: %s", line)
                 # _LOGGER.debug(line)
@@ -283,6 +268,7 @@ class BLEScanner:
         self.tempf.seek(0)
         self.tempf.truncate(0)
         yield data
+
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
@@ -339,8 +325,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         macs[data["mac"]] = data["mac"]
                     elif log_spikes:
                         _LOGGER.error(
-                            "Temperature spike: %s (%s)", data["temperature"],
-                                                          data["mac"]
+                            "Temperature spike: %s (%s)",
+                            data["temperature"],
+                            data["mac"],
                         )
                 if "humidity" in data:
                     if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
@@ -350,8 +337,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         macs[data["mac"]] = data["mac"]
                     elif log_spikes:
                         _LOGGER.error(
-                            "Humidity spike: %s (%s)", data["humidity"],
-                                                       data["mac"]
+                            "Humidity spike: %s (%s)",
+                            data["humidity"],
+                            data["mac"],
                         )
                 if "conductivity" in data:
                     if data["mac"] not in cond_m_data:
@@ -372,7 +360,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     batt[data["mac"]] = int(data["battery"])
                     macs[data["mac"]] = data["mac"]
                 if data["mac"] not in rssi:
-                            rssi[data["mac"]] = []
+                    rssi[data["mac"]] = []
                 rssi[data["mac"]].append(int(data["rssi"]))
                 stype[data["mac"]] = data["type"]
 
@@ -386,7 +374,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         TemperatureSensor(mac),
                         MoistureSensor(mac),
                         ConductivitySensor(mac),
-                        IlluminanceSensor(mac)
+                        IlluminanceSensor(mac),
                     ]
                 else:
                     sensors = [TemperatureSensor(mac), HumiditySensor(mac)]
@@ -394,11 +382,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 add_entities(sensors)
             for sensor in sensors:
                 getattr(sensor, "_device_state_attributes")[
-                    "last packet id"] = lpacket[mac]
+                    "last packet id"
+                ] = lpacket[mac]
+                getattr(sensor, "_device_state_attributes")["rssi"] = round(
+                    sts.mean(rssi[mac])
+                )
                 getattr(sensor, "_device_state_attributes")[
-                    "rssi"] = round(sts.mean(rssi[mac]))
-                getattr(sensor, "_device_state_attributes")[
-                    "sensor type"] = stype[mac]
+                    "sensor type"
+                ] = stype[mac]
                 if mac in batt:
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
@@ -452,8 +443,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     )
                     continue
                 except IndexError as error:
-                    _LOGGER.error("Sensor %s (%s, temp.) update error:",
-                        mac, stype[mac]
+                    _LOGGER.error(
+                        "Sensor %s (%s, temp.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error("%s. Index is 0!", error)
                     _LOGGER.error("sensors list size: %i", len(sensors))
@@ -489,8 +480,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error("Division by zero while humidity averaging!")
                     continue
                 except IndexError as error:
-                    _LOGGER.error("Sensor %s (%s, hum.) update error:",
-                        mac, stype[mac]
+                    _LOGGER.error(
+                        "Sensor %s (%s, hum.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error("%s. Index is 1!", error)
                     _LOGGER.error("sensors list size: %i", len(sensors))
@@ -526,8 +517,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error("Division by zero while moisture averaging!")
                     continue
                 except IndexError as error:
-                    _LOGGER.error("Sensor %s (%s, moist.) update error:",
-                        mac, stype[mac]
+                    _LOGGER.error(
+                        "Sensor %s (%s, moist.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error("%s. Index is 1!", error)
                     _LOGGER.error("sensors list size: %i", len(sensors))
@@ -563,8 +554,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error("Division by zero while humidity averaging!")
                     continue
                 except IndexError as error:
-                    _LOGGER.error("Sensor %s (%s, cond.) update error:",
-                        mac, stype[mac]
+                    _LOGGER.error(
+                        "Sensor %s (%s, cond.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error("%s. Index is 2!", error)
                     _LOGGER.error("sensors list size: %i", len(sensors))
@@ -597,11 +588,13 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 except AttributeError:
                     _LOGGER.info("Sensor %s not yet ready for update", mac)
                 except ZeroDivisionError:
-                    _LOGGER.error("Division by zero while illuminance averaging!")
+                    _LOGGER.error(
+                        "Division by zero while illuminance averaging!"
+                    )
                     continue
                 except IndexError as error:
-                    _LOGGER.error("Sensor %s (%s, illum.) update error:",
-                        mac, stype[mac]
+                    _LOGGER.error(
+                        "Sensor %s (%s, illum.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error("%s. Index is 3!", error)
                     _LOGGER.error("sensors list size: %i", len(sensors))
@@ -624,8 +617,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     update_ble(dt_util.utcnow())
 
+
 class TemperatureSensor(Entity):
-    """Representation of a Sensor."""
+    """Representation of a sensor."""
 
     def __init__(self, mac):
         """Initialize the sensor."""
@@ -673,6 +667,7 @@ class TemperatureSensor(Entity):
     def force_update(self):
         """Force update."""
         return True
+
 
 class HumiditySensor(Entity):
     """Representation of a Sensor."""
@@ -724,6 +719,7 @@ class HumiditySensor(Entity):
         """Force update."""
         return True
 
+
 class MoistureSensor(Entity):
     """Representation of a Sensor."""
 
@@ -774,6 +770,7 @@ class MoistureSensor(Entity):
         """Force update."""
         return True
 
+
 class ConductivitySensor(Entity):
     """Representation of a Sensor."""
 
@@ -823,6 +820,7 @@ class ConductivitySensor(Entity):
     def force_update(self):
         """Force update."""
         return True
+
 
 class IlluminanceSensor(Entity):
     """Representation of a Sensor."""
