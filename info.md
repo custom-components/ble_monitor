@@ -34,7 +34,7 @@ Fixed:
 
 This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration.
 
-![supported sensors](https://raw.github.com/custom-components/sensor.mitemp_bt/other-sensors-dev/sensors.jpg)
+![supported sensors](https://raw.github.com/custom-components/sensor.mitemp_bt/master/sensors.jpg)
 
 Supported sensors:
 
