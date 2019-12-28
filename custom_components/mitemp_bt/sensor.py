@@ -145,7 +145,7 @@ def parse_raw_message(data):
             data[xiaomi_index + 8:xiaomi_index + 14]
         ]
     except KeyError:
-        _LOGGER.error(
+        _LOGGER.debug(
             "Unknown sensor type: %s",
             data[xiaomi_index + 8:xiaomi_index + 14],
         )
