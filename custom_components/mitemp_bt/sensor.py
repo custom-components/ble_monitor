@@ -1,12 +1,14 @@
 """Xiaomi Mi BLE monitor integration."""
 from datetime import timedelta
+import asyncio
+from threading import Thread
 import logging
 import os
 import statistics as sts
 import struct
 import subprocess
 import sys
-import tempfile
+import aioblescan as aiobs
 import voluptuous as vol
 
 from homeassistant.const import (
@@ -27,13 +29,15 @@ from .const import (
     DEFAULT_PERIOD,
     DEFAULT_LOG_SPIKES,
     DEFAULT_USE_MEDIAN,
-    DEFAULT_HCITOOL_ACTIVE,
+    DEFAULT_ACTIVE_SCAN,
+    DEFAULT_HCI_INTERFACE,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
-    CONF_HCITOOL_ACTIVE,
+    CONF_ACTIVE_SCAN,
+    CONF_HCI_INTERFACE,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -51,8 +55,11 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
         vol.Optional(
-            CONF_HCITOOL_ACTIVE, default=DEFAULT_HCITOOL_ACTIVE
+            CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN
         ): cv.boolean,
+        vol.Optional(
+            CONF_HCI_INTERFACE, default = DEFAULT_HCI_INTERFACE
+        ): cv.positive_int
     }
 )
 
@@ -63,6 +70,47 @@ T_STRUCT = struct.Struct("<h")
 CND_STRUCT = struct.Struct("<H")
 ILL_STRUCT = struct.Struct("<I")
 
+class HCIdump(Thread):
+    """mimic deprecated hcidump tool"""
+    def __init__(self, interface = 0, active = 0):
+        Thread.__init__(self)
+        self._interface = interface
+        self._active = active
+        self._dumplist = []
+        self._event_loop = asyncio.get_event_loop()
+
+    def process_hci_events(self, data):
+        """collect HCI events"""
+        self._dumplist.append(data)
+    
+    def run(self):
+        self._dumplist = []
+        try:
+            mysocket = aiobs.create_bt_socket(self._interface)
+        except OSError as error:
+            _LOGGER.error("HCIdump thread: OS error: %s", error)
+        else:
+            fac=self._event_loop._create_connection_transport(# pylint: disable=W0212
+                mysocket,aiobs.BLEScanRequester,
+                None,
+                None
+            )
+            conn,btctrl = self._event_loop.run_until_complete(fac)
+            btctrl.process = self.process_hci_events
+            btctrl.send_command(
+                aiobs.HCI_Cmd_LE_Set_Scan_Params(
+                    scan_type = self._active
+            ))
+            btctrl.send_scan_request()
+            self._event_loop.run_forever()
+            btctrl.stop_scan_request()
+            conn.close()
+            self._event_loop.close()
+
+    def join(self, timeout = None):
+        self._event_loop.stop()
+        Thread.join(self, timeout)
+        return self._dumplist
 
 def reverse_mac(rmac):
     """Change LE order to BE."""
@@ -212,7 +260,7 @@ class BLEScanner:
 
     def start(self, config):
         """Start receiving broadcasts."""
-        hcitool_active = config[CONF_HCITOOL_ACTIVE]
+        hcitool_active = config[CONF_ACTIVE_SCAN]
         _LOGGER.debug("Start receiving broadcasts")
         hcitoolcmd = ["hcitool", "lescan", "--duplicates", "--passive"]
         if hcitool_active:

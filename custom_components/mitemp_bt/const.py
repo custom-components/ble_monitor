@@ -6,7 +6,8 @@ CONF_DECIMALS = "decimals"
 CONF_PERIOD = "period"
 CONF_LOG_SPIKES = "log_spikes"
 CONF_USE_MEDIAN = "use_median"
-CONF_HCITOOL_ACTIVE = "hcitool_active"
+CONF_ACTIVE_SCAN = "active_scan"
+CONF_HCI_INTERFACE = "hci_interface"
 
 # Default values for configuration options
 DEFAULT_ROUNDING = True
@@ -14,7 +15,9 @@ DEFAULT_DECIMALS = 2
 DEFAULT_PERIOD = 60
 DEFAULT_LOG_SPIKES = False
 DEFAULT_USE_MEDIAN = False
-DEFAULT_HCITOOL_ACTIVE = False
+DEFAULT_ACTIVE_SCAN = False
+DEFAULT_HCI_INTERFACE = 0
+
 
 """Fixed constants."""
 

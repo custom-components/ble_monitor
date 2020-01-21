@@ -2,7 +2,7 @@
   "domain": "mitemp_bt",
   "name": "Xiaomi BLE monitor sensor integration",
   "documentation": "https://github.com/custom-components/sensor.mitemp_bt",
-  "requirements": [],
+  "requirements": ["aioblescan==0.2.4"],
   "dependencies": [],
   "codeowners": [
     "@Magalex2x14",
