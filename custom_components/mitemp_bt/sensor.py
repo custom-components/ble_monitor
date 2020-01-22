@@ -121,7 +121,10 @@ class HCIdump(Thread):
 
     def join(self, timeout = 3):
         _LOGGER.debug("HCIdump thread: joining")
-        self._event_loop.call_soon_threadsafe(self._event_loop.stop)
+        try:
+            self._event_loop.call_soon_threadsafe(self._event_loop.stop)
+        except AttributeError as error:
+            _LOGGER.debug("%s", error)
         Thread.join(self, timeout)
         _LOGGER.debug("HCIdump thread: joined")
         return self._dumplist
