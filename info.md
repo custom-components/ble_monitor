@@ -14,8 +14,12 @@ Please send your feedback [here](https://github.com/custom-components/sensor.mit
 
 New options:
 
-- active_scan: False (hcidump_active removed)
-- hci_interface: 0 (integer number, 0 as default for hci0)
+- active_scan: False (hcidump_active deprecated, must be removed from configuration.yaml)
+- hci_interface: 0 (integer number, 0 as default for hci0, 1 for hci1 and so on)
+
+NB:
+
+Since the component now uses direct access to the hci interface, python must have the appropriate rights, see paragraph 1 of the HOW TO INSTALL section [below](#how_to_install).
 
 # Xiaomi BLE Monitor sensor platform
 
@@ -38,19 +42,29 @@ Supported sensors:
 
 ## HOW TO INSTALL
 
-**1. Install bluez-hcidump (not needed on HASSio):**
+**1. Grant permissions for Python rootless access to HCI interface (usually not needed on HASSio):**
 
-- The package `bluez-hcidump` needs to be installed first. `bluez-hcidump` reads raw the data coming from and going to your Bluetooth device. You can install it with the following command
+- to grant:
 
      ```shell
-     sudo apt-get install bluez-hcidump
+     ~$ sudo setcap 'cap_net_raw,cap_net_admin+eip' `readlink -f \`which python3\``
      ```
+
+- to check:
+
+     ```shell
+     sudo getcap `readlink -f \`which python3\``
+     ```
+
+*In some situations, the Home Assistant may be launched by an interpreter that the python3 alias does not point to. For example, if you have both version 3.7 and 3.8 installed. In this case, carefully check the interpreter version in the getcap command output, you may need to specify full path to binary, for example `sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.7`*
+
+- stop and start HA
 
 **2. Install the custom component:**
 
 - The easiest way is to install it with [HACS](https://hacs.netlify.com/). First install [HACS](https://hacs.netlify.com/) if you don't have it yet. After installation you can find this custom component in the HACS store under integrations.
 
-     Alternatively, you can install it manually. Just copy paste the content of the `sensor.mitemp_bt/custom_components` folder in your `config/custom_components` directory.
+- Alternatively, you can install it manually. Just copy paste the content of the `sensor.mitemp_bt/custom_components` folder in your `config/custom_components` directory.
      As example, you will get the `sensor.py` file in the following path: `/config/custom_components/mitemp_bt/sensor.py`.
 
 **3. Restart Home Assistant:**
@@ -84,7 +98,8 @@ sensor:
     period: 60
     log_spikes: False
     use_median: False
-    hcitool_active: False
+    active_scan: False
+    hci_interface: 0
 ```
 
 ### Configuration Variables
@@ -101,7 +116,7 @@ sensor:
 
   (positive integer)(Optional) The period in seconds during which the sensor readings are collected and transmitted to Home Assistant after averaging. Default value: 60.
 
-  *To clarify the difference between the sensor broadcast interval and the component measurement period: The LYWSDCGQ transmits 20-25 valuable BT LE messages (RSSI is -75..-70 dBm). With the period = 60 (seconds), the component accumulates all these 20-25 messages, and after the 60 seconds expires, averages them and updates the sensor status in Home Assistant. The period does not affect the consumption of the sensor. It only affects the Home Assistant sensor update rate and the number of averaged values. We cannot change the frequency with which sensor sends data.*
+  *To clarify the difference between the sensor broadcast interval and the component measurement period: The LYWSDCGQ transmits 20-25 valuable BT LE messages (RSSI -75..-70 dBm). During the period = 60 (seconds), the component accumulates all these 20-25 messages, and after the 60 seconds expires, averages them and updates the sensor status in Home Assistant. The period does not affect the consumption of the sensor. It only affects the Home Assistant sensor update rate and the number of averaged values. We cannot change the frequency with which sensor sends data.*
 
 #### log_spikes
 
@@ -115,9 +130,13 @@ sensor:
   
   *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
 
-#### hcitool_active
+#### active_scan
 
-  (boolean)(Optional) In active mode hcitool sends scan requests, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just reciving the advertisements sent by the BLE devices. This parameter is a subject for experiment. See the hcitool docs, --passive switch. Default value: False
+  (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just reciving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
+
+#### hci_interface
+
+  (positive integer)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is one, and this is hci0. Default value: 0
 
 ## Credits
 
