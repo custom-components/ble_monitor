@@ -451,8 +451,16 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         ConductivitySensor(mac),
                         IlluminanceSensor(mac),
                     ]
+                if stype[mac] == "HHCCPOT002":
+                    sensors = [
+                        MoistureSensor(mac),
+                        ConductivitySensor(mac)
+                    ]
                 else:
-                    sensors = [TemperatureSensor(mac), HumiditySensor(mac)]
+                    sensors = [
+                        TemperatureSensor(mac), 
+                        HumiditySensor(mac)
+                    ]
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
             for sensor in sensors:
