@@ -3,11 +3,11 @@ from datetime import timedelta
 import asyncio
 from threading import Thread
 import logging
-import os
+#import os
 import statistics as sts
 import struct
-import subprocess
-import sys
+#import subprocess
+#import sys
 import aioblescan as aiobs
 import voluptuous as vol
 
@@ -74,42 +74,56 @@ class HCIdump(Thread):
     """mimic deprecated hcidump tool"""
     def __init__(self, interface = 0, active = 0):
         Thread.__init__(self)
+        _LOGGER.debug("HCIdump thread: Init")
         self._interface = interface
         self._active = active
         self._dumplist = []
-        self._event_loop = asyncio.get_event_loop()
+        self._event_loop = None
+        _LOGGER.debug("HCIdump thread: Init finished")
 
     def process_hci_events(self, data):
         """collect HCI events"""
         self._dumplist.append(data)
     
     def run(self):
+        _LOGGER.debug("HCIdump thread: Run")
         self._dumplist = []
+        #self._event_loop = asyncio.get_event_loop()
         try:
             mysocket = aiobs.create_bt_socket(self._interface)
         except OSError as error:
             _LOGGER.error("HCIdump thread: OS error: %s", error)
         else:
+            self._event_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self._event_loop)
             fac=self._event_loop._create_connection_transport(# pylint: disable=W0212
                 mysocket,aiobs.BLEScanRequester,
                 None,
                 None
             )
+            _LOGGER.debug("HCIdump thread: Connection")
             conn,btctrl = self._event_loop.run_until_complete(fac)
+            _LOGGER.debug("HCIdump thread: Connected")
             btctrl.process = self.process_hci_events
             btctrl.send_command(
                 aiobs.HCI_Cmd_LE_Set_Scan_Params(
                     scan_type = self._active
-            ))
+                )
+            )
             btctrl.send_scan_request()
+            _LOGGER.debug("HCIdump thread: start main event_loop")
             self._event_loop.run_forever()
+            _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
             btctrl.stop_scan_request()
             conn.close()
             self._event_loop.close()
+            _LOGGER.debug("HCIdump thread: Run finished")
 
-    def join(self, timeout = None):
-        self._event_loop.stop()
+    def join(self, timeout = 3):
+        _LOGGER.debug("HCIdump thread: joining")
+        self._event_loop.call_soon_threadsafe(self._event_loop.stop)
         Thread.join(self, timeout)
+        _LOGGER.debug("HCIdump thread: joined")
         return self._dumplist
 
 def reverse_mac(rmac):
@@ -249,73 +263,83 @@ def parse_raw_message(data):
 class BLEScanner:
     """BLE scanner."""
 
-    hcitool = None
-    hcidump = None
-    tempf = tempfile.TemporaryFile(mode="w+b")
-    devnull = (
-        subprocess.DEVNULL
-        if sys.version_info > (3, 0)
-        else open(os.devnull, "wb")
-    )
+    #hcitool = None
+    #hcidump = None
+    #tempf = tempfile.TemporaryFile(mode="w+b")
+    #devnull = (
+    #    subprocess.DEVNULL
+    #    if sys.version_info > (3, 0)
+    #    else open(os.devnull, "wb")
+    #)
+    dumpthread = None
 
     def start(self, config):
         """Start receiving broadcasts."""
-        hcitool_active = config[CONF_ACTIVE_SCAN]
-        _LOGGER.debug("Start receiving broadcasts")
-        hcitoolcmd = ["hcitool", "lescan", "--duplicates", "--passive"]
-        if hcitool_active:
-            hcitoolcmd = ["hcitool", "lescan", "--duplicates"]
-        self.hcitool = subprocess.Popen(
-            hcitoolcmd, stdout=self.devnull, stderr=self.devnull
+        active_scan = config[CONF_ACTIVE_SCAN]
+        hci_interface = config[CONF_HCI_INTERFACE]
+        #hcitoolcmd = ["hcitool", "lescan", "--duplicates", "--passive"]
+        _LOGGER.debug("Spawning HCIdump thread.")
+        self.dumpthread = HCIdump(
+            interface = hci_interface,
+            active = int(active_scan is True)
         )
-        self.hcidump = subprocess.Popen(
-            ["hcidump", "--raw", "hci"], stdout=self.tempf, stderr=self.devnull
-        )
+        #self.dumpthread.daemon = True
+        _LOGGER.debug("Starting HCIdump thread.")
+        self.dumpthread.start()
+        #if active_scan:
+        #    hcitoolcmd = ["hcitool", "lescan", "--duplicates"]
+        #self.hcitool = subprocess.Popen(
+        #    hcitoolcmd, stdout=self.devnull, stderr=self.devnull
+        #)
+        #self.hcidump = subprocess.Popen(
+        #   ["hcidump", "--raw", "hci"], stdout=self.tempf, stderr=self.devnull
+        #)
 
-    def stop(self):
-        """Stop receiving broadcasts."""
-        _LOGGER.debug("Stop receiving broadcasts")
-        self.hcidump.terminate()
-        self.hcidump.communicate()
-        self.hcitool.terminate()
-        self.hcitool.communicate()
+    #def stop(self):
+    #    """Stop receiving broadcasts."""
+    #    _LOGGER.debug("Stop receiving broadcasts")
+        #self.hcidump.terminate()
+        #self.hcidump.communicate()
+        #self.hcitool.terminate()
+        #self.hcitool.communicate()
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
         _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
-        self.hcidump.kill()
-        self.hcidump.communicate()
-        self.hcitool.kill()
-        self.hcitool.communicate()
-        self.tempf.close()
+        self.dumpthread.join()
+        #self.hcidump.kill()
+        #self.hcidump.communicate()
+        #self.hcitool.kill()
+        #self.hcitool.communicate()
+        #self.tempf.close()
 
-    def messages(self):
-        """Get data from hcidump."""
-        data = ""
-        try:
-            _LOGGER.debug("reading hcidump...")
-            self.tempf.flush()
-            self.tempf.seek(0)
-            for line in self.tempf:
-                try:
-                    sline = line.decode()
-                except AttributeError:
-                    _LOGGER.debug("Error decoding line: %s", line)
-                # _LOGGER.debug(line)
-                if sline.startswith("> "):
-                    yield data
-                    data = sline[2:].strip().replace(" ", "")
-                elif sline.startswith("< "):
-                    yield data
-                    data = ""
-                else:
-                    data += sline.strip().replace(" ", "")
-        except RuntimeError as error:
-            _LOGGER.error("Error during reading of hcidump: %s", error)
-            data = ""
-        self.tempf.seek(0)
-        self.tempf.truncate(0)
-        yield data
+    #def messages(self):
+    #    """Get data from hcidump."""
+    #    data = ""
+    #    try:
+    #        _LOGGER.debug("reading hcidump...")
+    #        self.tempf.flush()
+    #        self.tempf.seek(0)
+    #        for line in self.tempf:
+    #            try:
+    #                sline = line.decode()
+    #            except AttributeError:
+    #                _LOGGER.debug("Error decoding line: %s", line)
+    #            # _LOGGER.debug(line)
+    #            if sline.startswith("> "):
+    #                yield data
+    #                data = sline[2:].strip().replace(" ", "")
+    #            elif sline.startswith("< "):
+    #                yield data
+    #                data = ""
+    #            else:
+    #                data += sline.strip().replace(" ", "")
+    #    except RuntimeError as error:
+    #        _LOGGER.error("Error during reading of hcidump: %s", error)
+    #        data = ""
+    #    self.tempf.seek(0)
+    #    self.tempf.truncate(0)
+    #    yield data
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -329,16 +353,16 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     def discover_ble_devices(config):
         """Discover Bluetooth LE devices."""
-        _LOGGER.debug("Discovering Bluetooth LE devices")
+        #_LOGGER.debug("Discovering Bluetooth LE devices")
         rounding = config[CONF_ROUNDING]
         decimals = config[CONF_DECIMALS]
         log_spikes = config[CONF_LOG_SPIKES]
         use_median = config[CONF_USE_MEDIAN]
 
-        _LOGGER.debug("Stopping")
-        scanner.stop()
+        #_LOGGER.debug("Stopping")
+        #scanner.stop()
 
-        _LOGGER.debug("Analyzing")
+        _LOGGER.debug("Time to analyze...")
         stype = {}
         hum_m_data = {}
         temp_m_data = {}
@@ -349,8 +373,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         lpacket = {}  # last packet number
         rssi = {}
         macs = {}  # all found macs
-        for msg in scanner.messages():
-            data = parse_raw_message(msg)
+        _LOGGER.debug("Getting data from HCIdump thread")
+        for msg in scanner.dumpthread.join():
+            data = parse_raw_message(''.join('{:02X}'.format(x) for x in msg))
             if data and "mac" in data:
                 # ignore duplicated message
                 packet = int(data["packet"])
