@@ -1,3 +1,19 @@
+# NB: This is an ALFA version!
+
+This version is released to test the new data collection method.
+Do not install it if you do not know what this means.
+
+# Changes since 0.4
+
+Now the component does not use external utilities, we get access to data from python, from a separate tread.
+It seems that the method is working, tested on the Debian Buster, but requires intensive testing in various conditions (especially HASSio in various environments and in combination with BT-trackers).
+Please send your feedback [here](https://github.com/custom-components/sensor.mitemp_bt/issues/29).
+
+New options:
+
+- active_scan: False (hcidump_active removed)
+- hci_interface: 0 (integer number, 0 as default for hci0)
+
 # Xiaomi BLE Monitor sensor platform
 
 This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration.
@@ -30,29 +46,20 @@ Supported sensors:
      sudo apt-get install bluez-hcidump
      ```
 
-**2. Allow hcitool and hcidump to run without root access (not needed on HASSio):**
-
-- This custom component uses hcitool and hcidump commands to receive the data. Run the following commands to allow hcitool and hcidump to run without root access:
-
-     ```shell
-     sudo setcap 'cap_net_raw+ep' `readlink -f \`which hcidump\``
-     sudo setcap 'cap_net_raw+ep' `readlink -f \`which hcitool\``
-     ```
-
-**3. Install the custom component:**
+**2. Install the custom component:**
 
 - The easiest way is to install it with [HACS](https://hacs.netlify.com/). First install [HACS](https://hacs.netlify.com/) if you don't have it yet. After installation you can find this custom component in the HACS store under integrations.
 
 - Alternatively, you can install it manually. Just copy paste the content of the `sensor.mitemp_bt/custom_components` folder in your `config/custom_components` directory.
      As example, you will get the `sensor.py` file in the following path: `/config/custom_components/mitemp_bt/sensor.py`.
 
-**4. Restart Home Assistant:**
+**3. Restart Home Assistant:**
 
 - A restart is required to unload the build in component and load the custom component. Do this before step 5, as Home Assistant will otherwise complain that your configuration is not ok (as it still uses the build in `mitemp_bt` integration), and won't restart when hitting restart in the server management menu.
 
-**5. Add the platform to your configuration.yaml file (see [below](#configuration))**
+**4. Add the platform to your configuration.yaml file (see [below](#configuration))**
 
-**6. Restart Home Assistant again:**
+**5. Restart Home Assistant again:**
 
 - A second restart is required to load the component. After a few minutes, the sensors should be added to your home-assistant automatically (at least one [period](#period) required).
 
@@ -79,14 +86,6 @@ sensor:
     use_median: False
     hcitool_active: False
 ```
-
-IMPORTANT. This component uses temporary file to accumulate sensor data between sensor updates. Therefore, to reduce the number of write operations and extend the life of the physical medium (especially if it is an SD card, as is often the case with Raspberry PI), it is recommended to move the `/tmp` mount point to RAM (tmpfs). To do this, add the following line to the end of your `/etc/fstab` and restart the host:
-
-```shell
-tmpfs  /tmp  tmpfs  rw,nosuid,nodev 0 0
-```
-
-You can check the `/tmp` mount point with the command `mount | grep /tmp`. If as a result you see something like `tmpfs on /tmp type tmpfs (rw, nosuid, nodev, relatime)`, then everything is fine.
 
 ### Configuration Variables
 
