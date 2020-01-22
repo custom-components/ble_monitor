@@ -56,7 +56,8 @@ Supported sensors:
      sudo getcap `readlink -f \`which python3\``
      ```
 
-*In some situations, the Home Assistant may be launched by an interpreter that the python3 alias does not point to. For example, if you have both version 3.7 and 3.8 installed. In this case, carefully check the interpreter version in the getcap command output, you may need to specify full path to binary, for example `sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.7`*
+*In some situations, the Home Assistant may be launched by an interpreter that the python3 alias does not point to. For example, if you have both version 3.7 and 3.8 installed. In this case, carefully check the interpreter version in the getcap command output, you may need to specify full path to binary, for example:*
+`sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.7`
 
 - stop and start HA
 
