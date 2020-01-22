@@ -38,7 +38,7 @@ Supported sensors:
  (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
 
 - HHCCPOT002
- (FlowerPot, RoPot, broadcasts moisture and conductivity, 1 reading per minute, no battery info...)
+ (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info...)
 
  *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
