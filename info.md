@@ -19,7 +19,7 @@ New options:
 
 NB:
 
-Since the component now uses direct access to the hci interface, python must have the appropriate rights, see paragraph 1 of the HOW TO INSTALL section [below](#how_to_install).
+Since the component now uses direct access to the hci interface, python must have the appropriate rights, see paragraph 1 of the HOW TO INSTALL section [below](#how-to-install).
 
 # Xiaomi BLE Monitor sensor platform
 
