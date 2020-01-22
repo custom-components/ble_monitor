@@ -9,24 +9,11 @@
 
 {% if installed and version_installed != selected_tag %}
 
-# Changes since 0.3.0 (please recheck updated readme)
+# Changes since 0.4.1
 
-In addition to LYWSDCGQ, added support for the following Xiaomi sensors:
+Added support for the following Xiaomi sensor:
 
-- LYWSD02 (rectangular body, E-Ink)
-- CGG1 (round body, E-Ink)
-- HHCCJCY01 (MiFlora)
-
-Attributes added:
-
-- RSSI in dBm (Received Signal Strength Indicator)
-- Device type
-
-Fixed:
-
-- Now the component correctly terminates the subprocesses,
-   there are no more zombies when restarting HA.
-- Improved malformed (or unknown?) messages detection.
+- HHCCPOT002 (FlowerPot, RoPot)
 
 {% endif %}
 
@@ -40,14 +27,20 @@ Supported sensors:
 
 - LYWSDCGQ
  (round body, segment LCD, broadcasts temperature, humidity and battery, about 20 readings per minute)
+
 - LYWSD02
  (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
+
 - CGG1
  (round body, E-Ink, broadcasts temperature, humidity and battery, about 20 readings per minute)
+
 - HHCCJCY01
  (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
 
- *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
+- HHCCPOT002
+ (FlowerPot, RoPot, broadcasts moisture and conductivity, 1 reading per minute, no battery info...)
+
+ *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
 ## HOW TO INSTALL
 
