@@ -371,20 +371,28 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             if mac in sensors_by_mac:
                 sensors = sensors_by_mac[mac]
             else:
-                if stype[mac] == "HHCCJCY01":
-                    sensors = [None] * 4
-                    sensors[t_i] = TemperatureSensor(mac)
-                    sensors[m_i] = MoistureSensor(mac)
-                    sensors[c_i] = ConductivitySensor(mac)
-                    sensors[i_i] = IlluminanceSensor(mac)
-                elif stype[mac] == "HHCCPOT002":
-                    sensors = [None] * 2
-                    sensors[m_i] = MoistureSensor(mac)
-                    sensors[c_i] = ConductivitySensor(mac)
-                else:
-                    sensors = [None] * 2
-                    sensors[t_i] = TemperatureSensor(mac)
-                    sensors[h_i] = HumiditySensor(mac)
+                try:
+                    if stype[mac] == "HHCCJCY01":
+                        sensors = [None] * 4
+                        sensors[t_i] = TemperatureSensor(mac)
+                        sensors[m_i] = MoistureSensor(mac)
+                        sensors[c_i] = ConductivitySensor(mac)
+                        sensors[i_i] = IlluminanceSensor(mac)
+                    elif stype[mac] == "HHCCPOT002":
+                        sensors = [None] * 2
+                        sensors[m_i] = MoistureSensor(mac)
+                        sensors[c_i] = ConductivitySensor(mac)
+                    else:
+                        sensors = [None] * 2
+                        sensors[t_i] = TemperatureSensor(mac)
+                        sensors[h_i] = HumiditySensor(mac)
+                except IndexError as error:
+                    _LOGGER.error(
+                        "Sensor implementation error for %s, %s!",
+                        stype[mac],
+                        mac
+                    )
+                    _LOGGER.error(error)
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
             for sensor in sensors:
