@@ -43,6 +43,7 @@ from .const import (
     CONF_HMIN,
     CONF_HMAX,
     XIAOMI_TYPE_DICT,
+    MMTS_DICT
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -441,35 +442,34 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
         # for every seen device
         for mac in macs:
+            # fixed sensor index for every measurement type
+            t_i, h_i, m_i, c_i, i_i = MMTS_DICT[stype[mac]]
             if mac in sensors_by_mac:
                 sensors = sensors_by_mac[mac]
             else:
                 if stype[mac] == "HHCCJCY01":
-                    sensors = [
-                        TemperatureSensor(mac),
-                        MoistureSensor(mac),
-                        ConductivitySensor(mac),
-                        IlluminanceSensor(mac),
-                    ]
+                    sensors = [None] * 4
+                    sensors[t_i] = TemperatureSensor(mac)
+                    sensors[m_i] = MoistureSensor(mac)
+                    sensors[c_i] = ConductivitySensor(mac)
+                    sensors[i_i] = IlluminanceSensor(mac)
                 elif stype[mac] == "HHCCPOT002":
-                    sensors = [
-                        MoistureSensor(mac),
-                        ConductivitySensor(mac)
-                    ]
+                    sensors = [None] * 2
+                    sensors[m_i] = MoistureSensor(mac)
+                    sensors[c_i] = ConductivitySensor(mac)
                 else:
-                    sensors = [
-                        TemperatureSensor(mac), 
-                        HumiditySensor(mac)
-                    ]
+                    sensors = [None] * 2
+                    sensors[t_i] = TemperatureSensor(mac)
+                    sensors[h_i] = HumiditySensor(mac)
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
             for sensor in sensors:
                 getattr(sensor, "_device_state_attributes")[
                     "last packet id"
                 ] = lpacket[mac]
-                getattr(sensor, "_device_state_attributes")["rssi"] = round(
-                    sts.mean(rssi[mac])
-                )
+                getattr(sensor, "_device_state_attributes")[
+                    "rssi"
+                ] = round(sts.mean(rssi[mac]))
                 getattr(sensor, "_device_state_attributes")[
                     "sensor type"
                 ] = stype[mac]
@@ -505,19 +505,19 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         tempstate_median = sts.median(temp_m_data[mac])
                         tempstate_mean = sts.mean(temp_m_data[mac])
                     if use_median:
-                        setattr(sensors[0], "_state", tempstate_median)
+                        setattr(sensors[t_i], "_state", tempstate_median)
                     else:
-                        setattr(sensors[0], "_state", tempstate_mean)
-                    getattr(sensors[0], "_device_state_attributes")[
+                        setattr(sensors[t_i], "_state", tempstate_mean)
+                    getattr(sensors[t_i], "_device_state_attributes")[
                         textattr
                     ] = len(temp_m_data[mac])
-                    getattr(sensors[0], "_device_state_attributes")[
+                    getattr(sensors[t_i], "_device_state_attributes")[
                         "median"
                     ] = tempstate_median
-                    getattr(sensors[0], "_device_state_attributes")[
+                    getattr(sensors[t_i], "_device_state_attributes")[
                         "mean"
                     ] = tempstate_mean
-                    sensors[0].async_schedule_update_ha_state()
+                    sensors[t_i].async_schedule_update_ha_state()
                 except AttributeError:
                     _LOGGER.info("Sensor %s not yet ready for update", mac)
                 except ZeroDivisionError:
@@ -529,8 +529,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error(
                         "Sensor %s (%s, temp.) update error:", mac, stype[mac]
                     )
-                    _LOGGER.error("%s. Index is 0!", error)
-                    _LOGGER.error("sensors list size: %i", len(sensors))
+                    _LOGGER.error("%s. Index is %i!", error, t_i)
             if mac in hum_m_data:
                 try:
                     if rounding:
@@ -544,19 +543,19 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         humstate_median = sts.median(hum_m_data[mac])
                         humstate_mean = sts.mean(hum_m_data[mac])
                     if use_median:
-                        setattr(sensors[1], "_state", humstate_median)
+                        setattr(sensors[h_i], "_state", humstate_median)
                     else:
-                        setattr(sensors[1], "_state", humstate_mean)
-                    getattr(sensors[1], "_device_state_attributes")[
+                        setattr(sensors[h_i], "_state", humstate_mean)
+                    getattr(sensors[h_i], "_device_state_attributes")[
                         textattr
                     ] = len(hum_m_data[mac])
-                    getattr(sensors[1], "_device_state_attributes")[
+                    getattr(sensors[h_i], "_device_state_attributes")[
                         "median"
                     ] = humstate_median
-                    getattr(sensors[1], "_device_state_attributes")[
+                    getattr(sensors[h_i], "_device_state_attributes")[
                         "mean"
                     ] = humstate_mean
-                    sensors[1].async_schedule_update_ha_state()
+                    sensors[h_i].async_schedule_update_ha_state()
                 except AttributeError:
                     _LOGGER.info("Sensor %s not yet ready for update", mac)
                 except ZeroDivisionError:
@@ -566,8 +565,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error(
                         "Sensor %s (%s, hum.) update error:", mac, stype[mac]
                     )
-                    _LOGGER.error("%s. Index is 1!", error)
-                    _LOGGER.error("sensors list size: %i", len(sensors))
+                    _LOGGER.error("%s. Index is %i!", error, h_i)
             if mac in moist_m_data:
                 try:
                     if rounding:
@@ -581,19 +579,19 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         moiststate_median = sts.median(moist_m_data[mac])
                         moiststate_mean = sts.mean(moist_m_data[mac])
                     if use_median:
-                        setattr(sensors[1], "_state", moiststate_median)
+                        setattr(sensors[m_i], "_state", moiststate_median)
                     else:
-                        setattr(sensors[1], "_state", moiststate_mean)
-                    getattr(sensors[1], "_device_state_attributes")[
+                        setattr(sensors[m_i], "_state", moiststate_mean)
+                    getattr(sensors[m_i], "_device_state_attributes")[
                         textattr
                     ] = len(moist_m_data[mac])
-                    getattr(sensors[1], "_device_state_attributes")[
+                    getattr(sensors[m_i], "_device_state_attributes")[
                         "median"
                     ] = moiststate_median
-                    getattr(sensors[1], "_device_state_attributes")[
+                    getattr(sensors[m_i], "_device_state_attributes")[
                         "mean"
                     ] = moiststate_mean
-                    sensors[1].async_schedule_update_ha_state()
+                    sensors[m_i].async_schedule_update_ha_state()
                 except AttributeError:
                     _LOGGER.info("Sensor %s not yet ready for update", mac)
                 except ZeroDivisionError:
@@ -603,8 +601,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error(
                         "Sensor %s (%s, moist.) update error:", mac, stype[mac]
                     )
-                    _LOGGER.error("%s. Index is 1!", error)
-                    _LOGGER.error("sensors list size: %i", len(sensors))
+                    _LOGGER.error("%s. Index is %i!", error, m_i)
             if mac in cond_m_data:
                 try:
                     if rounding:
@@ -618,19 +615,19 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         condstate_median = sts.median(cond_m_data[mac])
                         condstate_mean = sts.mean(cond_m_data[mac])
                     if use_median:
-                        setattr(sensors[2], "_state", condstate_median)
+                        setattr(sensors[c_i], "_state", condstate_median)
                     else:
-                        setattr(sensors[2], "_state", condstate_mean)
-                    getattr(sensors[2], "_device_state_attributes")[
+                        setattr(sensors[c_i], "_state", condstate_mean)
+                    getattr(sensors[c_i], "_device_state_attributes")[
                         textattr
                     ] = len(cond_m_data[mac])
-                    getattr(sensors[2], "_device_state_attributes")[
+                    getattr(sensors[c_i], "_device_state_attributes")[
                         "median"
                     ] = condstate_median
-                    getattr(sensors[2], "_device_state_attributes")[
+                    getattr(sensors[c_i], "_device_state_attributes")[
                         "mean"
                     ] = condstate_mean
-                    sensors[2].async_schedule_update_ha_state()
+                    sensors[c_i].async_schedule_update_ha_state()
                 except AttributeError:
                     _LOGGER.info("Sensor %s not yet ready for update", mac)
                 except ZeroDivisionError:
@@ -640,8 +637,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error(
                         "Sensor %s (%s, cond.) update error:", mac, stype[mac]
                     )
-                    _LOGGER.error("%s. Index is 2!", error)
-                    _LOGGER.error("sensors list size: %i", len(sensors))
+                    _LOGGER.error("%s. Index is %i!", error, c_i)
             if mac in illum_m_data:
                 try:
                     if rounding:
@@ -655,19 +651,19 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         illumstate_median = sts.median(illum_m_data[mac])
                         illumstate_mean = sts.mean(illum_m_data[mac])
                     if use_median:
-                        setattr(sensors[3], "_state", illumstate_median)
+                        setattr(sensors[i_i], "_state", illumstate_median)
                     else:
-                        setattr(sensors[3], "_state", illumstate_mean)
-                    getattr(sensors[3], "_device_state_attributes")[
+                        setattr(sensors[i_i], "_state", illumstate_mean)
+                    getattr(sensors[i_i], "_device_state_attributes")[
                         textattr
                     ] = len(illum_m_data[mac])
-                    getattr(sensors[3], "_device_state_attributes")[
+                    getattr(sensors[i_i], "_device_state_attributes")[
                         "median"
                     ] = illumstate_median
-                    getattr(sensors[3], "_device_state_attributes")[
+                    getattr(sensors[i_i], "_device_state_attributes")[
                         "mean"
                     ] = illumstate_mean
-                    sensors[3].async_schedule_update_ha_state()
+                    sensors[i_i].async_schedule_update_ha_state()
                 except AttributeError:
                     _LOGGER.info("Sensor %s not yet ready for update", mac)
                 except ZeroDivisionError:
@@ -679,8 +675,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error(
                         "Sensor %s (%s, illum.) update error:", mac, stype[mac]
                     )
-                    _LOGGER.error("%s. Index is 3!", error)
-                    _LOGGER.error("sensors list size: %i", len(sensors))
+                    _LOGGER.error("%s. Index is %i!", error, i_i)
         scanner.start(config)
         return []
 
