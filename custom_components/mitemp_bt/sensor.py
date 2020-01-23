@@ -469,6 +469,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         mac
                     )
                     _LOGGER.error(error)
+                    continue
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
             for sensor in sensors:
