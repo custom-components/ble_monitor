@@ -27,18 +27,23 @@ Supported sensors:
 ![supported sensors](/sensors.jpg)
 
 - LYWSDCGQ
+
  (round body, segment LCD, broadcasts temperature, humidity and battery, about 20 readings per minute)
 
 - LYWSD02
+
  (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
 
 - CGG1
+
  (round body, E-Ink, broadcasts temperature, humidity and battery, about 20 readings per minute)
 
 - HHCCJCY01
+
  (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
 
 - HHCCPOT002
+
  (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
 
  *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
@@ -50,7 +55,7 @@ Supported sensors:
 - to grant:
 
      ```shell
-     ~$ sudo setcap 'cap_net_raw,cap_net_admin+eip' `readlink -f \`which python3\``
+     sudo setcap 'cap_net_raw,cap_net_admin+eip' `readlink -f \`which python3\``
      ```
 
 - to check:
@@ -60,6 +65,7 @@ Supported sensors:
      ```
 
 *In some situations, the Home Assistant may be launched by an interpreter that the python3 alias does not point to. For example, if you have both version 3.7 and 3.8 installed. In this case, carefully check the interpreter version in the getcap command output, you may need to specify full path to binary, for example:*
+
 `sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.7`
 
 - stop and start HA
