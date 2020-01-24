@@ -3,11 +3,8 @@ from datetime import timedelta
 import asyncio
 from threading import Thread
 import logging
-#import os
 import statistics as sts
 import struct
-#import subprocess
-#import sys
 import aioblescan as aiobs
 import voluptuous as vol
 
@@ -143,7 +140,6 @@ def reverse_mac(rmac):
         + rmac[0:2]
     )
 
-
 def parse_xiomi_value(hexvalue, typecode):
     """Convert value depending on its type."""
     vlength = len(hexvalue) / 2
@@ -171,7 +167,6 @@ def parse_xiomi_value(hexvalue, typecode):
             illum, = ILL_STRUCT.unpack(bytes.fromhex(hexvalue + "00"))
             return {"illuminance": illum}
     return {}
-
 
 def parse_raw_message(data):
     """Parse the raw data."""
@@ -263,18 +258,9 @@ def parse_raw_message(data):
         xdata_point = xnext_point
     return result
 
-
 class BLEScanner:
     """BLE scanner."""
 
-    #hcitool = None
-    #hcidump = None
-    #tempf = tempfile.TemporaryFile(mode="w+b")
-    #devnull = (
-    #    subprocess.DEVNULL
-    #    if sys.version_info > (3, 0)
-    #    else open(os.devnull, "wb")
-    #)
     dumpthread = None
 
     def start(self, config):
@@ -290,61 +276,11 @@ class BLEScanner:
         #self.dumpthread.daemon = True
         _LOGGER.debug("Starting HCIdump thread.")
         self.dumpthread.start()
-        #if active_scan:
-        #    hcitoolcmd = ["hcitool", "lescan", "--duplicates"]
-        #self.hcitool = subprocess.Popen(
-        #    hcitoolcmd, stdout=self.devnull, stderr=self.devnull
-        #)
-        #self.hcidump = subprocess.Popen(
-        #   ["hcidump", "--raw", "hci"], stdout=self.tempf, stderr=self.devnull
-        #)
-
-    #def stop(self):
-    #    """Stop receiving broadcasts."""
-    #    _LOGGER.debug("Stop receiving broadcasts")
-        #self.hcidump.terminate()
-        #self.hcidump.communicate()
-        #self.hcitool.terminate()
-        #self.hcitool.communicate()
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
         _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
         self.dumpthread.join()
-        #self.hcidump.kill()
-        #self.hcidump.communicate()
-        #self.hcitool.kill()
-        #self.hcitool.communicate()
-        #self.tempf.close()
-
-    #def messages(self):
-    #    """Get data from hcidump."""
-    #    data = ""
-    #    try:
-    #        _LOGGER.debug("reading hcidump...")
-    #        self.tempf.flush()
-    #        self.tempf.seek(0)
-    #        for line in self.tempf:
-    #            try:
-    #                sline = line.decode()
-    #            except AttributeError:
-    #                _LOGGER.debug("Error decoding line: %s", line)
-    #            # _LOGGER.debug(line)
-    #            if sline.startswith("> "):
-    #                yield data
-    #                data = sline[2:].strip().replace(" ", "")
-    #            elif sline.startswith("< "):
-    #                yield data
-    #                data = ""
-    #            else:
-    #                data += sline.strip().replace(" ", "")
-    #    except RuntimeError as error:
-    #        _LOGGER.error("Error during reading of hcidump: %s", error)
-    #        data = ""
-    #    self.tempf.seek(0)
-    #    self.tempf.truncate(0)
-    #    yield data
-
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
@@ -355,17 +291,56 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     sensors_by_mac = {}
 
+    def calc_update_state(entity_to_update, sensor_mac,
+                      config, measurements_list):
+        """Averages according to options and updates the entity state"""
+        textattr = ""
+        success = False
+        error = ""
+        try:
+            if config[CONF_ROUNDING]:
+                state_median = round(
+                    sts.median(measurements_list[sensor_mac]),
+                    config[CONF_DECIMALS]
+                )
+                state_mean = round(
+                    sts.mean(measurements_list[sensor_mac]),
+                    config[CONF_DECIMALS]
+                )
+            else:
+                state_median = sts.median(measurements_list[sensor_mac])
+                state_mean = sts.mean(measurements_list[sensor_mac])
+
+            if config[CONF_USE_MEDIAN]:
+                textattr = "last median of"
+                setattr(entity_to_update, "_state", state_median)
+            else:
+                textattr = "last mean of"
+                setattr(entity_to_update, "_state", state_mean)
+            getattr(entity_to_update, "_device_state_attributes")[
+                textattr
+            ] = len(measurements_list[sensor_mac])
+            getattr(entity_to_update, "_device_state_attributes")[
+                "median"
+            ] = state_median
+            getattr(entity_to_update, "_device_state_attributes")[
+                "mean"
+            ] = state_mean
+            entity_to_update.async_schedule_update_ha_state()
+            success = True
+        except AttributeError:
+            _LOGGER.info("Sensor %s not yet ready for update", sensor_mac)
+            success = True
+        except ZeroDivisionError as err:
+            error = err
+        except IndexError as err:
+            error = err
+        return success, error
+
     def discover_ble_devices(config):
         """Discover Bluetooth LE devices."""
         #_LOGGER.debug("Discovering Bluetooth LE devices")
-        rounding = config[CONF_ROUNDING]
-        decimals = config[CONF_DECIMALS]
         log_spikes = config[CONF_LOG_SPIKES]
-        use_median = config[CONF_USE_MEDIAN]
-
-        #_LOGGER.debug("Stopping")
-        #scanner.stop()
-
         _LOGGER.debug("Time to analyze...")
         stype = {}
         hum_m_data = {}
@@ -378,7 +353,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         rssi = {}
         macs = {}  # all found macs
         _LOGGER.debug("Getting data from HCIdump thread")
-        for msg in scanner.dumpthread.join():
+        hcidump_data = scanner.dumpthread.join()
+        scanner.start(config) #minimum delay between HCIdumps
+        for msg in hcidump_data:
             data = parse_raw_message(''.join('{:02X}'.format(x) for x in msg))
             if data and "mac" in data:
                 # ignore duplicated message
@@ -442,8 +419,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
         # for every seen device
         for mac in macs:
-            # fixed sensor index for every measurement type
+
+            # fixed entity index for every measurement type according to the sensor implementation
             t_i, h_i, m_i, c_i, i_i = MMTS_DICT[stype[mac]]
+
+            # if necessary, create a list of entities according to the sensor implementation
             if mac in sensors_by_mac:
                 sensors = sensors_by_mac[mac]
             else:
@@ -472,6 +452,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     continue
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
+
+            # append joint attributes
             for sensor in sensors:
                 getattr(sensor, "_device_state_attributes")[
                     "last packet id"
@@ -486,206 +468,64 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
                     ] = batt[mac]
+
             # averaging and states updating
-            tempstate_mean = None
-            humstate_mean = None
-            illumstate_mean = None
-            moiststate_mean = None
-            condstate_mean = None
-            tempstate_median = None
-            humstate_median = None
-            illumstate_median = None
-            moiststate_median = None
-            condstate_median = None
-            if use_median:
-                textattr = "last median of"
-            else:
-                textattr = "last mean of"
             if mac in temp_m_data:
-                try:
-                    if rounding:
-                        tempstate_median = round(
-                            sts.median(temp_m_data[mac]), decimals
-                        )
-                        tempstate_mean = round(
-                            sts.mean(temp_m_data[mac]), decimals
-                        )
-                    else:
-                        tempstate_median = sts.median(temp_m_data[mac])
-                        tempstate_mean = sts.mean(temp_m_data[mac])
-                    if use_median:
-                        setattr(sensors[t_i], "_state", tempstate_median)
-                    else:
-                        setattr(sensors[t_i], "_state", tempstate_mean)
-                    getattr(sensors[t_i], "_device_state_attributes")[
-                        textattr
-                    ] = len(temp_m_data[mac])
-                    getattr(sensors[t_i], "_device_state_attributes")[
-                        "median"
-                    ] = tempstate_median
-                    getattr(sensors[t_i], "_device_state_attributes")[
-                        "mean"
-                    ] = tempstate_mean
-                    sensors[t_i].async_schedule_update_ha_state()
-                except AttributeError:
-                    _LOGGER.info("Sensor %s not yet ready for update", mac)
-                except ZeroDivisionError:
+                success, error = calc_update_state(
+                                sensors[t_i], mac, config, temp_m_data
+                            )
+                if not success:
                     _LOGGER.error(
-                        "Division by zero while temperature averaging!"
+                        "Sensor %s (%s, temp.) update error:",
+                        mac, stype[mac]
                     )
+                    _LOGGER.error(error)
                     continue
-                except IndexError as error:
-                    _LOGGER.error(
-                        "Sensor %s (%s, temp.) update error:", mac, stype[mac]
-                    )
-                    _LOGGER.error("%s. Index is %i!", error, t_i)
             if mac in hum_m_data:
-                try:
-                    if rounding:
-                        humstate_median = round(
-                            sts.median(hum_m_data[mac]), decimals
-                        )
-                        humstate_mean = round(
-                            sts.mean(hum_m_data[mac]), decimals
-                        )
-                    else:
-                        humstate_median = sts.median(hum_m_data[mac])
-                        humstate_mean = sts.mean(hum_m_data[mac])
-                    if use_median:
-                        setattr(sensors[h_i], "_state", humstate_median)
-                    else:
-                        setattr(sensors[h_i], "_state", humstate_mean)
-                    getattr(sensors[h_i], "_device_state_attributes")[
-                        textattr
-                    ] = len(hum_m_data[mac])
-                    getattr(sensors[h_i], "_device_state_attributes")[
-                        "median"
-                    ] = humstate_median
-                    getattr(sensors[h_i], "_device_state_attributes")[
-                        "mean"
-                    ] = humstate_mean
-                    sensors[h_i].async_schedule_update_ha_state()
-                except AttributeError:
-                    _LOGGER.info("Sensor %s not yet ready for update", mac)
-                except ZeroDivisionError:
-                    _LOGGER.error("Division by zero while humidity averaging!")
-                    continue
-                except IndexError as error:
+                success, error = calc_update_state(
+                                sensors[h_i], mac, config, hum_m_data
+                            )
+                if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, hum.) update error:", mac, stype[mac]
+                        "Sensor %s (%s, hum.) update error:",
+                        mac, stype[mac]
                     )
-                    _LOGGER.error("%s. Index is %i!", error, h_i)
+                    _LOGGER.error(error)
+                    continue
             if mac in moist_m_data:
-                try:
-                    if rounding:
-                        moiststate_median = round(
-                            sts.median(moist_m_data[mac]), decimals
-                        )
-                        moiststate_mean = round(
-                            sts.mean(moist_m_data[mac]), decimals
-                        )
-                    else:
-                        moiststate_median = sts.median(moist_m_data[mac])
-                        moiststate_mean = sts.mean(moist_m_data[mac])
-                    if use_median:
-                        setattr(sensors[m_i], "_state", moiststate_median)
-                    else:
-                        setattr(sensors[m_i], "_state", moiststate_mean)
-                    getattr(sensors[m_i], "_device_state_attributes")[
-                        textattr
-                    ] = len(moist_m_data[mac])
-                    getattr(sensors[m_i], "_device_state_attributes")[
-                        "median"
-                    ] = moiststate_median
-                    getattr(sensors[m_i], "_device_state_attributes")[
-                        "mean"
-                    ] = moiststate_mean
-                    sensors[m_i].async_schedule_update_ha_state()
-                except AttributeError:
-                    _LOGGER.info("Sensor %s not yet ready for update", mac)
-                except ZeroDivisionError:
-                    _LOGGER.error("Division by zero while moisture averaging!")
-                    continue
-                except IndexError as error:
+                success, error = calc_update_state(
+                                sensors[m_i], mac, config, moist_m_data
+                            )
+                if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, moist.) update error:", mac, stype[mac]
+                        "Sensor %s (%s, moist.) update error:",
+                        mac, stype[mac]
                     )
-                    _LOGGER.error("%s. Index is %i!", error, m_i)
+                    _LOGGER.error(error)
+                    continue
             if mac in cond_m_data:
-                try:
-                    if rounding:
-                        condstate_median = round(
-                            sts.median(cond_m_data[mac]), decimals
-                        )
-                        condstate_mean = round(
-                            sts.mean(cond_m_data[mac]), decimals
-                        )
-                    else:
-                        condstate_median = sts.median(cond_m_data[mac])
-                        condstate_mean = sts.mean(cond_m_data[mac])
-                    if use_median:
-                        setattr(sensors[c_i], "_state", condstate_median)
-                    else:
-                        setattr(sensors[c_i], "_state", condstate_mean)
-                    getattr(sensors[c_i], "_device_state_attributes")[
-                        textattr
-                    ] = len(cond_m_data[mac])
-                    getattr(sensors[c_i], "_device_state_attributes")[
-                        "median"
-                    ] = condstate_median
-                    getattr(sensors[c_i], "_device_state_attributes")[
-                        "mean"
-                    ] = condstate_mean
-                    sensors[c_i].async_schedule_update_ha_state()
-                except AttributeError:
-                    _LOGGER.info("Sensor %s not yet ready for update", mac)
-                except ZeroDivisionError:
-                    _LOGGER.error("Division by zero while humidity averaging!")
-                    continue
-                except IndexError as error:
+                success, error = calc_update_state(
+                                sensors[c_i], mac, config, cond_m_data
+                            )
+                if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, cond.) update error:", mac, stype[mac]
+                        "Sensor %s (%s, cond.) update error:",
+                        mac, stype[mac]
                     )
-                    _LOGGER.error("%s. Index is %i!", error, c_i)
+                    _LOGGER.error(error)
+                    continue
             if mac in illum_m_data:
-                try:
-                    if rounding:
-                        illumstate_median = round(
-                            sts.median(illum_m_data[mac]), decimals
-                        )
-                        illumstate_mean = round(
-                            sts.mean(illum_m_data[mac]), decimals
-                        )
-                    else:
-                        illumstate_median = sts.median(illum_m_data[mac])
-                        illumstate_mean = sts.mean(illum_m_data[mac])
-                    if use_median:
-                        setattr(sensors[i_i], "_state", illumstate_median)
-                    else:
-                        setattr(sensors[i_i], "_state", illumstate_mean)
-                    getattr(sensors[i_i], "_device_state_attributes")[
-                        textattr
-                    ] = len(illum_m_data[mac])
-                    getattr(sensors[i_i], "_device_state_attributes")[
-                        "median"
-                    ] = illumstate_median
-                    getattr(sensors[i_i], "_device_state_attributes")[
-                        "mean"
-                    ] = illumstate_mean
-                    sensors[i_i].async_schedule_update_ha_state()
-                except AttributeError:
-                    _LOGGER.info("Sensor %s not yet ready for update", mac)
-                except ZeroDivisionError:
+                success, error = calc_update_state(
+                                sensors[i_i], mac, config, illum_m_data
+                            )
+                if not success:
                     _LOGGER.error(
-                        "Division by zero while illuminance averaging!"
+                        "Sensor %s (%s, illum.) update error:",
+                        mac, stype[mac]
                     )
+                    _LOGGER.error(error)
                     continue
-                except IndexError as error:
-                    _LOGGER.error(
-                        "Sensor %s (%s, illum.) update error:", mac, stype[mac]
-                    )
-                    _LOGGER.error("%s. Index is %i!", error, i_i)
-        scanner.start(config)
+        #scanner.start(config) - moved earlier (before dump parser loop)
         return []
 
     def update_ble(now):

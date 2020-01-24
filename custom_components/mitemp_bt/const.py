@@ -27,7 +27,7 @@ CONF_TMAX = 60.0
 CONF_HMIN = 0.0
 CONF_HMAX = 99.9
 
-# Xiaomi sensor types dictionary with offset for parser
+# Xiaomi sensor types dictionary with offset for adv parser
 XIAOMI_TYPE_DICT = {
     '209800': ["HHCCJCY01", 1],
     '20AA01': ["LYWSDCGQ", 0],
@@ -38,7 +38,7 @@ XIAOMI_TYPE_DICT = {
 
 # Sensor type indexes dictionary 
 # Temperature, Humidity, Moisture, Conductivity, Illuminance
-# Measurement type T  H  M  C  I   9 - no sensor
+# Measurement type T  H  M  C  I   9 - no measurement
 MMTS_DICT = {
     'HHCCJCY01' : [0, 9, 1, 2, 3],
     'HHCCPOT002': [9, 9, 0, 1, 9],
