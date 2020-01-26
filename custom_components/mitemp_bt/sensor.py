@@ -5,6 +5,7 @@ from threading import Thread
 import logging
 import statistics as sts
 import struct
+
 import aioblescan as aiobs
 import voluptuous as vol
 
@@ -70,22 +71,21 @@ ILL_STRUCT = struct.Struct("<I")
 
 class HCIdump(Thread):
     """mimic deprecated hcidump tool"""
-    def __init__(self, interface = 0, active = 0):
+    def __init__(self, dumplist, interface = 0, active = 0):
         Thread.__init__(self)
         _LOGGER.debug("HCIdump thread: Init")
         self._interface = interface
         self._active = active
-        self._dumplist = []
+        self.dumplist = dumplist
         self._event_loop = None
         _LOGGER.debug("HCIdump thread: Init finished")
 
     def process_hci_events(self, data):
         """collect HCI events"""
-        self._dumplist.append(data)
-    
+        self.dumplist.append(data)
+
     def run(self):
         _LOGGER.debug("HCIdump thread: Run")
-        self._dumplist = []
         #self._event_loop = asyncio.get_event_loop()
         try:
             mysocket = aiobs.create_bt_socket(self._interface)
@@ -125,7 +125,6 @@ class HCIdump(Thread):
             _LOGGER.debug("%s", error)
         Thread.join(self, timeout)
         _LOGGER.debug("HCIdump thread: joined")
-        return self._dumplist
 
 def reverse_mac(rmac):
     """Change LE order to BE."""
@@ -262,20 +261,26 @@ class BLEScanner:
     """BLE scanner."""
 
     dumpthread = None
+    hcidump_data = []
 
     def start(self, config):
         """Start receiving broadcasts."""
         active_scan = config[CONF_ACTIVE_SCAN]
         hci_interface = config[CONF_HCI_INTERFACE]
-        #hcitoolcmd = ["hcitool", "lescan", "--duplicates", "--passive"]
+        self.hcidump_data.clear()
         _LOGGER.debug("Spawning HCIdump thread.")
         self.dumpthread = HCIdump(
+            dumplist = self.hcidump_data,
             interface = hci_interface,
             active = int(active_scan is True)
         )
         #self.dumpthread.daemon = True
         _LOGGER.debug("Starting HCIdump thread.")
         self.dumpthread.start()
+
+    def stop(self):
+        """Stop hcidump thread"""
+        self.dumpthread.join()
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
@@ -288,7 +293,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     scanner = BLEScanner()
     hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
     scanner.start(config)
-
     sensors_by_mac = {}
 
     def calc_update_state(entity_to_update, sensor_mac,
@@ -353,9 +357,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         rssi = {}
         macs = {}  # all found macs
         _LOGGER.debug("Getting data from HCIdump thread")
-        hcidump_data = scanner.dumpthread.join()
+        scanner.stop()
+        hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config) #minimum delay between HCIdumps
-        for msg in hcidump_data:
+        for msg in hcidump_raw:
             data = parse_raw_message(''.join('{:02X}'.format(x) for x in msg))
             if data and "mac" in data:
                 # ignore duplicated message
@@ -365,9 +370,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 else:
                     prev_packet = None
                 if prev_packet == packet:
-                    _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
+                    #_LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
                     continue
-                _LOGGER.debug("NEW DATA: %s", data)
+                #_LOGGER.debug("NEW DATA: %s", data)
                 lpacket[data["mac"]] = packet
                 # store found readings per device
                 if "temperature" in data:
@@ -526,6 +531,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error(error)
                     continue
         #scanner.start(config) - moved earlier (before dump parser loop)
+        _LOGGER.debug("Finished. Parsed: %i hci events, %i xiaomi devices.", len(hcidump_raw), len(macs))
         return []
 
     def update_ble(now):
