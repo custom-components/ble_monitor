@@ -29,6 +29,8 @@ The command will return the path to python and looks like (can vary based on you
 /usr/bin/python3.7 = cap_net_admin,cap_net_raw+eip
 ```
 
+Make sure you first stop homeassistant and then start homeassistant again. Restarting Home Assistant is not enough, as the python process does not exit upon restart.
+
 If you have multiple python versions, make sure it refers to the same version which is used by Home Assistant. If Home Assistant is using a different version, e.g. python3.6, run the following command to set the correct version (adjust it to your own version if needed).
 
 ```
