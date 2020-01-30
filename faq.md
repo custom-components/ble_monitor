@@ -4,6 +4,9 @@
 
 
 ### I get a PermissionError in Home Assistant after the installation
+
+Note: This answer is only applicable for version 0.5 and higher.
+
 Python needs root access to access the HCI interface. If Python doesn't have root access, you will get an error message in Home Assistant which ends with:
 
 ```
