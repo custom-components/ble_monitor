@@ -74,7 +74,7 @@ sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.7`
 
 **2. Install the custom component:**
 
-- The easiest way is to install it with [HACS](https://hacs.netlify.com/). First install [HACS](https://hacs.netlify.com/) if you don't have it yet. After installation you can find this custom component in the HACS store under integrations.
+- The easiest way is to install it with [HACS](https://hacs.xyz/). First install [HACS](https://hacs.xyz/) if you don't have it yet. After installation you can find this custom component in the HACS store under integrations.
 
 - Alternatively, you can install it manually. Just copy paste the content of the `sensor.mitemp_bt/custom_components` folder in your `config/custom_components` directory.
      As example, you will get the `sensor.py` file in the following path: `/config/custom_components/mitemp_bt/sensor.py`.
@@ -149,6 +149,10 @@ sensor:
 #### hci_interface
 
   (positive integer)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is one, and this is hci0. Default value: 0
+
+## Frequently asked questions
+
+Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues).
 
 ## Credits
 
