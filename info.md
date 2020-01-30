@@ -149,7 +149,7 @@ You can check the `/tmp` mount point with the command `mount | grep /tmp`. If as
   
 ## Frequently asked questions
 
-Still having questions or issues. Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues). 
+Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues). 
 
 ## Credits
 
