@@ -3,7 +3,7 @@
 ## INSTALLATION ISSUES
 
 
-### I get an PermissionError in Home Assistant after the installation
+### I get a PermissionError in Home Assistant after the installation
 Python needs root access to access the HCI interface. If Python doesn't have root access, you will get an error message in Home Assistant which ends with:
 
 ```
@@ -51,6 +51,19 @@ Devices:
         hci0    B8:27:EB:77:75:50
 ```
 
+### How can I create a battery sensor?
+You can create a battery sensor by using a template sensor. Add the following to your `configuration.yaml`. Make sure you adjust the name of the sensor with your own sensor.
+
+```
+sensor:
+  - platform: template
+    sensors:
+      mi_b_582d34339449:
+        friendly_name: "Battery"
+        unit_of_measurement: "%"
+        value_template: "{{ state_attr('sensor.mi_t_582d34339449', 'battery_level') }}"
+        device_class: "battery"
+```
 
 ## RECEPTION ISSUES
 
@@ -60,7 +73,7 @@ The custom component uses Bluetooth (BLE) to receive messages from your sensor(s
 The number of messages that are received by Home Assistant can be less or even zero. Parameters that affect the reception of messages are:
 - The distance between the sensor and the Bluetooth device on your Home Assistant device.
 
-Try to keep the distance as limited as possible
+Try to keep the distance as limited as possible.
 
 - Interference with other electrical devices. 
 
@@ -68,4 +81,5 @@ Especially SSD devices are known to affect the Bluetooth reception, try to place
 
 - The quality of your Bluetooth transceiver. 
 
-The range of the built-in Bluetooth tranceiver of a Raspberry Pi is known to be limited. Try using an external Bluetooth transceiver to increase the range, e.g. with an external antenna.  
+The range of the built-in Bluetooth tranceiver of a Raspberry Pi is known to be limited. Try using an external Bluetooth transceiver to increase the range, e.g. with an external antenna.
+
