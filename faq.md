@@ -129,4 +129,4 @@ For example, using the command
 btmon -t -w problem.log
 ```
 
-You can write to the problem.log file the moment the problem occurs, and attach this file to issue.
+You can write to the problem.log file the moment the problem occurs, and attach this file to your issue.
