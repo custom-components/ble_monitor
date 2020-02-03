@@ -1,25 +1,27 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
-# NB: This is an ALFA version!
-
-This version is released to test the new data collection method.
-Do not install it if you do not know what this means.
-
+{% if prerelease %}
+### NB!: This is a Beta version!
+{% endif %}
+{% if installed %}
 # Changes since 0.4
 
 Now the component does not use external utilities, we get access to data from python, from a separate tread.
-It seems that the method is working, tested on the Debian Buster, but requires intensive testing in various conditions (especially HASSio in various environments and in combination with BT-trackers).
-Please send your feedback [here](https://github.com/custom-components/sensor.mitemp_bt/issues/29).
 
 New options:
 
-- active_scan: False (hcidump_active deprecated, must be removed from configuration.yaml)
+- active_scan: False (hcidump_active deprecated, __must be removed__ from `configuration.yaml`)
 - hci_interface: 0 (integer number, 0 as default for hci0, 1 for hci1 and so on)
 
 NB:
 
-Since the component now uses direct access to the hci interface, python must have the appropriate rights, see paragraph 1 of the HOW TO INSTALL section [below](#how-to-install).
+Since the component now uses direct access to the HCI interface, python must have the appropriate rights, see paragraph 1 of the HOW TO INSTALL section [below](#how-to-install).
+
+In addition, we began to collect [Frequently Asked Questions](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md). Please read it before creating a new issue.
+
+---
+{% endif %}
 
 # Xiaomi BLE Monitor sensor platform
 
@@ -155,7 +157,7 @@ sensor:
 
 ## Frequently asked questions
 
-Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues). 
+Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues).
 
 ## Credits
 

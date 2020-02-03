@@ -1,23 +1,3 @@
-# NB: This is an ALFA version!
-
-This version is released to test the new data collection method.
-Do not install it if you do not know what this means.
-
-# Changes since 0.4
-
-Now the component does not use external utilities, we get access to data from python, from a separate tread.
-It seems that the method is working, tested on the Debian Buster, but requires intensive testing in various conditions (especially HASSio in various environments and in combination with BT-trackers).
-Please send your feedback [here](https://github.com/custom-components/sensor.mitemp_bt/issues/29).
-
-New options:
-
-- active_scan: False (hcidump_active deprecated, must be removed from configuration.yaml)
-- hci_interface: 0 (integer number, 0 as default for hci0, 1 for hci1 and so on)
-
-NB:
-
-Since the component now uses direct access to the hci interface, python must have the appropriate rights, see paragraph 1 of the HOW TO INSTALL section [below](#how-to-install).
-
 # Xiaomi BLE Monitor sensor platform
 
 This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration.

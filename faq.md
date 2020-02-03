@@ -12,6 +12,7 @@
       - [My sensor doesn't receive any readings from my sensors anymore or only occasionally](#my-sensor-doesnt-receive-any-readings-from-my-sensors-anymore-or-only-occasionally)
   - [OTHER ISSUES](#other-issues)
       - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
+      - [My sensor stops receiving updates some time after the system restart](my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
   - [DEBUG](#debug)
 
 <!-- /TOC -->
@@ -110,6 +111,10 @@ The range of the built-in Bluetooth tranceiver of a Raspberry Pi is known to be 
 
 Since our component uses a special operating mode of the HCI interface and works with a continuous data stream, conflicts with other software using the same HCI interface are possible. The conflict is caused by the fact that another component can switch the HCI interface to a different operating mode, thereby stopping the reception of data. Or our component may lead to malfunctioning of another component.
 A reliable, but not the only way out of this situation (apart from the refusal to use one component in favor of another) can be the use of two BT-interfaces (one for our component, the second, for example, for the tracker). Work is underway to find other solutions to such situations...
+
+### My sensor stops receiving updates some time after the system restart
+
+Most often, the cause of this is the presence of the bugs in the system components responsible for the BT operation (kernel modules, firmwares, etc). As a rule, in such cases, the corresponding entries appear in the system log. Please carefully review the contents of your `syslog`, and try searching the Internet for a solution - with high probability you are not alone in this.
 
 ## DEBUG
 
