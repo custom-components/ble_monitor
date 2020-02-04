@@ -44,13 +44,7 @@ Supported sensors:
      sudo getcap `readlink -f \`which python3\``
      ```
 
-*In some situations, Home Assistant may be launched by an interpreter that the python3 alias does not point to. For example, if you have both version 3.7 and 3.8 installed. In this case, carefully check the interpreter version in the getcap command output, you may need to specify the full path to the binary, for example:*
-
-```
-sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.7`
-```
-
-- Stop and start Home Assistant. Make sure you first stop Home Assistant and then start Home Assistant again. Restarting Home Assistant is not enough, as the python process does not exit upon restart.
+*In case you get a PermissionError, check the [Frequently Asked Questions (FAQ) page](faq.md).
 
 **2. Install the custom component:**
 
@@ -59,15 +53,15 @@ sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.7`
 - Alternatively, you can install it manually. Just copy paste the content of the `sensor.mitemp_bt/custom_components` folder in your `config/custom_components` directory.
      As example, you will get the `sensor.py` file in the following path: `/config/custom_components/mitemp_bt/sensor.py`.
 
-**3. Restart Home Assistant:**
+**3. Stop and start Home Assistant:**
 
-- A restart is required to unload the build in component and load the custom component. Do this before step 4, as Home Assistant will otherwise complain that your configuration is not ok (as it still uses the build in `mitemp_bt` integration), and won't restart when hitting restart in the server management menu.
+- Stop and start Home Assistant. Make sure you first stop Home Assistant and then start Home Assistant again. Restarting Home Assistant is not sufficient, as the python process does not exit upon restart. Stopping and starting Home Assistant is also required to unload the build in component and load the custom component. Do this before step 4, as Home Assistant will otherwise complain that your configuration is not ok (as it still uses the build in `mitemp_bt` integration).
 
 **4. Add the platform to your configuration.yaml file (see [below](#configuration))**
 
-**5. Restart Home Assistant again:**
+**5. Restart Home Assistant:**
 
-- A second restart is required to load the component. After a few minutes, the sensors should be added to your home-assistant automatically (at least one [period](#period) required).
+- A second restart is required to load the configuration. After a few minutes, the sensors should be added to your home-assistant automatically (at least one [period](#period) required).
 
 ## CONFIGURATION
 
@@ -93,6 +87,8 @@ sensor:
     active_scan: False
     hci_interface: 0
 ```
+
+
 
 ### Configuration Variables
 
