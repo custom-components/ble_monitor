@@ -2,19 +2,29 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
 {% if prerelease %}
-
-# NB!: This is a Beta version
-
+### NB!: This is a Beta version!
 {% endif %}
+{% if installed %}
+# Changes since 0.4
 
-{% if installed and version_installed != selected_tag %}
+The component does not use external utilities anymore, we get access to data directly from python, from a separate tread.
 
-# Changes since 0.4.1
+New configuration options:
 
-Added support for the following Xiaomi sensor:
+- active_scan: False
+- hci_interface: 0 (integer number, 0 as default for hci0, 1 for hci1 and so on)
 
-- HHCCPOT002 (FlowerPot, RoPot)
+Deprecated configuration options:
 
+- hcidump_active is deprecated and __must be removed__ from `configuration.yaml`)
+
+NB:
+
+Since the component now uses direct access to the HCI interface, python must have the appropriate rights, see paragraph 1 of the HOW TO INSTALL section [below](#how-to-install).
+
+In addition, we began to collect [Frequently Asked Questions](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md). Please read it before creating a new issue.
+
+---
 {% endif %}
 
 # Xiaomi BLE Monitor sensor platform
@@ -45,43 +55,42 @@ Supported sensors:
 
  (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
 
- *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
+ *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
 
 ## HOW TO INSTALL
 
-**1. Install bluez-hcidump (not needed on HASSio):**
+**1. Grant permissions for Python rootless access to HCI interface (usually not needed on HASSio):**
 
-- The package `bluez-hcidump` needs to be installed first. `bluez-hcidump` reads raw the data coming from and going to your Bluetooth device. You can install it with the following command
-
-     ```shell
-     sudo apt-get install bluez-hcidump
-     ```
-
-**2. Allow hcitool and hcidump to run without root access (not needed on HASSio):**
-
-- This custom component uses a hcitool and hcidump commands to receive the data. Run the following commands to allow hcitool and hcidump to run without root access:
+- to grant:
 
      ```shell
-     sudo setcap 'cap_net_raw+ep' `readlink -f \`which hcidump\``
-     sudo setcap 'cap_net_raw+ep' `readlink -f \`which hcitool\``
+     sudo setcap 'cap_net_raw,cap_net_admin+eip' `readlink -f \`which python3\``
      ```
 
-**3. Install the custom component:**
+- to check:
+
+     ```shell
+     sudo getcap `readlink -f \`which python3\``
+     ```
+
+*In case you get a PermissionError, check the [Frequently Asked Questions (FAQ) page](faq.md).
+
+**2. Install the custom component:**
 
 - The easiest way is to install it with [HACS](https://hacs.xyz/). First install [HACS](https://hacs.xyz/) if you don't have it yet. After installation you can find this custom component in the HACS store under integrations.
 
-     Alternatively, you can install it manually. Just copy paste the content of the `sensor.mitemp_bt/custom_components` folder in your `config/custom_components` directory.
+- Alternatively, you can install it manually. Just copy paste the content of the `sensor.mitemp_bt/custom_components` folder in your `config/custom_components` directory.
      As example, you will get the `sensor.py` file in the following path: `/config/custom_components/mitemp_bt/sensor.py`.
 
-**4. Restart Home Assistant:**
+**3. Stop and start Home Assistant:**
 
-- A restart is required to unload the build in component and load the custom component. Do this before step 5, as Home Assistant will otherwise complain that your configuration is not ok (as it still uses the build in `mitemp_bt` integration), and won't restart when hitting restart in the server management menu.
+- Stop and start Home Assistant. Make sure you first stop Home Assistant and then start Home Assistant again. Restarting Home Assistant is not sufficient, as the python process does not exit upon restart. Stopping and starting Home Assistant is also required to unload the build in component and load the custom component. Do this before step 4, as Home Assistant will otherwise complain that your configuration is not ok (as it still uses the build in `mitemp_bt` integration).
 
-**5. Add the platform to your configuration.yaml file (see [below](#configuration))**
+**4. Add the platform to your configuration.yaml file (see [below](#configuration))**
 
-**6. Restart Home Assistant again:**
+**5. Restart Home Assistant:**
 
-- A second restart is required to load the component. After a few minutes, the sensors should be added to your home-assistant automatically (at least one [period](#period) required).
+- A second restart is required to load the configuration. After a few minutes, the sensors should be added to your home-assistant automatically (at least one [period](#period) required).
 
 ## CONFIGURATION
 
@@ -104,16 +113,9 @@ sensor:
     period: 60
     log_spikes: False
     use_median: False
-    hcitool_active: False
+    active_scan: False
+    hci_interface: 0
 ```
-
-IMPORTANT. This component uses temporary file to accumulate sensor data between sensor updates. Therefore, to reduce the number of write operations and extend the life of the physical medium (especially if it is an SD card, as is often the case with Raspberry PI), it is recommended to move the `/tmp` mount point to RAM (tmpfs). To do this, add the following line to the end of your `/etc/fstab` and restart the host:
-
-```shell
-tmpfs  /tmp  tmpfs  rw,nosuid,nodev 0 0
-```
-
-You can check the `/tmp` mount point with the command `mount | grep /tmp`. If as a result you see something like `tmpfs on /tmp type tmpfs (rw, nosuid, nodev, relatime)`, then everything is fine.
 
 ### Configuration Variables
 
@@ -129,7 +131,7 @@ You can check the `/tmp` mount point with the command `mount | grep /tmp`. If as
 
   (positive integer)(Optional) The period in seconds during which the sensor readings are collected and transmitted to Home Assistant after averaging. Default value: 60.
 
-  *To clarify the difference between the sensor broadcast interval and the component measurement period: The LYWSDCGQ transmits 20-25 valuable BT LE messages (RSSI is -75..-70 dBm). With the period = 60 (seconds), the component accumulates all these 20-25 messages, and after the 60 seconds expires, averages them and updates the sensor status in Home Assistant. The period does not affect the consumption of the sensor. It only affects the Home Assistant sensor update rate and the number of averaged values. We cannot change the frequency with which sensor sends data.*
+  *To clarify the difference between the sensor broadcast interval and the component measurement period: The LYWSDCGQ transmits 20-25 valuable BT LE messages (RSSI -75..-70 dBm). During the period = 60 (seconds), the component accumulates all these 20-25 messages, and after the 60 seconds expires, averages them and updates the sensor status in Home Assistant. The period does not affect the consumption of the sensor. It only affects the Home Assistant sensor update rate and the number of averaged values. We cannot change the frequency with which sensor sends data.*
 
 #### log_spikes
 
@@ -143,13 +145,17 @@ You can check the `/tmp` mount point with the command `mount | grep /tmp`. If as
   
   *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
 
-#### hcitool_active
+#### active_scan
 
-  (boolean)(Optional) In active mode hcitool sends scan requests, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just reciving the advertisements sent by the BLE devices. This parameter is a subject for experiment. See the hcitool docs, --passive switch. Default value: False
-  
+  (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
+
+#### hci_interface
+
+  (positive integer)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. Default value: 0
+
 ## Frequently asked questions
 
-Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues). 
+Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues).
 
 ## Credits
 
