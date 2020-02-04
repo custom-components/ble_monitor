@@ -137,7 +137,7 @@ def parse_xiomi_value(hexvalue, typecode):
     vlength = len(hexvalue) / 2
     if vlength == 4:
         if typecode == "0D":
-            temp, humi = TH_STRUCT.unpack(bytes.fromhex(hexvalue))
+            (temp, humi) = TH_STRUCT.unpack(bytes.fromhex(hexvalue))
             return {"temperature": temp / 10, "humidity": humi / 10}
     if vlength == 2:
         if typecode == "06":
