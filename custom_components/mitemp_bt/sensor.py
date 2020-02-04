@@ -1,10 +1,10 @@
 """Xiaomi Mi BLE monitor integration."""
-from datetime import timedelta
 import asyncio
-from threading import Thread
+from datetime import timedelta
 import logging
 import statistics as sts
 import struct
+from threading import Thread
 
 import aioblescan as aiobs
 import voluptuous as vol
@@ -41,7 +41,7 @@ from .const import (
     CONF_HMIN,
     CONF_HMAX,
     XIAOMI_TYPE_DICT,
-    MMTS_DICT
+    MMTS_DICT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -53,12 +53,10 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
+        vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
         vol.Optional(
-            CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN
-        ): cv.boolean,
-        vol.Optional(
-            CONF_HCI_INTERFACE, default = DEFAULT_HCI_INTERFACE
-        ): cv.positive_int
+            CONF_HCI_INTERFACE, default=DEFAULT_HCI_INTERFACE
+        ): cv.positive_int,
     }
 )
 
@@ -69,9 +67,12 @@ T_STRUCT = struct.Struct("<h")
 CND_STRUCT = struct.Struct("<H")
 ILL_STRUCT = struct.Struct("<I")
 
+
 class HCIdump(Thread):
-    """mimic deprecated hcidump tool"""
-    def __init__(self, dumplist, interface = 0, active = 0):
+    """Mimic deprecated hcidump tool."""
+
+    def __init__(self, dumplist, interface=0, active=0):
+        """Initiate HCIdump thread."""
         Thread.__init__(self)
         _LOGGER.debug("HCIdump thread: Init")
         self._interface = interface
@@ -81,12 +82,12 @@ class HCIdump(Thread):
         _LOGGER.debug("HCIdump thread: Init finished")
 
     def process_hci_events(self, data):
-        """collect HCI events"""
+        """Collect HCI events."""
         self.dumplist.append(data)
 
     def run(self):
+        """Run HCIdump thread."""
         _LOGGER.debug("HCIdump thread: Run")
-        #self._event_loop = asyncio.get_event_loop()
         try:
             mysocket = aiobs.create_bt_socket(self._interface)
         except OSError as error:
@@ -94,19 +95,15 @@ class HCIdump(Thread):
         else:
             self._event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self._event_loop)
-            fac=self._event_loop._create_connection_transport(# pylint: disable=W0212
-                mysocket,aiobs.BLEScanRequester,
-                None,
-                None
+            fac = self._event_loop._create_connection_transport(
+                mysocket, aiobs.BLEScanRequester, None, None
             )
             _LOGGER.debug("HCIdump thread: Connection")
-            conn,btctrl = self._event_loop.run_until_complete(fac)
+            conn, btctrl = self._event_loop.run_until_complete(fac)
             _LOGGER.debug("HCIdump thread: Connected")
             btctrl.process = self.process_hci_events
             btctrl.send_command(
-                aiobs.HCI_Cmd_LE_Set_Scan_Params(
-                    scan_type = self._active
-                )
+                aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active)
             )
             btctrl.send_scan_request()
             _LOGGER.debug("HCIdump thread: start main event_loop")
@@ -117,7 +114,8 @@ class HCIdump(Thread):
             self._event_loop.close()
             _LOGGER.debug("HCIdump thread: Run finished")
 
-    def join(self, timeout = 3):
+    def join(self, timeout=3):
+        """Join HCIdump thread."""
         _LOGGER.debug("HCIdump thread: joining")
         try:
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
@@ -126,18 +124,13 @@ class HCIdump(Thread):
         Thread.join(self, timeout)
         _LOGGER.debug("HCIdump thread: joined")
 
+
 def reverse_mac(rmac):
     """Change LE order to BE."""
     if len(rmac) != 12:
         return None
-    return (
-        rmac[10:12]
-        + rmac[8:10]
-        + rmac[6:8]
-        + rmac[4:6]
-        + rmac[2:4]
-        + rmac[0:2]
-    )
+    return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
+
 
 def parse_xiomi_value(hexvalue, typecode):
     """Convert value depending on its type."""
@@ -148,13 +141,13 @@ def parse_xiomi_value(hexvalue, typecode):
             return {"temperature": temp / 10, "humidity": humi / 10}
     if vlength == 2:
         if typecode == "06":
-            humi, = H_STRUCT.unpack(bytes.fromhex(hexvalue))
+            (humi,) = H_STRUCT.unpack(bytes.fromhex(hexvalue))
             return {"humidity": humi / 10}
         if typecode == "04":
-            temp, = T_STRUCT.unpack(bytes.fromhex(hexvalue))
+            (temp,) = T_STRUCT.unpack(bytes.fromhex(hexvalue))
             return {"temperature": temp / 10}
         if typecode == "09":
-            cond, = CND_STRUCT.unpack(bytes.fromhex(hexvalue))
+            (cond,) = CND_STRUCT.unpack(bytes.fromhex(hexvalue))
             return {"conductivity": cond}
     if vlength == 1:
         if typecode == "0A":
@@ -163,54 +156,45 @@ def parse_xiomi_value(hexvalue, typecode):
             return {"moisture": int(hexvalue, 16)}
     if vlength == 3:
         if typecode == "07":
-            illum, = ILL_STRUCT.unpack(bytes.fromhex(hexvalue + "00"))
+            (illum,) = ILL_STRUCT.unpack(bytes.fromhex(hexvalue + "00"))
             return {"illuminance": illum}
     return {}
+
 
 def parse_raw_message(data):
     """Parse the raw data."""
     if data is None:
         return None
-
     # check for Xiaomi service data
     xiaomi_index = data.find("1695FE", 33)
     if xiaomi_index == -1:
         return None
-
     # check for no BR/EDR + LE General discoverable mode flags
     adv_index = data.find("020106", 28, 34)
     if adv_index == -1:
         return None
-
     # check for BTLE msg size
     msg_length = int(data[4:6], 16) * 2 + 6
     if msg_length != len(data):
         return None
-
     # check for MAC presence in message and in service data
     xiaomi_mac_reversed = data[xiaomi_index + 16:xiaomi_index + 28]
     source_mac_reversed = data[adv_index - 14:adv_index - 2]
     if xiaomi_mac_reversed != source_mac_reversed:
         return None
-
     # check if RSSI is valid
-    rssi, = struct.unpack(
-        "<b", bytes.fromhex(data[msg_length - 2:msg_length])
-    )
+    (rssi,) = struct.unpack("<b", bytes.fromhex(data[msg_length - 2:msg_length]))
     if not 0 >= rssi >= -127:
         return None
-
     try:
         sensor_type, toffset = XIAOMI_TYPE_DICT[
             data[xiaomi_index + 8:xiaomi_index + 14]
         ]
     except KeyError:
         _LOGGER.debug(
-            "Unknown sensor type: %s",
-            data[xiaomi_index + 8:xiaomi_index + 14],
+            "Unknown sensor type: %s", data[xiaomi_index + 8:xiaomi_index + 14],
         )
         return None
-
     # xiaomi data length = message length
     #     -all bytes before XiaomiUUID
     #     -3 bytes Xiaomi UUID + ADtype
@@ -227,7 +211,6 @@ def parse_raw_message(data):
     # check if xiaomi data start and length is valid
     if xdata_length != len(data[xdata_point:-2]):
         return None
-
     packet_id = int(data[xiaomi_index + 14:xiaomi_index + 16], 16)
     result = {
         "rssi": rssi,
@@ -257,6 +240,7 @@ def parse_raw_message(data):
         xdata_point = xnext_point
     return result
 
+
 class BLEScanner:
     """BLE scanner."""
 
@@ -270,22 +254,22 @@ class BLEScanner:
         self.hcidump_data.clear()
         _LOGGER.debug("Spawning HCIdump thread.")
         self.dumpthread = HCIdump(
-            dumplist = self.hcidump_data,
-            interface = hci_interface,
-            active = int(active_scan is True)
+            dumplist=self.hcidump_data,
+            interface=hci_interface,
+            active=int(active_scan is True),
         )
-        #self.dumpthread.daemon = True
         _LOGGER.debug("Starting HCIdump thread.")
         self.dumpthread.start()
 
     def stop(self):
-        """Stop hcidump thread"""
+        """Stop HCIdump thread."""
         self.dumpthread.join()
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
         _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
         self.dumpthread.join()
+
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
@@ -295,45 +279,39 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     scanner.start(config)
     sensors_by_mac = {}
 
-    def calc_update_state(entity_to_update, sensor_mac,
-                      config, measurements_list):
-        """Averages according to options and updates the entity state"""
+    def calc_update_state(entity_to_update, sensor_mac, config, measurements_list):
+        """Averages according to options and updates the entity state."""
         textattr = ""
         success = False
         error = ""
         try:
             if config[CONF_ROUNDING]:
                 state_median = round(
-                    sts.median(measurements_list[sensor_mac]),
-                    config[CONF_DECIMALS]
+                    sts.median(measurements_list[sensor_mac]), config[CONF_DECIMALS]
                 )
                 state_mean = round(
-                    sts.mean(measurements_list[sensor_mac]),
-                    config[CONF_DECIMALS]
+                    sts.mean(measurements_list[sensor_mac]), config[CONF_DECIMALS]
                 )
             else:
                 state_median = sts.median(measurements_list[sensor_mac])
                 state_mean = sts.mean(measurements_list[sensor_mac])
-
             if config[CONF_USE_MEDIAN]:
                 textattr = "last median of"
                 setattr(entity_to_update, "_state", state_median)
             else:
                 textattr = "last mean of"
                 setattr(entity_to_update, "_state", state_mean)
-            getattr(entity_to_update, "_device_state_attributes")[
-                textattr
-            ] = len(measurements_list[sensor_mac])
+            getattr(entity_to_update, "_device_state_attributes")[textattr] = len(
+                measurements_list[sensor_mac]
+            )
             getattr(entity_to_update, "_device_state_attributes")[
                 "median"
             ] = state_median
-            getattr(entity_to_update, "_device_state_attributes")[
-                "mean"
-            ] = state_mean
+            getattr(entity_to_update, "_device_state_attributes")["mean"] = state_mean
             entity_to_update.async_schedule_update_ha_state()
             success = True
         except AttributeError:
-            _LOGGER.info("Sensor %s not yet ready for update", sensor_mac)
+            _LOGGER.debug("Sensor %s not yet ready for update", sensor_mac)
             success = True
         except ZeroDivisionError as err:
             error = err
@@ -343,7 +321,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     def discover_ble_devices(config):
         """Discover Bluetooth LE devices."""
-        #_LOGGER.debug("Discovering Bluetooth LE devices")
+        _LOGGER.debug("Discovering Bluetooth LE devices")
         log_spikes = config[CONF_LOG_SPIKES]
         _LOGGER.debug("Time to analyze...")
         stype = {}
@@ -359,9 +337,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         _LOGGER.debug("Getting data from HCIdump thread")
         scanner.stop()
         hcidump_raw = [*scanner.hcidump_data]
-        scanner.start(config) #minimum delay between HCIdumps
+        scanner.start(config)  # minimum delay between HCIdumps
         for msg in hcidump_raw:
-            data = parse_raw_message(''.join('{:02X}'.format(x) for x in msg))
+            data = parse_raw_message("".join("{:02X}".format(x) for x in msg))
             if data and "mac" in data:
                 # ignore duplicated message
                 packet = int(data["packet"])
@@ -370,9 +348,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 else:
                     prev_packet = None
                 if prev_packet == packet:
-                    #_LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
                     continue
-                #_LOGGER.debug("NEW DATA: %s", data)
                 lpacket[data["mac"]] = packet
                 # store found readings per device
                 if "temperature" in data:
@@ -395,9 +371,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         macs[data["mac"]] = data["mac"]
                     elif log_spikes:
                         _LOGGER.error(
-                            "Humidity spike: %s (%s)",
-                            data["humidity"],
-                            data["mac"],
+                            "Humidity spike: %s (%s)", data["humidity"], data["mac"],
                         )
                 if "conductivity" in data:
                     if data["mac"] not in cond_m_data:
@@ -421,14 +395,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     rssi[data["mac"]] = []
                 rssi[data["mac"]].append(int(data["rssi"]))
                 stype[data["mac"]] = data["type"]
-
         # for every seen device
         for mac in macs:
 
-            # fixed entity index for every measurement type according to the sensor implementation
+            # fixed entity index for every measurement type
+            # according to the sensor implementation
             t_i, h_i, m_i, c_i, i_i = MMTS_DICT[stype[mac]]
 
-            # if necessary, create a list of entities according to the sensor implementation
+            # if necessary, create a list of entities
+            # according to the sensor implementation
             if mac in sensors_by_mac:
                 sensors = sensors_by_mac[mac]
             else:
@@ -449,89 +424,80 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         sensors[h_i] = HumiditySensor(mac)
                 except IndexError as error:
                     _LOGGER.error(
-                        "Sensor implementation error for %s, %s!",
-                        stype[mac],
-                        mac
+                        "Sensor implementation error for %s, %s!", stype[mac], mac
                     )
                     _LOGGER.error(error)
                     continue
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
-
             # append joint attributes
             for sensor in sensors:
-                getattr(sensor, "_device_state_attributes")[
-                    "last packet id"
-                ] = lpacket[mac]
-                getattr(sensor, "_device_state_attributes")[
-                    "rssi"
-                ] = round(sts.mean(rssi[mac]))
-                getattr(sensor, "_device_state_attributes")[
-                    "sensor type"
-                ] = stype[mac]
+                getattr(sensor, "_device_state_attributes")["last packet id"] = lpacket[
+                    mac
+                ]
+                getattr(sensor, "_device_state_attributes")["rssi"] = round(
+                    sts.mean(rssi[mac])
+                )
+                getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
                 if mac in batt:
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
                     ] = batt[mac]
-
             # averaging and states updating
             if mac in temp_m_data:
                 success, error = calc_update_state(
-                                sensors[t_i], mac, config, temp_m_data
-                            )
+                    sensors[t_i], mac, config, temp_m_data
+                )
                 if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, temp.) update error:",
-                        mac, stype[mac]
+                        "Sensor %s (%s, temp.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
                     continue
             if mac in hum_m_data:
                 success, error = calc_update_state(
-                                sensors[h_i], mac, config, hum_m_data
-                            )
+                    sensors[h_i], mac, config, hum_m_data
+                )
                 if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, hum.) update error:",
-                        mac, stype[mac]
-                    )
+                    _LOGGER.error("Sensor %s (%s, hum.) update error:", mac, stype[mac])
                     _LOGGER.error(error)
                     continue
             if mac in moist_m_data:
                 success, error = calc_update_state(
-                                sensors[m_i], mac, config, moist_m_data
-                            )
+                    sensors[m_i], mac, config, moist_m_data
+                )
                 if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, moist.) update error:",
-                        mac, stype[mac]
+                        "Sensor %s (%s, moist.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
                     continue
             if mac in cond_m_data:
                 success, error = calc_update_state(
-                                sensors[c_i], mac, config, cond_m_data
-                            )
+                    sensors[c_i], mac, config, cond_m_data
+                )
                 if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, cond.) update error:",
-                        mac, stype[mac]
+                        "Sensor %s (%s, cond.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
                     continue
             if mac in illum_m_data:
                 success, error = calc_update_state(
-                                sensors[i_i], mac, config, illum_m_data
-                            )
+                    sensors[i_i], mac, config, illum_m_data
+                )
                 if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, illum.) update error:",
-                        mac, stype[mac]
+                        "Sensor %s (%s, illum.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
                     continue
-        #scanner.start(config) - moved earlier (before dump parser loop)
-        _LOGGER.debug("Finished. Parsed: %i hci events, %i xiaomi devices.", len(hcidump_raw), len(macs))
+        # scanner.start(config) - moved earlier (before dump parser loop)
+        _LOGGER.debug(
+            "Finished. Parsed: %i hci events, %i xiaomi devices.",
+            len(hcidump_raw),
+            len(macs),
+        )
         return []
 
     def update_ble(now):
@@ -543,7 +509,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             discover_ble_devices(config)
         except RuntimeError as error:
             _LOGGER.error("Error during Bluetooth LE scan: %s", error)
-
         track_point_in_utc_time(
             hass, update_ble, dt_util.utcnow() + timedelta(seconds=period)
         )
