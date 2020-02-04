@@ -7,12 +7,16 @@
 {% if installed %}
 # Changes since 0.4
 
-Now the component does not use external utilities, we get access to data from python, from a separate tread.
+The component does not use external utilities anymore, we get access to data directly from python, from a separate tread.
 
-New options:
+New configuration options:
 
-- active_scan: False (hcidump_active is deprecated, __must be removed__ from `configuration.yaml`)
+- active_scan: False
 - hci_interface: 0 (integer number, 0 as default for hci0, 1 for hci1 and so on)
+
+Deprecated configuration options:
+
+- hcidump_active is deprecated and __must be removed__ from `configuration.yaml`)
 
 NB:
 
