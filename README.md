@@ -129,7 +129,7 @@ sensor:
 
 #### batt_entities
 
-  (boolean)(Optional) If you set this parameter to `True`, then the battery information will be presented as a separate entity as `sensor.mi_batt_ <sensor_mac_address>`. By default, the battery information will be presented as a sensor attribute called `battery level` Default value: False
+  (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
 
 ## Frequently asked questions
 

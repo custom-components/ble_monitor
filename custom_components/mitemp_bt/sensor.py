@@ -458,11 +458,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         sensors[b_i].async_schedule_update_ha_state()
                     except AttributeError:
                         _LOGGER.debug("BatterySensor %s not yet ready for update", mac)
-                else:
-                    for sensor in sensors:
-                        getattr(sensor, "_device_state_attributes")[
-                            ATTR_BATTERY_LEVEL
-                        ] = batt[mac]
+                for sensor in sensors:
+                    if isinstance(sensor, BatterySensor):
+                        continue
+                    getattr(sensor, "_device_state_attributes")[
+                        ATTR_BATTERY_LEVEL
+                    ] = batt[mac]
             # averaging and states updating
             if mac in temp_m_data:
                 success, error = calc_update_state(
