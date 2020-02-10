@@ -5,24 +5,13 @@
 ### NB!: This is a Beta version!
 {% endif %}
 {% if installed %}
-# Changes since 0.4
-
-The component does not use external utilities anymore, we get access to data directly from python, from a separate tread.
+# Changes since 0.5.3
 
 New configuration options:
 
-- active_scan: False
-- hci_interface: 0 (integer number, 0 as default for hci0, 1 for hci1 and so on)
+- batt_entities: False
 
-Deprecated configuration options:
-
-- hcidump_active is deprecated and __must be removed__ from `configuration.yaml`)
-
-NB:
-
-Since the component now uses direct access to the HCI interface, python must have the appropriate rights, see paragraph 1 of the HOW TO INSTALL section [below](#how-to-install).
-
-In addition, we began to collect [Frequently Asked Questions](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md). Please read it before creating a new issue.
+(boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
 
 ---
 {% endif %}
