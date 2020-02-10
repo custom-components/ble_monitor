@@ -12,6 +12,7 @@ import voluptuous as vol
 from homeassistant.const import (
     DEVICE_CLASS_TEMPERATURE,
     DEVICE_CLASS_HUMIDITY,
+    DEVICE_CLASS_BATTERY,
     TEMP_CELSIUS,
     ATTR_BATTERY_LEVEL,
 )
@@ -29,6 +30,7 @@ from .const import (
     DEFAULT_USE_MEDIAN,
     DEFAULT_ACTIVE_SCAN,
     DEFAULT_HCI_INTERFACE,
+    DEFAULT_BATT_ENTITIES,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -36,6 +38,7 @@ from .const import (
     CONF_USE_MEDIAN,
     CONF_ACTIVE_SCAN,
     CONF_HCI_INTERFACE,
+    CONF_BATT_ENTITIES,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -57,6 +60,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(
             CONF_HCI_INTERFACE, default=DEFAULT_HCI_INTERFACE
         ): cv.positive_int,
+        vol.Optional(CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES): cv.boolean,
     }
 )
 
@@ -400,7 +404,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
             # fixed entity index for every measurement type
             # according to the sensor implementation
-            t_i, h_i, m_i, c_i, i_i = MMTS_DICT[stype[mac]]
+            t_i, h_i, m_i, c_i, i_i, b_i = MMTS_DICT[stype[mac]]
 
             # if necessary, create a list of entities
             # according to the sensor implementation
@@ -422,6 +426,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         sensors = [None] * 2
                         sensors[t_i] = TemperatureSensor(mac)
                         sensors[h_i] = HumiditySensor(mac)
+
+                    if CONF_BATT_ENTITIES and (b_i != 9):
+                        sensors.insert(b_i, BatterySensor(mac))
+
                 except IndexError as error:
                     _LOGGER.error(
                         "Sensor implementation error for %s, %s!", stype[mac], mac
@@ -439,10 +447,22 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     sts.mean(rssi[mac])
                 )
                 getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
-                if mac in batt:
-                    getattr(sensor, "_device_state_attributes")[
-                        ATTR_BATTERY_LEVEL
-                    ] = batt[mac]
+                #if mac in batt:
+                #    getattr(sensor, "_device_state_attributes")[
+                #        ATTR_BATTERY_LEVEL
+                #    ] = batt[mac]
+            if mac in batt:
+                if CONF_BATT_ENTITIES:
+                    try:
+                        setattr(sensors[b_i], "_state", batt[mac])
+                        sensors[b_i].async_schedule_update_ha_state()
+                    except AttributeError:
+                        _LOGGER.debug("BatterySensor %s not yet ready for update", mac)
+                else:
+                    for sensor in sensors:
+                        getattr(sensor, "_device_state_attributes")[
+                            ATTR_BATTERY_LEVEL
+                        ] = batt[mac]
             # averaging and states updating
             if mac in temp_m_data:
                 success, error = calc_update_state(
@@ -749,6 +769,56 @@ class IlluminanceSensor(Entity):
     def icon(self):
         """Return the icon of the sensor."""
         return "mdi:white-balance-sunny"
+
+    @property
+    def should_poll(self):
+        """No polling needed."""
+        return False
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._device_state_attributes
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        return self._unique_id
+
+    @property
+    def force_update(self):
+        """Force update."""
+        return True
+
+
+class BatterySensor(Entity):
+    """Representation of a Sensor."""
+
+    def __init__(self, mac):
+        """Initialize the sensor."""
+        self._state = None
+        self._unique_id = "batt_" + mac
+        self._device_state_attributes = {}
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "mi {}".format(self._unique_id)
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return "%"
+
+    @property
+    def device_class(self):
+        """Return the unit of measurement."""
+        return DEVICE_CLASS_BATTERY
 
     @property
     def should_poll(self):
