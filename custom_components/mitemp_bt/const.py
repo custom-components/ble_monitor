@@ -38,7 +38,7 @@ XIAOMI_TYPE_DICT = {
     '205D01': ["HHCCPOT002", 1]
 }
 
-# Sensor type indexes dictionary 
+# Sensor type indexes dictionary
 # Temperature, Humidity, Moisture, Conductivity, Illuminance, Battery
 # Measurement type T  H  M  C  I  B   9 - no measurement
 MMTS_DICT = {

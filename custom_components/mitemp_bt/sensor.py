@@ -427,7 +427,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         sensors[t_i] = TemperatureSensor(mac)
                         sensors[h_i] = HumiditySensor(mac)
 
-                    if CONF_BATT_ENTITIES and (b_i != 9):
+                    if config[CONF_BATT_ENTITIES] and (b_i != 9):
                         sensors.insert(b_i, BatterySensor(mac))
 
                 except IndexError as error:
@@ -452,7 +452,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 #        ATTR_BATTERY_LEVEL
                 #    ] = batt[mac]
             if mac in batt:
-                if CONF_BATT_ENTITIES:
+                if config[CONF_BATT_ENTITIES]:
                     try:
                         setattr(sensors[b_i], "_state", batt[mac])
                         sensors[b_i].async_schedule_update_ha_state()

@@ -86,6 +86,7 @@ sensor:
     use_median: False
     active_scan: False
     hci_interface: 0
+    batt_entities: False
 ```
 
 
@@ -125,6 +126,10 @@ sensor:
 #### hci_interface
 
   (positive integer)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. Default value: 0
+
+#### batt_entities
+
+  (boolean)(Optional) If you set this parameter to `True`, then the battery information will be presented as a separate entity as `sensor.mi_batt_ <sensor_mac_address>`. By default, the battery information will be presented as a sensor attribute called `battery level` Default value: False
 
 ## Frequently asked questions
 
