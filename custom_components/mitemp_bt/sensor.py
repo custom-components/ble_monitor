@@ -57,9 +57,12 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
         vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
+        #vol.Optional(
+        #    CONF_HCI_INTERFACE, default=DEFAULT_HCI_INTERFACE
+        #): cv.positive_int,
         vol.Optional(
-            CONF_HCI_INTERFACE, default=DEFAULT_HCI_INTERFACE
-        ): cv.positive_int,
+            CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
+        ): vol.All(cv.ensure_list, [cv.positive_int]),
         vol.Optional(CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES): cv.boolean,
     }
 )
@@ -224,7 +227,7 @@ def parse_raw_message(data):
     }
 
     # loop through xiaomi payload
-    # assume that the data may have several values ​​of different types,
+    # assume that the data may have several values of different types,
     # although I did not notice this behavior with my LYWSDCGQ sensors
     while True:
         xvalue_typecode = data[xdata_point:xdata_point + 2]
@@ -248,31 +251,37 @@ def parse_raw_message(data):
 class BLEScanner:
     """BLE scanner."""
 
-    dumpthread = None
+    dumpthreads = []
     hcidump_data = []
 
     def start(self, config):
         """Start receiving broadcasts."""
         active_scan = config[CONF_ACTIVE_SCAN]
-        hci_interface = config[CONF_HCI_INTERFACE]
+        hci_interfaces = config[CONF_HCI_INTERFACE]
         self.hcidump_data.clear()
-        _LOGGER.debug("Spawning HCIdump thread.")
-        self.dumpthread = HCIdump(
-            dumplist=self.hcidump_data,
-            interface=hci_interface,
-            active=int(active_scan is True),
-        )
-        _LOGGER.debug("Starting HCIdump thread.")
-        self.dumpthread.start()
+        _LOGGER.debug("Spawning HCIdump thread(s).")
+        for hci_int in hci_interfaces:
+            dumpthread = HCIdump(
+                dumplist=self.hcidump_data,
+                interface=hci_int,
+                active=int(active_scan is True),
+            )
+            self.dumpthreads.append(dumpthread)
+            _LOGGER.debug("Starting HCIdump thread for hci%s", hci_int)
+            dumpthread.start()
+        _LOGGER.debug("HCIdump threads count = %s", len(self.dumpthreads))
+        
 
     def stop(self):
-        """Stop HCIdump thread."""
-        self.dumpthread.join()
+        """Stop HCIdump thread(s)."""
+        for dumpthread in self.dumpthreads:
+            dumpthread.join()
+        self.dumpthreads = []
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
         _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
-        self.dumpthread.join()
+        self.stop()
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -352,7 +361,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 else:
                     prev_packet = None
                 if prev_packet == packet:
+#                    _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
                     continue
+#                _LOGGER.debug("NEW DATA: %s", data)
                 lpacket[data["mac"]] = packet
                 # store found readings per device
                 if "temperature" in data:

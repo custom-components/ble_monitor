@@ -125,7 +125,17 @@ sensor:
 
 #### hci_interface
 
-  (positive integer)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. Default value: 0
+  (positive integer or list of positive integers)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
+
+  ```yaml
+  sensor:
+      - platform: mitemp_bt
+        hci_interface:
+                      - 0
+                      - 1
+  ```
+
+  Default value: 0
 
 #### batt_entities
 
