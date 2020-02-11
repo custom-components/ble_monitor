@@ -114,12 +114,14 @@ class HCIdump(Thread):
             )
             btctrl.send_scan_request()
             _LOGGER.debug("HCIdump thread: start main event_loop")
-            self._event_loop.run_forever()
-            _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
-            btctrl.stop_scan_request()
-            conn.close()
-            self._event_loop.close()
-            _LOGGER.debug("HCIdump thread: Run finished")
+            try:
+                self._event_loop.run_forever()
+            finally:
+                _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
+                btctrl.stop_scan_request()
+                conn.close()
+                self._event_loop.close()
+                _LOGGER.debug("HCIdump thread: Run finished")
 
     def join(self, timeout=3):
         """Join HCIdump thread."""
@@ -128,8 +130,9 @@ class HCIdump(Thread):
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
         except AttributeError as error:
             _LOGGER.debug("%s", error)
-        Thread.join(self, timeout)
-        _LOGGER.debug("HCIdump thread: joined")
+        finally:
+            Thread.join(self, timeout)
+            _LOGGER.debug("HCIdump thread: joined")
 
 
 def reverse_mac(rmac):
