@@ -276,7 +276,7 @@ class BLEScanner:
         """Stop HCIdump thread(s)."""
         for dumpthread in self.dumpthreads:
             dumpthread.join()
-        self.dumpthreads = []
+        self.dumpthreads.clear()
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
