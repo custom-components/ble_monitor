@@ -6,7 +6,7 @@
 ### NB!: This is a Beta version!
 
 {% endif %}
-{% if pending_update %}
+{% if installed or pending_update %}
 
 # Changes since 0.5.3
 
