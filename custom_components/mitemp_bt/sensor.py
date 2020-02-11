@@ -5,6 +5,7 @@ import logging
 import statistics as sts
 import struct
 from threading import Thread
+from time import sleep
 
 import aioblescan as aiobs
 import voluptuous as vol
@@ -120,6 +121,7 @@ class HCIdump(Thread):
                 _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
                 btctrl.stop_scan_request()
                 conn.close()
+                self._event_loop.run_until_complete(asyncio.sleep(0))
                 self._event_loop.close()
                 _LOGGER.debug("HCIdump thread: Run finished")
 
@@ -294,6 +296,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
     scanner.start(config)
     sensors_by_mac = {}
+    sleep(1)
 
     def calc_update_state(entity_to_update, sensor_mac, config, measurements_list):
         """Averages according to options and updates the entity state."""
