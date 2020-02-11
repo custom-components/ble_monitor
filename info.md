@@ -2,9 +2,12 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
 {% if prerelease %}
+
 ### NB!: This is a Beta version!
+
 {% endif %}
-{% if installed %}
+{% if pending_update %}
+
 # Changes since 0.5.3
 
 New configuration options:
@@ -15,7 +18,7 @@ New configuration options:
 
 Changed:
 
-Added the ability to specify a list for a `hci_interface` option, that is, now it is possible to collect data from several interfaces simultaneously:
+Added the ability to specify a list for a `hci_interface` option, that is, now it is possible to collect data from multiple interfaces simultaneously:
 
 ```yaml
   sensor:
@@ -30,7 +33,7 @@ Added the ability to specify a list for a `hci_interface` option, that is, now i
 
 # Xiaomi BLE Monitor sensor platform
 
-This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration.
+This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously).
 
 ![supported sensors](https://raw.github.com/custom-components/sensor.mitemp_bt/master/sensors.jpg)
 
