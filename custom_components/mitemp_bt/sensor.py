@@ -58,9 +58,6 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
         vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
-        #vol.Optional(
-        #    CONF_HCI_INTERFACE, default=DEFAULT_HCI_INTERFACE
-        #): cv.positive_int,
         vol.Optional(
             CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
         ): vol.All(cv.ensure_list, [cv.positive_int]),
@@ -464,10 +461,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     sts.mean(rssi[mac])
                 )
                 getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
-                #if mac in batt:
-                #    getattr(sensor, "_device_state_attributes")[
-                #        ATTR_BATTERY_LEVEL
-                #    ] = batt[mac]
             if mac in batt:
                 if config[CONF_BATT_ENTITIES]:
                     try:
