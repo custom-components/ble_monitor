@@ -364,9 +364,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 else:
                     prev_packet = None
                 if prev_packet == packet:
-#                    _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
+                    # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
                     continue
-#                _LOGGER.debug("NEW DATA: %s", data)
+                # _LOGGER.debug("NEW DATA: %s", data)
                 lpacket[data["mac"]] = packet
                 # store found readings per device
                 if "temperature" in data:
