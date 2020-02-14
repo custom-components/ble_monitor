@@ -5,6 +5,7 @@ import logging
 import statistics as sts
 import struct
 from threading import Thread
+from time import sleep
 
 import aioblescan as aiobs
 import voluptuous as vol
@@ -12,6 +13,7 @@ import voluptuous as vol
 from homeassistant.const import (
     DEVICE_CLASS_TEMPERATURE,
     DEVICE_CLASS_HUMIDITY,
+    DEVICE_CLASS_BATTERY,
     TEMP_CELSIUS,
     ATTR_BATTERY_LEVEL,
 )
@@ -29,6 +31,7 @@ from .const import (
     DEFAULT_USE_MEDIAN,
     DEFAULT_ACTIVE_SCAN,
     DEFAULT_HCI_INTERFACE,
+    DEFAULT_BATT_ENTITIES,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -36,6 +39,7 @@ from .const import (
     CONF_USE_MEDIAN,
     CONF_ACTIVE_SCAN,
     CONF_HCI_INTERFACE,
+    CONF_BATT_ENTITIES,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -55,8 +59,9 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
         vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
         vol.Optional(
-            CONF_HCI_INTERFACE, default=DEFAULT_HCI_INTERFACE
-        ): cv.positive_int,
+            CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
+        ): vol.All(cv.ensure_list, [cv.positive_int]),
+        vol.Optional(CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES): cv.boolean,
     }
 )
 
@@ -107,12 +112,15 @@ class HCIdump(Thread):
             )
             btctrl.send_scan_request()
             _LOGGER.debug("HCIdump thread: start main event_loop")
-            self._event_loop.run_forever()
-            _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
-            btctrl.stop_scan_request()
-            conn.close()
-            self._event_loop.close()
-            _LOGGER.debug("HCIdump thread: Run finished")
+            try:
+                self._event_loop.run_forever()
+            finally:
+                _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
+                btctrl.stop_scan_request()
+                conn.close()
+                self._event_loop.run_until_complete(asyncio.sleep(0))
+                self._event_loop.close()
+                _LOGGER.debug("HCIdump thread: Run finished")
 
     def join(self, timeout=3):
         """Join HCIdump thread."""
@@ -121,8 +129,9 @@ class HCIdump(Thread):
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
         except AttributeError as error:
             _LOGGER.debug("%s", error)
-        Thread.join(self, timeout)
-        _LOGGER.debug("HCIdump thread: joined")
+        finally:
+            Thread.join(self, timeout)
+            _LOGGER.debug("HCIdump thread: joined")
 
 
 def reverse_mac(rmac):
@@ -220,7 +229,7 @@ def parse_raw_message(data):
     }
 
     # loop through xiaomi payload
-    # assume that the data may have several values ​​of different types,
+    # assume that the data may have several values of different types,
     # although I did not notice this behavior with my LYWSDCGQ sensors
     while True:
         xvalue_typecode = data[xdata_point:xdata_point + 2]
@@ -244,31 +253,37 @@ def parse_raw_message(data):
 class BLEScanner:
     """BLE scanner."""
 
-    dumpthread = None
+    dumpthreads = []
     hcidump_data = []
 
     def start(self, config):
         """Start receiving broadcasts."""
         active_scan = config[CONF_ACTIVE_SCAN]
-        hci_interface = config[CONF_HCI_INTERFACE]
+        hci_interfaces = config[CONF_HCI_INTERFACE]
         self.hcidump_data.clear()
-        _LOGGER.debug("Spawning HCIdump thread.")
-        self.dumpthread = HCIdump(
-            dumplist=self.hcidump_data,
-            interface=hci_interface,
-            active=int(active_scan is True),
-        )
-        _LOGGER.debug("Starting HCIdump thread.")
-        self.dumpthread.start()
+        _LOGGER.debug("Spawning HCIdump thread(s).")
+        for hci_int in hci_interfaces:
+            dumpthread = HCIdump(
+                dumplist=self.hcidump_data,
+                interface=hci_int,
+                active=int(active_scan is True),
+            )
+            self.dumpthreads.append(dumpthread)
+            _LOGGER.debug("Starting HCIdump thread for hci%s", hci_int)
+            dumpthread.start()
+        _LOGGER.debug("HCIdump threads count = %s", len(self.dumpthreads))
+        
 
     def stop(self):
-        """Stop HCIdump thread."""
-        self.dumpthread.join()
+        """Stop HCIdump thread(s)."""
+        for dumpthread in self.dumpthreads:
+            dumpthread.join()
+        self.dumpthreads.clear()
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
         _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
-        self.dumpthread.join()
+        self.stop()
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -278,6 +293,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
     scanner.start(config)
     sensors_by_mac = {}
+    sleep(1)
 
     def calc_update_state(entity_to_update, sensor_mac, config, measurements_list):
         """Averages according to options and updates the entity state."""
@@ -348,7 +364,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 else:
                     prev_packet = None
                 if prev_packet == packet:
+                    # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
                     continue
+                # _LOGGER.debug("NEW DATA: %s", data)
                 lpacket[data["mac"]] = packet
                 # store found readings per device
                 if "temperature" in data:
@@ -400,7 +418,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
             # fixed entity index for every measurement type
             # according to the sensor implementation
-            t_i, h_i, m_i, c_i, i_i = MMTS_DICT[stype[mac]]
+            t_i, h_i, m_i, c_i, i_i, b_i = MMTS_DICT[stype[mac]]
 
             # if necessary, create a list of entities
             # according to the sensor implementation
@@ -422,6 +440,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         sensors = [None] * 2
                         sensors[t_i] = TemperatureSensor(mac)
                         sensors[h_i] = HumiditySensor(mac)
+
+                    if config[CONF_BATT_ENTITIES] and (b_i != 9):
+                        sensors.insert(b_i, BatterySensor(mac))
+
                 except IndexError as error:
                     _LOGGER.error(
                         "Sensor implementation error for %s, %s!", stype[mac], mac
@@ -439,7 +461,16 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     sts.mean(rssi[mac])
                 )
                 getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
-                if mac in batt:
+            if mac in batt:
+                if config[CONF_BATT_ENTITIES]:
+                    try:
+                        setattr(sensors[b_i], "_state", batt[mac])
+                        sensors[b_i].async_schedule_update_ha_state()
+                    except AttributeError:
+                        _LOGGER.debug("BatterySensor %s not yet ready for update", mac)
+                for sensor in sensors:
+                    if isinstance(sensor, BatterySensor):
+                        continue
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
                     ] = batt[mac]
@@ -749,6 +780,56 @@ class IlluminanceSensor(Entity):
     def icon(self):
         """Return the icon of the sensor."""
         return "mdi:white-balance-sunny"
+
+    @property
+    def should_poll(self):
+        """No polling needed."""
+        return False
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._device_state_attributes
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        return self._unique_id
+
+    @property
+    def force_update(self):
+        """Force update."""
+        return True
+
+
+class BatterySensor(Entity):
+    """Representation of a Sensor."""
+
+    def __init__(self, mac):
+        """Initialize the sensor."""
+        self._state = None
+        self._unique_id = "batt_" + mac
+        self._device_state_attributes = {}
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "mi {}".format(self._unique_id)
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return "%"
+
+    @property
+    def device_class(self):
+        """Return the unit of measurement."""
+        return DEVICE_CLASS_BATTERY
 
     @property
     def should_poll(self):

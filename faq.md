@@ -85,6 +85,8 @@ sensor:
         device_class: "battery"
 ```
 
+Or (since v0.5.4) you can set option `batt_entities` to `True` - the battery sensor entity will be created automatically for each device reporting battery status.
+
 ## RECEPTION ISSUES
 
 ### My sensor doesn't receive any readings from my sensors anymore or only occasionally
@@ -104,6 +106,7 @@ Especially SSD devices are known to affect the Bluetooth reception, try to place
 - The quality of your Bluetooth transceiver.
 
 The range of the built-in Bluetooth tranceiver of a Raspberry Pi is known to be limited. Try using an external Bluetooth transceiver to increase the range, e.g. with an external antenna.
+It is also worth noting that starting from v0.5.5, a component can receive data from multiple interfaces simultaneously (see the `hci_interface` option).
 
 ## OTHER ISSUES
 

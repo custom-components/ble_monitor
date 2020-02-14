@@ -8,6 +8,7 @@ CONF_LOG_SPIKES = "log_spikes"
 CONF_USE_MEDIAN = "use_median"
 CONF_ACTIVE_SCAN = "active_scan"
 CONF_HCI_INTERFACE = "hci_interface"
+CONF_BATT_ENTITIES = "batt_entities"
 
 # Default values for configuration options
 DEFAULT_ROUNDING = True
@@ -17,6 +18,7 @@ DEFAULT_LOG_SPIKES = False
 DEFAULT_USE_MEDIAN = False
 DEFAULT_ACTIVE_SCAN = False
 DEFAULT_HCI_INTERFACE = 0
+DEFAULT_BATT_ENTITIES = False
 
 
 """Fixed constants."""
@@ -36,13 +38,13 @@ XIAOMI_TYPE_DICT = {
     '205D01': ["HHCCPOT002", 1]
 }
 
-# Sensor type indexes dictionary 
-# Temperature, Humidity, Moisture, Conductivity, Illuminance
-# Measurement type T  H  M  C  I   9 - no measurement
+# Sensor type indexes dictionary
+# Temperature, Humidity, Moisture, Conductivity, Illuminance, Battery
+# Measurement type T  H  M  C  I  B   9 - no measurement
 MMTS_DICT = {
-    'HHCCJCY01' : [0, 9, 1, 2, 3],
-    'HHCCPOT002': [9, 9, 0, 1, 9],
-    'LYWSDCGQ'  : [0, 1, 9, 9, 9],
-    'LYWSD02'   : [0, 1, 9, 9, 9],
-    'CGG1'      : [0, 1, 9, 9, 9]
+    'HHCCJCY01' : [0, 9, 1, 2, 3, 9],
+    'HHCCPOT002': [9, 9, 0, 1, 9, 9],
+    'LYWSDCGQ'  : [0, 1, 9, 9, 9, 2],
+    'LYWSD02'   : [0, 1, 9, 9, 9, 9],
+    'CGG1'      : [0, 1, 9, 9, 9, 2]
 }

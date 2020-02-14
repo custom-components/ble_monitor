@@ -2,34 +2,38 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
 {% if prerelease %}
-### NB!: This is a Beta version!
-{% endif %}
-{% if installed %}
-# Changes since 0.4
 
-The component does not use external utilities anymore, we get access to data directly from python, from a separate tread.
+### NB!: This is a Beta version!
+
+{% endif %}
+{% if installed or pending_update %}
+
+# Changes since 0.5.3
 
 New configuration options:
 
-- active_scan: False
-- hci_interface: 0 (integer number, 0 as default for hci0, 1 for hci1 and so on)
+- batt_entities: False
 
-Deprecated configuration options:
+(boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
 
-- hcidump_active is deprecated and __must be removed__ from `configuration.yaml`)
+Changed:
 
-NB:
+Added the ability to specify a list for the `hci_interface` configuration option. This makes it possible to collect data from multiple interfaces simultaneously:
 
-Since the component now uses direct access to the HCI interface, python must have the appropriate rights, see paragraph 1 of the HOW TO INSTALL section [below](#how-to-install).
-
-In addition, we began to collect [Frequently Asked Questions](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md). Please read it before creating a new issue.
+```yaml
+  sensor:
+      - platform: mitemp_bt
+        hci_interface:
+                      - 0
+                      - 1
+  ```
 
 ---
 {% endif %}
 
 # Xiaomi BLE Monitor sensor platform
 
-This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration.
+This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously).
 
 ![supported sensors](https://raw.github.com/custom-components/sensor.mitemp_bt/master/sensors.jpg)
 
@@ -115,6 +119,7 @@ sensor:
     use_median: False
     active_scan: False
     hci_interface: 0
+    batt_entities: False
 ```
 
 ### Configuration Variables
@@ -151,7 +156,21 @@ sensor:
 
 #### hci_interface
 
-  (positive integer)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. Default value: 0
+  (positive integer or list of positive integers)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from multiple interfaces simultaneously, you can specify a list of interfaces:
+
+  ```yaml
+  sensor:
+      - platform: mitemp_bt
+        hci_interface:
+                      - 0
+                      - 1
+  ```
+
+  Default value: 0
+
+#### batt_entities
+
+  (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
 
 ## Frequently asked questions
 
