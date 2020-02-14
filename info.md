@@ -18,7 +18,7 @@ New configuration options:
 
 Changed:
 
-Added the ability to specify a list for a `hci_interface` option, that is, now it is possible to collect data from multiple interfaces simultaneously:
+Added the ability to specify a list for the `hci_interface` configuration option. This makes it possible to collect data from multiple interfaces simultaneously:
 
 ```yaml
   sensor:
