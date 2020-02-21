@@ -217,7 +217,7 @@ def parse_raw_message(data):
     packet_id = data[xiaomi_index + 7]
     result = {
         "rssi": rssi,
-        "mac": ''.join('{:02x}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+        "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
         "type": sensor_type,
         "packet": packet_id,
     }
