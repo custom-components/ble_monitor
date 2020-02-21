@@ -31,12 +31,13 @@ CONF_HMAX = 99.9
 
 # Xiaomi sensor types dictionary with offset for adv parser
 XIAOMI_TYPE_DICT = {
-    '209800': ["HHCCJCY01", 1],
-    '20AA01': ["LYWSDCGQ", 0],
-    '205B04': ["LYWSD02", 1],
-    '304703': ["CGG1", 0],
-    '205D01': ["HHCCPOT002", 1]
+    b'\x20\x98\x00': ["HHCCJCY01", 1],
+    b'\x20\xAA\x01': ["LYWSDCGQ", 0],
+    b'\x20\x5B\x04': ["LYWSD02", 1],
+    b'\x30\x47\x03': ["CGG1", 0],
+    b'\x20\x5D\x01': ["HHCCPOT002", 1]
 }
+
 
 # Sensor type indexes dictionary
 # Temperature, Humidity, Moisture, Conductivity, Illuminance, Battery
