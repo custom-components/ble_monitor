@@ -134,40 +134,34 @@ class HCIdump(Thread):
             _LOGGER.debug("HCIdump thread: joined")
 
 
-def reverse_mac(rmac):
-    """Change LE order to BE."""
-    if len(rmac) != 12:
-        return None
-    return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
-
-
 def parse_xiomi_value(hexvalue, typecode):
     """Convert value depending on its type."""
-    vlength = len(hexvalue) / 2
+    vlength = len(hexvalue)
     if vlength == 4:
-        if typecode == "0D":
-            (temp, humi) = TH_STRUCT.unpack(bytes.fromhex(hexvalue))
+        if typecode == 0x0D:
+            (temp, humi) = TH_STRUCT.unpack(hexvalue)
             return {"temperature": temp / 10, "humidity": humi / 10}
     if vlength == 2:
-        if typecode == "06":
-            (humi,) = H_STRUCT.unpack(bytes.fromhex(hexvalue))
+        if typecode == 0x06:
+            (humi,) = H_STRUCT.unpack(hexvalue)
             return {"humidity": humi / 10}
-        if typecode == "04":
-            (temp,) = T_STRUCT.unpack(bytes.fromhex(hexvalue))
+        if typecode == 0x04:
+            (temp,) = T_STRUCT.unpack(hexvalue)
             return {"temperature": temp / 10}
-        if typecode == "09":
-            (cond,) = CND_STRUCT.unpack(bytes.fromhex(hexvalue))
+        if typecode == 0x09:
+            (cond,) = CND_STRUCT.unpack(hexvalue)
             return {"conductivity": cond}
     if vlength == 1:
-        if typecode == "0A":
-            return {"battery": int(hexvalue, 16)}
-        if typecode == "08":
-            return {"moisture": int(hexvalue, 16)}
+        if typecode == 0x0A:
+            return {"battery": hexvalue[0]}
+        if typecode == 0x08:
+            return {"moisture": hexvalue[0]}
     if vlength == 3:
-        if typecode == "07":
-            (illum,) = ILL_STRUCT.unpack(bytes.fromhex(hexvalue + "00"))
+        if typecode == 0x07:
+            (illum,) = ILL_STRUCT.unpack(hexvalue + b'\x00')
             return {"illuminance": illum}
     return {}
+
 
 
 def parse_raw_message(data):
@@ -175,33 +169,33 @@ def parse_raw_message(data):
     if data is None:
         return None
     # check for Xiaomi service data
-    xiaomi_index = data.find("1695FE", 33)
+    xiaomi_index = data.find(b'\x16\x95\xFE', 15)
     if xiaomi_index == -1:
         return None
     # check for no BR/EDR + LE General discoverable mode flags
-    adv_index = data.find("020106", 28, 34)
+    adv_index = data.find(b"\x02\x01\x06", 14, 17)
     if adv_index == -1:
         return None
     # check for BTLE msg size
-    msg_length = int(data[4:6], 16) * 2 + 6
+    msg_length = data[2] + 3
     if msg_length != len(data):
         return None
     # check for MAC presence in message and in service data
-    xiaomi_mac_reversed = data[xiaomi_index + 16:xiaomi_index + 28]
-    source_mac_reversed = data[adv_index - 14:adv_index - 2]
+    xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
+    source_mac_reversed = data[adv_index - 7:adv_index - 1]
     if xiaomi_mac_reversed != source_mac_reversed:
         return None
     # check if RSSI is valid
-    (rssi,) = struct.unpack("<b", bytes.fromhex(data[msg_length - 2:msg_length]))
+    (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
     if not 0 >= rssi >= -127:
         return None
     try:
         sensor_type, toffset = XIAOMI_TYPE_DICT[
-            data[xiaomi_index + 8:xiaomi_index + 14]
+            data[xiaomi_index + 4:xiaomi_index + 7]
         ]
     except KeyError:
         _LOGGER.debug(
-            "Unknown sensor type: %s", data[xiaomi_index + 8:xiaomi_index + 14],
+            "Unknown sensor type: %s", ''.join('{:02x}'.format(x) for x in data[xiaomi_index + 4:xiaomi_index + 7]),
         )
         return None
     # xiaomi data length = message length
@@ -212,18 +206,18 @@ def parse_raw_message(data):
     #     -1 byte packet_id
     #     -6 bytes MAC
     #     - sensortype offset
-    xdata_length = msg_length - xiaomi_index - 30 - toffset * 2
-    if xdata_length < 8:
+    xdata_length = msg_length - xiaomi_index - 15 - toffset
+    if xdata_length < 3:
         return None
-    xdata_point = xiaomi_index + (14 + toffset) * 2
-    xnext_point = xdata_point + 6
+    xdata_point = xiaomi_index + (14 + toffset)
+    xnext_point = xdata_point + 3
     # check if xiaomi data start and length is valid
-    if xdata_length != len(data[xdata_point:-2]):
+    if xdata_length != len(data[xdata_point:-1]):
         return None
-    packet_id = int(data[xiaomi_index + 14:xiaomi_index + 16], 16)
+    packet_id = data[xiaomi_index + 7]
     result = {
         "rssi": rssi,
-        "mac": reverse_mac(xiaomi_mac_reversed),
+        "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
         "type": sensor_type,
         "packet": packet_id,
     }
@@ -232,19 +226,19 @@ def parse_raw_message(data):
     # assume that the data may have several values of different types,
     # although I did not notice this behavior with my LYWSDCGQ sensors
     while True:
-        xvalue_typecode = data[xdata_point:xdata_point + 2]
+        xvalue_typecode = data[xdata_point]
         try:
-            xvalue_length = int(data[xdata_point + 4:xdata_point + 6], 16)
+            xvalue_length = data[xdata_point + 2]
         except ValueError as error:
             _LOGGER.error("xvalue_length conv. error: %s", error)
             result = {}
             break
-        xnext_point = xdata_point + 6 + xvalue_length * 2
-        xvalue = data[xdata_point + 6:xnext_point]
+        xnext_point = xdata_point + 3 + xvalue_length
+        xvalue = data[xdata_point + 3:xnext_point]
         res = parse_xiomi_value(xvalue, xvalue_typecode)
         if res:
             result.update(res)
-        if xnext_point > msg_length - 6:
+        if xnext_point > msg_length - 3:
             break
         xdata_point = xnext_point
     return result
@@ -355,7 +349,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
         for msg in hcidump_raw:
-            data = parse_raw_message("".join("{:02X}".format(x) for x in msg))
+            data = parse_raw_message(msg)
             if data and "mac" in data:
                 # ignore duplicated message
                 packet = int(data["packet"])
