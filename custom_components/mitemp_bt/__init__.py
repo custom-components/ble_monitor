@@ -1,1 +1,1 @@
-"""Xiaomi BLE monitor sensor integration."""
+"""Xiaomi passive BLE monitor sensor integration."""
