@@ -19,7 +19,7 @@
 
 ## INSTALLATION ISSUES
 
-### I get a PermissionError in Home Assistant after the installation
+### I get a PermissionError in Home Assistant after the installation or python upgrade
 
 Note: This answer is only applicable for version 0.5 and higher.
 
