@@ -1,4 +1,4 @@
-"""Xiaomi Mi BLE monitor integration."""
+"""Xiaomi passive BLE monitor integration."""
 import asyncio
 from datetime import timedelta
 import logging
