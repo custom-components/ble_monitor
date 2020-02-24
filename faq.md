@@ -5,7 +5,7 @@
 <!-- TOC -->
 
   - [INSTALLATION ISSUES](#installation-issues)
-      - [I get a PermissionError in Home Assistant after the installation](#i-get-a-permissionerror-in-home-assistant-after-the-installation)
+      - [I get a PermissionError in Home Assistant after the installation](#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade)
       - [How do I find the number of the HCI interface?](#how-do-i-find-the-number-of-the-hci-interface)
       - [How can I create a battery sensor?](#how-can-i-create-a-battery-sensor)
   - [RECEPTION ISSUES](#reception-issues)
