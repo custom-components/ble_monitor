@@ -3,19 +3,30 @@
 ## Table of contents
 
 <!-- TOC -->
-
+  - [Why is this component called “passive” and what does it mean](why-is-this-component-called-passive-and-what-does-it-mean)
   - [INSTALLATION ISSUES](#installation-issues)
       - [I get a PermissionError in Home Assistant after the installation](#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade)
       - [How do I find the number of the HCI interface?](#how-do-i-find-the-number-of-the-hci-interface)
       - [How can I create a battery sensor?](#how-can-i-create-a-battery-sensor)
   - [RECEPTION ISSUES](#reception-issues)
       - [My sensor doesn't receive any readings from my sensors anymore or only occasionally](#my-sensor-doesnt-receive-any-readings-from-my-sensors-anymore-or-only-occasionally)
+      - [How to increase coverage](#how-to-increase-coverage)
   - [OTHER ISSUES](#other-issues)
       - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
       - [My sensor stops receiving updates some time after the system restart](my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
   - [DEBUG](#debug)
-
 <!-- /TOC -->
+
+## Why is this component called passive and what does it mean
+
+Unlike the original component (and most other solutions), does not use connections (polling) to collect data. The fact is that many sensors from the Xiaomi ecosystem themselves transmit information about their condition on the air with some frequency. We need only to "passively" receive these messages and update the status of the corresponding entities in the Home Assistant. What does this give us?
+
+- firstly, it reduces the power consumption of the sensors (the battery lasts longer), since the sensor does not transmit anything other than that provided by its developers.
+- secondly, since the range of bluetooth is rather limited, passive reception can solve some problems that arise when using "polling" components. In the case of connecting to the sensor, a two-way exchange takes place, that is, not only should we “hear” the sensor well, but the sensor, in turn, must also “hear” us well, and it could be problematic. Since to increase the radius of reception you can, for example, install an external bt-dongle with a large antenna on your host, and he will "hear" well, then you can’t do anything with the sensor itself. A passive data collection method solves this problem, because in this case the sensor does not know about our existence, and should not "hear" us at all. The main thing is that we "hear" him well.
+- another important point is the fact that the frequency of sending data for many sensors is quite high. For example, the LYWSDCGQ sensor sends about 20-25 measurements per minute. If your sensor is far away, or you have poor reception conditions, then to update the HA entity you only need to receive every twentieth message... Not a bad chance, is it? And if you increase the `period` option, then the chances increase even more. In addition, receiving a stream of 20-25 measurements per minute gives you the opportunity to increase the resolution of measurements by averaging (which is implemented in our component), and this gives more smooth (beautiful, if you want) graphs and a faster reaction of corresponding automations.
+- passive method allows without problems collecting data from several interfaces simultaneously, which expands your ability to increase the reception area. For example, you can use several external BT-dongles connected via cheap [USB-RJ45 extenders](https://sc01.alicdn.com/kf/HTB1q0VKodcnBKNjSZR0q6AFqFXae.jpg) and high-quality cat5/6 ethernet cables.
+
+I’m not sure that I have listed all the advantages resulting from the passivity of this component. But I hope that I was able to explain the essence.
 
 ## INSTALLATION ISSUES
 
@@ -107,6 +118,14 @@ Especially SSD devices are known to affect the Bluetooth reception, try to place
 
 The range of the built-in Bluetooth tranceiver of a Raspberry Pi is known to be limited. Try using an external Bluetooth transceiver to increase the range, e.g. with an external antenna.
 It is also worth noting that starting from v0.5.5, a component can receive data from multiple interfaces simultaneously (see the `hci_interface` option).
+
+### How to increase coverage
+
+There are several ways:
+
+- use an external BT-dongle (preferably with a full-size antenna).
+- use multiple spaced BT-dongles. You can experiment with various extension cords (for example, inexpensive [USB-RJ45 extenders](https://sc01.alicdn.com/kf/HTB1q0VKodcnBKNjSZR0q6AFqFXae.jpg) in combination with a regular ethernet cable).
+- use additional devices with their own BT-interface, and connect them to the Home Assistant. For example, it could be another raspberrypi with Home-Assistant and our component, connected to the main host using the [remote_homeassistant](https://github.com/lukas-hetzenecker/home-assistant-remote) component, which links multiple Home-Assistant instances together.
 
 ## OTHER ISSUES
 
