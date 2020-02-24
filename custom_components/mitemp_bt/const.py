@@ -1,4 +1,4 @@
-"""Constants for the Xiaomi BLE monitor sensor integration."""
+"""Constants for the Xiaomi passive BLE monitor sensor integration."""
 
 # Configuration options
 CONF_ROUNDING = "rounding"
