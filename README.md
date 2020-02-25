@@ -6,7 +6,7 @@
 - [SUPPORTED SENSORS](#supported-sensors)
 - [HOW TO INSTALL](#how-to-install)
 - [CONFIGURATION](#configuration)
-  - [Configuration Variables](#configuration-variables)
+    - [Configuration Variables](#configuration-variables)
         - [rounding](#rounding)
         - [decimals](#decimals)
         - [period](#period)
