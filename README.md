@@ -22,25 +22,25 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - LYWSDCGQ
 
- (round body, segment LCD, broadcasts temperature, humidity and battery, about 20 readings per minute)
+  (round body, segment LCD, broadcasts temperature, humidity and battery, about 20 readings per minute)
 
 - LYWSD02
 
- (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
+  (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
 
 - CGG1
 
- (round body, E-Ink, broadcasts temperature, humidity and battery, about 20 readings per minute)
+  (round body, E-Ink, broadcasts temperature, humidity and battery, about 20 readings per minute)
 
 - HHCCJCY01
 
- (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
+  (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
 
 - HHCCPOT002
 
- (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
+  (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
 
- *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
+*The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
 ## HOW TO INSTALL
 
