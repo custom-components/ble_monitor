@@ -1,8 +1,30 @@
 # Xiaomi passive BLE Monitor sensor platform
 
+<!-- TOC -->
+
+- [INTRODUCTION](#introduction)
+- [SUPPORTED SENSORS](#supported-sensors)
+- [HOW TO INSTALL](#how-to-install)
+- [CONFIGURATION](#configuration)
+  - [Configuration Variables](#configuration-variables)
+        - [rounding](#rounding)
+        - [decimals](#decimals)
+        - [period](#period)
+        - [logspikes](#logspikes)
+        - [usemedian](#usemedian)
+        - [activescan](#activescan)
+        - [hciinterface](#hciinterface)
+        - [battentities](#battentities)
+- [FREQUENTLY ASKED QUESTIONS](#frequently-asked-questions)
+- [CREDITS](#credits)
+
+<!-- /TOC -->
+
+## INTRODUCTION
+
 This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously).
 
-Supported sensors:
+## SUPPORTED SENSORS
 
 ![supported sensors](/sensors.jpg)
 
@@ -141,10 +163,11 @@ sensor:
 
   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
 
-## Frequently asked questions
+## FREQUENTLY ASKED QUESTIONS
 
-Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues).
+Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. There are some useful tips also.
+If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues).
 
-## Credits
+## CREDITS
 
 Credits and a big thanks should be given to [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) and [@Magalex](https://community.home-assistant.io/u/Magalex). The main python code for this component was originally developed by [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) and later modified by [@Magalex](https://community.home-assistant.io/u/Magalex).
