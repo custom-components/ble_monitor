@@ -35,21 +35,13 @@ Added the ability to specify a list for the `hci_interface` configuration option
 
 <!-- TOC -->
 
-- [INTRODUCTION](#introduction)
-- [SUPPORTED SENSORS](#supported-sensors)
-- [HOW TO INSTALL](#how-to-install)
-- [CONFIGURATION](#configuration)
-  - [Configuration Variables](#configuration-variables)
-        - [rounding](#rounding)
-        - [decimals](#decimals)
-        - [period](#period)
-        - [logspikes](#logspikes)
-        - [usemedian](#usemedian)
-        - [activescan](#activescan)
-        - [hciinterface](#hciinterface)
-        - [battentities](#battentities)
-- [FREQUENTLY ASKED QUESTIONS](#frequently-asked-questions)
-- [CREDITS](#credits)
+- [Introduction](#introduction)
+- [Supported sensors](#supported-sensors)
+- [How to install](#how-to-install)
+- [Configuration](#configuration)
+  - [Configuration variables](#configuration-variables)
+- [Frequently asked questions](#frequently-asked-questions)
+- [Credits](#credits)
 
 <!-- /TOC -->
 
