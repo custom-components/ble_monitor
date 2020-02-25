@@ -8,25 +8,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes since 0.5.3
+# Changes since 0.5.5
 
-New configuration options:
-
-- batt_entities: False
-
-(boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
-
-Changed:
-
-Added the ability to specify a list for the `hci_interface` configuration option. This makes it possible to collect data from multiple interfaces simultaneously:
-
-```yaml
-  sensor:
-      - platform: mitemp_bt
-        hci_interface:
-                      - 0
-                      - 1
-  ```
+Some optimizations and fixes.
+[FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md) was supplemented with [details about the features](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean) of this component and some methods of [increasing the coverage area](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#how-to-increase-coverage) were also added.
 
 ---
 {% endif %}
