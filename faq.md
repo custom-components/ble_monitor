@@ -3,7 +3,7 @@
 ## Table of contents
 
 <!-- TOC -->
-  - [Why is this component called “passive” and what does it mean](why-is-this-component-called-passive-and-what-does-it-mean)
+  - [Why is this component called “passive” and what does it mean](#why-is-this-component-called-passive-and-what-does-it-mean)
   - [INSTALLATION ISSUES](#installation-issues)
       - [I get a PermissionError in Home Assistant after the installation](#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade)
       - [How do I find the number of the HCI interface?](#how-do-i-find-the-number-of-the-hci-interface)
