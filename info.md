@@ -77,7 +77,7 @@ Supported sensors:
      sudo getcap `readlink -f \`which python3\``
      ```
 
-*In case you get a PermissionError, check the [Frequently Asked Questions (FAQ) page](faq.md).
+*In case you get a PermissionError, check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md).
 
 **2. Install the custom component:**
 
@@ -174,7 +174,7 @@ sensor:
 
 ## Frequently asked questions
 
-Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues).
+Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md) to see if your question is already answered. If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues).
 
 ## Credits
 
