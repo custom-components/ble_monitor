@@ -134,7 +134,7 @@ class HCIdump(Thread):
             _LOGGER.debug("HCIdump thread: joined")
 
 
-def parse_xiomi_value(hexvalue, typecode):
+def parse_xiaomi_value(hexvalue, typecode):
     """Convert value depending on its type."""
     vlength = len(hexvalue)
     if vlength == 4:
@@ -235,7 +235,7 @@ def parse_raw_message(data):
             break
         xnext_point = xdata_point + 3 + xvalue_length
         xvalue = data[xdata_point + 3:xnext_point]
-        res = parse_xiomi_value(xvalue, xvalue_typecode)
+        res = parse_xiaomi_value(xvalue, xvalue_typecode)
         if res:
             result.update(res)
         if xnext_point > msg_length - 3:
@@ -568,7 +568,7 @@ class TemperatureSensor(Entity):
 
     @property
     def device_class(self):
-        """Return the unit of measurement."""
+        """Return the device class."""
         return DEVICE_CLASS_TEMPERATURE
 
     @property
@@ -619,7 +619,7 @@ class HumiditySensor(Entity):
 
     @property
     def device_class(self):
-        """Return the unit of measurement."""
+        """Return the device class."""
         return DEVICE_CLASS_HUMIDITY
 
     @property
@@ -670,7 +670,7 @@ class MoistureSensor(Entity):
 
     @property
     def device_class(self):
-        """Return the unit of measurement."""
+        """Return the device class."""
         return DEVICE_CLASS_HUMIDITY
 
     @property
@@ -822,7 +822,7 @@ class BatterySensor(Entity):
 
     @property
     def device_class(self):
-        """Return the unit of measurement."""
+        """Return the device class."""
         return DEVICE_CLASS_BATTERY
 
     @property
