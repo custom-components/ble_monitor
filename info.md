@@ -8,10 +8,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes since 0.5.5
+# Changes since 0.5.6
 
-Some optimizations and fixes.
-[FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md) was supplemented with [details about the features](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean) of this component and some methods of [increasing the coverage area](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#how-to-increase-coverage) were also added.
+- VegTrug Grow Care Garden support (plant sensor, similar to MiFlora HHCCJCY01)
 
 ---
 {% endif %}
