@@ -54,6 +54,10 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
 
+- GCLS002
+
+  (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
+
 - HHCCPOT002
 
   (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
