@@ -9,6 +9,7 @@ CONF_USE_MEDIAN = "use_median"
 CONF_ACTIVE_SCAN = "active_scan"
 CONF_HCI_INTERFACE = "hci_interface"
 CONF_BATT_ENTITIES = "batt_entities"
+CONF_ENCRYPTORS = "encryptors"
 
 # Default values for configuration options
 DEFAULT_ROUNDING = True

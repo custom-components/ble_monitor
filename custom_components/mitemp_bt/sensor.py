@@ -41,6 +41,7 @@ from .const import (
     CONF_ACTIVE_SCAN,
     CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
+    CONF_ENCRYPTORS,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -50,6 +51,15 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
+AES128KEY_REGEX = "(?i)^[A-F0-9]+$"
+
+ENCRYPTORS_LIST_SCHEMA = vol.Schema(
+    {
+        cv.matches_regex(MAC_REGEX): cv.matches_regex(AES128KEY_REGEX)
+    }
+)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -63,6 +73,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
             CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
         ): vol.All(cv.ensure_list, [cv.positive_int]),
         vol.Optional(CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES): cv.boolean,
+        vol.Optional(CONF_ENCRYPTORS, default={}): ENCRYPTORS_LIST_SCHEMA
     }
 )
 
