@@ -8,6 +8,7 @@ from threading import Thread
 from time import sleep
 
 import aioblescan as aiobs
+from Cryptodome.Cipher import AES
 import voluptuous as vol
 
 from homeassistant.const import (
