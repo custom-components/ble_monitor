@@ -240,7 +240,7 @@ def parse_raw_message(data, aeskeyslist):
     if xdata_length < 3:
         return None
     xdata_point = xiaomi_index + (14 + toffset)
-    xnext_point = xdata_point + 3
+    #xnext_point = xdata_point + 3
     # check if xiaomi data start and length is valid
     if xdata_length != len(data[xdata_point:-1]):
         return None
@@ -289,6 +289,15 @@ def parse_raw_message(data, aeskeyslist):
         except ValueError as error:
             _LOGGER.error("xvalue_length conv. error: %s", error)
             result = {}
+            break
+        except IndexError as error:
+            _LOGGER.error("xvalue_length conv. error: %s", error)
+            result = {}
+            _LOGGER.error(data.hex())
+            _LOGGER.error("xdata_point %s", xdata_point)
+            _LOGGER.error("xvalue_typecode %s", xvalue_typecode)
+            _LOGGER.error("msg_length %s", msg_length)
+            _LOGGER.error("xdata_length %s", xdata_length)
             break
         xnext_point = xdata_point + 3 + xvalue_length
         xvalue = data[xdata_point + 3:xnext_point]
