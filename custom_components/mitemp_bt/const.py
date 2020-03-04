@@ -32,12 +32,13 @@ CONF_HMAX = 99.9
 
 # Xiaomi sensor types dictionary with offset for adv parser
 XIAOMI_TYPE_DICT = {
-    b'\x20\x98\x00': ["HHCCJCY01", 1],
-    b'\x20\xAA\x01': ["LYWSDCGQ", 0],
-    b'\x20\x5B\x04': ["LYWSD02", 1],
-    b'\x30\x47\x03': ["CGG1", 0],
-    b'\x20\x5D\x01': ["HHCCPOT002", 1],
-    b'\x20\xBC\x03': ["GCLS002", 1]
+    b'\x98\x00': ["HHCCJCY01", 1],
+    b'\xAA\x01': ["LYWSDCGQ", 0],
+    b'\x5B\x04': ["LYWSD02", 1],
+    b'\x47\x03': ["CGG1", 0],
+    b'\x5D\x01': ["HHCCPOT002", 1],
+    b'\xBC\x03': ["GCLS002", 1],
+    b'\x5B\x05': ["LYWSD03MMC", 0],
 }
 
 
@@ -50,5 +51,6 @@ MMTS_DICT = {
     'HHCCPOT002': [9, 9, 0, 1, 9, 9],
     'LYWSDCGQ'  : [0, 1, 9, 9, 9, 2],
     'LYWSD02'   : [0, 1, 9, 9, 9, 9],
-    'CGG1'      : [0, 1, 9, 9, 9, 2]
+    'CGG1'      : [0, 1, 9, 9, 9, 2],
+    'LYWSD03MMC': [0, 1, 9, 9, 9, 2]
 }

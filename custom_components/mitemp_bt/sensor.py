@@ -174,9 +174,27 @@ def parse_xiaomi_value(hexvalue, typecode):
             return {"illuminance": illum}
     return {}
 
+def decrypt_payload(encrypted_payload, key, nonce):
+    """Decrypt payload"""
+    aad = b"\x11"
+    token = encrypted_payload[-4:]
+    payload_counter = encrypted_payload[-7:-4]
+    nonce = b"".join([nonce, payload_counter])
+    cipherpayload = encrypted_payload[:-7]
+    cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len = 4)
+    cipher.update(aad)
+    try:
+        plaindata = cipher.decrypt_and_verify(cipherpayload, token)
+    except ValueError as error:
+        _LOGGER.debug("Decryption failed, %s", error)
+        _LOGGER.debug("Token: %s", token.hex())
+        _LOGGER.debug("nonce: %s", nonce.hex())
+        _LOGGER.debug("encrypted_payload: %s", encrypted_payload.hex())
+        _LOGGER.debug("cipherpayload: %s", cipherpayload.hex())
+        return None
+    return plaindata
 
-
-def parse_raw_message(data):
+def parse_raw_message(data, aeskeyslist):
     """Parse the raw data."""
     if data is None:
         return None
@@ -203,7 +221,7 @@ def parse_raw_message(data):
         return None
     try:
         sensor_type, toffset = XIAOMI_TYPE_DICT[
-            data[xiaomi_index + 4:xiaomi_index + 7]
+            data[xiaomi_index + 5:xiaomi_index + 7]
         ]
     except KeyError:
         _LOGGER.debug(
@@ -233,7 +251,34 @@ def parse_raw_message(data):
         "type": sensor_type,
         "packet": packet_id,
     }
-
+    #Frame control bits
+    framectrl, = struct.unpack('<H', data[xiaomi_index + 3:xiaomi_index + 5])
+    #check encrypted data flags
+    if framectrl & 0x4800:
+        #try to find encryption key for current device
+        try:
+            key = aeskeyslist[xiaomi_mac_reversed.hex().upper()]
+        except KeyError:
+            _LOGGER.debug("No encryption key found for %s", xiaomi_mac_reversed.hex().upper())
+            _LOGGER.debug(aeskeyslist)
+            return None
+        nonce = b"".join(
+            [
+                xiaomi_mac_reversed,
+                data[xiaomi_index + 5:xiaomi_index + 7],
+                data[xiaomi_index + 7:xiaomi_index + 8]
+            ]
+        )
+        decrypted_payload = decrypt_payload(
+            data[xdata_point:msg_length-1], key, nonce
+        )
+        if decrypted_payload is None:
+            _LOGGER.debug("Decryption failed for %s", result["mac"])
+            return None
+        #replace cipher with decrypted data
+        data = b"".join((data[:xdata_point],decrypted_payload,data[-1:]))
+        xdata_length = len(decrypted_payload)
+        msg_length -= len(data[xdata_point:msg_length-1])
     # loop through xiaomi payload
     # assume that the data may have several values of different types,
     # although I did not notice this behavior with my LYWSDCGQ sensors
@@ -294,12 +339,31 @@ class BLEScanner:
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
+
+    def reverse_mac(rmac):
+        """change LE order to BE"""
+        if len(rmac)!=12:
+            return None
+        return (rmac[10:12]
+            + rmac[8:10]
+            + rmac[6:8]
+            + rmac[4:6]
+            + rmac[2:4]
+            + rmac[0:2])
+
     _LOGGER.debug("Starting")
     scanner = BLEScanner()
     hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
     scanner.start(config)
     sensors_by_mac = {}
+    #prepare device:key list
+    aeskeys = {}
+    for mac in config[CONF_ENCRYPTORS]:
+        aeskeys[reverse_mac(mac.replace(":", ""))] = bytes.fromhex(
+            config[CONF_ENCRYPTORS][mac]
+        )
     sleep(1)
+    _LOGGER.debug(aeskeys)
 
     def calc_update_state(entity_to_update, sensor_mac, config, measurements_list):
         """Averages according to options and updates the entity state."""
@@ -339,9 +403,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             error = err
         except IndexError as err:
             error = err
+        except RuntimeError as err:
+            error = err
         return success, error
 
-    def discover_ble_devices(config):
+    def discover_ble_devices(config, aeskeyslist):
         """Discover Bluetooth LE devices."""
         _LOGGER.debug("Discovering Bluetooth LE devices")
         log_spikes = config[CONF_LOG_SPIKES]
@@ -361,7 +427,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
         for msg in hcidump_raw:
-            data = parse_raw_message(msg)
+            data = parse_raw_message(msg, aeskeyslist)
             if data and "mac" in data:
                 # ignore duplicated message
                 packet = int(data["packet"])
@@ -474,6 +540,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         sensors[b_i].async_schedule_update_ha_state()
                     except AttributeError:
                         _LOGGER.debug("BatterySensor %s not yet ready for update", mac)
+                    except RuntimeError as err:
+                        _LOGGER.debug("BatterySensor %s not yet ready for update:", mac)
+                        _LOGGER.debug(err)
                 for sensor in sensors:
                     if isinstance(sensor, BatterySensor):
                         continue
@@ -543,7 +612,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         _LOGGER.debug("update_ble called")
 
         try:
-            discover_ble_devices(config)
+            discover_ble_devices(config, aeskeys)
         except RuntimeError as error:
             _LOGGER.error("Error during Bluetooth LE scan: %s", error)
         track_point_in_utc_time(
