@@ -407,7 +407,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 "median"
             ] = state_median
             getattr(entity_to_update, "_device_state_attributes")["mean"] = state_mean
-            entity_to_update.async_schedule_update_ha_state()
+            entity_to_update.schedule_update_ha_state()
             success = True
         except AttributeError:
             _LOGGER.debug("Sensor %s not yet ready for update", sensor_mac)
@@ -550,7 +550,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 if config[CONF_BATT_ENTITIES]:
                     try:
                         setattr(sensors[b_i], "_state", batt[mac])
-                        sensors[b_i].async_schedule_update_ha_state()
+                        sensors[b_i].schedule_update_ha_state()
                     except AttributeError:
                         _LOGGER.debug("BatterySensor %s not yet ready for update", mac)
                     except RuntimeError as err:
