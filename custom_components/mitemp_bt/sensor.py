@@ -559,8 +559,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         _LOGGER.debug("BatterySensor %s not yet ready for update:", mac)
                         _LOGGER.debug(err)
                 # redundant schedule_update_ha_state,
-                # but guarantees that the attribute will be updated in all entities,
-                # even if the corresponding measurement is not in the current data
+                # but guarantees that the attribute will be updated in all entities,
+                # even if the corresponding measurement is not in the current data
                 for sensor in sensors:
                     if isinstance(sensor, BatterySensor):
                         continue
