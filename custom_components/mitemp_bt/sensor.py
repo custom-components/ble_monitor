@@ -186,11 +186,11 @@ def decrypt_payload(encrypted_payload, key, nonce):
     try:
         plaindata = cipher.decrypt_and_verify(cipherpayload, token)
     except ValueError as error:
-        _LOGGER.debug("Decryption failed, %s", error)
-        _LOGGER.debug("Token: %s", token.hex())
-        _LOGGER.debug("nonce: %s", nonce.hex())
-        _LOGGER.debug("encrypted_payload: %s", encrypted_payload.hex())
-        _LOGGER.debug("cipherpayload: %s", cipherpayload.hex())
+        _LOGGER.debug("Decryption failed: %s", error)
+        #_LOGGER.debug("Token: %s", token.hex())
+        #_LOGGER.debug("nonce: %s", nonce.hex())
+        #_LOGGER.debug("encrypted_payload: %s", encrypted_payload.hex())
+        #_LOGGER.debug("cipherpayload: %s", cipherpayload.hex())
         return None
     return plaindata
 
@@ -224,9 +224,9 @@ def parse_raw_message(data, aeskeyslist):
             data[xiaomi_index + 5:xiaomi_index + 7]
         ]
     except KeyError:
-        _LOGGER.debug(
-            "Unknown sensor type: %s", ''.join('{:02x}'.format(x) for x in data[xiaomi_index + 4:xiaomi_index + 7]),
-        )
+        #_LOGGER.debug(
+        #    "Unknown sensor type: %s", ''.join('{:02x}'.format(x) for x in data[xiaomi_index + 4:xiaomi_index + 7]),
+        #)
         return None
     # xiaomi data length = message length
     #     -all bytes before XiaomiUUID
@@ -257,10 +257,10 @@ def parse_raw_message(data, aeskeyslist):
     if framectrl & 0x4800:
         #try to find encryption key for current device
         try:
-            key = aeskeyslist[xiaomi_mac_reversed.hex().upper()]
+            key = aeskeyslist[xiaomi_mac_reversed.hex()]
         except KeyError:
-            _LOGGER.debug("No encryption key found for %s", xiaomi_mac_reversed.hex().upper())
-            _LOGGER.debug(aeskeyslist)
+            #_LOGGER.debug("No encryption key found for %s", xiaomi_mac_reversed.hex().upper())
+            #_LOGGER.debug(aeskeyslist)
             return None
         nonce = b"".join(
             [
@@ -275,10 +275,15 @@ def parse_raw_message(data, aeskeyslist):
         if decrypted_payload is None:
             _LOGGER.debug("Decryption failed for %s", result["mac"])
             return None
+        #_LOGGER.error(decrypted_payload.hex())
+        #_LOGGER.error(data.hex())
+        #_LOGGER.error("orig msg_length %s", msg_length)
         #replace cipher with decrypted data
-        data = b"".join((data[:xdata_point],decrypted_payload,data[-1:]))
-        xdata_length = len(decrypted_payload)
         msg_length -= len(data[xdata_point:msg_length-1])
+        data = b"".join((data[:xdata_point],decrypted_payload,data[-1:]))
+        msg_length += len(decrypted_payload)
+        #_LOGGER.error(data.hex())
+        #_LOGGER.error("decr msg_length %s", msg_length)
     # loop through xiaomi payload
     # assume that the data may have several values of different types,
     # although I did not notice this behavior with my LYWSDCGQ sensors
@@ -288,16 +293,15 @@ def parse_raw_message(data, aeskeyslist):
             xvalue_length = data[xdata_point + 2]
         except ValueError as error:
             _LOGGER.error("xvalue_length conv. error: %s", error)
+            _LOGGER.error("xdata_point: %s", xdata_point)
+            _LOGGER.error("data: %s", data.hex())
             result = {}
             break
         except IndexError as error:
-            _LOGGER.error("xvalue_length conv. error: %s", error)
+            _LOGGER.error("Wrong xdata_point: %s", error)
+            _LOGGER.error("xdata_point: %s", xdata_point)
+            _LOGGER.error("data: %s", data.hex())
             result = {}
-            _LOGGER.error(data.hex())
-            _LOGGER.error("xdata_point %s", xdata_point)
-            _LOGGER.error("xvalue_typecode %s", xvalue_typecode)
-            _LOGGER.error("msg_length %s", msg_length)
-            _LOGGER.error("xdata_length %s", xdata_length)
             break
         xnext_point = xdata_point + 3 + xvalue_length
         xvalue = data[xdata_point + 3:xnext_point]
@@ -365,14 +369,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
     scanner.start(config)
     sensors_by_mac = {}
-    #prepare device:key list
+    #prepare device:key list to speedup parser
     aeskeys = {}
     for mac in config[CONF_ENCRYPTORS]:
-        aeskeys[reverse_mac(mac.replace(":", ""))] = bytes.fromhex(
-            config[CONF_ENCRYPTORS][mac]
-        )
+        p_mac = reverse_mac(mac.replace(":", "")).lower()
+        p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
+        aeskeys[p_mac] = p_key
     sleep(1)
-    _LOGGER.debug(aeskeys)
+    #_LOGGER.debug(aeskeys)
 
     def calc_update_state(entity_to_update, sensor_mac, config, measurements_list):
         """Averages according to options and updates the entity state."""
