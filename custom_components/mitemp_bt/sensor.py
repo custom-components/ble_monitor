@@ -181,16 +181,17 @@ def decrypt_payload(encrypted_payload, key, nonce):
     payload_counter = encrypted_payload[-7:-4]
     nonce = b"".join([nonce, payload_counter])
     cipherpayload = encrypted_payload[:-7]
+    #_LOGGER.error(len(cipherpayload))
     cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len = 4)
     cipher.update(aad)
     try:
         plaindata = cipher.decrypt_and_verify(cipherpayload, token)
     except ValueError as error:
-        _LOGGER.debug("Decryption failed: %s", error)
-        #_LOGGER.debug("Token: %s", token.hex())
-        #_LOGGER.debug("nonce: %s", nonce.hex())
-        #_LOGGER.debug("encrypted_payload: %s", encrypted_payload.hex())
-        #_LOGGER.debug("cipherpayload: %s", cipherpayload.hex())
+        _LOGGER.error("Decryption failed: %s", error)
+        _LOGGER.error("Token: %s", token.hex())
+        _LOGGER.error("nonce: %s", nonce.hex())
+        _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
+        _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
         return None
     return plaindata
 
@@ -547,6 +548,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 )
                 getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
             if mac in batt:
+                #_LOGGER.error("Battery %s", mac)
                 if config[CONF_BATT_ENTITIES]:
                     try:
                         setattr(sensors[b_i], "_state", batt[mac])
@@ -556,6 +558,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     except RuntimeError as err:
                         _LOGGER.debug("BatterySensor %s not yet ready for update:", mac)
                         _LOGGER.debug(err)
+                # redundant schedule_update_ha_state,
+                # but guarantees that the attribute will be updated in all entities,
+                # even if the corresponding measurement is not in the current data
                 for sensor in sensors:
                     if isinstance(sensor, BatterySensor):
                         continue
@@ -566,7 +571,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         sensor.schedule_update_ha_state()
                     except AttributeError:
                         _LOGGER.debug(
-                            "Sensor %s (%s, temp.) not yet ready for update",
+                            "Sensor %s (%s, batt.attr.) not yet ready for update",
                             mac,
                             stype[mac]
                         )
