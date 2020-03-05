@@ -562,6 +562,19 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
                     ] = batt[mac]
+                    try:
+                        sensor.schedule_update_ha_state()
+                    except AttributeError:
+                        _LOGGER.debug(
+                            "Sensor %s (%s, temp.) not yet ready for update",
+                            mac,
+                            stype[mac]
+                        )
+                    except RuntimeError as err:
+                        _LOGGER.error(
+                            "Sensor %s (%s, batt.attr.) update error:", mac, stype[mac]
+                        )
+                        _LOGGER.error(error)
             # averaging and states updating
             if mac in temp_m_data:
                 success, error = calc_update_state(
