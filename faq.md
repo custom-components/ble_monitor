@@ -11,6 +11,7 @@
   - [RECEPTION ISSUES](#reception-issues)
       - [My sensor doesn't receive any readings from my sensors anymore or only occasionally](#my-sensor-doesnt-receive-any-readings-from-my-sensors-anymore-or-only-occasionally)
       - [How to increase coverage](#how-to-increase-coverage)
+      - [My sensor's BLE advertisements are encrypted, how can I get the key?](my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key)
   - [OTHER ISSUES](#other-issues)
       - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
       - [My sensor stops receiving updates some time after the system restart](my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
@@ -127,6 +128,10 @@ There are several ways to increase coverage:
 - use multiple spaced BT-dongles. You can experiment with various extension cords (for example, inexpensive [USB-RJ45 extenders](https://sc01.alicdn.com/kf/HTB1q0VKodcnBKNjSZR0q6AFqFXae.jpg) in combination with a regular ethernet cable).
 - use additional devices with their own BT-interface, and connect them to Home Assistant. For example, it could be another raspberrypi with Home Assistant and our component, connected to the main host using the [remote_homeassistant](https://github.com/lukas-hetzenecker/home-assistant-remote) component, which links multiple Home Assistant instances together.
 
+### My sensor's BLE advertisements are encrypted, how can I get the key?
+
+At the moment, the only way I know is to get the key from the MiHome application traffic (in violation of the user agreement terms). Instructions for iOS and search for other ways [here](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595327131).
+
 ## OTHER ISSUES
 
 ### Conflicts with other components using the same BT interface
@@ -136,7 +141,7 @@ A reliable, but not the only way out of this situation (apart from the refusal t
 
 ### My sensor stops receiving updates some time after the system restart
 
-Most often, the cause of this is the presence of the bugs in the system components responsible for the BT operation (kernel modules, firmwares, etc). As a rule, in such cases, the corresponding entries appear in the system log. Please carefully review the contents of your `syslog`, and try searching the Internet for a solution - with high probability you are not alone in this.
+Most often, the cause of this is the presence of the bugs in the system components responsible for the BT operation (kernel modules, firmwares, etc). As a rule, in such cases, the corresponding entries appear in the system log. Please carefully review the contents of your `syslog`, and try searching the Internet for a solution - with high probability you are not alone in this. Пример решения проблемы - [BT problem, Raspberry PI3 and Hass.io](https://github.com/custom-components/sensor.mitemp_bt/issues/31#issuecomment-595417222)
 
 ## DEBUG
 

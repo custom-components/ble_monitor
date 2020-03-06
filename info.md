@@ -8,9 +8,13 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes since 0.5.6
+# Changes since 0.5.7
 
-- VegTrug Grow Care Garden support (plant sensor, similar to MiFlora HHCCJCY01)
+- encrypted BLE ADV payload decryption implemented
+- added new option `encryptors` to describe the correspondence between the mac-address of the sensor broadcasting encrypted adverts and the encryption key
+- LYWSD03MMC support ("encryptor")
+- error "Attribute hass is None for Entity..." fixed
+- other minor optimizations and improvements
 
 ---
 {% endif %}
@@ -60,6 +64,10 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - HHCCPOT002
 
   (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
+
+- LYWSD03MMC
+
+  (small square body, segment LCD, broadcasts temperature and humidity once about a 10 minutes and battery once a hour, advertisements are encrypted, key needed! See [encryptors](#configuration-variables) option.
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
 
@@ -173,6 +181,18 @@ sensor:
 #### batt_entities
 
   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
+
+#### encryptors
+
+  (dictionary)(Optional) This option is used to describe the correspondence between the mac-address of the sensor broadcasting encrypted advertisements and the encryption key (32 characters = 16 bytes). The case of characters does not matter. Information on where to get the key [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+
+```yaml
+sensor:
+  - platform: mitemp_bt
+    encryptors:
+                'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
+                'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
+```
 
 ## FREQUENTLY ASKED QUESTIONS
 
