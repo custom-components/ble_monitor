@@ -11,10 +11,10 @@
   - [RECEPTION ISSUES](#reception-issues)
       - [My sensor doesn't receive any readings from my sensors anymore or only occasionally](#my-sensor-doesnt-receive-any-readings-from-my-sensors-anymore-or-only-occasionally)
       - [How to increase coverage](#how-to-increase-coverage)
-      - [My sensor's BLE advertisements are encrypted, how can I get the key?](my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key)
+      - [My sensor's BLE advertisements are encrypted, how can I get the key?](#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key)
   - [OTHER ISSUES](#other-issues)
       - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
-      - [My sensor stops receiving updates some time after the system restart](my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
+      - [My sensor stops receiving updates some time after the system restart](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
   - [DEBUG](#debug)
 <!-- /TOC -->
 
