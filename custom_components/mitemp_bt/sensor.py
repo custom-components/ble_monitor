@@ -185,11 +185,12 @@ def decrypt_payload(encrypted_payload, key, nonce):
     #_LOGGER.error(len(cipherpayload))
     cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len = 4)
     cipher.update(aad)
+    plaindata = None
     try:
         plaindata = cipher.decrypt_and_verify(cipherpayload, token)
     except ValueError as error:
         _LOGGER.error("Decryption failed: %s", error)
-        _LOGGER.error("Token: %s", token.hex())
+        _LOGGER.error("token: %s", token.hex())
         _LOGGER.error("nonce: %s", nonce.hex())
         _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
         _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
@@ -270,7 +271,7 @@ def parse_raw_message(data, aeskeyslist):
             data[xdata_point:msg_length-1], key, nonce
         )
         if decrypted_payload is None:
-            _LOGGER.debug("Decryption failed for %s", result["mac"])
+            _LOGGER.error("Decryption failed for %s, decrypted payload is None", result["mac"])
             return None
         #replace cipher with decrypted data
         msg_length -= len(data[xdata_point:msg_length-1])
