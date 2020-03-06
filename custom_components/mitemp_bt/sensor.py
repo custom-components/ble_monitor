@@ -277,6 +277,7 @@ def parse_raw_message(data, aeskeyslist):
         msg_length -= len(data[xdata_point:msg_length-1])
         data = b"".join((data[:xdata_point],decrypted_payload,data[-1:]))
         msg_length += len(decrypted_payload)
+        #_LOGGER.error("%s - %s - %s - %s", xiaomi_mac_reversed.hex(), data.hex(), decrypted_payload.hex(), packet_id)
     # loop through xiaomi payload
     # assume that the data may have several values of different types,
     # although I did not notice this behavior with my LYWSDCGQ sensors
@@ -382,22 +383,28 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     sleep(1)
     #_LOGGER.debug(aeskeys)
 
-    def calc_update_state(entity_to_update, sensor_mac, config, measurements_list):
+    def calc_update_state(entity_to_update, sensor_mac, config, measurements_list, stype = None):
         """Averages according to options and updates the entity state."""
         textattr = ""
         success = False
         error = ""
+        # LYWSD03MMC "jagged" humidity workaround
+        if stype == "LYWSD03MMC":
+            #_LOGGER.error("JAGGED!")
+            measurements = [int(item) for item in measurements_list]
+        else:
+            measurements = measurements_list
         try:
             if config[CONF_ROUNDING]:
                 state_median = round(
-                    sts.median(measurements_list[sensor_mac]), config[CONF_DECIMALS]
+                    sts.median(measurements), config[CONF_DECIMALS]
                 )
                 state_mean = round(
-                    sts.mean(measurements_list[sensor_mac]), config[CONF_DECIMALS]
+                    sts.mean(measurements), config[CONF_DECIMALS]
                 )
             else:
-                state_median = sts.median(measurements_list[sensor_mac])
-                state_mean = sts.mean(measurements_list[sensor_mac])
+                state_median = sts.median(measurements)
+                state_mean = sts.mean(measurements)
             if config[CONF_USE_MEDIAN]:
                 textattr = "last median of"
                 setattr(entity_to_update, "_state", state_median)
@@ -405,7 +412,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 textattr = "last mean of"
                 setattr(entity_to_update, "_state", state_mean)
             getattr(entity_to_update, "_device_state_attributes")[textattr] = len(
-                measurements_list[sensor_mac]
+                measurements
             )
             getattr(entity_to_update, "_device_state_attributes")[
                 "median"
@@ -582,7 +589,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                             _LOGGER.error(err)
             if mac in temp_m_data:
                 success, error = calc_update_state(
-                    sensors[t_i], mac, config, temp_m_data
+                    sensors[t_i], mac, config, temp_m_data[mac]
                 )
                 if not success:
                     _LOGGER.error(
@@ -591,14 +598,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error(error)
             if mac in hum_m_data:
                 success, error = calc_update_state(
-                    sensors[h_i], mac, config, hum_m_data
+                    sensors[h_i], mac, config, hum_m_data[mac], stype[mac]
                 )
                 if not success:
                     _LOGGER.error("Sensor %s (%s, hum.) update error:", mac, stype[mac])
                     _LOGGER.error(error)
             if mac in moist_m_data:
                 success, error = calc_update_state(
-                    sensors[m_i], mac, config, moist_m_data
+                    sensors[m_i], mac, config, moist_m_data[mac]
                 )
                 if not success:
                     _LOGGER.error(
@@ -607,7 +614,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error(error)
             if mac in cond_m_data:
                 success, error = calc_update_state(
-                    sensors[c_i], mac, config, cond_m_data
+                    sensors[c_i], mac, config, cond_m_data[mac]
                 )
                 if not success:
                     _LOGGER.error(
@@ -616,7 +623,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error(error)
             if mac in illum_m_data:
                 success, error = calc_update_state(
-                    sensors[i_i], mac, config, illum_m_data
+                    sensors[i_i], mac, config, illum_m_data[mac]
                 )
                 if not success:
                     _LOGGER.error(
