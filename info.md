@@ -184,7 +184,7 @@ sensor:
 
 #### encryptors
 
-  (dictionary)(Optional) This option is used to describe the correspondence between the mac-address of the sensor broadcasting encrypted advertisements and the encryption key (32 characters = 16 bytes). The case of characters does not matter. Information on where to get the key [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+  (dictionary)(Optional) This option is used to describe the correspondence between the mac-address of the sensor broadcasting encrypted advertisements and the encryption key (32 characters = 16 bytes). The case of characters does not matter. The keys below are for the sample, you need yours! Information on where to get the key [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
 ```yaml
 sensor:
