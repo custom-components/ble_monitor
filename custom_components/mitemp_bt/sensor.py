@@ -367,6 +367,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
         aeskeys[p_mac] = p_key
     sleep(1)
+    #storage for last_packet per mac
+    lpacket = {}  # last packet number storage
     #_LOGGER.debug(aeskeys)
 
     def calc_update_state(entity_to_update, sensor_mac, config, measurements_list):
@@ -411,7 +413,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             error = err
         return success, error
 
-    def discover_ble_devices(config, aeskeyslist):
+    def discover_ble_devices(config, aeskeyslist, lpacket):
         """Discover Bluetooth LE devices."""
         _LOGGER.debug("Discovering Bluetooth LE devices")
         log_spikes = config[CONF_LOG_SPIKES]
@@ -423,7 +425,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         moist_m_data = {}
         cond_m_data = {}
         batt = {}  # battery
-        lpacket = {}  # last packet number
         rssi = {}
         macs = {}  # all found macs
         _LOGGER.debug("Getting data from HCIdump thread")
@@ -618,7 +619,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         _LOGGER.debug("update_ble called")
 
         try:
-            discover_ble_devices(config, aeskeys)
+            discover_ble_devices(config, aeskeys, lpacket)
         except RuntimeError as error:
             _LOGGER.error("Error during Bluetooth LE scan: %s", error)
         track_point_in_utc_time(
