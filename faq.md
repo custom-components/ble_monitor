@@ -130,7 +130,14 @@ There are several ways to increase coverage:
 
 ### My sensor's BLE advertisements are encrypted, how can I get the key?
 
-At the moment, the only way I know is to get the key from the MiHome application traffic (in violation of the user agreement terms). Instructions for iOS and search for other ways [here](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595327131).
+There are several ways:
+
+1. Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms):
+
+      - iOS: Instruction [here](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595327131).
+      - Android: I am not aware of successful interceptions on Android, but there are applications for this (Packet Capture, for example).
+
+2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595874419).
 
 ## OTHER ISSUES
 
