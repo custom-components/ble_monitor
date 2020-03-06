@@ -52,6 +52,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
 AES128KEY_REGEX = "(?i)^[A-F0-9]+$"
 
@@ -225,9 +226,6 @@ def parse_raw_message(data, aeskeyslist):
             data[xiaomi_index + 5:xiaomi_index + 7]
         ]
     except KeyError:
-        #_LOGGER.debug(
-        #    "Unknown sensor type: %s", ''.join('{:02x}'.format(x) for x in data[xiaomi_index + 4:xiaomi_index + 7]),
-        #)
         return None
     # xiaomi data length = message length
     #     -all bytes before XiaomiUUID
@@ -241,7 +239,6 @@ def parse_raw_message(data, aeskeyslist):
     if xdata_length < 3:
         return None
     xdata_point = xiaomi_index + (14 + toffset)
-    #xnext_point = xdata_point + 3
     # check if xiaomi data start and length is valid
     if xdata_length != len(data[xdata_point:-1]):
         return None
@@ -258,10 +255,9 @@ def parse_raw_message(data, aeskeyslist):
     if framectrl & 0x4800:
         #try to find encryption key for current device
         try:
-            key = aeskeyslist[xiaomi_mac_reversed.hex()]
+            key = aeskeyslist[xiaomi_mac_reversed]
         except KeyError:
-            #_LOGGER.debug("No encryption key found for %s", xiaomi_mac_reversed.hex().upper())
-            #_LOGGER.debug(aeskeyslist)
+            #No encryption key found
             return None
         nonce = b"".join(
             [
@@ -276,15 +272,10 @@ def parse_raw_message(data, aeskeyslist):
         if decrypted_payload is None:
             _LOGGER.debug("Decryption failed for %s", result["mac"])
             return None
-        #_LOGGER.error(decrypted_payload.hex())
-        #_LOGGER.error(data.hex())
-        #_LOGGER.error("orig msg_length %s", msg_length)
         #replace cipher with decrypted data
         msg_length -= len(data[xdata_point:msg_length-1])
         data = b"".join((data[:xdata_point],decrypted_payload,data[-1:]))
         msg_length += len(decrypted_payload)
-        #_LOGGER.error(data.hex())
-        #_LOGGER.error("decr msg_length %s", msg_length)
     # loop through xiaomi payload
     # assume that the data may have several values of different types,
     # although I did not notice this behavior with my LYWSDCGQ sensors
@@ -337,7 +328,6 @@ class BLEScanner:
             _LOGGER.debug("Starting HCIdump thread for hci%s", hci_int)
             dumpthread.start()
         _LOGGER.debug("HCIdump threads count = %s", len(self.dumpthreads))
-        
 
     def stop(self):
         """Stop HCIdump thread(s)."""
@@ -373,7 +363,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     #prepare device:key list to speedup parser
     aeskeys = {}
     for mac in config[CONF_ENCRYPTORS]:
-        p_mac = reverse_mac(mac.replace(":", "")).lower()
+        p_mac = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
         p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
         aeskeys[p_mac] = p_key
     sleep(1)
@@ -408,7 +398,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 "median"
             ] = state_median
             getattr(entity_to_update, "_device_state_attributes")["mean"] = state_mean
-            entity_to_update.schedule_update_ha_state()
+            #entity_to_update.schedule_update_ha_state()
             success = True
         except AttributeError:
             _LOGGER.debug("Sensor %s not yet ready for update", sensor_mac)
@@ -538,48 +528,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     continue
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
-            # append joint attributes
-            for sensor in sensors:
-                getattr(sensor, "_device_state_attributes")["last packet id"] = lpacket[
-                    mac
-                ]
-                getattr(sensor, "_device_state_attributes")["rssi"] = round(
-                    sts.mean(rssi[mac])
-                )
-                getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
-            if mac in batt:
-                #_LOGGER.error("Battery %s", mac)
-                if config[CONF_BATT_ENTITIES]:
-                    try:
-                        setattr(sensors[b_i], "_state", batt[mac])
-                        sensors[b_i].schedule_update_ha_state()
-                    except AttributeError:
-                        _LOGGER.debug("BatterySensor %s not yet ready for update", mac)
-                    except RuntimeError as err:
-                        _LOGGER.debug("BatterySensor %s not yet ready for update:", mac)
-                        _LOGGER.debug(err)
-                # redundant schedule_update_ha_state,
-                # but guarantees that the attribute will be updated in all entities,
-                # even if the corresponding measurement is not in the current data
-                for sensor in sensors:
-                    if isinstance(sensor, BatterySensor):
-                        continue
-                    getattr(sensor, "_device_state_attributes")[
-                        ATTR_BATTERY_LEVEL
-                    ] = batt[mac]
-                    try:
-                        sensor.schedule_update_ha_state()
-                    except AttributeError:
-                        _LOGGER.debug(
-                            "Sensor %s (%s, batt.attr.) not yet ready for update",
-                            mac,
-                            stype[mac]
-                        )
-                    except RuntimeError as err:
-                        _LOGGER.error(
-                            "Sensor %s (%s, batt.attr.) update error:", mac, stype[mac]
-                        )
-                        _LOGGER.error(error)
             # averaging and states updating
             if mac in temp_m_data:
                 success, error = calc_update_state(
@@ -590,7 +538,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         "Sensor %s (%s, temp.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
-                    continue
             if mac in hum_m_data:
                 success, error = calc_update_state(
                     sensors[h_i], mac, config, hum_m_data
@@ -598,7 +545,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 if not success:
                     _LOGGER.error("Sensor %s (%s, hum.) update error:", mac, stype[mac])
                     _LOGGER.error(error)
-                    continue
             if mac in moist_m_data:
                 success, error = calc_update_state(
                     sensors[m_i], mac, config, moist_m_data
@@ -608,7 +554,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         "Sensor %s (%s, moist.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
-                    continue
             if mac in cond_m_data:
                 success, error = calc_update_state(
                     sensors[c_i], mac, config, cond_m_data
@@ -618,7 +563,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         "Sensor %s (%s, cond.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
-                    continue
             if mac in illum_m_data:
                 success, error = calc_update_state(
                     sensors[i_i], mac, config, illum_m_data
@@ -628,8 +572,39 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         "Sensor %s (%s, illum.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
-                    continue
-        # scanner.start(config) - moved earlier (before dump parser loop)
+            # append joint attributes
+            if mac in batt:
+                #_LOGGER.error("Battery %s", mac)
+                if config[CONF_BATT_ENTITIES]:
+                        setattr(sensors[b_i], "_state", batt[mac])
+                for sensor in sensors:
+                    if isinstance(sensor, BatterySensor):
+                        continue
+                    getattr(sensor, "_device_state_attributes")[
+                        ATTR_BATTERY_LEVEL
+                    ] = batt[mac]
+            #states updating
+            for sensor in sensors:
+                getattr(sensor, "_device_state_attributes")["last packet id"] = lpacket[
+                    mac
+                ]
+                getattr(sensor, "_device_state_attributes")["rssi"] = round(
+                    sts.mean(rssi[mac])
+                )
+                getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
+                try:
+                    sensor.schedule_update_ha_state()
+                except AttributeError:
+                    _LOGGER.debug(
+                        "Sensor %s (%s) not yet ready for update",
+                        mac,
+                        stype[mac]
+                    )
+                except RuntimeError as err:
+                    _LOGGER.error(
+                        "Sensor %s (%s) update error:", mac, stype[mac]
+                    )
+                    _LOGGER.error(err)
         _LOGGER.debug(
             "Finished. Parsed: %i hci events, %i xiaomi devices.",
             len(hcidump_raw),
