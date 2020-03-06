@@ -54,7 +54,7 @@ _LOGGER = logging.getLogger(__name__)
 
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
-AES128KEY_REGEX = "(?i)^[A-F0-9]+$"
+AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
 
 ENCRYPTORS_LIST_SCHEMA = vol.Schema(
     {
