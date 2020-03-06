@@ -355,6 +355,17 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             + rmac[2:4]
             + rmac[0:2])
 
+    def lpacket(mac=None, packet=None):
+        """last_packet static storage"""
+        if packet:
+            lpacket.cntr[mac] = packet
+        else:
+            try:
+                cntr = lpacket.cntr[mac]
+            except KeyError:
+                cntr = None
+            return cntr
+
     _LOGGER.debug("Starting")
     scanner = BLEScanner()
     hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
@@ -366,9 +377,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         p_mac = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
         p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
         aeskeys[p_mac] = p_key
+    lpacket.cntr = {}
     sleep(1)
-    #storage for last_packet per mac
-    lpacket = {}  # last packet number storage
     #_LOGGER.debug(aeskeys)
 
     def calc_update_state(entity_to_update, sensor_mac, config, measurements_list):
@@ -400,7 +410,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 "median"
             ] = state_median
             getattr(entity_to_update, "_device_state_attributes")["mean"] = state_mean
-            #entity_to_update.schedule_update_ha_state()
+            entity_to_update.schedule_update_ha_state()
             success = True
         except AttributeError:
             _LOGGER.debug("Sensor %s not yet ready for update", sensor_mac)
@@ -413,7 +423,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             error = err
         return success, error
 
-    def discover_ble_devices(config, aeskeyslist, lpacket):
+    def discover_ble_devices(config, aeskeyslist):
         """Discover Bluetooth LE devices."""
         _LOGGER.debug("Discovering Bluetooth LE devices")
         log_spikes = config[CONF_LOG_SPIKES]
@@ -436,15 +446,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             if data and "mac" in data:
                 # ignore duplicated message
                 packet = int(data["packet"])
-                if data["mac"] in lpacket:
-                    prev_packet = lpacket[data["mac"]]
-                else:
-                    prev_packet = None
+                prev_packet = lpacket(mac = data["mac"])
                 if prev_packet == packet:
                     # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
                     continue
-                # _LOGGER.debug("NEW DATA: %s", data)
-                lpacket[data["mac"]] = packet
+                lpacket(data["mac"], packet)
                 # store found readings per device
                 if "temperature" in data:
                     if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
@@ -503,7 +509,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 sensors = sensors_by_mac[mac]
             else:
                 try:
-                    if stype[mac] == "HHCCJCY01":
+                    if stype[mac] == "HHCCJCY01" or stype[mac] == "GCLS002":
                         sensors = [None] * 4
                         sensors[t_i] = TemperatureSensor(mac)
                         sensors[m_i] = MoistureSensor(mac)
@@ -529,7 +535,50 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     continue
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
+            # append joint attributes
+            for sensor in sensors:
+                getattr(sensor, "_device_state_attributes")["last packet id"] = lpacket(
+                    mac
+                )
+                getattr(sensor, "_device_state_attributes")["rssi"] = round(
+                    sts.mean(rssi[mac])
+                )
+                getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
+                if not isinstance(sensor, BatterySensor) and mac in batt:
+                    getattr(sensor, "_device_state_attributes")[
+                        ATTR_BATTERY_LEVEL
+                    ] = batt[mac]
+                #try:
+                #    sensor.schedule_update_ha_state()
+                #except AttributeError:
+                #    _LOGGER.debug(
+                #        "Sensor %s (%s) not yet ready for update",
+                #        mac,
+                #        stype[mac]
+                #    )
+                #except RuntimeError as err:
+                #    _LOGGER.error(
+                #        "Sensor %s (%s) update error:", mac, stype[mac]
+                #    )
+                #    _LOGGER.error(err)
             # averaging and states updating
+            if mac in batt:
+                #_LOGGER.error("Battery %s", mac)
+                if config[CONF_BATT_ENTITIES]:
+                        setattr(sensors[b_i], "_state", batt[mac])
+                        try:
+                            sensors[b_i].schedule_update_ha_state()
+                        except AttributeError:
+                            _LOGGER.debug(
+                                "Sensor %s (%s, batt.) not yet ready for update",
+                                mac,
+                                stype[mac]
+                            )
+                        except RuntimeError as err:
+                            _LOGGER.error(
+                                "Sensor %s (%s, batt.) update error:", mac, stype[mac]
+                            )
+                            _LOGGER.error(err)
             if mac in temp_m_data:
                 success, error = calc_update_state(
                     sensors[t_i], mac, config, temp_m_data
@@ -573,39 +622,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         "Sensor %s (%s, illum.) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
-            # append joint attributes
-            if mac in batt:
-                #_LOGGER.error("Battery %s", mac)
-                if config[CONF_BATT_ENTITIES]:
-                        setattr(sensors[b_i], "_state", batt[mac])
-                for sensor in sensors:
-                    if isinstance(sensor, BatterySensor):
-                        continue
-                    getattr(sensor, "_device_state_attributes")[
-                        ATTR_BATTERY_LEVEL
-                    ] = batt[mac]
-            #states updating
-            for sensor in sensors:
-                getattr(sensor, "_device_state_attributes")["last packet id"] = lpacket[
-                    mac
-                ]
-                getattr(sensor, "_device_state_attributes")["rssi"] = round(
-                    sts.mean(rssi[mac])
-                )
-                getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
-                try:
-                    sensor.schedule_update_ha_state()
-                except AttributeError:
-                    _LOGGER.debug(
-                        "Sensor %s (%s) not yet ready for update",
-                        mac,
-                        stype[mac]
-                    )
-                except RuntimeError as err:
-                    _LOGGER.error(
-                        "Sensor %s (%s) update error:", mac, stype[mac]
-                    )
-                    _LOGGER.error(err)
         _LOGGER.debug(
             "Finished. Parsed: %i hci events, %i xiaomi devices.",
             len(hcidump_raw),
@@ -617,9 +633,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         """Lookup Bluetooth LE devices and update status."""
         period = config[CONF_PERIOD]
         _LOGGER.debug("update_ble called")
-
         try:
-            discover_ble_devices(config, aeskeys, lpacket)
+            discover_ble_devices(config, aeskeys)
         except RuntimeError as error:
             _LOGGER.error("Error during Bluetooth LE scan: %s", error)
         track_point_in_utc_time(
