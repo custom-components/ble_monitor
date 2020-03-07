@@ -223,11 +223,22 @@ def parse_raw_message(data, aeskeyslist):
     if not 0 >= rssi >= -127:
         return None
     try:
-        sensor_type, toffset = XIAOMI_TYPE_DICT[
+        sensor_type = XIAOMI_TYPE_DICT[
             data[xiaomi_index + 5:xiaomi_index + 7]
         ]
     except KeyError:
         return None
+    #Frame control bits
+    framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
+    #check data is present
+    if not (framectrl & 0x4000):
+        return None
+    xdata_length = 0
+    xdata_point = 0
+    #check capability byte present
+    if framectrl & 0x2000:
+        xdata_length = -1
+        xdata_point = 1
     # xiaomi data length = message length
     #     -all bytes before XiaomiUUID
     #     -3 bytes Xiaomi UUID + ADtype
@@ -235,25 +246,18 @@ def parse_raw_message(data, aeskeyslist):
     #     -3+1 bytes sensor type
     #     -1 byte packet_id
     #     -6 bytes MAC
-    #     - sensortype offset
-    xdata_length = msg_length - xiaomi_index - 15 - toffset
+    #     - capability byte offset
+    xdata_length += msg_length - xiaomi_index - 15
     if xdata_length < 3:
         return None
-    xdata_point = xiaomi_index + (14 + toffset)
+    xdata_point += xiaomi_index + 14
+    #_LOGGER.error("%s - type: %s - point: %s - len: %s - offset?: %s", data.hex(), sensor_type, xdata_point, xdata_length, framectrl & 0x4000)
     # check if xiaomi data start and length is valid
     if xdata_length != len(data[xdata_point:-1]):
         return None
-    packet_id = data[xiaomi_index + 7]
-    result = {
-        "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
-        "type": sensor_type,
-        "packet": packet_id,
-    }
-    #Frame control bits
-    framectrl, = struct.unpack('<H', data[xiaomi_index + 3:xiaomi_index + 5])
+    #_LOGGER.error("Type - %s %s, Frame ctrl - %s", data[xiaomi_index + 5:xiaomi_index + 7].hex(), sensor_type, data[xiaomi_index + 3: xiaomi_index + 5].hex())
     #check encrypted data flags
-    if framectrl & 0x4800:
+    if framectrl & 0x0800:
         #try to find encryption key for current device
         try:
             key = aeskeyslist[xiaomi_mac_reversed]
@@ -271,13 +275,20 @@ def parse_raw_message(data, aeskeyslist):
             data[xdata_point:msg_length-1], key, nonce
         )
         if decrypted_payload is None:
-            _LOGGER.error("Decryption failed for %s, decrypted payload is None", result["mac"])
+            _LOGGER.error("Decryption failed for %s, decrypted payload is None", ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]))
             return None
         #replace cipher with decrypted data
         msg_length -= len(data[xdata_point:msg_length-1])
         data = b"".join((data[:xdata_point],decrypted_payload,data[-1:]))
         msg_length += len(decrypted_payload)
-        #_LOGGER.error("%s - %s - %s - %s", xiaomi_mac_reversed.hex(), data.hex(), decrypted_payload.hex(), packet_id)
+        #_LOGGER.error("%s - %s - %s - %s", xiaomi_mac_reversed.hex(), data.hex(), decrypted_payload.hex(), int(data[xiaomi_index + 7]))
+    packet_id = data[xiaomi_index + 7]
+    result = {
+        "rssi": rssi,
+        "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+        "type": sensor_type,
+        "packet": packet_id,
+    }
     # loop through xiaomi payload
     # assume that the data may have several values of different types,
     # although I did not notice this behavior with my LYWSDCGQ sensors
@@ -357,7 +368,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             + rmac[2:4]
             + rmac[0:2])
 
-    def lpacket(mac=None, packet=None):
+    def lpacket(mac, packet=None):
         """last_packet static storage"""
         if packet:
             lpacket.cntr[mac] = packet
@@ -449,6 +460,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         scanner.stop()
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
+        #_LOGGER.error(lpacket.cntr)
         for msg in hcidump_raw:
             data = parse_raw_message(msg, aeskeyslist)
             if data and "mac" in data:
