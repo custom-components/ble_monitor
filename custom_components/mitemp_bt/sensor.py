@@ -173,7 +173,7 @@ def parse_xiaomi_value(hexvalue, typecode):
         if typecode == 0x07:
             (illum,) = ILL_STRUCT.unpack(hexvalue + b'\x00')
             return {"illuminance": illum}
-    return {}
+    return None
 
 def decrypt_payload(encrypted_payload, key, nonce):
     """Decrypt payload"""
@@ -182,7 +182,6 @@ def decrypt_payload(encrypted_payload, key, nonce):
     payload_counter = encrypted_payload[-7:-4]
     nonce = b"".join([nonce, payload_counter])
     cipherpayload = encrypted_payload[:-7]
-    #_LOGGER.error(len(cipherpayload))
     cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len = 4)
     cipher.update(aad)
     plaindata = None
@@ -251,11 +250,9 @@ def parse_raw_message(data, aeskeyslist):
     if xdata_length < 3:
         return None
     xdata_point += xiaomi_index + 14
-    #_LOGGER.error("%s - type: %s - point: %s - len: %s - offset?: %s", data.hex(), sensor_type, xdata_point, xdata_length, framectrl & 0x4000)
     # check if xiaomi data start and length is valid
     if xdata_length != len(data[xdata_point:-1]):
         return None
-    #_LOGGER.error("Type - %s %s, Frame ctrl - %s", data[xiaomi_index + 5:xiaomi_index + 7].hex(), sensor_type, data[xiaomi_index + 3: xiaomi_index + 5].hex())
     #check encrypted data flags
     if framectrl & 0x0800:
         #try to find encryption key for current device
@@ -281,7 +278,6 @@ def parse_raw_message(data, aeskeyslist):
         msg_length -= len(data[xdata_point:msg_length-1])
         data = b"".join((data[:xdata_point],decrypted_payload,data[-1:]))
         msg_length += len(decrypted_payload)
-        #_LOGGER.error("%s - %s - %s - %s", xiaomi_mac_reversed.hex(), data.hex(), decrypted_payload.hex(), int(data[xiaomi_index + 7]))
     packet_id = data[xiaomi_index + 7]
     result = {
         "rssi": rssi,
@@ -370,7 +366,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     def lpacket(mac, packet=None):
         """last_packet static storage"""
-        if packet:
+        if packet is not None:
             lpacket.cntr[mac] = packet
         else:
             try:
@@ -392,7 +388,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         aeskeys[p_mac] = p_key
     lpacket.cntr = {}
     sleep(1)
-    #_LOGGER.debug(aeskeys)
 
     def calc_update_state(entity_to_update, sensor_mac, config, measurements_list, stype = None):
         """Averages according to options and updates the entity state."""
@@ -401,7 +396,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         error = ""
         # LYWSD03MMC "jagged" humidity workaround
         if stype == "LYWSD03MMC":
-            #_LOGGER.error("JAGGED!")
             measurements = [int(item) for item in measurements_list]
         else:
             measurements = measurements_list
@@ -460,12 +454,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         scanner.stop()
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
-        #_LOGGER.error(lpacket.cntr)
         for msg in hcidump_raw:
             data = parse_raw_message(msg, aeskeyslist)
             if data and "mac" in data:
                 # ignore duplicated message
-                packet = int(data["packet"])
+                packet = data["packet"]
                 prev_packet = lpacket(mac = data["mac"])
                 if prev_packet == packet:
                     # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
@@ -568,22 +561,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
                     ] = batt[mac]
-                #try:
-                #    sensor.schedule_update_ha_state()
-                #except AttributeError:
-                #    _LOGGER.debug(
-                #        "Sensor %s (%s) not yet ready for update",
-                #        mac,
-                #        stype[mac]
-                #    )
-                #except RuntimeError as err:
-                #    _LOGGER.error(
-                #        "Sensor %s (%s) update error:", mac, stype[mac]
-                #    )
-                #    _LOGGER.error(err)
+
             # averaging and states updating
             if mac in batt:
-                #_LOGGER.error("Battery %s", mac)
                 if config[CONF_BATT_ENTITIES]:
                         setattr(sensors[b_i], "_state", batt[mac])
                         try:

@@ -14,7 +14,7 @@
 - added new option `encryptors` to describe the correspondence between the mac-address of the sensor broadcasting encrypted adverts and the encryption key
 - LYWSD03MMC support ("encryptor")
 - error "Attribute hass is None for Entity..." fixed
-- other minor optimizations and improvements
+- other minor bugfixes and improvements
 
 ---
 {% endif %}
