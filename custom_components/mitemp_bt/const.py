@@ -9,6 +9,8 @@ CONF_USE_MEDIAN = "use_median"
 CONF_ACTIVE_SCAN = "active_scan"
 CONF_HCI_INTERFACE = "hci_interface"
 CONF_BATT_ENTITIES = "batt_entities"
+CONF_ENCRYPTORS = "encryptors"
+CONF_REPORT_UNKNOWN = "report_unknown"
 
 # Default values for configuration options
 DEFAULT_ROUNDING = True
@@ -19,6 +21,7 @@ DEFAULT_USE_MEDIAN = False
 DEFAULT_ACTIVE_SCAN = False
 DEFAULT_HCI_INTERFACE = 0
 DEFAULT_BATT_ENTITIES = False
+DEFAULT_REPORT_UNKNOWN = False
 
 
 """Fixed constants."""
@@ -31,12 +34,13 @@ CONF_HMAX = 99.9
 
 # Xiaomi sensor types dictionary with offset for adv parser
 XIAOMI_TYPE_DICT = {
-    b'\x20\x98\x00': ["HHCCJCY01", 1],
-    b'\x20\xAA\x01': ["LYWSDCGQ", 0],
-    b'\x20\x5B\x04': ["LYWSD02", 1],
-    b'\x30\x47\x03': ["CGG1", 0],
-    b'\x20\x5D\x01': ["HHCCPOT002", 1],
-    b'\x20\xBC\x03': ["GCLS002", 1]
+    b'\x98\x00': "HHCCJCY01",
+    b'\xAA\x01': "LYWSDCGQ",
+    b'\x5B\x04': "LYWSD02",
+    b'\x47\x03': "CGG1",
+    b'\x5D\x01': "HHCCPOT002",
+    b'\xBC\x03': "GCLS002",
+    b'\x5B\x05': "LYWSD03MMC"
 }
 
 
@@ -49,5 +53,6 @@ MMTS_DICT = {
     'HHCCPOT002': [9, 9, 0, 1, 9, 9],
     'LYWSDCGQ'  : [0, 1, 9, 9, 9, 2],
     'LYWSD02'   : [0, 1, 9, 9, 9, 9],
-    'CGG1'      : [0, 1, 9, 9, 9, 2]
+    'CGG1'      : [0, 1, 9, 9, 9, 2],
+    'LYWSD03MMC': [0, 1, 9, 9, 9, 2]
 }

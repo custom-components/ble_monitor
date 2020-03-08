@@ -11,9 +11,11 @@
   - [RECEPTION ISSUES](#reception-issues)
       - [My sensor doesn't receive any readings from my sensors anymore or only occasionally](#my-sensor-doesnt-receive-any-readings-from-my-sensors-anymore-or-only-occasionally)
       - [How to increase coverage](#how-to-increase-coverage)
+      - [My sensor's BLE advertisements are encrypted, how can I get the key?](#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key)
   - [OTHER ISSUES](#other-issues)
       - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
-      - [My sensor stops receiving updates some time after the system restart](my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
+      - [My sensor stops receiving updates some time after the system restart](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
+      - [My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?](#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)
   - [DEBUG](#debug)
 <!-- /TOC -->
 
@@ -31,8 +33,6 @@ I’m not sure that I have listed all the advantages resulting from the passivit
 ## INSTALLATION ISSUES
 
 ### I get a PermissionError in Home Assistant after the installation or python upgrade
-
-Note: This answer is only applicable for version 0.5 and higher.
 
 Python needs root access to access the HCI interface. If Python doesn't have root access, you will get an error message in Home Assistant which ends with:
 
@@ -127,6 +127,17 @@ There are several ways to increase coverage:
 - use multiple spaced BT-dongles. You can experiment with various extension cords (for example, inexpensive [USB-RJ45 extenders](https://sc01.alicdn.com/kf/HTB1q0VKodcnBKNjSZR0q6AFqFXae.jpg) in combination with a regular ethernet cable).
 - use additional devices with their own BT-interface, and connect them to Home Assistant. For example, it could be another raspberrypi with Home Assistant and our component, connected to the main host using the [remote_homeassistant](https://github.com/lukas-hetzenecker/home-assistant-remote) component, which links multiple Home Assistant instances together.
 
+### My sensor's BLE advertisements are encrypted, how can I get the key?
+
+There are several ways:
+
+1. Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms):
+
+      - iOS: Two known working options - [using Charles proxy](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595327131), or [Stream - Network Debug Tool](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595885296).
+      - Android: I am not aware of successful interceptions on Android, but there are applications for this (Packet Capture, for example).
+
+2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595874419).
+
 ## OTHER ISSUES
 
 ### Conflicts with other components using the same BT interface
@@ -136,7 +147,26 @@ A reliable, but not the only way out of this situation (apart from the refusal t
 
 ### My sensor stops receiving updates some time after the system restart
 
-Most often, the cause of this is the presence of the bugs in the system components responsible for the BT operation (kernel modules, firmwares, etc). As a rule, in such cases, the corresponding entries appear in the system log. Please carefully review the contents of your `syslog`, and try searching the Internet for a solution - with high probability you are not alone in this.
+Most often, the cause of this is the presence of bugs in the system components responsible for the BT operation (kernel modules, firmwares, etc). As a rule, in such cases, the corresponding entries appear in the system log. Please carefully review the contents of your `syslog`, and try searching the Internet for a solution - with high probability you are not alone in this. For example, here is an issue with a typical Raspberry PI problem - [BT problem, Raspberry PI3 and Hass.io](https://github.com/custom-components/sensor.mitemp_bt/issues/31#issuecomment-595417222)
+
+### My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?
+
+- [Install the component](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#how-to-install) if you have not already done so.
+- Make sure you have [logger](https://www.home-assistant.io/integrations/logger/) enabled, and logging enabled for `debug` level (globally or just for `custom_components.mitemp_bt`). For example:
+
+```yaml
+logger:
+  default: warn
+  logs:
+    custom_components.mitemp_bt: debug
+```
+
+- Place your sensor extremely close to the HA host (BT interface).
+- [Enable the option](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#configuration) `report_unknown`.
+- Wait until a number of "BLE ADV from UNKNOWN" messages accumulate in the log.
+- Create a new [issue](https://github.com/custom-components/sensor.mitemp_bt/issues), write everything you know about your sensor and attach the obtained log.
+- Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA).
+- Wait for a response from the developers.
 
 ## DEBUG
 
@@ -156,4 +186,4 @@ For example, using the command
 btmon -t -w problem.log
 ```
 
-You can write to the problem.log file the moment the problem occurs, and attach this file to your issue.
+You can write to the problem.log file the moment the problem occurs and attach this file to your issue.
