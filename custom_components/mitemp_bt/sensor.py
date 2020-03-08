@@ -536,26 +536,19 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             if mac in sensors_by_mac:
                 sensors = sensors_by_mac[mac]
             else:
-                try:
-                    sensors = []
-                    if t_i != 9:
-                        sensors.insert(t_i, TemperatureSensor(mac))
-                    if h_i != 9:
-                        sensors.insert(h_i, HumiditySensor(mac))
-                    if m_i != 9:
-                        sensors.insert(m_i, MoistureSensor(mac))
-                    if c_i != 9:
-                        sensors.insert(c_i, ConductivitySensor(mac))
-                    if i_i != 9:
-                        sensors.insert(i_i, IlluminanceSensor(mac))
-                    if config[CONF_BATT_ENTITIES] and (b_i != 9):
-                        sensors.insert(b_i, BatterySensor(mac))
-                except IndexError as error:
-                    _LOGGER.error(
-                        "Sensor implementation error for %s, %s!", stype[mac], mac
-                    )
-                    _LOGGER.error(error)
-                    continue
+                sensors = []
+                if t_i != 9:
+                    sensors.insert(t_i, TemperatureSensor(mac))
+                if h_i != 9:
+                    sensors.insert(h_i, HumiditySensor(mac))
+                if m_i != 9:
+                    sensors.insert(m_i, MoistureSensor(mac))
+                if c_i != 9:
+                    sensors.insert(c_i, ConductivitySensor(mac))
+                if i_i != 9:
+                    sensors.insert(i_i, IlluminanceSensor(mac))
+                if config[CONF_BATT_ENTITIES] and (b_i != 9):
+                    sensors.insert(b_i, BatterySensor(mac))
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
             # append joint attributes
