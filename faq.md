@@ -163,7 +163,7 @@ logger:
 
 - Place your sensor extremely close to the HA host (BT interface).
 - [Enable the option](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#configuration) `report_unknown`.
-- Wait until a number of "BLE ADV from UNKNOWN" messages accumulate in the log. The component will put these messages at the `info` level!
+- Wait until a number of "BLE ADV from UNKNOWN" messages accumulate in the log.
 - Create a new [issue](https://github.com/custom-components/sensor.mitemp_bt/issues), write everything you know about your sensor and attach the obtained log.
 - Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA).
 - Wait for a response from the developers.
