@@ -528,35 +528,28 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 stype[data["mac"]] = data["type"]
         # for every seen device
         for mac in macs:
-
             # fixed entity index for every measurement type
             # according to the sensor implementation
             t_i, h_i, m_i, c_i, i_i, b_i = MMTS_DICT[stype[mac]]
-
             # if necessary, create a list of entities
             # according to the sensor implementation
             if mac in sensors_by_mac:
                 sensors = sensors_by_mac[mac]
             else:
                 try:
-                    if stype[mac] == "HHCCJCY01" or stype[mac] == "GCLS002":
-                        sensors = [None] * 4
-                        sensors[t_i] = TemperatureSensor(mac)
-                        sensors[m_i] = MoistureSensor(mac)
-                        sensors[c_i] = ConductivitySensor(mac)
-                        sensors[i_i] = IlluminanceSensor(mac)
-                    elif stype[mac] == "HHCCPOT002":
-                        sensors = [None] * 2
-                        sensors[m_i] = MoistureSensor(mac)
-                        sensors[c_i] = ConductivitySensor(mac)
-                    else:
-                        sensors = [None] * 2
-                        sensors[t_i] = TemperatureSensor(mac)
-                        sensors[h_i] = HumiditySensor(mac)
-
+                    sensors = []
+                    if t_i != 9:
+                        sensors.insert(t_i, TemperatureSensor(mac))
+                    if h_i != 9:
+                        sensors.insert(h_i, HumiditySensor(mac))
+                    if m_i != 9:
+                        sensors.insert(m_i, MoistureSensor(mac))
+                    if c_i != 9:
+                        sensors.insert(c_i, ConductivitySensor(mac))
+                    if i_i != 9:
+                        sensors.insert(i_i, IlluminanceSensor(mac))
                     if config[CONF_BATT_ENTITIES] and (b_i != 9):
                         sensors.insert(b_i, BatterySensor(mac))
-
                 except IndexError as error:
                     _LOGGER.error(
                         "Sensor implementation error for %s, %s!", stype[mac], mac
