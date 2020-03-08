@@ -33,6 +33,7 @@ from .const import (
     DEFAULT_ACTIVE_SCAN,
     DEFAULT_HCI_INTERFACE,
     DEFAULT_BATT_ENTITIES,
+    DEFAULT_REPORT_UNKNOWN,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -42,6 +43,7 @@ from .const import (
     CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_ENCRYPTORS,
+    CONF_REPORT_UNKNOWN,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -74,7 +76,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
             CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
         ): vol.All(cv.ensure_list, [cv.positive_int]),
         vol.Optional(CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES): cv.boolean,
-        vol.Optional(CONF_ENCRYPTORS, default={}): ENCRYPTORS_LIST_SCHEMA
+        vol.Optional(CONF_ENCRYPTORS, default={}): ENCRYPTORS_LIST_SCHEMA,
+        vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): cv.boolean,
     }
 )
 
@@ -196,7 +199,7 @@ def decrypt_payload(encrypted_payload, key, nonce):
         return None
     return plaindata
 
-def parse_raw_message(data, aeskeyslist):
+def parse_raw_message(data, aeskeyslist, report_unknown = False):
     """Parse the raw data."""
     if data is None:
         return None
@@ -226,6 +229,13 @@ def parse_raw_message(data, aeskeyslist):
             data[xiaomi_index + 5:xiaomi_index + 7]
         ]
     except KeyError:
+        if report_unknown:
+            _LOGGER.info(
+                "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
+                rssi,
+                ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+                data.hex()
+            )
         return None
     #Frame control bits
     framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
@@ -380,6 +390,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
     scanner.start(config)
     sensors_by_mac = {}
+    if config[CONF_REPORT_UNKNOWN]:
+        _LOGGER.info("Attention! Option report_unknown is enabled, be ready for a huge output...")
     #prepare device:key list to speedup parser
     aeskeys = {}
     for mac in config[CONF_ENCRYPTORS]:
@@ -454,8 +466,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         scanner.stop()
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
+        report_unknown = config[CONF_REPORT_UNKNOWN]
         for msg in hcidump_raw:
-            data = parse_raw_message(msg, aeskeyslist)
+            data = parse_raw_message(msg, aeskeyslist, report_unknown)
             if data and "mac" in data:
                 # ignore duplicated message
                 packet = data["packet"]
