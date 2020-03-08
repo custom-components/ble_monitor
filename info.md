@@ -69,11 +69,11 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - LYWSD03MMC
 
-  (small square body, segment LCD, broadcasts temperature and humidity once about a 10 minutes and battery once a hour, advertisements are encrypted, key needed! See [encryptors](#configuration-variables) option.
+  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option.
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
 
-**In the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read about how to request the implementation of support for other sensors.**
+**Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
 
 ## HOW TO INSTALL
 
@@ -134,8 +134,11 @@ sensor:
     active_scan: False
     hci_interface: 0
     batt_entities: False
+    encryptors: 'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
     report_unknown: False
 ```
+
+Note: The encryptors parameter is only needed for LYWSD03MMC.
 
 ### Configuration Variables
 
@@ -189,7 +192,7 @@ sensor:
 
 #### encryptors
 
-  (dictionary)(Optional) This option is used to describe the correspondence between the mac-address of the sensor broadcasting encrypted advertisements and the encryption key (32 characters = 16 bytes). The case of characters does not matter. The keys below are for the sample, you need yours! Information on where to get the key [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+  (dictionary)(Optional) This option is used to link the mac-address of the sensor broadcasting encrypted advertisements to the encryption key (32 characters = 16 bytes). This is only needed for LYWSD03MMC sensors. The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
 ```yaml
 sensor:
@@ -201,7 +204,7 @@ sensor:
 
 #### report_unknown
 
-  (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported ones](#supported-sensors). If you set this parameter to `True`, then the component will begin to output to the Home Assitant log all messages from unknown Xiaomi ecosystem devices. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+  (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
 ## FREQUENTLY ASKED QUESTIONS
 
