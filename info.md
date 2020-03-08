@@ -214,3 +214,7 @@ If your question or issue isn't answered in the FAQ, please open an [issue](http
 ## CREDITS
 
 Credits and a big thanks should be given to [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) and [@Magalex](https://community.home-assistant.io/u/Magalex). The main python code for this component was originally developed by [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) and later modified by [@Magalex](https://community.home-assistant.io/u/Magalex).
+
+## FORUM
+
+You can more freely discuss the operation of the component, ask for support, leave feedback and share your experience in [our topic](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352?u=magalex) on the Home Assistant forum.

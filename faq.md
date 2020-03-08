@@ -17,6 +17,7 @@
       - [My sensor stops receiving updates some time after the system restart](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
       - [My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?](#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)
   - [DEBUG](#debug)
+  - [FORUM](#forum)
 <!-- /TOC -->
 
 ## Why is this component called passive and what does this mean
@@ -187,3 +188,7 @@ btmon -t -w problem.log
 ```
 
 You can write to the problem.log file the moment the problem occurs and attach this file to your issue.
+
+## FORUM
+
+You can more freely discuss the operation of the component, ask for support, leave feedback and share your experience in [our topic](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352?u=magalex) on the Home Assistant forum.
