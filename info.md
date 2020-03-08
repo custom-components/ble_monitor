@@ -15,6 +15,7 @@
 - LYWSD03MMC support ("encryptor")
 - added new option `report_unknown` designed to enable logging of all BLE ADV messages from unsupported Xiaomi ecosystem devices
 - error "Attribute hass is None for Entity..." fixed
+- fix for VegTrug Grow Care Garden sensor
 - other minor bugfixes and improvements
 
 ---
@@ -71,6 +72,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   (small square body, segment LCD, broadcasts temperature and humidity once about a 10 minutes and battery once a hour, advertisements are encrypted, key needed! See [encryptors](#configuration-variables) option.
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
+
+**In the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read about how to request the implementation of support for other sensors.**
 
 ## HOW TO INSTALL
 

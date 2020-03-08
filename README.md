@@ -50,6 +50,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
+**In the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read about how to request the implementation of support for other sensors.**
+
 ## HOW TO INSTALL
 
 **1. Grant permissions for Python rootless access to HCI interface (usually not needed on HASSio):**
