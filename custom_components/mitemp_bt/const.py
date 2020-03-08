@@ -10,6 +10,7 @@ CONF_ACTIVE_SCAN = "active_scan"
 CONF_HCI_INTERFACE = "hci_interface"
 CONF_BATT_ENTITIES = "batt_entities"
 CONF_ENCRYPTORS = "encryptors"
+CONF_REPORT_UNKNOWN = "report_unknown"
 
 # Default values for configuration options
 DEFAULT_ROUNDING = True
@@ -20,6 +21,7 @@ DEFAULT_USE_MEDIAN = False
 DEFAULT_ACTIVE_SCAN = False
 DEFAULT_HCI_INTERFACE = 0
 DEFAULT_BATT_ENTITIES = False
+DEFAULT_REPORT_UNKNOWN = False
 
 
 """Fixed constants."""

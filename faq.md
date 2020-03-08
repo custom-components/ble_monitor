@@ -15,6 +15,7 @@
   - [OTHER ISSUES](#other-issues)
       - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
       - [My sensor stops receiving updates some time after the system restart](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
+      - [My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?](#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)
   - [DEBUG](#debug)
 <!-- /TOC -->
 
@@ -148,7 +149,26 @@ A reliable, but not the only way out of this situation (apart from the refusal t
 
 ### My sensor stops receiving updates some time after the system restart
 
-Most often, the cause of this is the presence of the bugs in the system components responsible for the BT operation (kernel modules, firmwares, etc). As a rule, in such cases, the corresponding entries appear in the system log. Please carefully review the contents of your `syslog`, and try searching the Internet for a solution - with high probability you are not alone in this. Пример решения проблемы - [BT problem, Raspberry PI3 and Hass.io](https://github.com/custom-components/sensor.mitemp_bt/issues/31#issuecomment-595417222)
+Most often, the cause of this is the presence of the bugs in the system components responsible for the BT operation (kernel modules, firmwares, etc). As a rule, in such cases, the corresponding entries appear in the system log. Please carefully review the contents of your `syslog`, and try searching the Internet for a solution - with high probability you are not alone in this. For example, here is an issue with a typical Raspberry PI problem - [BT problem, Raspberry PI3 and Hass.io](https://github.com/custom-components/sensor.mitemp_bt/issues/31#issuecomment-595417222)
+
+### My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?
+
+- [Install the component](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#how-to-install) if you have not already done so.
+- Make sure you have [logger](https://www.home-assistant.io/integrations/logger/) enabled, and logging enabled for `info` level (globally or just for `custom_components.mitemp_bt`). For example:
+
+```yaml
+logger:
+  default: warn
+  logs:
+    custom_components.mitemp_bt: info
+```
+
+- Place your sensor extremely close to the HA host (BT interface).
+- [Enable option](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#configuration) `report_unknown`.
+- Wait until a number of "BLE ADV from UNKNOWN" messages accumulate in the log. The component will put these messages at the `info` level!
+- Create [issue](https://github.com/custom-components/sensor.mitemp_bt/issues), write there everything you know about your sensor and attach obtained log.
+- Do not forget to disable the `report_unknown` option (delete it or set it to False and restart HA).
+- Wait for a response from the developers )
 
 ## DEBUG
 
