@@ -32,6 +32,7 @@
   - [Configuration variables](#configuration-variables)
 - [Frequently asked questions](#frequently-asked-questions)
 - [Credits](#credits)
+- [Forum](#forum)
 
 <!-- /TOC -->
 
