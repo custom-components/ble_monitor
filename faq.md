@@ -152,20 +152,20 @@ Most often, the cause of this is the presence of bugs in the system components r
 ### My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?
 
 - [Install the component](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#how-to-install) if you have not already done so.
-- Make sure you have [logger](https://www.home-assistant.io/integrations/logger/) enabled, and logging enabled for `debug` level (globally or just for `custom_components.mitemp_bt`). For example:
+- Make sure you have [logger](https://www.home-assistant.io/integrations/logger/) enabled, and logging enabled for `info` level (globally or just for `custom_components.mitemp_bt`). For example:
 
 ```yaml
 logger:
   default: warn
   logs:
-    custom_components.mitemp_bt: debug
+    custom_components.mitemp_bt: info
 ```
 
 - Place your sensor extremely close to the HA host (BT interface).
 - [Enable the option](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#configuration) `report_unknown`.
 - Wait until a number of "BLE ADV from UNKNOWN" messages accumulate in the log.
 - Create a new [issue](https://github.com/custom-components/sensor.mitemp_bt/issues), write everything you know about your sensor and attach the obtained log.
-- Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA).
+- Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.
 - Wait for a response from the developers.
 
 ## DEBUG

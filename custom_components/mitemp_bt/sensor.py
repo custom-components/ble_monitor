@@ -232,7 +232,7 @@ def parse_raw_message(data, aeskeyslist, report_unknown=False):
         ]
     except KeyError:
         if report_unknown:
-            _LOGGER.debug(
+            _LOGGER.info(
                 "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
                 rssi,
                 ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
@@ -391,7 +391,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     scanner.start(config)
     sensors_by_mac = {}
     if config[CONF_REPORT_UNKNOWN]:
-        _LOGGER.debug(
+        _LOGGER.info(
             "Attention! Option report_unknown is enabled, be ready for a huge output..."
         )
     # prepare device:key list to speedup parser
