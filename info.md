@@ -135,7 +135,8 @@ sensor:
     active_scan: False
     hci_interface: 0
     batt_entities: False
-    encryptors: 'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
+    encryptors:
+              'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
     report_unknown: False
 ```
 
