@@ -111,6 +111,10 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - A second restart is required to load the configuration. After a few minutes, the sensors should be added to your home-assistant automatically (at least one [period](#period) required).
 
+**6. Add your sensors to the MiHome app if you haven’t already.**
+
+Many Xiaomi ecosystem sensors (maybe all) do not brodcasts BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app.
+
 ## CONFIGURATION
 
 Add the following to your `configuration.yaml` file.
@@ -140,7 +144,7 @@ sensor:
     report_unknown: False
 ```
 
-Note: The encryptors parameter is only needed for LYWSD03MMC.
+Note: The encryptors parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
 
 ### Configuration Variables
 
