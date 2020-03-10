@@ -40,7 +40,8 @@ XIAOMI_TYPE_DICT = {
     b'\x47\x03': "CGG1",
     b'\x5D\x01': "HHCCPOT002",
     b'\xBC\x03': "GCLS002",
-    b'\x5B\x05': "LYWSD03MMC"
+    b'\x5B\x05': "LYWSD03MMC",
+    b'\x76\x05': "CGD1"
 }
 
 
@@ -54,5 +55,6 @@ MMTS_DICT = {
     'LYWSDCGQ'  : [0, 1, 9, 9, 9, 2],
     'LYWSD02'   : [0, 1, 9, 9, 9, 9],
     'CGG1'      : [0, 1, 9, 9, 9, 2],
-    'LYWSD03MMC': [0, 1, 9, 9, 9, 2]
+    'LYWSD03MMC': [0, 1, 9, 9, 9, 2],
+    'CGD1'      : [0, 1, 9, 9, 9, 2]
 }
