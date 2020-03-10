@@ -8,15 +8,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes since 0.5.7
+# Changes since 0.6.1
 
-- encrypted BLE ADV payload decryption implemented
-- added new option `encryptors` to describe the correspondence between the mac-address of the sensor broadcasting encrypted adverts and the encryption key
-- LYWSD03MMC support ("encryptor")
-- added new option `report_unknown` designed to enable logging of all BLE ADV messages from unsupported Xiaomi ecosystem devices
-- error "Attribute hass is None for Entity..." fixed
-- fix for VegTrug Grow Care Garden sensor
-- other minor bugfixes and improvements
+- initial Cleargrass CGD1 alarm clock support
 
 ---
 {% endif %}
@@ -71,6 +65,10 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - LYWSD03MMC
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option.
+
+- CGD1 **BETA**
+
+  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity once in about 10 minutes? and battery once in an hour?, advertisements are encrypted, therefore you need to set the key in your configuration, the procedure is similar to the LYWSD03MMC sensor.
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
 
