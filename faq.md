@@ -115,6 +115,8 @@ Try to keep the distance as limited as possible.
 
 Especially SSD devices are known to affect the Bluetooth reception, try to place your SSD drive as far as possible from your Bluetooth tranceiver.
 
+- Metal cases are a big problem for built-in bluetooth and wifi without an external antenna!
+
 - The quality of your Bluetooth transceiver.
 
 The range of the built-in Bluetooth tranceiver of a Raspberry Pi is known to be limited. Try using an external Bluetooth transceiver to increase the range, e.g. with an external antenna.

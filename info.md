@@ -8,15 +8,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes since 0.5.7
+# Changes since 0.6.1
 
-- encrypted BLE ADV payload decryption implemented
-- added new option `encryptors` to describe the correspondence between the mac-address of the sensor broadcasting encrypted adverts and the encryption key
-- LYWSD03MMC support ("encryptor")
-- added new option `report_unknown` designed to enable logging of all BLE ADV messages from unsupported Xiaomi ecosystem devices
-- error "Attribute hass is None for Entity..." fixed
-- fix for VegTrug Grow Care Garden sensor
-- other minor bugfixes and improvements
+- Cleargrass CGD1 alarm clock support
 
 ---
 {% endif %}
@@ -72,6 +66,10 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option.
 
+- CGD1
+
+  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in a 3 minutes?), and the battery (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, the procedure is similar to the LYWSD03MMC sensor.
+
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
 
 **Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
@@ -111,6 +109,10 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - A second restart is required to load the configuration. After a few minutes, the sensors should be added to your home-assistant automatically (at least one [period](#period) required).
 
+**6. Add your sensors to the MiHome app if you haven’t already.**
+
+Many Xiaomi ecosystem sensors (maybe all) do not brodcasts BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app.
+
 ## CONFIGURATION
 
 Add the following to your `configuration.yaml` file.
@@ -140,7 +142,7 @@ sensor:
     report_unknown: False
 ```
 
-Note: The encryptors parameter is only needed for LYWSD03MMC.
+Note: The encryptors parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
 
 ### Configuration Variables
 
