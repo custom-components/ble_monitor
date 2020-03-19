@@ -122,6 +122,8 @@ Especially SSD devices are known to affect the Bluetooth reception, try to place
 The range of the built-in Bluetooth tranceiver of a Raspberry Pi is known to be limited. Try using an external Bluetooth transceiver to increase the range, e.g. with an external antenna.
 It is also worth noting that starting from v0.5.5, a component can receive data from multiple interfaces simultaneously (see the `hci_interface` option).
 
+- You should also pay attention to [this issue](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart), since your problem may not be directly related to reception.
+
 ### How to increase coverage
 
 There are several ways to increase coverage:
