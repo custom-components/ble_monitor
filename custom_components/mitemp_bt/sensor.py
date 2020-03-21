@@ -272,6 +272,8 @@ def parse_raw_message(data, aeskeyslist, report_unknown=False):
             key = aeskeyslist[xiaomi_mac_reversed]
         except KeyError:
             # no encryption key found
+            # empty loop high cpu usage workaround
+            sleep(0.001)
             return None
         nonce = b"".join(
             [
@@ -386,6 +388,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             return cntr
 
     _LOGGER.debug("Starting")
+    firstrun = True
     scanner = BLEScanner()
     hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
     scanner.start(config)
@@ -454,6 +457,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     def discover_ble_devices(config, aeskeyslist):
         """Discover Bluetooth LE devices."""
+        nonlocal firstrun
+        if firstrun:
+            firstrun = False
+            _LOGGER.debug("First run, skip parsing.")
+            return []
         _LOGGER.debug("Discovering Bluetooth LE devices")
         log_spikes = config[CONF_LOG_SPIKES]
         _LOGGER.debug("Time to analyze...")
@@ -645,6 +653,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         )
 
     update_ble(dt_util.utcnow())
+    # Return successful setup
+    return True
 
 
 class TemperatureSensor(Entity):
