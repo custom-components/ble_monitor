@@ -272,8 +272,6 @@ def parse_raw_message(data, aeskeyslist, report_unknown=False):
             key = aeskeyslist[xiaomi_mac_reversed]
         except KeyError:
             # no encryption key found
-            # empty loop high cpu usage workaround
-            sleep(0.001)
             return None
         nonce = b"".join(
             [
@@ -534,6 +532,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     rssi[data["mac"]] = []
                 rssi[data["mac"]].append(int(data["rssi"]))
                 stype[data["mac"]] = data["type"]
+            else:
+                # "empty" loop high cpu usage workaround
+                sleep(0.0001)
         # for every seen device
         for mac in macs:
             # fixed entity index for every measurement type
