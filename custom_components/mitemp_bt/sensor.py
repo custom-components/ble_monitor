@@ -224,7 +224,11 @@ def parse_raw_message(data, aeskeyslist, report_unknown=False):
         return None
     # check if RSSI is valid
     (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
+    #strange positive RSSI workaround
+    if rssi > 0:
+        rssi -= 128
     if not 0 >= rssi >= -127:
+        _LOGGER.debug("Bad RSSI = %s !", rssi)
         return None
     try:
         sensor_type = XIAOMI_TYPE_DICT[
