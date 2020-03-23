@@ -222,14 +222,11 @@ def parse_raw_message(data, aeskeyslist, report_unknown=False):
     source_mac_reversed = data[adv_index - 7:adv_index - 1]
     if xiaomi_mac_reversed != source_mac_reversed:
         return None
-    # check if RSSI is valid
+    # extract RSSI byte
     (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
     #strange positive RSSI workaround
     if rssi > 0:
-        rssi -= 128
-    if not 0 >= rssi >= -127:
-        _LOGGER.debug("Bad RSSI = %s !", rssi)
-        return None
+        rssi = -rssi
     try:
         sensor_type = XIAOMI_TYPE_DICT[
             data[xiaomi_index + 5:xiaomi_index + 7]

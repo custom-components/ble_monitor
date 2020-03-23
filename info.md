@@ -8,9 +8,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes since 0.6.1
+# Changes since 0.6.2
 
-- Cleargrass CGD1 alarm clock support
+- Refusal to check RSSI value to workaround strange positive numbers for some BT-dongles
+- A small delay in the parser was introduced to reduce the CPU load on slow machines (like Raspberry Pi Zero)
 
 ---
 {% endif %}
