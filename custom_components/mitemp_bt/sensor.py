@@ -401,6 +401,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         p_mac = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
         p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
         aeskeys[p_mac] = p_key
+    _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(aeskeys))
     lpacket.cntr = {}
     sleep(1)
 
