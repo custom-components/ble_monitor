@@ -14,7 +14,7 @@ CONF_REPORT_UNKNOWN = "report_unknown"
 
 # Default values for configuration options
 DEFAULT_ROUNDING = True
-DEFAULT_DECIMALS = 2
+DEFAULT_DECIMALS = 1
 DEFAULT_PERIOD = 60
 DEFAULT_LOG_SPIKES = False
 DEFAULT_USE_MEDIAN = False

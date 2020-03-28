@@ -131,7 +131,7 @@ An example of `configuration.yaml` with all optional parameters is:
 sensor:
   - platform: mitemp_bt
     rounding: True
-    decimals: 2
+    decimals: 1
     period: 60
     log_spikes: False
     use_median: False
@@ -149,11 +149,11 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
 #### rounding
 
-  (boolean)(Optional) Enable/disable rounding of the average of all measurements taken within the number seconds specified with 'period'. Default value: True
+  (boolean)(Optional) Enable/disable rounding of the average of all measurements taken within the number seconds specified with 'period'. This option is designed to disable rounding and thus keep the full average accuracy. When disabled, the 'decimals' option is ignored. Default value: True
 
 #### decimals
 
-  (positive integer)(Optional) Number of decimal places to round if rounding is enabled. Default value: 2
+  (positive integer)(Optional) Number of decimal places to round if rounding is enabled. Default value: 1
 
 #### period
 
@@ -218,7 +218,10 @@ If your question or issue isn't answered in the FAQ, please open an [issue](http
 
 ## CREDITS
 
-Credits and a big thanks should be given to [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) and [@Magalex](https://community.home-assistant.io/u/Magalex). The main python code for this component was originally developed by [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) and later modified by [@Magalex](https://community.home-assistant.io/u/Magalex).
+Credits and big thanks should be given to:
+
+- [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) for the idea and the first code.
+- [@Magalex](https://community.home-assistant.io/u/Magalex) and [@Ernst](https://community.home-assistant.io/u/Ernst) for the component creation, development, and support.
 
 ## FORUM
 
