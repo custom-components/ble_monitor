@@ -135,7 +135,7 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
 #### decimals
 
-  (positive integer)(Optional) Number of decimal places to round if rounding is enabled. Default value: 1
+  (positive integer)(Optional) Number of decimal places to round (will be ignored if rounding is disabled). Default value: 1
 
 #### period
 
