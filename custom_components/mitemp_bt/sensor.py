@@ -411,12 +411,16 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     sleep(1)
 
     def calc_update_state(
-        entity_to_update, sensor_mac, config, measurements_list, stype=None
+        entity_to_update, sensor_mac, config, measurements_list, stype=None, fdec = 0
     ):
         """Averages according to options and updates the entity state."""
         textattr = ""
         success = False
         error = ""
+        rdecimals = config[CONF_DECIMALS]
+        # formaldehyde decimals workaround
+        if fdec > 0:
+            rdecimals = fdec
         # LYWSD03MMC "jagged" humidity workaround
         if stype == "LYWSD03MMC":
             measurements = [int(item) for item in measurements_list]
@@ -425,10 +429,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         try:
             if config[CONF_ROUNDING]:
                 state_median = round(
-                    sts.median(measurements), config[CONF_DECIMALS]
+                    sts.median(measurements), rdecimals
                 )
                 state_mean = round(
-                    sts.mean(measurements), config[CONF_DECIMALS]
+                    sts.mean(measurements), rdecimals
                 )
             else:
                 state_median = sts.median(measurements)
@@ -650,7 +654,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.error(error)
             if mac in formaldehyde_m_data:
                 success, error = calc_update_state(
-                    sensors[f_i], mac, config, formaldehyde_m_data[mac]
+                    sensors[f_i], mac, config, formaldehyde_m_data[mac], fdec=3
                 )
                 if not success:
                     _LOGGER.error(

@@ -11,7 +11,6 @@
 # Changes since 0.6.3
 
 - support for JQJCY01YM sensor Xiaomi Honeywell Formaldehyde Sensor
-
   (about 50 messages per minute total: temperature + humidity + formaldehyde + battery)
 
 - `decimals: 1` by default (instead of `decimals: 2`)
