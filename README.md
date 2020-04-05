@@ -47,15 +47,15 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - LYWSD03MMC
 
-  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option.
+  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
 
 - CGD1
 
-  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in a 3 minutes?), and the battery (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, the procedure is similar to the LYWSD03MMC sensor.
+  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in a 3 minutes?), and the battery (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, the procedure is similar to the LYWSD03MMC sensor)
 
 - JQJCY01YM
 
-  (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and the battery, total about 50 messages per minute.
+  (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and the battery, total about 50 messages per minute)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 

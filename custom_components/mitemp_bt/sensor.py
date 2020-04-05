@@ -139,7 +139,7 @@ class HCIdump(Thread):
                 self._event_loop.close()
                 _LOGGER.debug("HCIdump thread: Run finished")
 
-    def join(self, timeout=5):
+    def join(self, timeout=10):
         """Join HCIdump thread."""
         _LOGGER.debug("HCIdump thread: joining")
         try:
@@ -360,9 +360,19 @@ class BLEScanner:
 
     def stop(self):
         """Stop HCIdump thread(s)."""
+        result = True
         for dumpthread in self.dumpthreads:
-            dumpthread.join()
-        self.dumpthreads.clear()
+            if dumpthread.isAlive():
+                dumpthread.join()
+                if dumpthread.isAlive():
+                    result = False
+                    _LOGGER.error(
+                        "Waiting for the HCIdump thread to finish took too long! (>10s)"
+                    )
+        if result is True:
+            self.dumpthreads.clear()
+        return result
+
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
@@ -484,7 +494,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         rssi = {}
         macs = {}  # all found macs
         _LOGGER.debug("Getting data from HCIdump thread")
-        scanner.stop()
+        jres = scanner.stop()
+        if jres is False:
+            _LOGGER.error("HCIdump thread(s) is not completed, interrupting data processing!")
+            return []
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
         report_unknown = config[CONF_REPORT_UNKNOWN]
