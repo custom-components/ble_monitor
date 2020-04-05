@@ -87,6 +87,7 @@ H_STRUCT = struct.Struct("<H")
 T_STRUCT = struct.Struct("<h")
 CND_STRUCT = struct.Struct("<H")
 ILL_STRUCT = struct.Struct("<I")
+FMDH_STRUCT = struct.Struct("<I")
 
 
 class HCIdump(Thread):
@@ -138,7 +139,7 @@ class HCIdump(Thread):
                 self._event_loop.close()
                 _LOGGER.debug("HCIdump thread: Run finished")
 
-    def join(self, timeout=3):
+    def join(self, timeout=5):
         """Join HCIdump thread."""
         _LOGGER.debug("HCIdump thread: joining")
         try:
@@ -167,6 +168,9 @@ def parse_xiaomi_value(hexvalue, typecode):
         if typecode == 0x09:
             (cond,) = CND_STRUCT.unpack(hexvalue)
             return {"conductivity": cond}
+        if typecode == 0x10:
+            (fmdh,) = FMDH_STRUCT.unpack(hexvalue)
+            return {"formaldehyde": fmdh / 100}
     if vlength == 1:
         if typecode == 0x0A:
             return {"battery": hexvalue[0]}
@@ -471,6 +475,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         illum_m_data = {}
         moist_m_data = {}
         cond_m_data = {}
+        formaldehyde_m_data = {}
         batt = {}  # battery
         rssi = {}
         macs = {}  # all found macs
@@ -527,6 +532,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         illum_m_data[data["mac"]] = []
                     illum_m_data[data["mac"]].append(data["illuminance"])
                     macs[data["mac"]] = data["mac"]
+                if "formaldehyde" in data:
+                    if data["mac"] not in formaldehyde_m_data:
+                        formaldehyde_m_data[data["mac"]] = []
+                    formaldehyde_m_data[data["mac"]].append(data["formaldehyde"])
+                    macs[data["mac"]] = data["mac"]
                 if "battery" in data:
                     batt[data["mac"]] = int(data["battery"])
                     macs[data["mac"]] = data["mac"]
@@ -541,7 +551,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         for mac in macs:
             # fixed entity index for every measurement type
             # according to the sensor implementation
-            t_i, h_i, m_i, c_i, i_i, b_i = MMTS_DICT[stype[mac]]
+            t_i, h_i, m_i, c_i, i_i, f_i, b_i = MMTS_DICT[stype[mac]]
             # if necessary, create a list of entities
             # according to the sensor implementation
             if mac in sensors_by_mac:
@@ -558,6 +568,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     sensors.insert(c_i, ConductivitySensor(mac))
                 if i_i != 9:
                     sensors.insert(i_i, IlluminanceSensor(mac))
+                if f_i != 9:
+                    sensors.insert(f_i, FormaldehydeSensor(mac))
                 if config[CONF_BATT_ENTITIES] and (b_i != 9):
                     sensors.insert(b_i, BatterySensor(mac))
                 sensors_by_mac[mac] = sensors
@@ -634,6 +646,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 if not success:
                     _LOGGER.error(
                         "Sensor %s (%s, illum.) update error:", mac, stype[mac]
+                    )
+                    _LOGGER.error(error)
+            if mac in formaldehyde_m_data:
+                success, error = calc_update_state(
+                    sensors[f_i], mac, config, formaldehyde_m_data[mac]
+                )
+                if not success:
+                    _LOGGER.error(
+                        "Sensor %s (%s, formaldehyde) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
         _LOGGER.debug(
@@ -914,6 +935,55 @@ class IlluminanceSensor(Entity):
         """Force update."""
         return True
 
+class FormaldehydeSensor(Entity):
+    """Representation of a Sensor."""
+
+    def __init__(self, mac):
+        """Initialize the sensor."""
+        self._state = None
+        self._battery = None
+        self._unique_id = "f_" + mac
+        self._device_state_attributes = {}
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "mi {}".format(self._unique_id)
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return "mg/m³"
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:chemical-weapon"
+
+    @property
+    def should_poll(self):
+        """No polling needed."""
+        return False
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._device_state_attributes
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        return self._unique_id
+
+    @property
+    def force_update(self):
+        """Force update."""
+        return True
 
 class BatterySensor(Entity):
     """Representation of a Sensor."""

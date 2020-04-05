@@ -32,7 +32,7 @@ CONF_TMAX = 60.0
 CONF_HMIN = 0.0
 CONF_HMAX = 99.9
 
-# Xiaomi sensor types dictionary with offset for adv parser
+# Xiaomi sensor types dictionary for adv parser
 XIAOMI_TYPE_DICT = {
     b'\x98\x00': "HHCCJCY01",
     b'\xAA\x01': "LYWSDCGQ",
@@ -41,20 +41,22 @@ XIAOMI_TYPE_DICT = {
     b'\x5D\x01': "HHCCPOT002",
     b'\xBC\x03': "GCLS002",
     b'\x5B\x05': "LYWSD03MMC",
-    b'\x76\x05': "CGD1"
+    b'\x76\x05': "CGD1",
+    b'\xDF\x02': "JQJCY01YM"
 }
 
 
 # Sensor type indexes dictionary
-# Temperature, Humidity, Moisture, Conductivity, Illuminance, Battery
-# Measurement type T  H  M  C  I  B   9 - no measurement
+# Temperature, Humidity, Moisture, Conductivity, Illuminance, Formaldehyde, Battery
+# Measurement type T  H  M  C  I  F  B   9 - no measurement
 MMTS_DICT = {
-    'HHCCJCY01' : [0, 9, 1, 2, 3, 9],
-    'GCLS002'   : [0, 9, 1, 2, 3, 9],
-    'HHCCPOT002': [9, 9, 0, 1, 9, 9],
-    'LYWSDCGQ'  : [0, 1, 9, 9, 9, 2],
-    'LYWSD02'   : [0, 1, 9, 9, 9, 9],
-    'CGG1'      : [0, 1, 9, 9, 9, 2],
-    'LYWSD03MMC': [0, 1, 9, 9, 9, 2],
-    'CGD1'      : [0, 1, 9, 9, 9, 2]
+    'HHCCJCY01' : [0, 9, 1, 2, 3, 9, 9],
+    'GCLS002'   : [0, 9, 1, 2, 3, 9, 9],
+    'HHCCPOT002': [9, 9, 0, 1, 9, 9, 9],
+    'LYWSDCGQ'  : [0, 1, 9, 9, 9, 9, 2],
+    'LYWSD02'   : [0, 1, 9, 9, 9, 9, 9],
+    'CGG1'      : [0, 1, 9, 9, 9, 9, 2],
+    'LYWSD03MMC': [0, 1, 9, 9, 9, 9, 2],
+    'CGD1'      : [0, 1, 9, 9, 9, 9, 2],
+    'JQJCY01YM' : [0, 1, 9, 9, 9, 2, 3]
 }
