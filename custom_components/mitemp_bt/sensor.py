@@ -87,7 +87,7 @@ H_STRUCT = struct.Struct("<H")
 T_STRUCT = struct.Struct("<h")
 CND_STRUCT = struct.Struct("<H")
 ILL_STRUCT = struct.Struct("<I")
-FMDH_STRUCT = struct.Struct("<I")
+FMDH_STRUCT = struct.Struct("<H")
 
 
 class HCIdump(Thread):
