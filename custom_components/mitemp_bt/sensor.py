@@ -124,7 +124,6 @@ class HCIdump(Thread):
             conn, btctrl = self._event_loop.run_until_complete(fac)
             _LOGGER.debug("HCIdump thread: Connected")
             btctrl.process = self.process_hci_events
-            btctrl.send_command(aiobs.HCI_Cmd_Reset())
             btctrl.send_command(
                 aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active)
             )

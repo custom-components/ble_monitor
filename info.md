@@ -15,8 +15,6 @@
 
 - `decimals: 1` by default (instead of `decimals: 2`)
 
-- before the start of each data collection period, the component resets the hci-interface
-
 - some multithreading optimizations
 
 *For JQJCY01YM owners: since the formaldehyde sensor returns values ​​in the range from 0 to 1.5 mg / m3 with a resolution of 0.01, the number of decimal places for the formaldehyde sensor is forced to 3 (in case of enabled rounding).*
