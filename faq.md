@@ -16,6 +16,8 @@
       - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
       - [My sensor stops receiving updates some time after the system restart](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
       - [My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?](#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)
+  - [TIPS AND TRICKS](#tips-and-tricks)
+      - [How to know exactly if the reception of data from my sensors has stopped?](#how-to-know-exactly-if-the-reception-of-data-from-my-sensors-has-stopped)
   - [DEBUG](#debug)
   - [FORUM](#forum)
 <!-- /TOC -->
@@ -174,6 +176,13 @@ logger:
 - Create a new [issue](https://github.com/custom-components/sensor.mitemp_bt/issues), write everything you know about your sensor and attach the obtained log.
 - Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.
 - Wait for a response from the developers.
+
+## TIPS AND TRICKS
+
+### How to know exactly if the reception of data from my sensors has stopped?
+
+When the reception of data from sensors is stopped for some reason (hardware failure, errors at the system level, and so on), it may take an unacceptably long time before we notice this fact.
+[Here is](https://github.com/custom-components/sensor.mitemp_bt/issues/65#issuecomment-615911228) a discussion of a solution to solve this problem using a template binary sensor, which can be used in automation to send notifications, for example.
 
 ## DEBUG
 
