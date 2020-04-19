@@ -155,29 +155,29 @@ def parse_xiaomi_value(hexvalue, typecode):
     """Convert value depending on its type."""
     vlength = len(hexvalue)
     if vlength == 4:
-        if typecode == 0x0D:
+        if typecode == b'\x0D\x10':
             (temp, humi) = TH_STRUCT.unpack(hexvalue)
             return {"temperature": temp / 10, "humidity": humi / 10}
     if vlength == 2:
-        if typecode == 0x06:
+        if typecode == b'\x06\x10':
             (humi,) = H_STRUCT.unpack(hexvalue)
             return {"humidity": humi / 10}
-        if typecode == 0x04:
+        if typecode == b'\x04\x10':
             (temp,) = T_STRUCT.unpack(hexvalue)
             return {"temperature": temp / 10}
-        if typecode == 0x09:
+        if typecode == b'\x09\x10':
             (cond,) = CND_STRUCT.unpack(hexvalue)
             return {"conductivity": cond}
-        if typecode == 0x10:
+        if typecode == b'\x10\x10':
             (fmdh,) = FMDH_STRUCT.unpack(hexvalue)
             return {"formaldehyde": fmdh / 100}
     if vlength == 1:
-        if typecode == 0x0A:
+        if typecode == b'\x0A\x10':
             return {"battery": hexvalue[0]}
-        if typecode == 0x08:
+        if typecode == b'\x08\x10':
             return {"moisture": hexvalue[0]}
     if vlength == 3:
-        if typecode == 0x07:
+        if typecode == b'\x07\x10':
             (illum,) = ILL_STRUCT.unpack(hexvalue + b'\x00')
             return {"illuminance": illum}
     return None
@@ -309,7 +309,7 @@ def parse_raw_message(data, aeskeyslist, report_unknown=False):
     # assume that the data may have several values of different types,
     # although I did not notice this behavior with my LYWSDCGQ sensors
     while True:
-        xvalue_typecode = data[xdata_point]
+        xvalue_typecode = data[xdata_point:xdata_point + 2]
         try:
             xvalue_length = data[xdata_point + 2]
         except ValueError as error:
