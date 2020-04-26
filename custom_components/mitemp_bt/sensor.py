@@ -34,6 +34,7 @@ from .const import (
     DEFAULT_HCI_INTERFACE,
     DEFAULT_BATT_ENTITIES,
     DEFAULT_REPORT_UNKNOWN,
+    DEFAULT_WHITELIST,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -44,6 +45,7 @@ from .const import (
     CONF_BATT_ENTITIES,
     CONF_ENCRYPTORS,
     CONF_REPORT_UNKNOWN,
+    CONF_WHITELIST,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -78,6 +80,9 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES): cv.boolean,
         vol.Optional(CONF_ENCRYPTORS, default={}): ENCRYPTORS_LIST_SCHEMA,
         vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): cv.boolean,
+        vol.Optional(
+            CONF_WHITELIST, default=DEFAULT_WHITELIST
+        ): vol.Any(vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]), cv.boolean),
     }
 )
 
@@ -417,6 +422,19 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
         aeskeys[p_mac] = p_key
     _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(aeskeys))
+    whitelist = []
+    if isinstance(config[CONF_WHITELIST], bool):
+        if config[CONF_WHITELIST] is True:
+            for mac in config[CONF_ENCRYPTORS]:
+                whitelist.append(mac)
+    if isinstance(config[CONF_WHITELIST], list):
+        for mac in config[CONF_WHITELIST]:
+            whitelist.append(mac)
+        for mac in config[CONF_ENCRYPTORS]:
+            whitelist.append(mac)
+    for i, mac in enumerate(whitelist):
+        whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
+    _LOGGER.debug("%s whitelist item(s) loaded.", len(aeskeys))
     lpacket.cntr = {}
     sleep(1)
 
