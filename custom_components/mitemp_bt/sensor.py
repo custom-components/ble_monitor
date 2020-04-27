@@ -210,7 +210,7 @@ def decrypt_payload(encrypted_payload, key, nonce):
     return plaindata
 
 
-def parse_raw_message(data, aeskeyslist, report_unknown=False):
+def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
     """Parse the raw data."""
     if data is None:
         return None
@@ -231,6 +231,10 @@ def parse_raw_message(data, aeskeyslist, report_unknown=False):
     source_mac_reversed = data[adv_index - 7:adv_index - 1]
     if xiaomi_mac_reversed != source_mac_reversed:
         return None
+    # check for MAC presence in whitelist, if needed
+    if whitelist:
+        if xiaomi_mac_reversed not in whitelist:
+            return None
     # extract RSSI byte
     (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
     #strange positive RSSI workaround
@@ -434,7 +438,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             whitelist.append(mac)
     for i, mac in enumerate(whitelist):
         whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
-    _LOGGER.debug("%s whitelist item(s) loaded.", len(aeskeys))
+    _LOGGER.debug("%s whitelist item(s) loaded.", len(whitelist))
     lpacket.cntr = {}
     sleep(1)
 
@@ -491,7 +495,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             error = err
         return success, error
 
-    def discover_ble_devices(config, aeskeyslist):
+    def discover_ble_devices(config, aeskeyslist, whitelist):
         """Discover Bluetooth LE devices."""
         nonlocal firstrun
         if firstrun:
@@ -520,7 +524,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         scanner.start(config)  # minimum delay between HCIdumps
         report_unknown = config[CONF_REPORT_UNKNOWN]
         for msg in hcidump_raw:
-            data = parse_raw_message(msg, aeskeyslist, report_unknown)
+            data = parse_raw_message(msg, aeskeyslist, whitelist, report_unknown)
             if data and "mac" in data:
                 # ignore duplicated message
                 packet = data["packet"]
@@ -704,7 +708,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         period = config[CONF_PERIOD]
         _LOGGER.debug("update_ble called")
         try:
-            discover_ble_devices(config, aeskeys)
+            discover_ble_devices(config, aeskeys, whitelist)
         except RuntimeError as error:
             _LOGGER.error("Error during Bluetooth LE scan: %s", error)
         track_point_in_utc_time(
