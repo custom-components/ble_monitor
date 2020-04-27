@@ -8,16 +8,34 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes since 0.6.3
+# Changes since 0.6.5
 
-- support for JQJCY01YM sensor Xiaomi Honeywell Formaldehyde Sensor
-  (about 50 messages per minute total: temperature + humidity + formaldehyde + battery level)
+- new `whitelist` option:
 
-- `decimals: 1` by default (instead of `decimals: 2`)
+   By default, the component creates entities for all detected supported sensors. However, situations may arise when you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or data from part of your sensors are received using other equipment, and you would not want to see entities you do not need. To resolve this issue, simply list the mac-addresses of the sensors you need in the `whitelist` option:
 
-- some multithreading optimizations
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       whitelist:
+         - '58:C1:38:2F:86:6C'
+         - 'C4:FA:64:D1:61:7D'
+   ```
 
-*For JQJCY01YM owners: since the formaldehyde sensor returns values ​​in the range from 0 to 1.5 mg / m3 with a resolution of 0.01, the number of decimal places for the formaldehyde sensor is forced to 3 (in case of enabled rounding).*
+   data from sensors with other addresses will be ignored.
+   In addition, all addresses listed in the `encryptors` option will be automatically whitelisted.
+   If you have no sensors other than those listed in `encryptors`, then just set `whitelist` to `True`:
+
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       encryptors:
+         'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
+         'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
+       whitelist: True
+   ```
+
+- tighter filtering of received data
 
 ---
 {% endif %}
@@ -151,6 +169,7 @@ sensor:
     encryptors:
               'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
     report_unknown: False
+    whitelist: False
 ```
 
 Note: The encryptors parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
@@ -220,6 +239,31 @@ sensor:
 #### report_unknown
 
   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+
+#### whitelist
+
+By default, the component creates entities for all detected supported sensors. However, situations may arise when you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or data from part of your sensors are received using other equipment, and you would not want to see entities you do not need. To resolve this issue, simply list the MAC-addresses of the sensors you need in the `whitelist` option:
+
+```yaml
+sensor:
+  - platform: mitemp_bt
+    whitelist:
+      - '58:C1:38:2F:86:6C'
+      - 'C4:FA:64:D1:61:7D'
+```
+
+data from sensors with other addresses will be ignored.
+In addition, all addresses listed in the `encryptors` option will be automatically whitelisted.
+If you have no sensors other than those listed in `encryptors`, then just set `whitelist` to `True`:
+
+```yaml
+sensor:
+  - platform: mitemp_bt
+    encryptors:
+      'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
+      'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
+    whitelist: True
+```
 
 ## FREQUENTLY ASKED QUESTIONS
 
