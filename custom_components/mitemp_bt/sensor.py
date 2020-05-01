@@ -54,6 +54,8 @@ from .const import (
     CONF_HMAX,
     XIAOMI_TYPE_DICT,
     MMTS_DICT,
+    SW_CLASS_DICT,
+    CN_NAME_DICT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -625,8 +627,16 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     sensors.insert(f_i, FormaldehydeSensor(mac))
                 if cn_i != 9:
                     sensors.insert(cn_i, ConsumableSensor(mac))
+                    try:
+                        setattr(sensors[cn_i], "_cn_name", CN_NAME_DICT[stype[mac]])
+                    except KeyError:
+                        pass
                 if sw_i != 9:
                     sensors.insert(sw_i, SwitchBinarySensor(mac))
+                    try:
+                        setattr(sensors[sw_i], "_swclass", SW_CLASS_DICT[stype[mac]])
+                    except KeyError:
+                        pass
                 if config[CONF_BATT_ENTITIES] and (b_i != 9):
                     sensors.insert(b_i, BatterySensor(mac))
                 sensors_by_mac[mac] = sensors
@@ -1128,13 +1138,14 @@ class ConsumableSensor(Entity):
         """Initialize the sensor."""
         self._state = None
         self._battery = None
-        self._unique_id = "cn_" + mac
+        self._cn_name = "cn_"
+        self._nmac = mac
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "mi {}".format(self._unique_id)
+        return "mi {}".format(self._cn_name + self._nmac)
 
     @property
     def state(self):
@@ -1164,7 +1175,7 @@ class ConsumableSensor(Entity):
     @property
     def unique_id(self) -> str:
         """Return a unique ID."""
-        return self._unique_id
+        return self._cn_name + self._nmac
 
     @property
     def force_update(self):
@@ -1177,6 +1188,7 @@ class SwitchBinarySensor(BinarySensorEntity):
     def __init__(self, mac):
         """Initialize the sensor."""
         self._state = None
+        self._swclass = None
         self._battery = None
         self._unique_id = "sw_" + mac
         self._device_state_attributes = {}
@@ -1184,7 +1196,7 @@ class SwitchBinarySensor(BinarySensorEntity):
     @property
     def is_on(self):
         """Return true if the binary sensor is on."""
-        return True if self._state >= 1 else False
+        return bool(self._state)
 
     @property
     def name(self):
@@ -1214,7 +1226,7 @@ class SwitchBinarySensor(BinarySensorEntity):
     @property
     def device_class(self):
         """Return the class of this device, from component DEVICE_CLASSES."""
-        return None
+        return self._swclass
 
     @property
     def force_update(self):

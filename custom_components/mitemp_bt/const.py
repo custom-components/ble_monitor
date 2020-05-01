@@ -1,4 +1,7 @@
 """Constants for the Xiaomi passive BLE monitor sensor integration."""
+from homeassistant.const import (
+    DEVICE_CLASS_POWER,
+)
 
 # Configuration options
 CONF_ROUNDING = "rounding"
@@ -63,4 +66,14 @@ MMTS_DICT = {
     'CGD1'      : [0, 1, 9, 9, 9, 9, 9, 9, 2],
     'JQJCY01YM' : [0, 1, 9, 9, 9, 2, 9, 9, 3],
     'WX08ZM'    : [9, 9, 9, 9, 9, 9, 0, 1, 2]
+}
+
+# Switch binary sensor classes dict
+SW_CLASS_DICT = {
+    'WX08ZM'    : DEVICE_CLASS_POWER
+}
+
+# Consumable sensor name dict
+CN_NAME_DICT = {
+    'WX08ZM'    : "tablet_"
 }
