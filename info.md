@@ -8,7 +8,13 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes since 0.6.5
+# Changes since 0.6.6
+
+- changes to implement support for sensors broadcasting switch state and consumable resource;
+
+  The entity class of the binary sensor and the entity name of the consumable sensor are assigned automatically depending on the type of specific device.
+
+- Xiaomi Mija Mosquito Repellent WX08ZM support;
 
 - new `whitelist` option:
 
@@ -34,8 +40,6 @@
          'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
        whitelist: True
    ```
-
-- tighter filtering of received data
 
 ---
 {% endif %}
@@ -98,6 +102,10 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - JQJCY01YM
 
   (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute)
+
+- WX08ZM
+
+  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
 
