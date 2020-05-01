@@ -13,7 +13,7 @@
 - changes to implement support for sensors broadcasting switch state and consumable resource;
 
    The entity class of the binary sensor and the entity name of the consumable sensor are assigned automatically depending on the type of specific device.
-   *Due to the fact that this component has a periodic nature of operation, the state of the binary sensor will arrive with some delay. For example, if your period option is one minute (by default this is the case), and the state of the sensor has changed by 30 seconds of the period, then the state of the binary sensor entity in HA will change only after the remaining 30 seconds have passed.*
+   *Due to the fact that this component has a periodic nature of the operation, the state of the binary sensor will arrive with some delay. For example, if your period option is one minute (by default this is the case), and the state of the sensor has changed by 30 seconds of the period, then the state of the binary sensor entity in HA will change only after the remaining 30 seconds have passed.*
 
 - Xiaomi Mija Mosquito Repellent WX08ZM support;
 
