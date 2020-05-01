@@ -19,7 +19,13 @@ from homeassistant.const import (
     ATTR_BATTERY_LEVEL,
     STATE_OFF, STATE_ON,
 )
-from homeassistant.components.binary_sensor import BinarySensorEntity
+
+# Binary Sensor Class will be renamed in the future HA releases
+try:
+    from homeassistant.components.binary_sensor import BinarySensorEntity
+except ImportError:
+    from homeassistant.components.binary_sensor import BinarySensorDevice as BinarySensorEntity
+
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
