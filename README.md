@@ -131,9 +131,7 @@ sensor:
     encryptors:
                'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
     report_unknown: False
-    whitelist:
-      - '58:C1:38:2F:86:6C'
-      - 'C4:FA:64:D1:61:7D'
+    whitelist: False
 ```
 
 Note: The encryptors parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
