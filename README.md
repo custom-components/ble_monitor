@@ -57,6 +57,10 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute)
 
+- WX08ZM
+
+  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
+
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
 **Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
@@ -127,6 +131,7 @@ sensor:
     encryptors:
                'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
     report_unknown: False
+    whitelist: False
 ```
 
 Note: The encryptors parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
@@ -135,67 +140,94 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
 #### rounding
 
-  (boolean)(Optional) Enable/disable rounding of the average of all measurements taken within the number seconds specified with 'period'. This option is designed to disable rounding and thus keep the full average accuracy. When disabled, the `decimals` option is ignored. Default value: True
+   (boolean)(Optional) Enable/disable rounding of the average of all measurements taken within the number seconds specified with 'period'. This option is designed to disable rounding and thus keep the full average accuracy. When disabled, the `decimals` option is ignored. Default value: True
 
 #### decimals
 
-  (positive integer)(Optional) Number of decimal places to round (will be ignored if rounding is disabled). Default value: 1
+   (positive integer)(Optional) Number of decimal places to round (will be ignored if rounding is disabled). Default value: 1
 
 #### period
 
-  (positive integer)(Optional) The period in seconds during which the sensor readings are collected and transmitted to Home Assistant after averaging. Default value: 60.
+   (positive integer)(Optional) The period in seconds during which the sensor readings are collected and transmitted to Home Assistant after averaging. Default value: 60.
 
-  *To clarify the difference between the sensor broadcast interval and the component measurement period: The LYWSDCGQ transmits 20-25 valuable BT LE messages (RSSI -75..-70 dBm). During the period = 60 (seconds), the component accumulates all these 20-25 messages, and after the 60 seconds expires, averages them and updates the sensor status in Home Assistant. The period does not affect the consumption of the sensor. It only affects the Home Assistant sensor update rate and the number of averaged values. We cannot change the frequency with which sensor sends data.*
+   *To clarify the difference between the sensor broadcast interval and the component measurement period: The LYWSDCGQ transmits 20-25 valuable BT LE messages (RSSI -75..-70 dBm). During the period = 60 (seconds), the component accumulates all these 20-25 messages, and after the 60 seconds expires, averages them and updates the sensor status in Home Assistant. The period does not affect the consumption of the sensor. It only affects the Home Assistant sensor update rate and the number of averaged values. We cannot change the frequency with which sensor sends data.*
 
 #### log_spikes
 
-  (boolean)(Optional) Puts information about each erroneous spike in the Home Assistant log. Default value: False
+   (boolean)(Optional) Puts information about each erroneous spike in the Home Assistant log. Default value: False
   
-  *There are reports (pretty rare) that some sensors tend to sometimes produce erroneous values that differ markedly from the actual ones. Therefore, if you see inexplicable sharp peaks or dips on the temperature or humidity graph, I recommend that you enable this option so that you can see in the log which values were qualified as erroneous. The component discards values that exceeds the sensor’s measurement capabilities. These discarded values are given in the log records when this option is enabled. If erroneous values are within the measurement capabilities (-40..60°C and 0..100%H), there are no messages in the log. If your sensor is showing this, there is no other choice but to calculate the average as the median (next option).*
+   *There are reports (pretty rare) that some sensors tend to sometimes produce erroneous values that differ markedly from the actual ones. Therefore, if you see inexplicable sharp peaks or dips on the temperature or humidity graph, I recommend that you enable this option so that you can see in the log which values were qualified as erroneous. The component discards values that exceeds the sensor’s measurement capabilities. These discarded values are given in the log records when this option is enabled. If erroneous values are within the measurement capabilities (-40..60°C and 0..100%H), there are no messages in the log. If your sensor is showing this, there is no other choice but to calculate the average as the median (next option).*
 
 #### use_median
 
-  (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the mean values in any case are present as the sensor state attributes. Default value: False
+   (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the mean values in any case are present as the sensor state attributes. Default value: False
   
-  *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
+   *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
 
 #### active_scan
 
-  (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
+   (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
 
 #### hci_interface
 
-  (positive integer or list of positive integers)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
+   (positive integer or list of positive integers)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
 
-  ```yaml
-  sensor:
-      - platform: mitemp_bt
-        hci_interface:
-                      - 0
-                      - 1
-  ```
+   ```yaml
+   sensor:
+       - platform: mitemp_bt
+         hci_interface:
+                       - 0
+                       - 1
+   ```
 
-  Default value: 0
+   Default value: 0
 
 #### batt_entities
 
-  (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
+   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
 
 #### encryptors
 
-  (dictionary)(Optional) This option is used to link the mac-address of the sensor broadcasting encrypted advertisements to the encryption key (32 characters = 16 bytes). This is only needed for LYWSD03MMC and CGD1 sensors. The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (dictionary)(Optional) This option is used to link the mac-address of the sensor broadcasting encrypted advertisements to the encryption key (32 characters = 16 bytes). This is only needed for LYWSD03MMC and CGD1 sensors. The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
-```yaml
-sensor:
-  - platform: mitemp_bt
-    encryptors:
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       encryptors:
                 'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
                 'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
-```
+   ```
 
 #### report_unknown
 
-  (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+
+#### whitelist
+
+   (list or boolean)(Optional) By default, the component creates entities for all detected supported sensors. However, situations may arise where you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or when data from part of your sensors are received using other equipment, and you don't want to see entities you do not need. To resolve this issue, simply list the MAC-addresses of the sensors you need in the `whitelist` option:
+
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       whitelist:
+         - '58:C1:38:2F:86:6C'
+         - 'C4:FA:64:D1:61:7D'
+   ```
+
+   Data from sensors with other addresses will be ignored.
+   In addition, all addresses listed in the `encryptors` option will be automatically whitelisted.
+   If you have no sensors other than those listed in `encryptors`, then just set `whitelist` to `True`:
+
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       encryptors:
+         'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
+         'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
+       whitelist: True
+   ```
+
+   Default value: False
 
 ## FREQUENTLY ASKED QUESTIONS
 

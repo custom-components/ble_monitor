@@ -17,7 +17,15 @@ from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
     TEMP_CELSIUS,
     ATTR_BATTERY_LEVEL,
+    STATE_OFF, STATE_ON,
 )
+
+# Binary Sensor Class will be renamed in the future HA releases
+try:
+    from homeassistant.components.binary_sensor import BinarySensorEntity
+except ImportError:
+    from homeassistant.components.binary_sensor import BinarySensorDevice as BinarySensorEntity
+
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
@@ -34,6 +42,7 @@ from .const import (
     DEFAULT_HCI_INTERFACE,
     DEFAULT_BATT_ENTITIES,
     DEFAULT_REPORT_UNKNOWN,
+    DEFAULT_WHITELIST,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -44,12 +53,15 @@ from .const import (
     CONF_BATT_ENTITIES,
     CONF_ENCRYPTORS,
     CONF_REPORT_UNKNOWN,
+    CONF_WHITELIST,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
     XIAOMI_TYPE_DICT,
     MMTS_DICT,
+    SW_CLASS_DICT,
+    CN_NAME_DICT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -78,6 +90,9 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES): cv.boolean,
         vol.Optional(CONF_ENCRYPTORS, default={}): ENCRYPTORS_LIST_SCHEMA,
         vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): cv.boolean,
+        vol.Optional(
+            CONF_WHITELIST, default=DEFAULT_WHITELIST
+        ): vol.Any(vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]), cv.boolean),
     }
 )
 
@@ -176,6 +191,10 @@ def parse_xiaomi_value(hexvalue, typecode):
             return {"battery": hexvalue[0]}
         if typecode == b'\x08\x10':
             return {"moisture": hexvalue[0]}
+        if typecode == b'\x12\x10':
+            return {"switch": hexvalue[0]}
+        if typecode == b'\x13\x10':
+            return {"consumable": hexvalue[0]}
     if vlength == 3:
         if typecode == b'\x07\x10':
             (illum,) = ILL_STRUCT.unpack(hexvalue + b'\x00')
@@ -205,7 +224,7 @@ def decrypt_payload(encrypted_payload, key, nonce):
     return plaindata
 
 
-def parse_raw_message(data, aeskeyslist, report_unknown=False):
+def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
     """Parse the raw data."""
     if data is None:
         return None
@@ -226,6 +245,10 @@ def parse_raw_message(data, aeskeyslist, report_unknown=False):
     source_mac_reversed = data[adv_index - 7:adv_index - 1]
     if xiaomi_mac_reversed != source_mac_reversed:
         return None
+    # check for MAC presence in whitelist, if needed
+    if whitelist:
+        if xiaomi_mac_reversed not in whitelist:
+            return None
     # extract RSSI byte
     (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
     #strange positive RSSI workaround
@@ -417,6 +440,19 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
         aeskeys[p_mac] = p_key
     _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(aeskeys))
+    whitelist = []
+    if isinstance(config[CONF_WHITELIST], bool):
+        if config[CONF_WHITELIST] is True:
+            for mac in config[CONF_ENCRYPTORS]:
+                whitelist.append(mac)
+    if isinstance(config[CONF_WHITELIST], list):
+        for mac in config[CONF_WHITELIST]:
+            whitelist.append(mac)
+        for mac in config[CONF_ENCRYPTORS]:
+            whitelist.append(mac)
+    for i, mac in enumerate(whitelist):
+        whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
+    _LOGGER.debug("%s whitelist item(s) loaded.", len(whitelist))
     lpacket.cntr = {}
     sleep(1)
 
@@ -473,7 +509,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             error = err
         return success, error
 
-    def discover_ble_devices(config, aeskeyslist):
+    def discover_ble_devices(config, aeskeyslist, whitelist):
         """Discover Bluetooth LE devices."""
         nonlocal firstrun
         if firstrun:
@@ -490,6 +526,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         moist_m_data = {}
         cond_m_data = {}
         formaldehyde_m_data = {}
+        cons_m_data = {}
+        switch_m_data = {}
         batt = {}  # battery
         rssi = {}
         macs = {}  # all found macs
@@ -502,7 +540,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         scanner.start(config)  # minimum delay between HCIdumps
         report_unknown = config[CONF_REPORT_UNKNOWN]
         for msg in hcidump_raw:
-            data = parse_raw_message(msg, aeskeyslist, report_unknown)
+            data = parse_raw_message(msg, aeskeyslist, whitelist, report_unknown)
             if data and "mac" in data:
                 # ignore duplicated message
                 packet = data["packet"]
@@ -554,6 +592,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         formaldehyde_m_data[data["mac"]] = []
                     formaldehyde_m_data[data["mac"]].append(data["formaldehyde"])
                     macs[data["mac"]] = data["mac"]
+                if "consumable" in data:
+                    cons_m_data[data["mac"]] = int(data["consumable"])
+                    macs[data["mac"]] = data["mac"]
+                if "switch" in data:
+                    switch_m_data[data["mac"]] = int(data["switch"])
+                    macs[data["mac"]] = data["mac"]
                 if "battery" in data:
                     batt[data["mac"]] = int(data["battery"])
                     macs[data["mac"]] = data["mac"]
@@ -568,7 +612,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         for mac in macs:
             # fixed entity index for every measurement type
             # according to the sensor implementation
-            t_i, h_i, m_i, c_i, i_i, f_i, b_i = MMTS_DICT[stype[mac]]
+            t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, b_i = MMTS_DICT[stype[mac]]
             # if necessary, create a list of entities
             # according to the sensor implementation
             if mac in sensors_by_mac:
@@ -587,6 +631,18 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     sensors.insert(i_i, IlluminanceSensor(mac))
                 if f_i != 9:
                     sensors.insert(f_i, FormaldehydeSensor(mac))
+                if cn_i != 9:
+                    sensors.insert(cn_i, ConsumableSensor(mac))
+                    try:
+                        setattr(sensors[cn_i], "_cn_name", CN_NAME_DICT[stype[mac]])
+                    except KeyError:
+                        pass
+                if sw_i != 9:
+                    sensors.insert(sw_i, SwitchBinarySensor(mac))
+                    try:
+                        setattr(sensors[sw_i], "_swclass", SW_CLASS_DICT[stype[mac]])
+                    except KeyError:
+                        pass
                 if config[CONF_BATT_ENTITIES] and (b_i != 9):
                     sensors.insert(b_i, BatterySensor(mac))
                 sensors_by_mac[mac] = sensors
@@ -674,6 +730,36 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         "Sensor %s (%s, formaldehyde) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(error)
+            if mac in cons_m_data:
+                setattr(sensors[cn_i], "_state", cons_m_data[mac])
+                try:
+                    sensors[cn_i].schedule_update_ha_state()
+                except AttributeError:
+                    _LOGGER.debug(
+                        "Sensor %s (%s, cons.) not yet ready for update",
+                        mac,
+                        stype[mac],
+                    )
+                except RuntimeError as err:
+                    _LOGGER.error(
+                        "Sensor %s (%s, cons.) update error:", mac, stype[mac]
+                    )
+                    _LOGGER.error(err)
+            if mac in switch_m_data:
+                setattr(sensors[sw_i], "_state", switch_m_data[mac])
+                try:
+                    sensors[sw_i].schedule_update_ha_state()
+                except AttributeError:
+                    _LOGGER.debug(
+                        "Sensor %s (%s, switch) not yet ready for update",
+                        mac,
+                        stype[mac],
+                    )
+                except RuntimeError as err:
+                    _LOGGER.error(
+                        "Sensor %s (%s, switch) update error:", mac, stype[mac]
+                    )
+                    _LOGGER.error(err)
         _LOGGER.debug(
             "Finished. Parsed: %i hci events, %i xiaomi devices.",
             len(hcidump_raw),
@@ -686,7 +772,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         period = config[CONF_PERIOD]
         _LOGGER.debug("update_ble called")
         try:
-            discover_ble_devices(config, aeskeys)
+            discover_ble_devices(config, aeskeys, whitelist)
         except RuntimeError as error:
             _LOGGER.error("Error during Bluetooth LE scan: %s", error)
         track_point_in_utc_time(
@@ -1045,6 +1131,108 @@ class BatterySensor(Entity):
     def unique_id(self) -> str:
         """Return a unique ID."""
         return self._unique_id
+
+    @property
+    def force_update(self):
+        """Force update."""
+        return True
+
+class ConsumableSensor(Entity):
+    """Representation of a Sensor."""
+
+    def __init__(self, mac):
+        """Initialize the sensor."""
+        self._state = None
+        self._battery = None
+        self._cn_name = "cn_"
+        self._nmac = mac
+        self._device_state_attributes = {}
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "mi {}".format(self._cn_name + self._nmac)
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return "%"
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:mdi-recycle-variant"
+
+    @property
+    def should_poll(self):
+        """No polling needed."""
+        return False
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._device_state_attributes
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        return self._cn_name + self._nmac
+
+    @property
+    def force_update(self):
+        """Force update."""
+        return True
+
+class SwitchBinarySensor(BinarySensorEntity):
+    """Representation of a Sensor."""
+
+    def __init__(self, mac):
+        """Initialize the sensor."""
+        self._state = None
+        self._swclass = None
+        self._battery = None
+        self._unique_id = "sw_" + mac
+        self._device_state_attributes = {}
+
+    @property
+    def is_on(self):
+        """Return true if the binary sensor is on."""
+        return bool(self._state)
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "mi {}".format(self._unique_id)
+
+    @property
+    def state(self):
+        """Return the state of the binary sensor."""
+        return STATE_ON if self.is_on else STATE_OFF
+
+    @property
+    def should_poll(self):
+        """No polling needed."""
+        return False
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._device_state_attributes
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        return self._unique_id
+
+    @property
+    def device_class(self):
+        """Return the class of this device, from component DEVICE_CLASSES."""
+        return self._swclass
 
     @property
     def force_update(self):
