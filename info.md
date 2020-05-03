@@ -251,7 +251,7 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
 #### whitelist
 
-   (list or boolean)(Optional) By default, the component creates entities for all detected supported sensors. However, situations may arise when you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or data from part of your sensors are received using other equipment, and you would not want to see entities you do not need. To resolve this issue, simply list the MAC-addresses of the sensors you need in the `whitelist` option:
+   (list or boolean)(Optional) By default, the component creates entities for all detected supported sensors. However, situations may arise where you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or when data from part of your sensors are received using other equipment, and you don't want to see entities you do not need. To resolve this issue, simply list the MAC-addresses of the sensors you need in the `whitelist` option:
 
    ```yaml
    sensor:
