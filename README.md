@@ -131,6 +131,9 @@ sensor:
     encryptors:
                'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
     report_unknown: False
+    whitelist:
+      - '58:C1:38:2F:86:6C'
+      - 'C4:FA:64:D1:61:7D'
 ```
 
 Note: The encryptors parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
@@ -203,7 +206,7 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
 #### whitelist
 
-   (list or boolean)(Optional) By default, the component creates entities for all detected supported sensors. However, situations may arise when you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or data from part of your sensors are received using other equipment, and you would not want to see entities you do not need. To resolve this issue, simply list the MAC-addresses of the sensors you need in the `whitelist` option:
+   (list or boolean)(Optional) By default, the component creates entities for all detected supported sensors. However, situations may arise where you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or when data from part of your sensors are received using other equipment, and you don't want to see entities you do not need. To resolve this issue, simply list the MAC-addresses of the sensors you need in the `whitelist` option:
 
    ```yaml
    sensor:
@@ -213,7 +216,7 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
          - 'C4:FA:64:D1:61:7D'
    ```
 
-   data from sensors with other addresses will be ignored.
+   Data from sensors with other addresses will be ignored.
    In addition, all addresses listed in the `encryptors` option will be automatically whitelisted.
    If you have no sensors other than those listed in `encryptors`, then just set `whitelist` to `True`:
 
