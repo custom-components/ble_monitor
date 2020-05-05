@@ -108,7 +108,7 @@ FMDH_STRUCT = struct.Struct("<H")
 class HCIdump(Thread):
     """Mimic deprecated hcidump tool."""
 
-    def __init__(self, dumplist, aeskeyslist, whitelist, interface=0, active=0, report_unknown=False):
+    def __init__(self, dumplist, aeskeyslist, whitelist, lpacket_cntr, interface=0, active=0, report_unknown=False):
         """Initiate HCIdump thread."""
         Thread.__init__(self)
         _LOGGER.debug("HCIdump thread: Init")
@@ -119,6 +119,7 @@ class HCIdump(Thread):
         self.aeskeyslist = aeskeyslist
         self.whitelist = whitelist
         self.report_unknown = report_unknown
+        self.lpacket_cntr = lpacket_cntr
         _LOGGER.debug("HCIdump thread: Init finished")
 
     def process_hci_events(self, data):
@@ -167,6 +168,17 @@ class HCIdump(Thread):
         finally:
             Thread.join(self, timeout)
             _LOGGER.debug("HCIdump thread: joined")
+
+    def lpacket(self, mac, packet=None):
+        """Last_packet static storage."""
+        if packet is not None:
+            self.lpacket_cntr[mac] = packet
+        else:
+            try:
+                cntr = self.lpacket_cntr[mac]
+            except KeyError:
+                cntr = None
+            return cntr
 
     @classmethod
     def parse_xiaomi_value(cls, hexvalue, typecode):
@@ -247,17 +259,16 @@ class HCIdump(Thread):
         source_mac_reversed = data[adv_index - 7:adv_index - 1]
         if xiaomi_mac_reversed != source_mac_reversed:
             return None
-                # extract RSSI byte
-        (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
-        #strange positive RSSI workaround
-        if rssi > 0:
-            rssi = -rssi
         try:
             sensor_type = XIAOMI_TYPE_DICT[
                 data[xiaomi_index + 5:xiaomi_index + 7]
             ]
         except KeyError:
             if self.report_unknown:
+                (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
+                #strange positive RSSI workaround
+                if rssi > 0:
+                    rssi = -rssi
                 _LOGGER.info(
                     "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
                     rssi,
@@ -274,6 +285,12 @@ class HCIdump(Thread):
         # check data is present
         if not (framectrl & 0x4000):
             return None
+        packet_id = data[xiaomi_index + 7]
+        prev_packet = self.lpacket(mac=xiaomi_mac_reversed)
+        if prev_packet == packet_id:
+            # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
+            return None
+        self.lpacket(xiaomi_mac_reversed, packet_id)
         xdata_length = 0
         xdata_point = 0
         # check capability byte present
@@ -323,7 +340,11 @@ class HCIdump(Thread):
             msg_length -= len(data[xdata_point:msg_length-1])
             data = b"".join((data[:xdata_point], decrypted_payload, data[-1:]))
             msg_length += len(decrypted_payload)
-        packet_id = data[xiaomi_index + 7]
+        # extract RSSI byte
+        (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
+        #strange positive RSSI workaround
+        if rssi > 0:
+            rssi = -rssi
         result = {
             "rssi": rssi,
             "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
@@ -365,8 +386,10 @@ class BLEScanner:
 
     dumpthreads = []
     hcidump_data = []
+    lpacket_cntr = {}
 
-    def reverse_mac(self, rmac):
+    @classmethod
+    def reverse_mac(cls, rmac):
         """Change LE order to BE."""
         if len(rmac) != 12:
             return None
@@ -402,6 +425,7 @@ class BLEScanner:
                 dumplist=self.hcidump_data,
                 aeskeyslist = aeskeys,
                 whitelist = whitelist,
+                lpacket_cntr=self.lpacket_cntr,
                 report_unknown=config[CONF_REPORT_UNKNOWN],
                 interface=hci_int,
                 active=int(active_scan is True),
@@ -551,7 +575,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 packet = data["packet"]
                 prev_packet = lpacket(mac=data["mac"])
                 if prev_packet == packet:
-                    # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
+                    _LOGGER.error("DUPLICATE: %s, IGNORING!", data)
                     continue
                 lpacket(data["mac"], packet)
                 # store found readings per device
