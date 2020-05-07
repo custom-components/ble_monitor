@@ -108,19 +108,43 @@ FMDH_STRUCT = struct.Struct("<H")
 class HCIdump(Thread):
     """Mimic deprecated hcidump tool."""
 
-    def __init__(self, dumplist, aeskeyslist, whitelist, lpacket_cntr, interface=0, active=0, report_unknown=False):
+    def __init__(self, config, dumplist, lpacket_cntr):
         """Initiate HCIdump thread."""
         Thread.__init__(self)
         _LOGGER.debug("HCIdump thread: Init")
-        self._interface = interface
-        self._active = active
         self.dumplist = dumplist
-        self._event_loop = None
-        self.aeskeyslist = aeskeyslist
-        self.whitelist = whitelist
-        self.report_unknown = report_unknown
         self.lpacket_cntr = lpacket_cntr
+        self._event_loop = None
+        self._interfaces = config[CONF_HCI_INTERFACE]
+        self._active = config[CONF_ACTIVE_SCAN]
+        self.report_unknown = config[CONF_REPORT_UNKNOWN]
+        self.aeskeyslist = {}
+        for mac in config[CONF_ENCRYPTORS]:
+            p_mac = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
+            p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
+            self.aeskeyslist[p_mac] = p_key
+        _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(self.aeskeyslist))
+        self.whitelist = []
+        if isinstance(config[CONF_WHITELIST], bool):
+            if config[CONF_WHITELIST] is True:
+                for mac in config[CONF_ENCRYPTORS]:
+                    self.whitelist.append(mac)
+        if isinstance(config[CONF_WHITELIST], list):
+            for mac in config[CONF_WHITELIST]:
+                self.whitelist.append(mac)
+            for mac in config[CONF_ENCRYPTORS]:
+                self.whitelist.append(mac)
+        for i, mac in enumerate(self.whitelist):
+            self.whitelist[i] = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
+        _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
         _LOGGER.debug("HCIdump thread: Init finished")
+
+    @classmethod
+    def reverse_mac(cls, rmac):
+        """Change LE order to BE."""
+        if len(rmac) != 12:
+            return None
+        return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
 
     def process_hci_events(self, data):
         """Collect HCI events."""
@@ -129,34 +153,40 @@ class HCIdump(Thread):
     def run(self):
         """Run HCIdump thread."""
         _LOGGER.debug("HCIdump thread: Run")
-        try:
-            mysocket = aiobs.create_bt_socket(self._interface)
-        except OSError as error:
-            _LOGGER.error("HCIdump thread: OS error: %s", error)
-        else:
-            self._event_loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(self._event_loop)
-            fac = self._event_loop._create_connection_transport(
-                mysocket, aiobs.BLEScanRequester, None, None
-            )
-            _LOGGER.debug("HCIdump thread: Connection")
-            conn, btctrl = self._event_loop.run_until_complete(fac)
-            _LOGGER.debug("HCIdump thread: Connected")
-            btctrl.process = self.process_hci_events
-            btctrl.send_command(
-                aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active)
-            )
-            btctrl.send_scan_request()
-            _LOGGER.debug("HCIdump thread: start main event_loop")
+        mysocket = {}
+        fac = {}
+        conn = {}
+        btctrl = {}
+        self._event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._event_loop)
+        for hci in self._interfaces:
             try:
-                self._event_loop.run_forever()
-            finally:
-                _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
-                btctrl.stop_scan_request()
-                conn.close()
-                self._event_loop.run_until_complete(asyncio.sleep(0))
-                self._event_loop.close()
-                _LOGGER.debug("HCIdump thread: Run finished")
+                mysocket[hci] = aiobs.create_bt_socket(hci)
+            except OSError as error:
+                _LOGGER.error("HCIdump thread: OS error: %s", error)
+            else:
+                fac[hci] = self._event_loop._create_connection_transport(
+                    mysocket[hci], aiobs.BLEScanRequester, None, None
+                )
+                _LOGGER.debug("HCIdump thread: Connection")
+                conn[hci], btctrl[hci] = self._event_loop.run_until_complete(fac[hci])
+                _LOGGER.debug("HCIdump thread: Connected")
+                btctrl[hci].process = self.process_hci_events
+                btctrl[hci].send_command(
+                    aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active)
+                )
+                btctrl[hci].send_scan_request()
+                _LOGGER.debug("HCIdump thread: start main event_loop")
+        try:
+            self._event_loop.run_forever()
+        finally:
+            _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
+            for hci in self._interfaces:
+                btctrl[hci].stop_scan_request()
+                conn[hci].close()
+            self._event_loop.run_until_complete(asyncio.sleep(0))
+            self._event_loop.close()
+            _LOGGER.debug("HCIdump thread: Run finished")
 
     def join(self, timeout=10):
         """Join HCIdump thread."""
@@ -384,70 +414,33 @@ class HCIdump(Thread):
 class BLEScanner:
     """BLE scanner."""
 
-    dumpthreads = []
-    hcidump_data = []
-    lpacket_cntr = {}
-
-    @classmethod
-    def reverse_mac(cls, rmac):
-        """Change LE order to BE."""
-        if len(rmac) != 12:
-            return None
-        return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
+    def __init__(self):
+        """Init"""
+        self.hcidump_data = []
+        self.lpacket_cntr = {}
+        self.dumpthread = None
 
     def start(self, config):
         """Start receiving broadcasts."""
-        active_scan = config[CONF_ACTIVE_SCAN]
-        hci_interfaces = config[CONF_HCI_INTERFACE]
         self.hcidump_data.clear()
-        aeskeys = {}
-        for mac in config[CONF_ENCRYPTORS]:
-            p_mac = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
-            p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
-            aeskeys[p_mac] = p_key
-        _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(aeskeys))
-        whitelist = []
-        if isinstance(config[CONF_WHITELIST], bool):
-            if config[CONF_WHITELIST] is True:
-                for mac in config[CONF_ENCRYPTORS]:
-                    whitelist.append(mac)
-        if isinstance(config[CONF_WHITELIST], list):
-            for mac in config[CONF_WHITELIST]:
-                whitelist.append(mac)
-            for mac in config[CONF_ENCRYPTORS]:
-                whitelist.append(mac)
-        for i, mac in enumerate(whitelist):
-            whitelist[i] = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
-        _LOGGER.debug("%s whitelist item(s) loaded.", len(whitelist))
         _LOGGER.debug("Spawning HCIdump thread(s).")
-        for hci_int in hci_interfaces:
-            dumpthread = HCIdump(
-                dumplist=self.hcidump_data,
-                aeskeyslist = aeskeys,
-                whitelist = whitelist,
-                lpacket_cntr=self.lpacket_cntr,
-                report_unknown=config[CONF_REPORT_UNKNOWN],
-                interface=hci_int,
-                active=int(active_scan is True),
-            )
-            self.dumpthreads.append(dumpthread)
-            _LOGGER.debug("Starting HCIdump thread for hci%s", hci_int)
-            dumpthread.start()
-        _LOGGER.debug("HCIdump threads count = %s", len(self.dumpthreads))
+        self.dumpthread = HCIdump(
+            config = config,
+            dumplist = self.hcidump_data,
+            lpacket_cntr=self.lpacket_cntr
+        )
+        self.dumpthread.start()
 
     def stop(self):
         """Stop HCIdump thread(s)."""
         result = True
-        for dumpthread in self.dumpthreads:
-            if dumpthread.isAlive():
-                dumpthread.join()
-                if dumpthread.isAlive():
-                    result = False
-                    _LOGGER.error(
+        if self.dumpthread.isAlive():
+            self.dumpthread.join()
+            if self.dumpthread.isAlive():
+                result = False
+                _LOGGER.error(
                         "Waiting for the HCIdump thread to finish took too long! (>10s)"
-                    )
-        if result is True:
-            self.dumpthreads.clear()
+                )
         return result
 
     def shutdown_handler(self, event):
@@ -472,6 +465,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     _LOGGER.debug("Starting")
     sensors_by_mac = {}
+    lpacket.cntr = {}
     if config[CONF_REPORT_UNKNOWN]:
         _LOGGER.info(
             "Attention! Option report_unknown is enabled, be ready for a huge output..."
@@ -481,7 +475,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     scanner = BLEScanner()
     hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
     scanner.start(config)
-    lpacket.cntr = {}
     sleep(1)
 
     def calc_update_state(
@@ -562,7 +555,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         _LOGGER.debug("Getting data from HCIdump thread")
         jres = scanner.stop()
         if jres is False:
-            _LOGGER.error("HCIdump thread(s) is not completed, interrupting data processing!")
+            _LOGGER.error("HCIdump thread is not completed, interrupting data processing!")
             return []
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
