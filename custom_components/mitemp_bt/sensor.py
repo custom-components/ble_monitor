@@ -136,7 +136,9 @@ class HCIdump(Thread):
             for mac in config[CONF_ENCRYPTORS]:
                 self.whitelist.append(mac)
         for i, mac in enumerate(self.whitelist):
-            self.whitelist[i] = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
+            self.whitelist[i] = bytes.fromhex(
+                self.reverse_mac(mac.replace(":", "")).lower()
+            )
         _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
         _LOGGER.debug("HCIdump thread: Init finished")
 
@@ -442,7 +444,7 @@ class BLEScanner:
             if self.dumpthread.isAlive():
                 result = False
                 _LOGGER.error(
-                        "Waiting for the HCIdump thread to finish took too long! (>10s)"
+                    "Waiting for the HCIdump thread to finish took too long! (>10s)"
                 )
         return result
 
@@ -558,21 +560,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         _LOGGER.debug("Getting data from HCIdump thread")
         jres = scanner.stop()
         if jres is False:
-            _LOGGER.error("HCIdump thread is not completed, interrupting data processing!")
+            _LOGGER.error(
+                "HCIdump thread is not completed, interrupting data processing!"
+            )
             return []
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
-        ###report_unknown = config[CONF_REPORT_UNKNOWN]
         for data in hcidump_raw:
-            ###data = parse_raw_message(msg, aeskeyslist, whitelist, report_unknown)
-            # ignore duplicated message
-            packet = data["packet"]
             mac = data["mac"]
-            prev_packet = lpacket(mac)
-            if prev_packet == packet:
-                _LOGGER.error("DUPLICATE: %s, IGNORING!", data)
-                continue
-            lpacket(mac, packet)
+            lpacket(mac, data["packet"])
             # store found readings per device
             if "switch" in data:
                 switch_m_data[mac] = int(data["switch"])
@@ -673,13 +669,18 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 add_entities(sensors)
             # append joint attributes
             for sensor in sensors:
-                getattr(sensor, "_device_state_attributes")["last packet id"] = lpacket(
-                    mac
-                )
-                getattr(sensor, "_device_state_attributes")["rssi"] = round(
-                    sts.mean(rssi[mac])
-                )
-                getattr(sensor, "_device_state_attributes")["sensor type"] = sensortype
+                getattr(
+                    sensor,
+                    "_device_state_attributes"
+                )["last packet id"] = lpacket(mac)
+                getattr(
+                    sensor,
+                    "_device_state_attributes"
+                )["rssi"] = round(sts.mean(rssi[mac]))
+                getattr(
+                    sensor,
+                    "_device_state_attributes"
+                )["sensor type"] = sensortype
                 if not isinstance(sensor, BatterySensor) and mac in batt:
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
