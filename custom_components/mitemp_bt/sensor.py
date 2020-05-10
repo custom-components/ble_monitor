@@ -149,7 +149,9 @@ class HCIdump(Thread):
 
     def process_hci_events(self, data):
         """Collect HCI events."""
-        self.dumplist.append(self.parse_raw_message(data))
+        packet = self.parse_raw_message(data)
+        if packet is not None:
+            self.dumplist.append(packet)
 
     def run(self):
         """Run HCIdump thread."""
@@ -561,77 +563,73 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
         ###report_unknown = config[CONF_REPORT_UNKNOWN]
-        for msg in hcidump_raw:
+        for data in hcidump_raw:
             ###data = parse_raw_message(msg, aeskeyslist, whitelist, report_unknown)
-            data = msg
-            if data and "mac" in data:
-                # ignore duplicated message
-                packet = data["packet"]
-                mac = data["mac"]
-                prev_packet = lpacket(mac)
-                if prev_packet == packet:
-                    _LOGGER.error("DUPLICATE: %s, IGNORING!", data)
-                    continue
-                lpacket(mac, packet)
-                # store found readings per device
-                if "switch" in data:
-                    switch_m_data[mac] = int(data["switch"])
+            # ignore duplicated message
+            packet = data["packet"]
+            mac = data["mac"]
+            prev_packet = lpacket(mac)
+            if prev_packet == packet:
+                _LOGGER.error("DUPLICATE: %s, IGNORING!", data)
+                continue
+            lpacket(mac, packet)
+            # store found readings per device
+            if "switch" in data:
+                switch_m_data[mac] = int(data["switch"])
+                macs[mac] = mac
+            if "temperature" in data:
+                if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
+                    if mac not in temp_m_data:
+                        temp_m_data[mac] = []
+                    temp_m_data[mac].append(data["temperature"])
                     macs[mac] = mac
-                if "temperature" in data:
-                    if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
-                        if mac not in temp_m_data:
-                            temp_m_data[mac] = []
-                        temp_m_data[mac].append(data["temperature"])
-                        macs[mac] = mac
-                    elif log_spikes:
-                        _LOGGER.error(
-                            "Temperature spike: %s (%s)",
-                            data["temperature"],
-                            mac,
-                        )
-                if "humidity" in data:
-                    if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
-                        if mac not in hum_m_data:
-                            hum_m_data[mac] = []
-                        hum_m_data[mac].append(data["humidity"])
-                        macs[mac] = mac
-                    elif log_spikes:
-                        _LOGGER.error(
-                            "Humidity spike: %s (%s)", data["humidity"], mac,
-                        )
-                if "conductivity" in data:
-                    if mac not in cond_m_data:
-                        cond_m_data[mac] = []
-                    cond_m_data[mac].append(data["conductivity"])
+                elif log_spikes:
+                    _LOGGER.error(
+                        "Temperature spike: %s (%s)",
+                        data["temperature"],
+                        mac,
+                    )
+            if "humidity" in data:
+                if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
+                    if mac not in hum_m_data:
+                        hum_m_data[mac] = []
+                    hum_m_data[mac].append(data["humidity"])
                     macs[mac] = mac
-                if "moisture" in data:
-                    if mac not in moist_m_data:
-                        moist_m_data[mac] = []
-                    moist_m_data[mac].append(data["moisture"])
-                    macs[mac] = mac
-                if "illuminance" in data:
-                    if mac not in illum_m_data:
-                        illum_m_data[mac] = []
-                    illum_m_data[mac].append(data["illuminance"])
-                    macs[mac] = mac
-                if "formaldehyde" in data:
-                    if mac not in formaldehyde_m_data:
-                        formaldehyde_m_data[mac] = []
-                    formaldehyde_m_data[mac].append(data["formaldehyde"])
-                    macs[mac] = mac
-                if "consumable" in data:
-                    cons_m_data[mac] = int(data["consumable"])
-                    macs[mac] = mac
-                if "battery" in data:
-                    batt[mac] = int(data["battery"])
-                    macs[mac] = mac
-                if mac not in rssi:
-                    rssi[mac] = []
-                rssi[mac].append(int(data["rssi"]))
-                stype[mac] = data["type"]
-            else:
-                # "empty" loop high cpu usage workaround
-                sleep(0.0001)
+                elif log_spikes:
+                    _LOGGER.error(
+                        "Humidity spike: %s (%s)", data["humidity"], mac,
+                    )
+            if "conductivity" in data:
+                if mac not in cond_m_data:
+                    cond_m_data[mac] = []
+                cond_m_data[mac].append(data["conductivity"])
+                macs[mac] = mac
+            if "moisture" in data:
+                if mac not in moist_m_data:
+                    moist_m_data[mac] = []
+                moist_m_data[mac].append(data["moisture"])
+                macs[mac] = mac
+            if "illuminance" in data:
+                if mac not in illum_m_data:
+                    illum_m_data[mac] = []
+                illum_m_data[mac].append(data["illuminance"])
+                macs[mac] = mac
+            if "formaldehyde" in data:
+                if mac not in formaldehyde_m_data:
+                    formaldehyde_m_data[mac] = []
+                formaldehyde_m_data[mac].append(data["formaldehyde"])
+                macs[mac] = mac
+            if "consumable" in data:
+                cons_m_data[mac] = int(data["consumable"])
+                macs[mac] = mac
+            if "battery" in data:
+                batt[mac] = int(data["battery"])
+                macs[mac] = mac
+            if mac not in rssi:
+                rssi[mac] = []
+            rssi[mac].append(int(data["rssi"]))
+            stype[mac] = data["type"]
+
         # for every seen device
         for mac in macs:
             # fixed entity index for every measurement type
