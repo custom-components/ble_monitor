@@ -2,10 +2,11 @@
 import asyncio
 from datetime import timedelta
 import logging
+import queue
 import statistics as sts
 import struct
 from threading import Thread
-from time import sleep
+#from time import sleep
 
 import aioblescan as aiobs
 from Cryptodome.Cipher import AES
@@ -109,17 +110,17 @@ FMDH_STRUCT = struct.Struct("<H")
 class HCIdump(Thread):
     """Mimic deprecated hcidump tool."""
 
-    def __init__(self, config, dumplist, lpacket_cntr):
+    def __init__(self, config, dataqueue, lpacket_cntr):
         """Initiate HCIdump thread."""
         Thread.__init__(self)
         _LOGGER.debug("HCIdump thread: Init")
-        self.dumplist = dumplist
         self.lpacket_cntr = lpacket_cntr
         self._event_loop = None
         self._interfaces = config[CONF_HCI_INTERFACE]
         self._active = config[CONF_ACTIVE_SCAN]
         self.report_unknown = config[CONF_REPORT_UNKNOWN]
         self.aeskeyslist = {}
+        self.dataqueue = dataqueue
         for mac in config[CONF_ENCRYPTORS]:
             p_mac = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
             p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
@@ -136,9 +137,7 @@ class HCIdump(Thread):
             for mac in config[CONF_ENCRYPTORS]:
                 self.whitelist.append(mac)
         for i, mac in enumerate(self.whitelist):
-            self.whitelist[i] = bytes.fromhex(
-                self.reverse_mac(mac.replace(":", "")).lower()
-            )
+            self.whitelist[i] = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
         _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
         _LOGGER.debug("HCIdump thread: Init finished")
 
@@ -153,7 +152,7 @@ class HCIdump(Thread):
         """Collect HCI events."""
         packet = self.parse_raw_message(data)
         if packet is not None:
-            self.dumplist.append(packet)
+            self.dataqueue.put(packet)
 
     def run(self):
         """Run HCIdump thread."""
@@ -202,6 +201,7 @@ class HCIdump(Thread):
             _LOGGER.debug("%s", error)
         finally:
             Thread.join(self, timeout)
+            self.dataqueue.put(None)
             _LOGGER.debug("HCIdump thread: joined")
 
     def lpacket(self, mac, packet=None):
@@ -419,19 +419,21 @@ class HCIdump(Thread):
 class BLEScanner:
     """BLE scanner."""
 
-    def __init__(self):
+    def __init__(self, config):
         """Init"""
         self.hcidump_data = []
+        self.dataqueue = queue.Queue()
         self.lpacket_cntr = {}
         self.dumpthread = None
+        self.config = config
 
-    def start(self, config):
+    def start(self):
         """Start receiving broadcasts."""
         self.hcidump_data.clear()
         _LOGGER.debug("Spawning HCIdump thread(s).")
         self.dumpthread = HCIdump(
-            config = config,
-            dumplist = self.hcidump_data,
+            config = self.config,
+            dataqueue = self.dataqueue,
             lpacket_cntr=self.lpacket_cntr
         )
         self.dumpthread.start()
@@ -444,7 +446,7 @@ class BLEScanner:
             if self.dumpthread.isAlive():
                 result = False
                 _LOGGER.error(
-                    "Waiting for the HCIdump thread to finish took too long! (>10s)"
+                        "Waiting for the HCIdump thread to finish took too long! (>10s)"
                 )
         return result
 
@@ -452,359 +454,368 @@ class BLEScanner:
         """Run homeassistant_stop event handler."""
         _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
         self.stop()
+        self.dataqueue.put(None)
 
+class Updater:
+    """Entities updater"""
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the sensor platform."""
+    def __init__(self, dataqueue, config, add_entities):
+        self.dataqueue = dataqueue
+        self.config = config
+        self.log_spikes = config[CONF_LOG_SPIKES]
+        self.period = config[CONF_PERIOD]
+        self.batt_entities = config[CONF_BATT_ENTITIES]
+        self.add_entities = add_entities
+        self.lpacket_cntr = {}
 
-    def lpacket(mac, packet=None):
+    def lpacket(self, mac, packet=None):
         """Last_packet static storage."""
         if packet is not None:
-            lpacket.cntr[mac] = packet
+            self.lpacket_cntr[mac] = packet
         else:
             try:
-                cntr = lpacket.cntr[mac]
+                cntr = self.lpacket_cntr[mac]
             except KeyError:
                 cntr = None
             return cntr
 
-    _LOGGER.debug("Starting")
-    sensors_by_mac = {}
-    lpacket.cntr = {}
-    if config[CONF_REPORT_UNKNOWN]:
-        _LOGGER.info(
-            "Attention! Option report_unknown is enabled, be ready for a huge output..."
-        )
-    # prepare device:key list to speedup parser
-    firstrun = True
-    scanner = BLEScanner()
-    hass.bus.listen(EVENT_HOMEASSISTANT_STOP, scanner.shutdown_handler)
-    scanner.start(config)
-    sleep(1)
+    def datacollector(self, event):
+        """Collect data from queue"""
 
-    def calc_update_state(
-        entity_to_update, sensor_mac, config, measurements_list, stype=None, fdec = 0
-    ):
-        """Averages according to options and updates the entity state."""
-        textattr = ""
-        success = False
-        error = ""
-        rdecimals = config[CONF_DECIMALS]
-        # formaldehyde decimals workaround
-        if fdec > 0:
-            rdecimals = fdec
-        # LYWSD03MMC "jagged" humidity workaround
-        if stype == "LYWSD03MMC":
-            measurements = [int(item) for item in measurements_list]
-        else:
-            measurements = measurements_list
-        try:
-            if config[CONF_ROUNDING]:
-                state_median = round(
-                    sts.median(measurements), rdecimals
-                )
-                state_mean = round(
-                    sts.mean(measurements), rdecimals
-                )
+        def calc_update_state(
+            entity_to_update, sensor_mac, config, measurements_list, stype=None, fdec = 0
+            ):
+            """Averages according to options and updates the entity state."""
+            textattr = ""
+            success = False
+            error = ""
+            rdecimals = config[CONF_DECIMALS]
+            # formaldehyde decimals workaround
+            if fdec > 0:
+                rdecimals = fdec
+            # LYWSD03MMC "jagged" humidity workaround
+            if stype == "LYWSD03MMC":
+                measurements = [int(item) for item in measurements_list]
             else:
-                state_median = sts.median(measurements)
-                state_mean = sts.mean(measurements)
-            if config[CONF_USE_MEDIAN]:
-                textattr = "last median of"
-                setattr(entity_to_update, "_state", state_median)
-            else:
-                textattr = "last mean of"
-                setattr(entity_to_update, "_state", state_mean)
-            getattr(entity_to_update, "_device_state_attributes")[textattr] = len(
-                measurements
-            )
-            getattr(entity_to_update, "_device_state_attributes")[
-                "median"
-            ] = state_median
-            getattr(entity_to_update, "_device_state_attributes")["mean"] = state_mean
-            entity_to_update.schedule_update_ha_state()
-            success = True
-        except AttributeError:
-            _LOGGER.debug("Sensor %s not yet ready for update", sensor_mac)
-            success = True
-        except ZeroDivisionError as err:
-            error = err
-        except IndexError as err:
-            error = err
-        except RuntimeError as err:
-            error = err
-        return success, error
+                measurements = measurements_list
+            try:
+                if config[CONF_ROUNDING]:
+                    state_median = round(
+                        sts.median(measurements), rdecimals
+                    )
+                    state_mean = round(
+                        sts.mean(measurements), rdecimals
+                    )
+                else:
+                    state_median = sts.median(measurements)
+                    state_mean = sts.mean(measurements)
+                if config[CONF_USE_MEDIAN]:
+                    textattr = "last median of"
+                    setattr(entity_to_update, "_state", state_median)
+                else:
+                    textattr = "last mean of"
+                    setattr(entity_to_update, "_state", state_mean)
+                getattr(entity_to_update, "_device_state_attributes")[textattr] = len(
+                    measurements
+                )
+                getattr(entity_to_update, "_device_state_attributes")[
+                    "median"
+                ] = state_median
+                getattr(entity_to_update, "_device_state_attributes")["mean"] = state_mean
+                entity_to_update.schedule_update_ha_state()
+                success = True
+            except AttributeError:
+                _LOGGER.debug("Sensor %s not yet ready for update", sensor_mac)
+                success = True
+            except ZeroDivisionError as err:
+                error = err
+            except IndexError as err:
+                error = err
+            except RuntimeError as err:
+                error = err
+            return success, error
 
-    def discover_ble_devices(config):
-        """Discover Bluetooth LE devices."""
-        nonlocal firstrun
-        if firstrun:
-            firstrun = False
-            _LOGGER.debug("First run, skip parsing.")
-            return []
-        _LOGGER.debug("Discovering Bluetooth LE devices")
-        log_spikes = config[CONF_LOG_SPIKES]
-        _LOGGER.debug("Time to analyze...")
-        stype = {}
-        hum_m_data = {}
+        data = {}
+        sensors_by_mac = {}
+        macs = {}
+        switch_m_data = {}
         temp_m_data = {}
-        illum_m_data = {}
-        moist_m_data = {}
+        hum_m_data = {}
         cond_m_data = {}
+        moist_m_data = {}
+        illum_m_data = {}
         formaldehyde_m_data = {}
         cons_m_data = {}
-        switch_m_data = {}
-        batt = {}  # battery
+        batt = {}
         rssi = {}
-        macs = {}  # all found macs
-        _LOGGER.debug("Getting data from HCIdump thread")
-        jres = scanner.stop()
-        if jres is False:
-            _LOGGER.error(
-                "HCIdump thread is not completed, interrupting data processing!"
-            )
-            return []
-        hcidump_raw = [*scanner.hcidump_data]
-        scanner.start(config)  # minimum delay between HCIdumps
-        for data in hcidump_raw:
-            mac = data["mac"]
-            lpacket(mac, data["packet"])
-            # store found readings per device
-            if "switch" in data:
-                switch_m_data[mac] = int(data["switch"])
-                macs[mac] = mac
-            if "temperature" in data:
-                if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
-                    if mac not in temp_m_data:
-                        temp_m_data[mac] = []
-                    temp_m_data[mac].append(data["temperature"])
+        stype = {}
+        ts_last = dt_util.now()
+        ts_now = ts_last
+        forced_update = False
+        while True:
+            try:
+                data = self.dataqueue.get(block = True, timeout = 1)
+            except queue.Empty:
+                pass
+            if data is None:
+                return True
+            if "mac" in data:
+                # ignore duplicated message
+                packet = data["packet"]
+                mac = data["mac"]
+                prev_packet = self.lpacket(mac)
+                if prev_packet == packet:
+                    _LOGGER.error("DUPLICATE: %s, IGNORING!", data)
+                    continue
+                self.lpacket(mac, packet)
+                # store found readings per device
+                if "switch" in data:
+                    switch_m_data[mac] = int(data["switch"])
                     macs[mac] = mac
-                elif log_spikes:
-                    _LOGGER.error(
-                        "Temperature spike: %s (%s)",
-                        data["temperature"],
-                        mac,
-                    )
-            if "humidity" in data:
-                if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
-                    if mac not in hum_m_data:
-                        hum_m_data[mac] = []
-                    hum_m_data[mac].append(data["humidity"])
+                    forced_update = True
+                if "temperature" in data:
+                    if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
+                        if mac not in temp_m_data:
+                            temp_m_data[mac] = []
+                        temp_m_data[mac].append(data["temperature"])
+                        macs[mac] = mac
+                    elif self.log_spikes:
+                        _LOGGER.error(
+                            "Temperature spike: %s (%s)",
+                            data["temperature"],
+                            mac,
+                        )
+                if "humidity" in data:
+                    if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
+                        if mac not in hum_m_data:
+                            hum_m_data[mac] = []
+                        hum_m_data[mac].append(data["humidity"])
+                        macs[mac] = mac
+                    elif self.log_spikes:
+                        _LOGGER.error(
+                            "Humidity spike: %s (%s)", data["humidity"], mac,
+                        )
+                if "conductivity" in data:
+                    if mac not in cond_m_data:
+                        cond_m_data[mac] = []
+                    cond_m_data[mac].append(data["conductivity"])
                     macs[mac] = mac
-                elif log_spikes:
-                    _LOGGER.error(
-                        "Humidity spike: %s (%s)", data["humidity"], mac,
-                    )
-            if "conductivity" in data:
-                if mac not in cond_m_data:
-                    cond_m_data[mac] = []
-                cond_m_data[mac].append(data["conductivity"])
-                macs[mac] = mac
-            if "moisture" in data:
-                if mac not in moist_m_data:
-                    moist_m_data[mac] = []
-                moist_m_data[mac].append(data["moisture"])
-                macs[mac] = mac
-            if "illuminance" in data:
-                if mac not in illum_m_data:
-                    illum_m_data[mac] = []
-                illum_m_data[mac].append(data["illuminance"])
-                macs[mac] = mac
-            if "formaldehyde" in data:
-                if mac not in formaldehyde_m_data:
-                    formaldehyde_m_data[mac] = []
-                formaldehyde_m_data[mac].append(data["formaldehyde"])
-                macs[mac] = mac
-            if "consumable" in data:
-                cons_m_data[mac] = int(data["consumable"])
-                macs[mac] = mac
-            if "battery" in data:
-                batt[mac] = int(data["battery"])
-                macs[mac] = mac
-            if mac not in rssi:
-                rssi[mac] = []
-            rssi[mac].append(int(data["rssi"]))
-            stype[mac] = data["type"]
-
-        # for every seen device
-        for mac in macs:
-            # fixed entity index for every measurement type
-            # according to the sensor implementation
-            sensortype = stype[mac]
-            t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, b_i = MMTS_DICT[sensortype]
-            # if necessary, create a list of entities
-            # according to the sensor implementation
-
-            if mac in sensors_by_mac:
-                sensors = sensors_by_mac[mac]
+                if "moisture" in data:
+                    if mac not in moist_m_data:
+                        moist_m_data[mac] = []
+                    moist_m_data[mac].append(data["moisture"])
+                    macs[mac] = mac
+                if "illuminance" in data:
+                    if mac not in illum_m_data:
+                        illum_m_data[mac] = []
+                    illum_m_data[mac].append(data["illuminance"])
+                    macs[mac] = mac
+                if "formaldehyde" in data:
+                    if mac not in formaldehyde_m_data:
+                        formaldehyde_m_data[mac] = []
+                    formaldehyde_m_data[mac].append(data["formaldehyde"])
+                    macs[mac] = mac
+                if "consumable" in data:
+                    cons_m_data[mac] = int(data["consumable"])
+                    macs[mac] = mac
+                if "battery" in data:
+                    batt[mac] = int(data["battery"])
+                    macs[mac] = mac
+                if mac not in rssi:
+                    rssi[mac] = []
+                rssi[mac].append(int(data["rssi"]))
+                stype[mac] = data["type"]
+                data.clear()
+            ts_now = dt_util.now()
+            if ts_now - ts_last < timedelta(seconds = self.period):
+                if forced_update is True:
+                    updated_macs = {mac : mac}
+                else:
+                    continue
             else:
-                sensors = []
-                if t_i != 9:
-                    sensors.insert(t_i, TemperatureSensor(mac))
-                if h_i != 9:
-                    sensors.insert(h_i, HumiditySensor(mac))
-                if m_i != 9:
-                    sensors.insert(m_i, MoistureSensor(mac))
-                if c_i != 9:
-                    sensors.insert(c_i, ConductivitySensor(mac))
-                if i_i != 9:
-                    sensors.insert(i_i, IlluminanceSensor(mac))
-                if f_i != 9:
-                    sensors.insert(f_i, FormaldehydeSensor(mac))
-                if cn_i != 9:
-                    sensors.insert(cn_i, ConsumableSensor(mac))
-                    try:
-                        setattr(sensors[cn_i], "_cn_name", CN_NAME_DICT[sensortype])
-                    except KeyError:
-                        pass
-                if sw_i != 9:
-                    sensors.insert(sw_i, SwitchBinarySensor(mac))
-                    try:
-                        setattr(sensors[sw_i], "_swclass", SW_CLASS_DICT[sensortype])
-                    except KeyError:
-                        pass
-                if config[CONF_BATT_ENTITIES] and (b_i != 9):
-                    sensors.insert(b_i, BatterySensor(mac))
-                sensors_by_mac[mac] = sensors
-                add_entities(sensors)
-            # append joint attributes
-            for sensor in sensors:
-                getattr(
-                    sensor,
-                    "_device_state_attributes"
-                )["last packet id"] = lpacket(mac)
-                getattr(
-                    sensor,
-                    "_device_state_attributes"
-                )["rssi"] = round(sts.mean(rssi[mac]))
-                getattr(
-                    sensor,
-                    "_device_state_attributes"
-                )["sensor type"] = sensortype
-                if not isinstance(sensor, BatterySensor) and mac in batt:
-                    getattr(sensor, "_device_state_attributes")[
-                        ATTR_BATTERY_LEVEL
-                    ] = batt[mac]
+                updated_macs = macs
+                ts_last = ts_now
+            for mac in updated_macs:
+                # fixed entity index for every measurement type
+                # according to the sensor implementation
+                sensortype = stype[mac]
+                t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, b_i = MMTS_DICT[sensortype]
+                # if necessary, create a list of entities
+                # according to the sensor implementation
 
-            # averaging and states updating
-            if mac in batt:
-                if config[CONF_BATT_ENTITIES]:
-                    setattr(sensors[b_i], "_state", batt[mac])
+                if mac in sensors_by_mac:
+                    sensors = sensors_by_mac[mac]
+                else:
+                    sensors = []
+                    if t_i != 9:
+                        sensors.insert(t_i, TemperatureSensor(mac))
+                    if h_i != 9:
+                        sensors.insert(h_i, HumiditySensor(mac))
+                    if m_i != 9:
+                        sensors.insert(m_i, MoistureSensor(mac))
+                    if c_i != 9:
+                        sensors.insert(c_i, ConductivitySensor(mac))
+                    if i_i != 9:
+                        sensors.insert(i_i, IlluminanceSensor(mac))
+                    if f_i != 9:
+                        sensors.insert(f_i, FormaldehydeSensor(mac))
+                    if cn_i != 9:
+                        sensors.insert(cn_i, ConsumableSensor(mac))
+                        try:
+                            setattr(sensors[cn_i], "_cn_name", CN_NAME_DICT[sensortype])
+                        except KeyError:
+                            pass
+                    if sw_i != 9:
+                        sensors.insert(sw_i, SwitchBinarySensor(mac))
+                        try:
+                            setattr(sensors[sw_i], "_swclass", SW_CLASS_DICT[sensortype])
+                        except KeyError:
+                            pass
+                    if self.batt_entities and (b_i != 9):
+                        sensors.insert(b_i, BatterySensor(mac))
+                    sensors_by_mac[mac] = sensors
+                    self.add_entities(sensors)
+                # append joint attributes
+                for sensor in sensors:
+                    getattr(sensor, "_device_state_attributes")[
+                        "last packet id"
+                        ] = self.lpacket(mac)
+                    getattr(sensor, "_device_state_attributes")["rssi"] = round(
+                        sts.mean(rssi[mac])
+                    )
+                    getattr(sensor, "_device_state_attributes")["sensor type"] = sensortype
+                    if not isinstance(sensor, BatterySensor) and mac in batt:
+                        getattr(sensor, "_device_state_attributes")[
+                            ATTR_BATTERY_LEVEL
+                        ] = batt[mac]
+
+                # averaging and states updating
+                if mac in batt:
+                    if self.batt_entities:
+                        setattr(sensors[b_i], "_state", batt.pop(mac))
+                        try:
+                            sensors[b_i].schedule_update_ha_state()
+                        except AttributeError:
+                            _LOGGER.debug(
+                                "Sensor %s (%s, batt.) not yet ready for update",
+                                mac,
+                                sensortype,
+                            )
+                        except RuntimeError as err:
+                            _LOGGER.error(
+                                "Sensor %s (%s, batt.) update error:", mac, sensortype
+                            )
+                            _LOGGER.error(err)
+                if forced_update is True:
+                    forced_update = False
+                    if mac in switch_m_data:
+                        setattr(sensors[sw_i], "_state", switch_m_data.pop(mac))
+                        try:
+                            sensors[sw_i].schedule_update_ha_state()
+                        except AttributeError:
+                            _LOGGER.debug(
+                                "Sensor %s (%s, switch) not yet ready for update",
+                                mac,
+                                sensortype,
+                            )
+                        except RuntimeError as err:
+                            _LOGGER.error(
+                                "Sensor %s (%s, switch) update error:", mac, sensortype
+                            )
+                            _LOGGER.error(err)
+                    continue
+                if mac in temp_m_data:
+                    success, error = calc_update_state(
+                        sensors[t_i], mac, self.config, temp_m_data.pop(mac)
+                    )
+                    if not success:
+                        _LOGGER.error(
+                            "Sensor %s (%s, temp.) update error:", mac, sensortype
+                        )
+                        _LOGGER.error(error)
+                if mac in hum_m_data:
+                    success, error = calc_update_state(
+                        sensors[h_i], mac, self.config, hum_m_data.pop(mac), sensortype
+                    )
+                    if not success:
+                        _LOGGER.error("Sensor %s (%s, hum.) update error:", mac, sensortype)
+                        _LOGGER.error(error)
+                if mac in moist_m_data:
+                    success, error = calc_update_state(
+                        sensors[m_i], mac, self.config, moist_m_data.pop(mac)
+                    )
+                    if not success:
+                        _LOGGER.error(
+                            "Sensor %s (%s, moist.) update error:", mac, sensortype
+                        )
+                        _LOGGER.error(error)
+                if mac in cond_m_data:
+                    success, error = calc_update_state(
+                        sensors[c_i], mac, self.config, cond_m_data.pop(mac)
+                    )
+                    if not success:
+                        _LOGGER.error(
+                            "Sensor %s (%s, cond.) update error:", mac, sensortype
+                        )
+                        _LOGGER.error(error)
+                if mac in illum_m_data:
+                    success, error = calc_update_state(
+                        sensors[i_i], mac, self.config, illum_m_data.pop(mac)
+                    )
+                    if not success:
+                        _LOGGER.error(
+                            "Sensor %s (%s, illum.) update error:", mac, sensortype
+                        )
+                        _LOGGER.error(error)
+                if mac in formaldehyde_m_data:
+                    success, error = calc_update_state(
+                        sensors[f_i], mac, self.config, formaldehyde_m_data.pop(mac), fdec=3
+                    )
+                    if not success:
+                        _LOGGER.error(
+                            "Sensor %s (%s, formaldehyde) update error:", mac, sensortype
+                        )
+                        _LOGGER.error(error)
+                if mac in cons_m_data:
+                    setattr(sensors[cn_i], "_state", cons_m_data.pop(mac))
                     try:
-                        sensors[b_i].schedule_update_ha_state()
+                        sensors[cn_i].schedule_update_ha_state()
                     except AttributeError:
                         _LOGGER.debug(
-                            "Sensor %s (%s, batt.) not yet ready for update",
+                            "Sensor %s (%s, cons.) not yet ready for update",
                             mac,
                             sensortype,
                         )
                     except RuntimeError as err:
                         _LOGGER.error(
-                            "Sensor %s (%s, batt.) update error:", mac, sensortype
+                            "Sensor %s (%s, cons.) update error:", mac, sensortype
                         )
                         _LOGGER.error(err)
-            if mac in temp_m_data:
-                success, error = calc_update_state(
-                    sensors[t_i], mac, config, temp_m_data[mac]
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, temp.) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(error)
-            if mac in hum_m_data:
-                success, error = calc_update_state(
-                    sensors[h_i], mac, config, hum_m_data[mac], sensortype
-                )
-                if not success:
-                    _LOGGER.error("Sensor %s (%s, hum.) update error:", mac, sensortype)
-                    _LOGGER.error(error)
-            if mac in moist_m_data:
-                success, error = calc_update_state(
-                    sensors[m_i], mac, config, moist_m_data[mac]
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, moist.) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(error)
-            if mac in cond_m_data:
-                success, error = calc_update_state(
-                    sensors[c_i], mac, config, cond_m_data[mac]
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, cond.) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(error)
-            if mac in illum_m_data:
-                success, error = calc_update_state(
-                    sensors[i_i], mac, config, illum_m_data[mac]
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, illum.) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(error)
-            if mac in formaldehyde_m_data:
-                success, error = calc_update_state(
-                    sensors[f_i], mac, config, formaldehyde_m_data[mac], fdec=3
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, formaldehyde) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(error)
-            if mac in cons_m_data:
-                setattr(sensors[cn_i], "_state", cons_m_data[mac])
-                try:
-                    sensors[cn_i].schedule_update_ha_state()
-                except AttributeError:
-                    _LOGGER.debug(
-                        "Sensor %s (%s, cons.) not yet ready for update",
-                        mac,
-                        sensortype,
-                    )
-                except RuntimeError as err:
-                    _LOGGER.error(
-                        "Sensor %s (%s, cons.) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(err)
-            if mac in switch_m_data:
-                setattr(sensors[sw_i], "_state", switch_m_data[mac])
-                try:
-                    sensors[sw_i].schedule_update_ha_state()
-                except AttributeError:
-                    _LOGGER.debug(
-                        "Sensor %s (%s, switch) not yet ready for update",
-                        mac,
-                        sensortype,
-                    )
-                except RuntimeError as err:
-                    _LOGGER.error(
-                        "Sensor %s (%s, switch) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(err)
-        _LOGGER.debug(
-            "Finished. Parsed: %i hci events, %i xiaomi devices.",
-            len(hcidump_raw),
-            len(macs),
-        )
-        return []
+            _LOGGER.debug(
+                "Data updated for %i xiaomi device(s).",
+                len(updated_macs)
+            )
+            updated_macs.clear()
 
-    def update_ble(now):
-        """Lookup Bluetooth LE devices and update status."""
-        period = config[CONF_PERIOD]
-        _LOGGER.debug("update_ble called")
-        try:
-            discover_ble_devices(config)
-        except RuntimeError as error:
-            _LOGGER.error("Error during Bluetooth LE scan: %s", error)
-        track_point_in_utc_time(
-            hass, update_ble, dt_util.utcnow() + timedelta(seconds=period)
-        )
+def setup_platform(hass, config, add_entities, discovery_info=None):
+    """Set up the sensor platform."""
 
-    update_ble(dt_util.utcnow())
+    _LOGGER.debug("Starting")
+    if config[CONF_REPORT_UNKNOWN]:
+        _LOGGER.info(
+            "Attention! Option report_unknown is enabled, be ready for a huge output..."
+        )
+    # prepare device:key list to speedup parser
+    scanner = BLEScanner(config)
+    hass.bus.listen(EVENT_HOMEASSISTANT_STOP, scanner.shutdown_handler)
+    scanner.start()
+    updater = Updater(scanner.dataqueue, config, add_entities)
+    track_point_in_utc_time(
+        hass,
+        updater.datacollector,
+        dt_util.utcnow() + timedelta(seconds=1)
+    )
+
     # Return successful setup
     return True
 
