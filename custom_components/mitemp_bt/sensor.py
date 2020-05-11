@@ -110,11 +110,11 @@ FMDH_STRUCT = struct.Struct("<H")
 class HCIdump(Thread):
     """Mimic deprecated hcidump tool."""
 
-    def __init__(self, config, dataqueue, lpacket_cntr):
+    def __init__(self, config, dataqueue):
         """Initiate HCIdump thread."""
         Thread.__init__(self)
         _LOGGER.debug("HCIdump thread: Init")
-        self.lpacket_cntr = lpacket_cntr
+        self.lpacket_id = {}
         self._event_loop = None
         self._interfaces = config[CONF_HCI_INTERFACE]
         self._active = config[CONF_ACTIVE_SCAN]
@@ -202,17 +202,6 @@ class HCIdump(Thread):
         finally:
             Thread.join(self, timeout)
             _LOGGER.debug("HCIdump thread: joined")
-
-    def lpacket(self, mac, packet=None):
-        """Last_packet static storage."""
-        if packet is not None:
-            self.lpacket_cntr[mac] = packet
-        else:
-            try:
-                cntr = self.lpacket_cntr[mac]
-            except KeyError:
-                cntr = None
-            return cntr
 
     @classmethod
     def parse_xiaomi_value(cls, hexvalue, typecode):
@@ -320,11 +309,14 @@ class HCIdump(Thread):
         if not (framectrl & 0x4000):
             return None
         packet_id = data[xiaomi_index + 7]
-        prev_packet = self.lpacket(mac=xiaomi_mac_reversed)
+        try:
+            prev_packet = self.lpacket_id[xiaomi_mac_reversed]
+        except KeyError:
+            prev_packet = None
         if prev_packet == packet_id:
             # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
             return None
-        self.lpacket(xiaomi_mac_reversed, packet_id)
+        self.lpacket_id[xiaomi_mac_reversed] = packet_id
         xdata_length = 0
         xdata_point = 0
         # check capability byte present
@@ -422,7 +414,7 @@ class BLEScanner:
         """Init"""
         self.hcidump_data = []
         self.dataqueue = queue.Queue()
-        self.lpacket_cntr = {}
+#        self.lpacket_cntr = {}
         self.dumpthread = None
         self.config = config
 
@@ -433,7 +425,7 @@ class BLEScanner:
         self.dumpthread = HCIdump(
             config = self.config,
             dataqueue = self.dataqueue,
-            lpacket_cntr=self.lpacket_cntr
+#            lpacket_cntr=self.lpacket_cntr
         )
         self.dumpthread.start()
 
@@ -544,74 +536,74 @@ class Updater:
         ts_now = ts_last
         while True:
             try:
-                data = self.dataqueue.get(block = True, timeout = self.period)
+                data = self.dataqueue.get(block = True, timeout = 1)
                 qcounter += 1
             except queue.Empty:
                 pass
             if data is None:
                 _LOGGER.debug("Updater stopped.")
                 return True
-
-            mac = data["mac"]
-            lpacket[mac] = data["packet"]
-            # store found readings per device
-            if "switch" in data:
-                switch_m_data[mac] = int(data["switch"])
-                macs[mac] = mac
-                force_binary_only = True
-            if "temperature" in data:
-                if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
-                    if mac not in temp_m_data:
-                        temp_m_data[mac] = []
-                    temp_m_data[mac].append(data["temperature"])
+            if data:
+                mac = data["mac"]
+                lpacket[mac] = data["packet"]
+                # store found readings per device
+                if "switch" in data:
+                    switch_m_data[mac] = int(data["switch"])
                     macs[mac] = mac
-                elif self.log_spikes:
-                    _LOGGER.error(
-                        "Temperature spike: %s (%s)",
-                        data["temperature"],
-                        mac,
-                    )
-            if "humidity" in data:
-                if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
-                    if mac not in hum_m_data:
-                        hum_m_data[mac] = []
-                    hum_m_data[mac].append(data["humidity"])
+                    force_binary_only = True
+                if "temperature" in data:
+                    if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
+                        if mac not in temp_m_data:
+                            temp_m_data[mac] = []
+                        temp_m_data[mac].append(data["temperature"])
+                        macs[mac] = mac
+                    elif self.log_spikes:
+                        _LOGGER.error(
+                            "Temperature spike: %s (%s)",
+                            data["temperature"],
+                            mac,
+                        )
+                if "humidity" in data:
+                    if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
+                        if mac not in hum_m_data:
+                            hum_m_data[mac] = []
+                        hum_m_data[mac].append(data["humidity"])
+                        macs[mac] = mac
+                    elif self.log_spikes:
+                        _LOGGER.error(
+                            "Humidity spike: %s (%s)", data["humidity"], mac,
+                        )
+                if "conductivity" in data:
+                    if mac not in cond_m_data:
+                        cond_m_data[mac] = []
+                    cond_m_data[mac].append(data["conductivity"])
                     macs[mac] = mac
-                elif self.log_spikes:
-                    _LOGGER.error(
-                        "Humidity spike: %s (%s)", data["humidity"], mac,
-                    )
-            if "conductivity" in data:
-                if mac not in cond_m_data:
-                    cond_m_data[mac] = []
-                cond_m_data[mac].append(data["conductivity"])
-                macs[mac] = mac
-            if "moisture" in data:
-                if mac not in moist_m_data:
-                    moist_m_data[mac] = []
-                moist_m_data[mac].append(data["moisture"])
-                macs[mac] = mac
-            if "illuminance" in data:
-                if mac not in illum_m_data:
-                    illum_m_data[mac] = []
-                illum_m_data[mac].append(data["illuminance"])
-                macs[mac] = mac
-            if "formaldehyde" in data:
-                if mac not in formaldehyde_m_data:
-                    formaldehyde_m_data[mac] = []
-                formaldehyde_m_data[mac].append(data["formaldehyde"])
-                macs[mac] = mac
-            if "consumable" in data:
-                cons_m_data[mac] = int(data["consumable"])
-                macs[mac] = mac
-            if "battery" in data:
-                batt[mac] = int(data["battery"])
-                macs[mac] = mac
-            if mac not in rssi:
-                rssi[mac] = []
-            rssi[mac].append(int(data["rssi"]))
-            stype[mac] = data["type"]
-            data.clear()
+                if "moisture" in data:
+                    if mac not in moist_m_data:
+                        moist_m_data[mac] = []
+                    moist_m_data[mac].append(data["moisture"])
+                    macs[mac] = mac
+                if "illuminance" in data:
+                    if mac not in illum_m_data:
+                        illum_m_data[mac] = []
+                    illum_m_data[mac].append(data["illuminance"])
+                    macs[mac] = mac
+                if "formaldehyde" in data:
+                    if mac not in formaldehyde_m_data:
+                        formaldehyde_m_data[mac] = []
+                    formaldehyde_m_data[mac].append(data["formaldehyde"])
+                    macs[mac] = mac
+                if "consumable" in data:
+                    cons_m_data[mac] = int(data["consumable"])
+                    macs[mac] = mac
+                if "battery" in data:
+                    batt[mac] = int(data["battery"])
+                    macs[mac] = mac
+                if mac not in rssi:
+                    rssi[mac] = []
+                rssi[mac].append(int(data["rssi"]))
+                stype[mac] = data["type"]
+                data.clear()
 
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds = self.period):
@@ -801,14 +793,13 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     # prepare device:key list to speedup parser
     scanner = BLEScanner(config)
     hass.bus.listen(EVENT_HOMEASSISTANT_STOP, scanner.shutdown_handler)
-    scanner.start()
     updater = Updater(scanner.dataqueue, config, add_entities)
     track_point_in_utc_time(
         hass,
         updater.datacollector,
         dt_util.utcnow() + timedelta(seconds=1)
     )
-
+    scanner.start()
     # Return successful setup
     return True
 
