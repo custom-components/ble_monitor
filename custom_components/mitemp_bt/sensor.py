@@ -148,11 +148,22 @@ class HCIdump(Thread):
             return None
         return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
 
-    def process_hci_events(self, data):
-        """Collect HCI events."""
-        packet = self.parse_raw_message(data)
+#    def process_hci_event(self, data):
+#        """Collect HCI events."""
+#        packet = self.parse_raw_message(data)
+#        if packet is not None:
+#            self.dataqueue.put(packet)
+
+    def handle_parser_result(self, task):
+        """Put parsed BLE ADV message to queue"""
+        packet = task.result()
         if packet is not None:
             self.dataqueue.put(packet)
+    
+    def data_received(self, data):
+        """Create parser task for every hci event"""
+        task = asyncio.get_running_loop().create_task(self.parse_raw_message(data))
+        task.add_done_callback(self.handle_parser_result)
 
     def run(self):
         """Run HCIdump thread."""
@@ -175,7 +186,7 @@ class HCIdump(Thread):
                 _LOGGER.debug("HCIdump thread: Connection to hci%i", hci)
                 conn[hci], btctrl[hci] = self._event_loop.run_until_complete(fac[hci])
                 _LOGGER.debug("HCIdump thread: Connected to hci%i", hci)
-                btctrl[hci].process = self.process_hci_events
+                btctrl[hci].process = self.data_received
                 btctrl[hci].send_command(
                     aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active)
                 )
@@ -272,6 +283,7 @@ class HCIdump(Thread):
             return None
         return plaindata
 
+    @asyncio.coroutine
     def parse_raw_message(self, data):
         """Parse the raw data."""
         if data is None:
