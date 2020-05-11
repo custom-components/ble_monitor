@@ -172,15 +172,15 @@ class HCIdump(Thread):
                 fac[hci] = self._event_loop._create_connection_transport(
                     mysocket[hci], aiobs.BLEScanRequester, None, None
                 )
-                _LOGGER.debug("HCIdump thread: Connection")
+                _LOGGER.debug("HCIdump thread: Connection to hci%i", hci)
                 conn[hci], btctrl[hci] = self._event_loop.run_until_complete(fac[hci])
-                _LOGGER.debug("HCIdump thread: Connected")
+                _LOGGER.debug("HCIdump thread: Connected to hci%i", hci)
                 btctrl[hci].process = self.process_hci_events
                 btctrl[hci].send_command(
                     aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active)
                 )
                 btctrl[hci].send_scan_request()
-                _LOGGER.debug("HCIdump thread: start main event_loop")
+        _LOGGER.debug("HCIdump thread: start main event_loop")
         try:
             self._event_loop.run_forever()
         finally:
@@ -201,7 +201,6 @@ class HCIdump(Thread):
             _LOGGER.debug("%s", error)
         finally:
             Thread.join(self, timeout)
-            self.dataqueue.put(None)
             _LOGGER.debug("HCIdump thread: joined")
 
     def lpacket(self, mac, packet=None):
@@ -254,13 +253,13 @@ class HCIdump(Thread):
     @classmethod
     def decrypt_payload(cls, encrypted_payload, key, nonce):
         """Decrypt payload."""
-        aad = b"\x11"
+        ###aad = b"\x11"
         token = encrypted_payload[-4:]
         payload_counter = encrypted_payload[-7:-4]
         nonce = b"".join([nonce, payload_counter])
         cipherpayload = encrypted_payload[:-7]
         cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
-        cipher.update(aad)
+        cipher.update(b"\x11")
         plaindata = None
         try:
             plaindata = cipher.decrypt_and_verify(cipherpayload, token)
@@ -466,18 +465,7 @@ class Updater:
         self.period = config[CONF_PERIOD]
         self.batt_entities = config[CONF_BATT_ENTITIES]
         self.add_entities = add_entities
-        self.lpacket_cntr = {}
-
-    def lpacket(self, mac, packet=None):
-        """Last_packet static storage."""
-        if packet is not None:
-            self.lpacket_cntr[mac] = packet
-        else:
-            try:
-                cntr = self.lpacket_cntr[mac]
-            except KeyError:
-                cntr = None
-            return cntr
+        #self.lpacket_cntr = {}
 
     def datacollector(self, event):
         """Collect data from queue"""
@@ -535,6 +523,7 @@ class Updater:
                 error = err
             return success, error
 
+        lpacket = {}
         data = {}
         sensors_by_mac = {}
         macs = {}
@@ -549,92 +538,92 @@ class Updater:
         batt = {}
         rssi = {}
         stype = {}
+        force_binary_only = False
+        qcounter = 0
         ts_last = dt_util.now()
         ts_now = ts_last
-        forced_update = False
         while True:
             try:
-                data = self.dataqueue.get(block = True, timeout = 1)
+                data = self.dataqueue.get(block = True, timeout = self.period)
+                qcounter += 1
             except queue.Empty:
                 pass
             if data is None:
+                _LOGGER.debug("Updater stopped.")
                 return True
-            if "mac" in data:
-                # ignore duplicated message
-                packet = data["packet"]
-                mac = data["mac"]
-                prev_packet = self.lpacket(mac)
-                if prev_packet == packet:
-                    _LOGGER.error("DUPLICATE: %s, IGNORING!", data)
-                    continue
-                self.lpacket(mac, packet)
-                # store found readings per device
-                if "switch" in data:
-                    switch_m_data[mac] = int(data["switch"])
+
+            mac = data["mac"]
+            lpacket[mac] = data["packet"]
+            # store found readings per device
+            if "switch" in data:
+                switch_m_data[mac] = int(data["switch"])
+                macs[mac] = mac
+                force_binary_only = True
+            if "temperature" in data:
+                if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
+                    if mac not in temp_m_data:
+                        temp_m_data[mac] = []
+                    temp_m_data[mac].append(data["temperature"])
                     macs[mac] = mac
-                    forced_update = True
-                if "temperature" in data:
-                    if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
-                        if mac not in temp_m_data:
-                            temp_m_data[mac] = []
-                        temp_m_data[mac].append(data["temperature"])
-                        macs[mac] = mac
-                    elif self.log_spikes:
-                        _LOGGER.error(
-                            "Temperature spike: %s (%s)",
-                            data["temperature"],
-                            mac,
-                        )
-                if "humidity" in data:
-                    if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
-                        if mac not in hum_m_data:
-                            hum_m_data[mac] = []
-                        hum_m_data[mac].append(data["humidity"])
-                        macs[mac] = mac
-                    elif self.log_spikes:
-                        _LOGGER.error(
-                            "Humidity spike: %s (%s)", data["humidity"], mac,
-                        )
-                if "conductivity" in data:
-                    if mac not in cond_m_data:
-                        cond_m_data[mac] = []
-                    cond_m_data[mac].append(data["conductivity"])
+                elif self.log_spikes:
+                    _LOGGER.error(
+                        "Temperature spike: %s (%s)",
+                        data["temperature"],
+                        mac,
+                    )
+            if "humidity" in data:
+                if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
+                    if mac not in hum_m_data:
+                        hum_m_data[mac] = []
+                    hum_m_data[mac].append(data["humidity"])
                     macs[mac] = mac
-                if "moisture" in data:
-                    if mac not in moist_m_data:
-                        moist_m_data[mac] = []
-                    moist_m_data[mac].append(data["moisture"])
-                    macs[mac] = mac
-                if "illuminance" in data:
-                    if mac not in illum_m_data:
-                        illum_m_data[mac] = []
-                    illum_m_data[mac].append(data["illuminance"])
-                    macs[mac] = mac
-                if "formaldehyde" in data:
-                    if mac not in formaldehyde_m_data:
-                        formaldehyde_m_data[mac] = []
-                    formaldehyde_m_data[mac].append(data["formaldehyde"])
-                    macs[mac] = mac
-                if "consumable" in data:
-                    cons_m_data[mac] = int(data["consumable"])
-                    macs[mac] = mac
-                if "battery" in data:
-                    batt[mac] = int(data["battery"])
-                    macs[mac] = mac
-                if mac not in rssi:
-                    rssi[mac] = []
-                rssi[mac].append(int(data["rssi"]))
-                stype[mac] = data["type"]
-                data.clear()
+                elif self.log_spikes:
+                    _LOGGER.error(
+                        "Humidity spike: %s (%s)", data["humidity"], mac,
+                    )
+            if "conductivity" in data:
+                if mac not in cond_m_data:
+                    cond_m_data[mac] = []
+                cond_m_data[mac].append(data["conductivity"])
+                macs[mac] = mac
+            if "moisture" in data:
+                if mac not in moist_m_data:
+                    moist_m_data[mac] = []
+                moist_m_data[mac].append(data["moisture"])
+                macs[mac] = mac
+            if "illuminance" in data:
+                if mac not in illum_m_data:
+                    illum_m_data[mac] = []
+                illum_m_data[mac].append(data["illuminance"])
+                macs[mac] = mac
+            if "formaldehyde" in data:
+                if mac not in formaldehyde_m_data:
+                    formaldehyde_m_data[mac] = []
+                formaldehyde_m_data[mac].append(data["formaldehyde"])
+                macs[mac] = mac
+            if "consumable" in data:
+                cons_m_data[mac] = int(data["consumable"])
+                macs[mac] = mac
+            if "battery" in data:
+                batt[mac] = int(data["battery"])
+                macs[mac] = mac
+            if mac not in rssi:
+                rssi[mac] = []
+            rssi[mac].append(int(data["rssi"]))
+            stype[mac] = data["type"]
+            data.clear()
+
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds = self.period):
-                if forced_update is True:
+                if force_binary_only is True:
                     updated_macs = {mac : mac}
                 else:
                     continue
             else:
                 updated_macs = macs
                 ts_last = ts_now
+                force_binary_only = False
+
             for mac in updated_macs:
                 # fixed entity index for every measurement type
                 # according to the sensor implementation
@@ -679,7 +668,7 @@ class Updater:
                 for sensor in sensors:
                     getattr(sensor, "_device_state_attributes")[
                         "last packet id"
-                        ] = self.lpacket(mac)
+                        ] = lpacket[mac]
                     getattr(sensor, "_device_state_attributes")["rssi"] = round(
                         sts.mean(rssi[mac])
                     )
@@ -690,6 +679,26 @@ class Updater:
                         ] = batt[mac]
 
                 # averaging and states updating
+                if mac in switch_m_data:
+                    setattr(sensors[sw_i], "_state", switch_m_data.pop(mac))
+                    try:
+                        sensors[sw_i].schedule_update_ha_state()
+                    except AttributeError:
+                        _LOGGER.debug(
+                            "Sensor %s (%s, switch) not yet ready for update",
+                            mac,
+                            sensortype,
+                        )
+                    except RuntimeError as err:
+                        _LOGGER.error(
+                            "Sensor %s (%s, switch) update error:", mac, sensortype
+                        )
+                        _LOGGER.error(err)
+                    if force_binary_only is True:
+                        force_binary_only = False
+                        _LOGGER.debug("Forced state updating for %s binary_sensor.", mac)
+                        continue
+
                 if mac in batt:
                     if self.batt_entities:
                         setattr(sensors[b_i], "_state", batt.pop(mac))
@@ -706,24 +715,6 @@ class Updater:
                                 "Sensor %s (%s, batt.) update error:", mac, sensortype
                             )
                             _LOGGER.error(err)
-                if forced_update is True:
-                    forced_update = False
-                    if mac in switch_m_data:
-                        setattr(sensors[sw_i], "_state", switch_m_data.pop(mac))
-                        try:
-                            sensors[sw_i].schedule_update_ha_state()
-                        except AttributeError:
-                            _LOGGER.debug(
-                                "Sensor %s (%s, switch) not yet ready for update",
-                                mac,
-                                sensortype,
-                            )
-                        except RuntimeError as err:
-                            _LOGGER.error(
-                                "Sensor %s (%s, switch) update error:", mac, sensortype
-                            )
-                            _LOGGER.error(err)
-                    continue
                 if mac in temp_m_data:
                     success, error = calc_update_state(
                         sensors[t_i], mac, self.config, temp_m_data.pop(mac)
@@ -792,9 +783,11 @@ class Updater:
                         )
                         _LOGGER.error(err)
             _LOGGER.debug(
-                "Data updated for %i xiaomi device(s).",
+                "%i Xiaomi BLE ADV messages processed for %i xiaomi device(s).",
+                qcounter,
                 len(updated_macs)
             )
+            qcounter = 0
             updated_macs.clear()
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
