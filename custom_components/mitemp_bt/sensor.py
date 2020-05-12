@@ -148,11 +148,11 @@ class HCIdump(Thread):
             return None
         return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
 
-    def process_hci_events(self, data):
-        """Collect HCI events."""
-        packet = self.parse_raw_message(data)
-        if packet is not None:
-            self.dataqueue.put(packet)
+#    def process_hci_events(self, data):
+#        """Collect HCI events."""
+#        packet = self.parse_raw_message(data)
+#        if packet is not None:
+#            self.dataqueue.put(packet)
 
     def run(self):
         """Run HCIdump thread."""
@@ -175,7 +175,7 @@ class HCIdump(Thread):
                 _LOGGER.debug("HCIdump thread: Connection to hci%i", hci)
                 conn[hci], btctrl[hci] = self._event_loop.run_until_complete(fac[hci])
                 _LOGGER.debug("HCIdump thread: Connected to hci%i", hci)
-                btctrl[hci].process = self.process_hci_events
+                btctrl[hci].process = self.parse_raw_message
                 btctrl[hci].send_command(
                     aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active)
                 )
@@ -202,64 +202,6 @@ class HCIdump(Thread):
         finally:
             Thread.join(self, timeout)
             _LOGGER.debug("HCIdump thread: joined")
-
-    @classmethod
-    def parse_xiaomi_value(cls, hexvalue, typecode):
-        """Convert value depending on its type."""
-        vlength = len(hexvalue)
-        if vlength == 4:
-            if typecode == b'\x0D\x10':
-                (temp, humi) = TH_STRUCT.unpack(hexvalue)
-                return {"temperature": temp / 10, "humidity": humi / 10}
-        if vlength == 2:
-            if typecode == b'\x06\x10':
-                (humi,) = H_STRUCT.unpack(hexvalue)
-                return {"humidity": humi / 10}
-            if typecode == b'\x04\x10':
-                (temp,) = T_STRUCT.unpack(hexvalue)
-                return {"temperature": temp / 10}
-            if typecode == b'\x09\x10':
-                (cond,) = CND_STRUCT.unpack(hexvalue)
-                return {"conductivity": cond}
-            if typecode == b'\x10\x10':
-                (fmdh,) = FMDH_STRUCT.unpack(hexvalue)
-                return {"formaldehyde": fmdh / 100}
-        if vlength == 1:
-            if typecode == b'\x0A\x10':
-                return {"battery": hexvalue[0]}
-            if typecode == b'\x08\x10':
-                return {"moisture": hexvalue[0]}
-            if typecode == b'\x12\x10':
-                return {"switch": hexvalue[0]}
-            if typecode == b'\x13\x10':
-                return {"consumable": hexvalue[0]}
-        if vlength == 3:
-            if typecode == b'\x07\x10':
-                (illum,) = ILL_STRUCT.unpack(hexvalue + b'\x00')
-                return {"illuminance": illum}
-        return None
-
-    @classmethod
-    def decrypt_payload(cls, encrypted_payload, key, nonce):
-        """Decrypt payload."""
-        ###aad = b"\x11"
-        token = encrypted_payload[-4:]
-        payload_counter = encrypted_payload[-7:-4]
-        nonce = b"".join([nonce, payload_counter])
-        cipherpayload = encrypted_payload[:-7]
-        cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
-        cipher.update(b"\x11")
-        plaindata = None
-        try:
-            plaindata = cipher.decrypt_and_verify(cipherpayload, token)
-        except ValueError as error:
-            _LOGGER.error("Decryption failed: %s", error)
-            _LOGGER.error("token: %s", token.hex())
-            _LOGGER.error("nonce: %s", nonce.hex())
-            _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
-            _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
-            return None
-        return plaindata
 
     def parse_raw_message(self, data):
         """Parse the raw data."""
@@ -346,17 +288,37 @@ class HCIdump(Thread):
             except KeyError:
                 # no encryption key found
                 return None
+            
+            #decrypted_payload = self.decrypt_payload(
+            #    data[xdata_point:msg_length-1], key, nonce
+            #)
+            encrypted_payload = data[xdata_point:msg_length-1]
+            token = encrypted_payload[-4:]
+            payload_counter = encrypted_payload[-7:-4]
+            #nonce = b"".join([nonce1, payload_counter])
             nonce = b"".join(
                 [
                     xiaomi_mac_reversed,
                     data[xiaomi_index + 5:xiaomi_index + 7],
-                    data[xiaomi_index + 7:xiaomi_index + 8]
+                    data[xiaomi_index + 7:xiaomi_index + 8],
+                    payload_counter
                 ]
             )
-            decrypted_payload = self.decrypt_payload(
-                data[xdata_point:msg_length-1], key, nonce
-            )
-            if decrypted_payload is None:
+            cipherpayload = encrypted_payload[:-7]
+            cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
+            cipher.update(b"\x11")
+            plaindata = None
+            try:
+                plaindata = cipher.decrypt_and_verify(cipherpayload, token)
+            except ValueError as error:
+                _LOGGER.error("Decryption failed: %s", error)
+                _LOGGER.error("token: %s", token.hex())
+                _LOGGER.error("nonce: %s", nonce.hex())
+                _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
+                _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
+                return None
+            #return plaindata
+            if plaindata is None:
                 _LOGGER.error(
                     "Decryption failed for %s, decrypted payload is None",
                     "".join("{:02X}".format(x) for x in xiaomi_mac_reversed[::-1]),
@@ -364,8 +326,8 @@ class HCIdump(Thread):
                 return None
             # replace cipher with decrypted data
             msg_length -= len(data[xdata_point:msg_length-1])
-            data = b"".join((data[:xdata_point], decrypted_payload, data[-1:]))
-            msg_length += len(decrypted_payload)
+            data = b"".join((data[:xdata_point], plaindata, data[-1:]))
+            msg_length += len(plaindata)
         # extract RSSI byte
         (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
         #strange positive RSSI workaround
@@ -398,13 +360,46 @@ class HCIdump(Thread):
                 break
             xnext_point = xdata_point + 3 + xvalue_length
             xvalue = data[xdata_point + 3:xnext_point]
-            res = self.parse_xiaomi_value(xvalue, xvalue_typecode)
+            #res = self.parse_xiaomi_value(xvalue, xvalue_typecode)
+            res = None
+            vlength = len(xvalue)
+            if vlength == 4:
+                if xvalue_typecode == b'\x0D\x10':
+                    (temp, humi) = TH_STRUCT.unpack(xvalue)
+                    res =  {"temperature": temp / 10, "humidity": humi / 10}
+            elif vlength == 2:
+                if xvalue_typecode == b'\x06\x10':
+                    (humi,) = H_STRUCT.unpack(xvalue)
+                    res =  {"humidity": humi / 10}
+                elif xvalue_typecode == b'\x04\x10':
+                    (temp,) = T_STRUCT.unpack(xvalue)
+                    res =  {"temperature": temp / 10}
+                elif xvalue_typecode == b'\x09\x10':
+                    (cond,) = CND_STRUCT.unpack(xvalue)
+                    res =  {"conductivity": cond}
+                elif xvalue_typecode == b'\x10\x10':
+                    (fmdh,) = FMDH_STRUCT.unpack(xvalue)
+                    res =  {"formaldehyde": fmdh / 100}
+            elif vlength == 1:
+                if xvalue_typecode == b'\x0A\x10':
+                    res =  {"battery": xvalue[0]}
+                elif xvalue_typecode == b'\x08\x10':
+                    res =  {"moisture": xvalue[0]}
+                elif xvalue_typecode == b'\x12\x10':
+                    res =  {"switch": xvalue[0]}
+                elif xvalue_typecode == b'\x13\x10':
+                    res =  {"consumable": xvalue[0]}
+            elif vlength == 3:
+                if xvalue_typecode == b'\x07\x10':
+                    (illum,) = ILL_STRUCT.unpack(xvalue + b'\x00')
+                    res =  {"illuminance": illum}
+            #return None
             if res:
                 result.update(res)
             if xnext_point > msg_length - 3:
                 break
             xdata_point = xnext_point
-        return result
+        self.dataqueue.put(result)
 
 
 class BLEScanner:
