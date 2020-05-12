@@ -119,34 +119,8 @@ class HCIdump(Thread):
         self._interfaces = config[CONF_HCI_INTERFACE]
         self._active = config[CONF_ACTIVE_SCAN]
         self.report_unknown = config[CONF_REPORT_UNKNOWN]
-        self.aeskeyslist = {}
         self.dataqueue = dataqueue
-        for mac in config[CONF_ENCRYPTORS]:
-            p_mac = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
-            p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
-            self.aeskeyslist[p_mac] = p_key
-        _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(self.aeskeyslist))
-        self.whitelist = []
-        if isinstance(config[CONF_WHITELIST], bool):
-            if config[CONF_WHITELIST] is True:
-                for mac in config[CONF_ENCRYPTORS]:
-                    self.whitelist.append(mac)
-        if isinstance(config[CONF_WHITELIST], list):
-            for mac in config[CONF_WHITELIST]:
-                self.whitelist.append(mac)
-            for mac in config[CONF_ENCRYPTORS]:
-                self.whitelist.append(mac)
-        for i, mac in enumerate(self.whitelist):
-            self.whitelist[i] = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
-        _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
         _LOGGER.debug("HCIdump thread: Init finished")
-
-    @classmethod
-    def reverse_mac(cls, rmac):
-        """Change LE order to BE."""
-        if len(rmac) != 12:
-            return None
-        return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
 
 #    def process_hci_events(self, data):
 #        """Collect HCI events."""
@@ -175,7 +149,7 @@ class HCIdump(Thread):
                 _LOGGER.debug("HCIdump thread: Connection to hci%i", hci)
                 conn[hci], btctrl[hci] = self._event_loop.run_until_complete(fac[hci])
                 _LOGGER.debug("HCIdump thread: Connected to hci%i", hci)
-                btctrl[hci].process = self.parse_raw_message
+                btctrl[hci].process = self.filter_and_queue
                 btctrl[hci].send_command(
                     aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active)
                 )
@@ -202,9 +176,9 @@ class HCIdump(Thread):
         finally:
             Thread.join(self, timeout)
             _LOGGER.debug("HCIdump thread: joined")
-
-    def parse_raw_message(self, data):
-        """Parse the raw data."""
+    
+    def filter_and_queue(self, data):
+        """Filter hci events"""
         if data is None:
             return None
         # check for Xiaomi service data
@@ -224,182 +198,14 @@ class HCIdump(Thread):
         source_mac_reversed = data[adv_index - 7:adv_index - 1]
         if xiaomi_mac_reversed != source_mac_reversed:
             return None
-        try:
-            sensor_type = XIAOMI_TYPE_DICT[
-                data[xiaomi_index + 5:xiaomi_index + 7]
-            ]
-        except KeyError:
-            if self.report_unknown:
-                (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
-                #strange positive RSSI workaround
-                if rssi > 0:
-                    rssi = -rssi
-                _LOGGER.info(
-                    "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
-                    rssi,
-                    ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
-                    data.hex()
-                )
-            return None
-        # check for MAC presence in whitelist, if needed
-        if self.whitelist:
-            if xiaomi_mac_reversed not in self.whitelist:
-                return None
         # frame control bits
         framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
         # check data is present
         if not (framectrl & 0x4000):
             return None
-        packet_id = data[xiaomi_index + 7]
-        try:
-            prev_packet = self.lpacket_id[xiaomi_mac_reversed]
-        except KeyError:
-            prev_packet = None
-        if prev_packet == packet_id:
-            # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
-            return None
-        self.lpacket_id[xiaomi_mac_reversed] = packet_id
-        xdata_length = 0
-        xdata_point = 0
-        # check capability byte present
-        if framectrl & 0x2000:
-            xdata_length = -1
-            xdata_point = 1
-        # xiaomi data length = message length
-        #     -all bytes before XiaomiUUID
-        #     -3 bytes Xiaomi UUID + ADtype
-        #     -1 byte rssi
-        #     -3+1 bytes sensor type
-        #     -1 byte packet_id
-        #     -6 bytes MAC
-        #     - capability byte offset
-        xdata_length += msg_length - xiaomi_index - 15
-        if xdata_length < 3:
-            return None
-        xdata_point += xiaomi_index + 14
-        # check if xiaomi data start and length is valid
-        if xdata_length != len(data[xdata_point:-1]):
-            return None
-        # check encrypted data flags
-        if framectrl & 0x0800:
-            # try to find encryption key for current device
-            try:
-                key = self.aeskeyslist[xiaomi_mac_reversed]
-            except KeyError:
-                # no encryption key found
-                return None
-            
-            #decrypted_payload = self.decrypt_payload(
-            #    data[xdata_point:msg_length-1], key, nonce
-            #)
-            encrypted_payload = data[xdata_point:msg_length-1]
-            token = encrypted_payload[-4:]
-            payload_counter = encrypted_payload[-7:-4]
-            #nonce = b"".join([nonce1, payload_counter])
-            nonce = b"".join(
-                [
-                    xiaomi_mac_reversed,
-                    data[xiaomi_index + 5:xiaomi_index + 7],
-                    data[xiaomi_index + 7:xiaomi_index + 8],
-                    payload_counter
-                ]
-            )
-            cipherpayload = encrypted_payload[:-7]
-            cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
-            cipher.update(b"\x11")
-            plaindata = None
-            try:
-                plaindata = cipher.decrypt_and_verify(cipherpayload, token)
-            except ValueError as error:
-                _LOGGER.error("Decryption failed: %s", error)
-                _LOGGER.error("token: %s", token.hex())
-                _LOGGER.error("nonce: %s", nonce.hex())
-                _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
-                _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
-                return None
-            #return plaindata
-            if plaindata is None:
-                _LOGGER.error(
-                    "Decryption failed for %s, decrypted payload is None",
-                    "".join("{:02X}".format(x) for x in xiaomi_mac_reversed[::-1]),
-                )
-                return None
-            # replace cipher with decrypted data
-            msg_length -= len(data[xdata_point:msg_length-1])
-            data = b"".join((data[:xdata_point], plaindata, data[-1:]))
-            msg_length += len(plaindata)
-        # extract RSSI byte
-        (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
-        #strange positive RSSI workaround
-        if rssi > 0:
-            rssi = -rssi
-        result = {
-            "rssi": rssi,
-            "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
-            "type": sensor_type,
-            "packet": packet_id,
-        }
-        # loop through xiaomi payload
-        # assume that the data may have several values of different types,
-        # although I did not notice this behavior with my LYWSDCGQ sensors
-        while True:
-            xvalue_typecode = data[xdata_point:xdata_point + 2]
-            try:
-                xvalue_length = data[xdata_point + 2]
-            except ValueError as error:
-                _LOGGER.error("xvalue_length conv. error: %s", error)
-                _LOGGER.error("xdata_point: %s", xdata_point)
-                _LOGGER.error("data: %s", data.hex())
-                result = {}
-                break
-            except IndexError as error:
-                _LOGGER.error("Wrong xdata_point: %s", error)
-                _LOGGER.error("xdata_point: %s", xdata_point)
-                _LOGGER.error("data: %s", data.hex())
-                result = {}
-                break
-            xnext_point = xdata_point + 3 + xvalue_length
-            xvalue = data[xdata_point + 3:xnext_point]
-            #res = self.parse_xiaomi_value(xvalue, xvalue_typecode)
-            res = None
-            vlength = len(xvalue)
-            if vlength == 4:
-                if xvalue_typecode == b'\x0D\x10':
-                    (temp, humi) = TH_STRUCT.unpack(xvalue)
-                    res =  {"temperature": temp / 10, "humidity": humi / 10}
-            elif vlength == 2:
-                if xvalue_typecode == b'\x06\x10':
-                    (humi,) = H_STRUCT.unpack(xvalue)
-                    res =  {"humidity": humi / 10}
-                elif xvalue_typecode == b'\x04\x10':
-                    (temp,) = T_STRUCT.unpack(xvalue)
-                    res =  {"temperature": temp / 10}
-                elif xvalue_typecode == b'\x09\x10':
-                    (cond,) = CND_STRUCT.unpack(xvalue)
-                    res =  {"conductivity": cond}
-                elif xvalue_typecode == b'\x10\x10':
-                    (fmdh,) = FMDH_STRUCT.unpack(xvalue)
-                    res =  {"formaldehyde": fmdh / 100}
-            elif vlength == 1:
-                if xvalue_typecode == b'\x0A\x10':
-                    res =  {"battery": xvalue[0]}
-                elif xvalue_typecode == b'\x08\x10':
-                    res =  {"moisture": xvalue[0]}
-                elif xvalue_typecode == b'\x12\x10':
-                    res =  {"switch": xvalue[0]}
-                elif xvalue_typecode == b'\x13\x10':
-                    res =  {"consumable": xvalue[0]}
-            elif vlength == 3:
-                if xvalue_typecode == b'\x07\x10':
-                    (illum,) = ILL_STRUCT.unpack(xvalue + b'\x00')
-                    res =  {"illuminance": illum}
-            #return None
-            if res:
-                result.update(res)
-            if xnext_point > msg_length - 3:
-                break
-            xdata_point = xnext_point
-        self.dataqueue.put(result)
+        self.dataqueue.put(data)
+
+
 
 
 class BLEScanner:
@@ -409,7 +215,6 @@ class BLEScanner:
         """Init"""
         self.hcidump_data = []
         self.dataqueue = queue.Queue()
-#        self.lpacket_cntr = {}
         self.dumpthread = None
         self.config = config
 
@@ -420,7 +225,6 @@ class BLEScanner:
         self.dumpthread = HCIdump(
             config = self.config,
             dataqueue = self.dataqueue,
-#            lpacket_cntr=self.lpacket_cntr
         )
         self.dumpthread.start()
 
@@ -452,10 +256,218 @@ class Updater:
         self.period = config[CONF_PERIOD]
         self.batt_entities = config[CONF_BATT_ENTITIES]
         self.add_entities = add_entities
+        self.report_unknown = config[CONF_REPORT_UNKNOWN]
+        self.aeskeyslist = {}
+        for mac in config[CONF_ENCRYPTORS]:
+            p_mac = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
+            p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
+            self.aeskeyslist[p_mac] = p_key
+        _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(self.aeskeyslist))
+        self.whitelist = []
+        if isinstance(config[CONF_WHITELIST], bool):
+            if config[CONF_WHITELIST] is True:
+                for mac in config[CONF_ENCRYPTORS]:
+                    self.whitelist.append(mac)
+        if isinstance(config[CONF_WHITELIST], list):
+            for mac in config[CONF_WHITELIST]:
+                self.whitelist.append(mac)
+            for mac in config[CONF_ENCRYPTORS]:
+                self.whitelist.append(mac)
+        for i, mac in enumerate(self.whitelist):
+            self.whitelist[i] = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
+        _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
         #self.lpacket_cntr = {}
+
+    @classmethod
+    def reverse_mac(cls, rmac):
+        """Change LE order to BE."""
+        if len(rmac) != 12:
+            return None
+        return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
 
     def datacollector(self, event):
         """Collect data from queue"""
+
+        def parse_raw_message(data):
+            """Parse the raw data."""
+            # check for Xiaomi service data
+            xiaomi_index = data.find(b'\x16\x95\xFE', 15)
+            msg_length = data[2] + 3
+            xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
+            framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
+            try:
+                sensor_type = XIAOMI_TYPE_DICT[
+                    data[xiaomi_index + 5:xiaomi_index + 7]
+                ]
+            except KeyError:
+                if self.report_unknown:
+                    (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
+                    #strange positive RSSI workaround
+                    if rssi > 0:
+                        rssi = -rssi
+                    _LOGGER.info(
+                        "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
+                        rssi,
+                        ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+                        data.hex()
+                    )
+                return None
+            # check for MAC presence in whitelist, if needed
+            if self.whitelist:
+                if xiaomi_mac_reversed not in self.whitelist:
+                    return None
+            packet_id = data[xiaomi_index + 7]
+            try:
+                prev_packet = parse_raw_message.lpacket_id[xiaomi_mac_reversed]
+            except KeyError:
+                prev_packet = None
+            if prev_packet == packet_id:
+                # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
+                return None
+            parse_raw_message.lpacket_id[xiaomi_mac_reversed] = packet_id
+            xdata_length = 0
+            xdata_point = 0
+            # check capability byte present
+            if framectrl & 0x2000:
+                xdata_length = -1
+                xdata_point = 1
+            # xiaomi data length = message length
+            #     -all bytes before XiaomiUUID
+            #     -3 bytes Xiaomi UUID + ADtype
+            #     -1 byte rssi
+            #     -3+1 bytes sensor type
+            #     -1 byte packet_id
+            #     -6 bytes MAC
+            #     - capability byte offset
+            xdata_length += msg_length - xiaomi_index - 15
+            if xdata_length < 3:
+                return None
+            xdata_point += xiaomi_index + 14
+            # check if xiaomi data start and length is valid
+            if xdata_length != len(data[xdata_point:-1]):
+                return None
+            # check encrypted data flags
+            if framectrl & 0x0800:
+                # try to find encryption key for current device
+                try:
+                    key = self.aeskeyslist[xiaomi_mac_reversed]
+                except KeyError:
+                    # no encryption key found
+                    return None
+                
+                #decrypted_payload = self.decrypt_payload(
+                #    data[xdata_point:msg_length-1], key, nonce
+                #)
+                encrypted_payload = data[xdata_point:msg_length-1]
+                token = encrypted_payload[-4:]
+                payload_counter = encrypted_payload[-7:-4]
+                #nonce = b"".join([nonce1, payload_counter])
+                nonce = b"".join(
+                    [
+                        xiaomi_mac_reversed,
+                        data[xiaomi_index + 5:xiaomi_index + 7],
+                        data[xiaomi_index + 7:xiaomi_index + 8],
+                        payload_counter
+                    ]
+                )
+                cipherpayload = encrypted_payload[:-7]
+                cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
+                cipher.update(b"\x11")
+                plaindata = None
+                try:
+                    plaindata = cipher.decrypt_and_verify(cipherpayload, token)
+                except ValueError as error:
+                    _LOGGER.error("Decryption failed: %s", error)
+                    _LOGGER.error("token: %s", token.hex())
+                    _LOGGER.error("nonce: %s", nonce.hex())
+                    _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
+                    _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
+                    return None
+                #return plaindata
+                if plaindata is None:
+                    _LOGGER.error(
+                        "Decryption failed for %s, decrypted payload is None",
+                        "".join("{:02X}".format(x) for x in xiaomi_mac_reversed[::-1]),
+                    )
+                    return None
+                # replace cipher with decrypted data
+                msg_length -= len(data[xdata_point:msg_length-1])
+                data = b"".join((data[:xdata_point], plaindata, data[-1:]))
+                msg_length += len(plaindata)
+            # extract RSSI byte
+            (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
+            #strange positive RSSI workaround
+            if rssi > 0:
+                rssi = -rssi
+            result = {
+                "rssi": rssi,
+                "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+                "type": sensor_type,
+                "packet": packet_id,
+            }
+            # loop through xiaomi payload
+            # assume that the data may have several values of different types,
+            # although I did not notice this behavior with my LYWSDCGQ sensors
+            while True:
+                xvalue_typecode = data[xdata_point:xdata_point + 2]
+                try:
+                    xvalue_length = data[xdata_point + 2]
+                except ValueError as error:
+                    _LOGGER.error("xvalue_length conv. error: %s", error)
+                    _LOGGER.error("xdata_point: %s", xdata_point)
+                    _LOGGER.error("data: %s", data.hex())
+                    result = {}
+                    break
+                except IndexError as error:
+                    _LOGGER.error("Wrong xdata_point: %s", error)
+                    _LOGGER.error("xdata_point: %s", xdata_point)
+                    _LOGGER.error("data: %s", data.hex())
+                    result = {}
+                    break
+                xnext_point = xdata_point + 3 + xvalue_length
+                xvalue = data[xdata_point + 3:xnext_point]
+                #res = self.parse_xiaomi_value(xvalue, xvalue_typecode)
+                res = None
+                vlength = len(xvalue)
+                if vlength == 4:
+                    if xvalue_typecode == b'\x0D\x10':
+                        (temp, humi) = TH_STRUCT.unpack(xvalue)
+                        res =  {"temperature": temp / 10, "humidity": humi / 10}
+                elif vlength == 2:
+                    if xvalue_typecode == b'\x06\x10':
+                        (humi,) = H_STRUCT.unpack(xvalue)
+                        res =  {"humidity": humi / 10}
+                    elif xvalue_typecode == b'\x04\x10':
+                        (temp,) = T_STRUCT.unpack(xvalue)
+                        res =  {"temperature": temp / 10}
+                    elif xvalue_typecode == b'\x09\x10':
+                        (cond,) = CND_STRUCT.unpack(xvalue)
+                        res =  {"conductivity": cond}
+                    elif xvalue_typecode == b'\x10\x10':
+                        (fmdh,) = FMDH_STRUCT.unpack(xvalue)
+                        res =  {"formaldehyde": fmdh / 100}
+                elif vlength == 1:
+                    if xvalue_typecode == b'\x0A\x10':
+                        res =  {"battery": xvalue[0]}
+                    elif xvalue_typecode == b'\x08\x10':
+                        res =  {"moisture": xvalue[0]}
+                    elif xvalue_typecode == b'\x12\x10':
+                        res =  {"switch": xvalue[0]}
+                    elif xvalue_typecode == b'\x13\x10':
+                        res =  {"consumable": xvalue[0]}
+                elif vlength == 3:
+                    if xvalue_typecode == b'\x07\x10':
+                        (illum,) = ILL_STRUCT.unpack(xvalue + b'\x00')
+                        res =  {"illuminance": illum}
+                #return None
+                if res:
+                    result.update(res)
+                if xnext_point > msg_length - 3:
+                    break
+                xdata_point = xnext_point
+            return result
+        
+        parse_raw_message.lpacket_id = {}
 
         def calc_update_state(
             entity_to_update, sensor_mac, config, measurements_list, stype=None, fdec = 0
@@ -531,14 +543,15 @@ class Updater:
         ts_now = ts_last
         while True:
             try:
-                data = self.dataqueue.get(block = True, timeout = 1)
-                qcounter += 1
+                event = self.dataqueue.get(block = True, timeout = 1)
+                if event is None:
+                   _LOGGER.debug("Updater stopped.")
+                   return True
+                data = parse_raw_message(event)
             except queue.Empty:
                 pass
-            if data is None:
-                _LOGGER.debug("Updater stopped.")
-                return True
             if data:
+                qcounter += 1
                 mac = data["mac"]
                 lpacket[mac] = data["packet"]
                 # store found readings per device
