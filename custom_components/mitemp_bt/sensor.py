@@ -122,12 +122,6 @@ class HCIdump(Thread):
         self.dataqueue = dataqueue
         _LOGGER.debug("HCIdump thread: Init finished")
 
-#    def process_hci_events(self, data):
-#        """Collect HCI events."""
-#        packet = self.parse_raw_message(data)
-#        if packet is not None:
-#            self.dataqueue.put(packet)
-
     def run(self):
         """Run HCIdump thread."""
         _LOGGER.debug("HCIdump thread: Run")
@@ -250,16 +244,22 @@ class Updater:
     """Entities updater"""
 
     def __init__(self, dataqueue, config, add_entities):
+
+        def reverse_mac(rmac):
+            """Change LE order to BE."""
+            if len(rmac) != 12:
+                return None
+            return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
+
         self.dataqueue = dataqueue
         self.config = config
         self.log_spikes = config[CONF_LOG_SPIKES]
         self.period = config[CONF_PERIOD]
         self.batt_entities = config[CONF_BATT_ENTITIES]
-        self.add_entities = add_entities
         self.report_unknown = config[CONF_REPORT_UNKNOWN]
         self.aeskeyslist = {}
         for mac in config[CONF_ENCRYPTORS]:
-            p_mac = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
+            p_mac = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
             p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
             self.aeskeyslist[p_mac] = p_key
         _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(self.aeskeyslist))
@@ -274,16 +274,9 @@ class Updater:
             for mac in config[CONF_ENCRYPTORS]:
                 self.whitelist.append(mac)
         for i, mac in enumerate(self.whitelist):
-            self.whitelist[i] = bytes.fromhex(self.reverse_mac(mac.replace(":", "")).lower())
+            self.whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
         _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
-        #self.lpacket_cntr = {}
-
-    @classmethod
-    def reverse_mac(cls, rmac):
-        """Change LE order to BE."""
-        if len(rmac) != 12:
-            return None
-        return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
+        self.add_entities = add_entities
 
     def datacollector(self, event):
         """Collect data from queue"""
@@ -354,14 +347,9 @@ class Updater:
                 except KeyError:
                     # no encryption key found
                     return None
-                
-                #decrypted_payload = self.decrypt_payload(
-                #    data[xdata_point:msg_length-1], key, nonce
-                #)
                 encrypted_payload = data[xdata_point:msg_length-1]
                 token = encrypted_payload[-4:]
                 payload_counter = encrypted_payload[-7:-4]
-                #nonce = b"".join([nonce1, payload_counter])
                 nonce = b"".join(
                     [
                         xiaomi_mac_reversed,
@@ -459,7 +447,6 @@ class Updater:
                     if xvalue_typecode == b'\x07\x10':
                         (illum,) = ILL_STRUCT.unpack(xvalue + b'\x00')
                         res =  {"illuminance": illum}
-                #return None
                 if res:
                     result.update(res)
                 if xnext_point > msg_length - 3:
@@ -470,7 +457,12 @@ class Updater:
         parse_raw_message.lpacket_id = {}
 
         def calc_update_state(
-            entity_to_update, sensor_mac, config, measurements_list, stype=None, fdec = 0
+            entity_to_update,
+            sensor_mac,
+            config,
+            measurements_list,
+            stype=None,
+            fdec = 0
             ):
             """Averages according to options and updates the entity state."""
             textattr = ""
@@ -543,11 +535,11 @@ class Updater:
         ts_now = ts_last
         while True:
             try:
-                event = self.dataqueue.get(block = True, timeout = 1)
-                if event is None:
+                hcievent = self.dataqueue.get(block = True, timeout = 1)
+                if hcievent is None:
                    _LOGGER.debug("Updater stopped.")
                    return True
-                data = parse_raw_message(event)
+                data = parse_raw_message(hcievent)
             except queue.Empty:
                 pass
             if data:
@@ -631,7 +623,6 @@ class Updater:
                 t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, b_i = MMTS_DICT[sensortype]
                 # if necessary, create a list of entities
                 # according to the sensor implementation
-
                 if mac in sensors_by_mac:
                     sensors = sensors_by_mac[mac]
                 else:
@@ -811,7 +802,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     # Return successful setup
     return True
 
-
 class TemperatureSensor(Entity):
     """Representation of a sensor."""
 
@@ -821,7 +811,7 @@ class TemperatureSensor(Entity):
         self._battery = None
         self._unique_id = "t_" + mac
         self._device_state_attributes = {}
-
+    
     @property
     def name(self):
         """Return the name of the sensor."""
