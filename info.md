@@ -114,7 +114,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## HOW TO INSTALL
 
-**1. Grant permissions for Python rootless access to HCI interface (usually not needed on HASSio):**
+**1. Grant permissions for Python rootless access to HCI interface (usually only needed for alternative installations of home assistant that only install home assistant core):**
 
 - to grant:
 
