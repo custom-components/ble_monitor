@@ -61,7 +61,7 @@ The command will return the path to python and looks like (can vary based on you
 /usr/bin/python3.7 = cap_net_admin,cap_net_raw+eip
 ```
 
-Make sure you first stop homeassistant and then start homeassistant again. Restarting Home Assistant is not enough, as the python process does not exit upon restart.
+Make sure you first stop Home Assistant and then start Home Assistant again. Restarting Home Assistant is not enough, as the python process does not exit upon restart.
 
 If you have multiple python versions, make sure it refers to the same version which is used by Home Assistant. If Home Assistant is using a different version, e.g. python3.6, run the following command to set the correct version (adjust it to your own version if needed).
 
@@ -140,7 +140,7 @@ There are several ways:
 
 1. Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms) while adding a sensor to the application ("pairing"). If the sensor has already been added before, then you can first delete it and add it again:
 
-      - iOS: Two known working options - [using Charles proxy, paid $7-10](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595327131), or [Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex) ([Stream setup in more details](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex)).
+      - iOS: Two known working options - [using Charles proxy, paid $7-10](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595327131), or [Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex) ([Stream setup in more details](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex), [another great instruction](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex)).
       - Android: ~~I am not aware of successful interceptions on Android,~~ but there are applications for this (Packet Capture, for example). [Here is](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-599780750) the positive feedback (using Burp Suite, device must be rooted).
 
 2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595874419).
