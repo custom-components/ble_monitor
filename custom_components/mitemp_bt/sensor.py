@@ -514,22 +514,22 @@ class Updater:
                 error = err
             return success, error
 
-        lpacket = {}
+        #lpacket = {}
         data = {}
         sensors_by_mac = {}
-        macs = {}
-        switch_m_data = {}
-        temp_m_data = {}
-        hum_m_data = {}
-        cond_m_data = {}
-        moist_m_data = {}
-        illum_m_data = {}
-        formaldehyde_m_data = {}
-        cons_m_data = {}
+        #macs = {}
+        #switch_m_data = {}
+        #temp_m_data = {}
+        #hum_m_data = {}
+        #cond_m_data = {}
+        #moist_m_data = {}
+        #illum_m_data = {}
+        #formaldehyde_m_data = {}
+        #cons_m_data = {}
         batt = {}
-        rssi = {}
-        stype = {}
-        force_binary_only = False
+        #rssi = {}
+        #stype = {}
+        #force_binary_only = False
         qcounter = 0
         ts_last = dt_util.now()
         ts_now = ts_last
@@ -545,7 +545,7 @@ class Updater:
             if data:
                 qcounter += 1
                 mac = data["mac"]
-                lpacket = data["packet"]
+                #lpacket = data["packet"]
                 devicetype = data["type"]
                 batt_attr = None
                 # fixed entity index for every measurement type
@@ -591,15 +591,15 @@ class Updater:
                         batt[mac] = int(data["battery"])
                         batt_attr = batt[mac]
                         if self.batt_entities:
-                            sensors[b_i].collect(data, None)
+                            sensors[b_i].collect(data)
                     else:
                         try:
                             batt_attr = batt[mac]
                         except KeyError:
-                            pass                        
+                            batt_attr = None                        
                 if "switch" in data:
                     sensors[sw_i].collect(data, batt_attr)
-                    if sensors[sw_i].prev_state != data["switch"]:
+                    if sensors[sw_i].pending_update:
                         sensors[sw_i].schedule_update_ha_state(True)
                 if "temperature" in data:
                     if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
@@ -612,21 +612,21 @@ class Updater:
                         )
                 if "humidity" in data:
                     if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
-                        sensors[h_i].collect(data["humidity"], data["rssi"], batt_attr)
+                        sensors[h_i].collect(data, batt_attr)
                     elif self.log_spikes:
                         _LOGGER.error(
                             "Humidity spike: %s (%s)", data["humidity"], mac,
                         )
                 if "conductivity" in data:
-                    sensors[c_i].collect(data["conductivity"], data["rssi"], batt_attr)
+                    sensors[c_i].collect(data, batt_attr)
                 if "moisture" in data:
-                    sensors[m_i].collect(data["moisture"], data["rssi"], batt_attr)
+                    sensors[m_i].collect(data, batt_attr)
                 if "illuminance" in data:
-                    sensors[i_i].collect(data["illuminance"], data["rssi"], batt_attr)
+                    sensors[i_i].collect(data, batt_attr)
                 if "formaldehyde" in data:
-                    sensors[f_i].collect(data["formaldehyde"], data["rssi"], batt_attr)
+                    sensors[f_i].collect(data, batt_attr)
                 if "consumable" in data:
-                    sensors[cn_i].collect(data["consumable"], data["rssi"], batt_attr)
+                    sensors[cn_i].collect(data, batt_attr)
                 data.clear()
 
             ts_now = dt_util.now()
@@ -634,7 +634,7 @@ class Updater:
                 continue
             else:
                 ts_last = ts_now
-                force_binary_only = False
+                #force_binary_only = False
             updcount = 0
             for mac, elist in sensors_by_mac.items():
                 for entity in elist:
@@ -681,6 +681,7 @@ class MeasuringSensor(Entity):
         self._device_state_attributes = {}
         self._unique_id = ""
         self._measurements = []
+        self._measurement = "measurement"
         self._devicetype = devicetype
         self.pending_update = False
     
@@ -714,9 +715,13 @@ class MeasuringSensor(Entity):
         """Force update."""
         return True
 
-    def collect(self, data, batt_attr):
+    def collect(self, data, batt_attr = None):
         """Measurements collector"""
-        self._measurements.append(value)
+        self._measurements.append(data[self._measurement])
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["rssi"] = data["rssi"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
     
     def update(self):
@@ -734,6 +739,8 @@ class SwitchingSensor(BinarySensorEntity):
         self._device_state_attributes = {}
         self._devicetype = devicetype
         self._newstate = None
+        self.prev_state = None
+        self.pending_update = False
 
     @property
     def is_on(self):
@@ -775,12 +782,21 @@ class SwitchingSensor(BinarySensorEntity):
         """Force update."""
         return True
 
-    def collect(self, value):
+    def collect(self, data, batt_attr = None):
         """Measurements collector"""
-        self._newstate = value
+        self._newstate = data["switch"]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["rssi"] = data["rssi"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        if self._newstate != self.prev_state:
+            self.pending_update = True
 
     def update(self):
         """updates sensor state and attributes"""
+        self.prev_state = self._state
+        self._state = self._newstate
+        self.pending_update = False
 
 class TemperatureSensor(MeasuringSensor):
     """Representation of a sensor."""
@@ -789,6 +805,7 @@ class TemperatureSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(devicetype)
         self._unique_id = "t_" + mac
+        self._measurement = "temperature"
     
     @property
     def unit_of_measurement(self):
@@ -807,6 +824,7 @@ class HumiditySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(devicetype)
         self._unique_id = "h_" + mac
+        self._measurement = "humidity"
     
     @property
     def unit_of_measurement(self):
@@ -825,6 +843,7 @@ class MoistureSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(devicetype)
         self._unique_id = "m_" + mac
+        self._measurement = "moisture"
     
     @property
     def unit_of_measurement(self):
@@ -843,6 +862,7 @@ class ConductivitySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(devicetype)
         self._unique_id = "c_" + mac
+        self._measurement = "conductivity"
     
     @property
     def unit_of_measurement(self):
@@ -861,6 +881,7 @@ class IlluminanceSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(devicetype)
         self._unique_id = "l_" + mac
+        self._measurement = "illuminance"
     
     @property
     def unit_of_measurement(self):
@@ -879,6 +900,7 @@ class FormaldehydeSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(devicetype)
         self._unique_id = "f_" + mac
+        self._measurement = "formaldehyde"
     
     @property
     def unit_of_measurement(self):
@@ -897,6 +919,7 @@ class BatterySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(devicetype)
         self._unique_id = "batt_" + mac
+        self._measurement = "battery"
     
     @property
     def unit_of_measurement(self):
@@ -916,6 +939,7 @@ class ConsumableSensor(MeasuringSensor):
         super().__init__(devicetype)
         self._cn_name = "cn_"
         self._nmac = mac
+        self._measurement = "consumable"
 
     @property
     def unique_id(self) -> str:
