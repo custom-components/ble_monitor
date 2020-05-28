@@ -312,7 +312,6 @@ class Updater:
             except KeyError:
                 prev_packet = None
             if prev_packet == packet_id:
-                # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
                 return None
             parse_raw_message.lpacket_id[xiaomi_mac_reversed] = packet_id
             xdata_length = 0
@@ -411,7 +410,6 @@ class Updater:
                     break
                 xnext_point = xdata_point + 3 + xvalue_length
                 xvalue = data[xdata_point + 3:xnext_point]
-                #res = self.parse_xiaomi_value(xvalue, xvalue_typecode)
                 res = None
                 vlength = len(xvalue)
                 if vlength == 4:
@@ -583,7 +581,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         _LOGGER.info(
             "Attention! Option report_unknown is enabled, be ready for a huge output..."
         )
-    # prepare device:key list to speedup parser
     scanner = BLEScanner(config)
     hass.bus.listen(EVENT_HOMEASSISTANT_STOP, scanner.shutdown_handler)
     updater = Updater(scanner.dataqueue, config, add_entities)
@@ -603,7 +600,6 @@ class MeasuringSensor(Entity):
     def __init__(self, devicetype, config):
         """Initialize the sensor."""
         self._state = None
-        #self._battery = None
         self._device_state_attributes = {}
         self._unique_id = ""
         self._measurements = []
@@ -708,7 +704,6 @@ class SwitchingSensor(BinarySensorEntity):
         """Initialize the sensor."""
         self._state = None
         self._swclass = None
-        #self._battery = None
         self._device_state_attributes = {}
         self._devicetype = devicetype
         self._newstate = None
