@@ -456,22 +456,9 @@ class Updater:
         
         parse_raw_message.lpacket_id = {}
 
-        #lpacket = {}
         data = {}
         sensors_by_mac = {}
-        #macs = {}
-        #switch_m_data = {}
-        #temp_m_data = {}
-        #hum_m_data = {}
-        #cond_m_data = {}
-        #moist_m_data = {}
-        #illum_m_data = {}
-        #formaldehyde_m_data = {}
-        #cons_m_data = {}
         batt = {}
-        #rssi = {}
-        #stype = {}
-        #force_binary_only = False
         qcounter = 0
         ts_last = dt_util.now()
         ts_now = ts_last
@@ -487,30 +474,27 @@ class Updater:
             if data:
                 qcounter += 1
                 mac = data["mac"]
-                #lpacket = data["packet"]
                 devicetype = data["type"]
                 batt_attr = None
                 # fixed entity index for every measurement type
-                # according to the sensor implementation
-                # if necessary, create a list of entities
                 # according to the sensor implementation
                 t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, b_i = MMTS_DICT[devicetype]
                 if mac not in sensors_by_mac:
                     sensors = []
                     if t_i != 9:
-                        sensors.insert(t_i, TemperatureSensor(mac, devicetype))
+                        sensors.insert(t_i, TemperatureSensor(mac, devicetype, self.config))
                     if h_i != 9:
-                        sensors.insert(h_i, HumiditySensor(mac, devicetype))
+                        sensors.insert(h_i, HumiditySensor(mac, devicetype, self.config))
                     if m_i != 9:
-                        sensors.insert(m_i, MoistureSensor(mac, devicetype))
+                        sensors.insert(m_i, MoistureSensor(mac, devicetype, self.config))
                     if c_i != 9:
-                        sensors.insert(c_i, ConductivitySensor(mac, devicetype))
+                        sensors.insert(c_i, ConductivitySensor(mac, devicetype, self.config))
                     if i_i != 9:
-                        sensors.insert(i_i, IlluminanceSensor(mac, devicetype))
+                        sensors.insert(i_i, IlluminanceSensor(mac, devicetype, self.config))
                     if f_i != 9:
-                        sensors.insert(f_i, FormaldehydeSensor(mac, devicetype))
+                        sensors.insert(f_i, FormaldehydeSensor(mac, devicetype, self.config))
                     if cn_i != 9:
-                        sensors.insert(cn_i, ConsumableSensor(mac, devicetype))
+                        sensors.insert(cn_i, ConsumableSensor(mac, devicetype, self.config))
                         try:
                             setattr(sensors[cn_i], "_cn_name", CN_NAME_DICT[devicetype])
                         except KeyError:
@@ -522,7 +506,7 @@ class Updater:
                         except KeyError:
                             pass
                     if self.batt_entities and (b_i != 9):
-                        sensors.insert(b_i, BatterySensor(mac, devicetype))
+                        sensors.insert(b_i, BatterySensor(mac, devicetype, self.config))
                     sensors_by_mac[mac] = sensors
                     self.add_entities(sensors)
                 else:
@@ -714,8 +698,8 @@ class MeasuringSensor(Entity):
         if err:
             _LOGGER.error("Sensor %s (%s) update error:", self.name, self._devicetype)
             _LOGGER.error(err)
+        self._measurements.clear()
         self.pending_update = False
-
 
 class SwitchingSensor(BinarySensorEntity):
     """Base class for switching sensor entity"""
@@ -790,9 +774,9 @@ class SwitchingSensor(BinarySensorEntity):
 class TemperatureSensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, mac, devicetype):
+    def __init__(self, mac, devicetype, config):
         """Initialize the sensor."""
-        super().__init__(devicetype)
+        super().__init__(devicetype, config)
         self._unique_id = "t_" + mac
         self._measurement = "temperature"
     
@@ -809,9 +793,9 @@ class TemperatureSensor(MeasuringSensor):
 class HumiditySensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, mac, devicetype):
+    def __init__(self, mac, devicetype, config):
         """Initialize the sensor."""
-        super().__init__(devicetype)
+        super().__init__(devicetype, config)
         self._unique_id = "h_" + mac
         self._measurement = "humidity"
     
@@ -828,9 +812,9 @@ class HumiditySensor(MeasuringSensor):
 class MoistureSensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, mac, devicetype):
+    def __init__(self, mac, devicetype, config):
         """Initialize the sensor."""
-        super().__init__(devicetype)
+        super().__init__(devicetype, config)
         self._unique_id = "m_" + mac
         self._measurement = "moisture"
     
@@ -847,9 +831,9 @@ class MoistureSensor(MeasuringSensor):
 class ConductivitySensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, mac, devicetype):
+    def __init__(self, mac, devicetype, config):
         """Initialize the sensor."""
-        super().__init__(devicetype)
+        super().__init__(devicetype, config)
         self._unique_id = "c_" + mac
         self._measurement = "conductivity"
     
@@ -866,9 +850,9 @@ class ConductivitySensor(MeasuringSensor):
 class IlluminanceSensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, mac, devicetype):
+    def __init__(self, mac, devicetype, config):
         """Initialize the sensor."""
-        super().__init__(devicetype)
+        super().__init__(devicetype, config)
         self._unique_id = "l_" + mac
         self._measurement = "illuminance"
     
@@ -885,9 +869,9 @@ class IlluminanceSensor(MeasuringSensor):
 class FormaldehydeSensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, mac, devicetype):
+    def __init__(self, mac, devicetype, config):
         """Initialize the sensor."""
-        super().__init__(devicetype)
+        super().__init__(devicetype, config)
         self._unique_id = "f_" + mac
         self._measurement = "formaldehyde"
         self._fdec = 2
@@ -905,9 +889,9 @@ class FormaldehydeSensor(MeasuringSensor):
 class BatterySensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, mac, devicetype):
+    def __init__(self, mac, devicetype, config):
         """Initialize the sensor."""
-        super().__init__(devicetype)
+        super().__init__(devicetype, config)
         self._unique_id = "batt_" + mac
         self._measurement = "battery"
     
@@ -921,12 +905,22 @@ class BatterySensor(MeasuringSensor):
         """Return the device class."""
         return DEVICE_CLASS_BATTERY
 
+    def collect(self, data, batt_attr = None):
+        """Measurements collector"""
+        self._state = data[self._measurement]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["rssi"] = data["rssi"]
+        self.pending_update = True
+    
+    def update(self):
+        self.pending_update = False
+
 class ConsumableSensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, mac, devicetype):
+    def __init__(self, mac, devicetype, config):
         """Initialize the sensor."""
-        super().__init__(devicetype)
+        super().__init__(devicetype, config)
         self._cn_name = "cn_"
         self._nmac = mac
         self._measurement = "consumable"
@@ -950,6 +944,18 @@ class ConsumableSensor(MeasuringSensor):
     def icon(self):
         """Return the icon of the sensor."""
         return "mdi:mdi-recycle-variant"
+
+    def collect(self, data, batt_attr = None):
+        """Measurements collector"""
+        self._state = data[self._measurement]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["rssi"] = data["rssi"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
+    
+    def update(self):
+        self.pending_update = False
 
 class SwitchBinarySensor(SwitchingSensor):
     """Representation of a Sensor."""
