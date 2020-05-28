@@ -8,39 +8,18 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes since 0.6.6
+# Changes since 0.6.8
 
-- changes to implement support for sensors broadcasting switch state and consumable resource;
+The logic of the component was almost completely revised in order to implement the processing of BLE ADV messages in real-time. This change makes it possible for the correct implementation of sensors of the "switching" type (switches, proximity sensors), the state of which will now be updated immediately upon receipt of the corresponding message (previously the state was updated only after the time specified in the 'period' option). The principle of processing data from "measuring" sensors has remained the same (averaging all received readings during the 'period' seconds).
 
-   The entity class of the binary sensor and the entity name of the consumable sensor are assigned automatically depending on the type of specific device.
-   *Due to the fact that this component has a periodic nature of the operation, the state of the binary sensor will arrive with some delay. For example, if your period option is one minute (by default this is the case), and the state of the sensor has changed by 30 seconds of the period, then the state of the binary sensor entity in HA will change only after the remaining 30 seconds have passed.*
+Yes, this change has a price (a bit more CPU load), but I seem to have managed to reduce the difference to a paltry one.
+In addition, many other improvements have been made. Here are the most significant of them:
 
-- Xiaomi Mija Mosquito Repellent WX08ZM support;
+- Data processing from several bt-interfaces occurs in one thread (instead of a separate thread for each bt-interface, now the component creates only one additional thread), in the future I expect to make the component completely asynchronous;
 
-- new `whitelist` option:
+- Sensor entities in HA are now created immediately upon arrival of the first message, and not after the time specified in the 'period' option;
 
-   By default, the component creates entities for all detected supported sensors. However, situations may arise when you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or data from part of your sensors are received using other equipment, and you would not want to see entities you do not need. To resolve this issue, simply list the mac-addresses of the sensors you need in the `whitelist` option:
-
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       whitelist:
-         - '58:C1:38:2F:86:6C'
-         - 'C4:FA:64:D1:61:7D'
-   ```
-
-   data from sensors with other addresses will be ignored.
-   In addition, all addresses listed in the `encryptors` option will be automatically whitelisted.
-   If you have no sensors other than those listed in `encryptors`, then just set `whitelist` to `True`:
-
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       encryptors:
-         'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
-         'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
-       whitelist: True
-   ```
+- Simplified the process of implementing support for new sensors;
 
 ---
 {% endif %}
