@@ -6,7 +6,6 @@ import queue
 import statistics as sts
 import struct
 from threading import Thread
-#from time import sleep
 
 import aioblescan as aiobs
 from Cryptodome.Cipher import AES
@@ -137,7 +136,7 @@ class HCIdump(Thread):
             except OSError as error:
                 _LOGGER.error("HCIdump thread: OS error: %s", error)
             else:
-                fac[hci] = self._event_loop._create_connection_transport(
+                fac[hci] = getattr(self._event_loop, "_create_connection_transport")(
                     mysocket[hci], aiobs.BLEScanRequester, None, None
                 )
                 _LOGGER.debug("HCIdump thread: Connection to hci%i", hci)
@@ -170,7 +169,7 @@ class HCIdump(Thread):
         finally:
             Thread.join(self, timeout)
             _LOGGER.debug("HCIdump thread: joined")
-    
+
     def filter_and_queue(self, data):
         """Filter hci events"""
         if data is None:
@@ -198,8 +197,6 @@ class HCIdump(Thread):
         if not (framectrl & 0x4000):
             return None
         self.dataqueue.put(data)
-
-
 
 
 class BLEScanner:
@@ -453,7 +450,7 @@ class Updater:
                     break
                 xdata_point = xnext_point
             return result
-        
+
         parse_raw_message.lpacket_id = {}
 
         data = {}
@@ -522,7 +519,7 @@ class Updater:
                         try:
                             batt_attr = batt[mac]
                         except KeyError:
-                            batt_attr = None                        
+                            batt_attr = None
                 if "switch" in data:
                     sensors[sw_i].collect(data, batt_attr)
                     if sensors[sw_i].pending_update:
@@ -560,13 +557,16 @@ class Updater:
                 continue
             else:
                 ts_last = ts_now
-                #force_binary_only = False
             maccount = 0
+            upd_evt = False
             for mac, elist in sensors_by_mac.items():
-                maccount += 1
                 for entity in elist:
                     if entity.pending_update:
                         entity.schedule_update_ha_state(True)
+                        upd_evt = True
+                if upd_evt:
+                    maccount += 1
+                upd_evt = False
 
             _LOGGER.debug(
                 "%i Xiaomi BLE ADV messages processed for %i xiaomi device(s).",
@@ -614,27 +614,27 @@ class MeasuringSensor(Entity):
         self._rounding = config[CONF_ROUNDING]
         self._usemedian = config[CONF_USE_MEDIAN]
         self._fdec = 0
-    
+
     @property
     def name(self):
         """Return the name of the sensor."""
         return "mi {}".format(self._unique_id)
-    
+
     @property
     def state(self):
         """Return the state of the sensor."""
         return self._state
-    
+
     @property
     def device_state_attributes(self):
         """Return the state attributes."""
         return self._device_state_attributes
-    
+
     @property
     def should_poll(self):
         """No polling needed."""
         return False
-    
+
     @property
     def unique_id(self) -> str:
         """Return a unique ID."""
@@ -653,7 +653,7 @@ class MeasuringSensor(Entity):
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
-    
+
     def update(self):
         """updates sensor state and attributes"""
         textattr = ""
@@ -779,7 +779,7 @@ class TemperatureSensor(MeasuringSensor):
         super().__init__(devicetype, config)
         self._unique_id = "t_" + mac
         self._measurement = "temperature"
-    
+
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
@@ -798,7 +798,7 @@ class HumiditySensor(MeasuringSensor):
         super().__init__(devicetype, config)
         self._unique_id = "h_" + mac
         self._measurement = "humidity"
-    
+
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
@@ -817,7 +817,7 @@ class MoistureSensor(MeasuringSensor):
         super().__init__(devicetype, config)
         self._unique_id = "m_" + mac
         self._measurement = "moisture"
-    
+
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
@@ -836,7 +836,7 @@ class ConductivitySensor(MeasuringSensor):
         super().__init__(devicetype, config)
         self._unique_id = "c_" + mac
         self._measurement = "conductivity"
-    
+
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
@@ -855,7 +855,7 @@ class IlluminanceSensor(MeasuringSensor):
         super().__init__(devicetype, config)
         self._unique_id = "l_" + mac
         self._measurement = "illuminance"
-    
+
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
@@ -875,7 +875,7 @@ class FormaldehydeSensor(MeasuringSensor):
         self._unique_id = "f_" + mac
         self._measurement = "formaldehyde"
         self._fdec = 2
-    
+
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
@@ -894,7 +894,7 @@ class BatterySensor(MeasuringSensor):
         super().__init__(devicetype, config)
         self._unique_id = "batt_" + mac
         self._measurement = "battery"
-    
+
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
@@ -911,7 +911,7 @@ class BatterySensor(MeasuringSensor):
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["rssi"] = data["rssi"]
         self.pending_update = True
-    
+
     def update(self):
         self.pending_update = False
 
@@ -929,7 +929,7 @@ class ConsumableSensor(MeasuringSensor):
     def unique_id(self) -> str:
         """Return a unique ID."""
         return self._cn_name + self._nmac
-    
+
     @property
     def name(self):
         """Return the name of the sensor."""
@@ -953,7 +953,7 @@ class ConsumableSensor(MeasuringSensor):
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
-    
+
     def update(self):
         self.pending_update = False
 
