@@ -456,64 +456,6 @@ class Updater:
         
         parse_raw_message.lpacket_id = {}
 
-        def calc_update_state(
-            entity_to_update,
-            sensor_mac,
-            config,
-            measurements_list,
-            stype=None,
-            fdec = 0
-            ):
-            """Averages according to options and updates the entity state."""
-            textattr = ""
-            success = False
-            error = ""
-            rdecimals = config[CONF_DECIMALS]
-            # formaldehyde decimals workaround
-            if fdec > 0:
-                rdecimals = fdec
-            # LYWSD03MMC "jagged" humidity workaround
-            if stype == "LYWSD03MMC":
-                measurements = [int(item) for item in measurements_list]
-            else:
-                measurements = measurements_list
-            try:
-                if config[CONF_ROUNDING]:
-                    state_median = round(
-                        sts.median(measurements), rdecimals
-                    )
-                    state_mean = round(
-                        sts.mean(measurements), rdecimals
-                    )
-                else:
-                    state_median = sts.median(measurements)
-                    state_mean = sts.mean(measurements)
-                if config[CONF_USE_MEDIAN]:
-                    textattr = "last median of"
-                    setattr(entity_to_update, "_state", state_median)
-                else:
-                    textattr = "last mean of"
-                    setattr(entity_to_update, "_state", state_mean)
-                getattr(entity_to_update, "_device_state_attributes")[textattr] = len(
-                    measurements
-                )
-                getattr(entity_to_update, "_device_state_attributes")[
-                    "median"
-                ] = state_median
-                getattr(entity_to_update, "_device_state_attributes")["mean"] = state_mean
-                entity_to_update.schedule_update_ha_state()
-                success = True
-            except AttributeError:
-                _LOGGER.debug("Sensor %s not yet ready for update", sensor_mac)
-                success = True
-            except ZeroDivisionError as err:
-                error = err
-            except IndexError as err:
-                error = err
-            except RuntimeError as err:
-                error = err
-            return success, error
-
         #lpacket = {}
         data = {}
         sensors_by_mac = {}
@@ -674,7 +616,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class MeasuringSensor(Entity):
     """Base class for measuring sensor entity"""
 
-    def __init__(self, devicetype):
+    def __init__(self, devicetype, config):
         """Initialize the sensor."""
         self._state = None
         #self._battery = None
@@ -684,6 +626,10 @@ class MeasuringSensor(Entity):
         self._measurement = "measurement"
         self._devicetype = devicetype
         self.pending_update = False
+        self._rdecimals = config[CONF_DECIMALS]
+        self._rounding = config[CONF_ROUNDING]
+        self._usemedian = config[CONF_USE_MEDIAN]
+        self._fdec = 0
     
     @property
     def name(self):
@@ -726,6 +672,49 @@ class MeasuringSensor(Entity):
     
     def update(self):
         """updates sensor state and attributes"""
+        textattr = ""
+        err = None
+        rdecimals = self._rdecimals
+        # formaldehyde decimals workaround
+        if self._fdec > 0:
+                rdecimals = self._fdec
+        # LYWSD03MMC "jagged" humidity workaround
+        if self._devicetype == "LYWSD03MMC":
+            measurements = [int(item) for item in self._measurements]
+        else:
+            measurements = self._measurements
+        try:
+            if self._rounding:
+                state_median = round(
+                    sts.median(measurements), rdecimals
+                )
+                state_mean = round(
+                    sts.mean(measurements), rdecimals
+                )
+            else:
+                state_median = sts.median(measurements)
+                state_mean = sts.mean(measurements)
+            if self._usemedian:
+                textattr = "last median of"
+                self._state = state_median
+            else:
+                textattr = "last mean of"
+                self._state = state_mean
+            self._device_state_attributes[textattr] = len(measurements)
+            self._device_state_attributes["median"] = state_median
+            self._device_state_attributes["mean"] = state_mean
+        except AttributeError:
+            _LOGGER.debug("Sensor %s not yet ready for update", self.name)
+        except ZeroDivisionError as err:
+            pass
+        except IndexError as err:
+            pass
+        except RuntimeError as err:
+            pass
+        if err:
+            _LOGGER.error("Sensor %s (%s) update error:", self.name, self._devicetype)
+            _LOGGER.error(err)
+        self.pending_update = False
 
 
 class SwitchingSensor(BinarySensorEntity):
@@ -901,6 +890,7 @@ class FormaldehydeSensor(MeasuringSensor):
         super().__init__(devicetype)
         self._unique_id = "f_" + mac
         self._measurement = "formaldehyde"
+        self._fdec = 2
     
     @property
     def unit_of_measurement(self):
