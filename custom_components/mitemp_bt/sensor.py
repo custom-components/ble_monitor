@@ -561,17 +561,17 @@ class Updater:
             else:
                 ts_last = ts_now
                 #force_binary_only = False
-            updcount = 0
+            maccount = 0
             for mac, elist in sensors_by_mac.items():
+                maccount += 1
                 for entity in elist:
                     if entity.pending_update:
                         entity.schedule_update_ha_state(True)
-                        updcount += 1
 
             _LOGGER.debug(
                 "%i Xiaomi BLE ADV messages processed for %i xiaomi device(s).",
                 qcounter,
-                updcount
+                maccount
             )
             qcounter = 0
 
