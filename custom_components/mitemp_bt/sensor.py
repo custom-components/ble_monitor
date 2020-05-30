@@ -282,13 +282,19 @@ class Updater:
             """Parse the raw data."""
             # check for Xiaomi service data
             xiaomi_index = data.find(b'\x16\x95\xFE', 15)
-            msg_length = data[2] + 3
             xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
-            framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
+            packet_id = data[xiaomi_index + 7]
             try:
-                sensor_type = XIAOMI_TYPE_DICT[
-                    data[xiaomi_index + 5:xiaomi_index + 7]
-                ]
+                prev_packet = parse_raw_message.lpacket_id[xiaomi_mac_reversed]
+            except KeyError:
+                prev_packet = None
+            if prev_packet == packet_id:
+                return None
+            parse_raw_message.lpacket_id[xiaomi_mac_reversed] = packet_id
+            framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
+            msg_length = data[2] + 3
+            try:
+                sensor_type = XIAOMI_TYPE_DICT[data[xiaomi_index + 5:xiaomi_index + 7]]
             except KeyError:
                 if self.report_unknown:
                     (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
@@ -306,14 +312,6 @@ class Updater:
             if self.whitelist:
                 if xiaomi_mac_reversed not in self.whitelist:
                     return None
-            packet_id = data[xiaomi_index + 7]
-            try:
-                prev_packet = parse_raw_message.lpacket_id[xiaomi_mac_reversed]
-            except KeyError:
-                prev_packet = None
-            if prev_packet == packet_id:
-                return None
-            parse_raw_message.lpacket_id[xiaomi_mac_reversed] = packet_id
             xdata_length = 0
             xdata_point = 0
             # check capability byte present
