@@ -199,10 +199,10 @@ In addition, the `btmon` utility can provide a lot of useful information.
 For example, using the command
 
 ```shell
-btmon -t -w problem.log
+btmon --write hcitrace.snoop | tee hcitrace.txt
 ```
 
-You can write to the problem.log file the moment the problem occurs and attach this file to your issue.
+You can write to the hcitrace.snoop and hcitrace.txt files the moment the problem occurs and attach this files to your issue.
 
 ## FORUM
 
