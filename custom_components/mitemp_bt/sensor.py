@@ -477,7 +477,11 @@ class Updater:
                     if t_i != 9:
                         sensors.insert(t_i, TemperatureSensor(mac, devicetype, self.config))
                     if h_i != 9:
-                        sensors.insert(h_i, HumiditySensor(mac, devicetype, self.config))
+                        if devicetype == "LYWSD03MMC":
+                            # LYWSD03MMC "jagged" humidity workaround
+                            sensors.insert(h_i, HumiditySensor(mac, devicetype, self.config, integer = True))
+                        else:
+                            sensors.insert(h_i, HumiditySensor(mac, devicetype, self.config))
                     if m_i != 9:
                         sensors.insert(m_i, MoistureSensor(mac, devicetype, self.config))
                     if c_i != 9:
@@ -595,7 +599,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class MeasuringSensor(Entity):
     """Base class for measuring sensor entity"""
 
-    def __init__(self, devicetype, config):
+    def __init__(self, devicetype, config, integer = False):
         """Initialize the sensor."""
         self._state = None
         self._device_state_attributes = {}
@@ -608,6 +612,7 @@ class MeasuringSensor(Entity):
         self._rounding = config[CONF_ROUNDING]
         self._usemedian = config[CONF_USE_MEDIAN]
         self._fdec = 0
+        self._integer = integer
 
     @property
     def name(self):
@@ -656,8 +661,8 @@ class MeasuringSensor(Entity):
         # formaldehyde decimals workaround
         if self._fdec > 0:
                 rdecimals = self._fdec
-        # LYWSD03MMC "jagged" humidity workaround
-        if self._devicetype == "LYWSD03MMC":
+        # "jagged" humidity workaround
+        if self._integer:
             measurements = [int(item) for item in self._measurements]
         else:
             measurements = self._measurements
@@ -786,9 +791,9 @@ class TemperatureSensor(MeasuringSensor):
 class HumiditySensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, mac, devicetype, config):
+    def __init__(self, mac, devicetype, config, integer = False):
         """Initialize the sensor."""
-        super().__init__(devicetype, config)
+        super().__init__(devicetype, config, integer)
         self._unique_id = "h_" + mac
         self._measurement = "humidity"
 
