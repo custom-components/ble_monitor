@@ -498,7 +498,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             getattr(entity_to_update, "_device_state_attributes")["mean"] = state_mean
             entity_to_update.schedule_update_ha_state()
             success = True
-        except AttributeError:
+        except (AttributeError, AssertionError):
             _LOGGER.debug("Sensor %s not yet ready for update", sensor_mac)
             success = True
         except ZeroDivisionError as err:
