@@ -667,7 +667,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     setattr(sensors[b_i], "_state", batt[mac])
                     try:
                         sensors[b_i].schedule_update_ha_state()
-                    except AttributeError:
+                    except (AttributeError, AssertionError):
                         _LOGGER.debug(
                             "Sensor %s (%s, batt.) not yet ready for update",
                             mac,
@@ -734,7 +734,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 setattr(sensors[cn_i], "_state", cons_m_data[mac])
                 try:
                     sensors[cn_i].schedule_update_ha_state()
-                except AttributeError:
+                except (AttributeError, AssertionError):
                     _LOGGER.debug(
                         "Sensor %s (%s, cons.) not yet ready for update",
                         mac,
@@ -749,7 +749,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 setattr(sensors[sw_i], "_state", switch_m_data[mac])
                 try:
                     sensors[sw_i].schedule_update_ha_state()
-                except AttributeError:
+                except (AttributeError, AssertionError):
                     _LOGGER.debug(
                         "Sensor %s (%s, switch) not yet ready for update",
                         mac,
