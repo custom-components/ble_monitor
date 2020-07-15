@@ -760,7 +760,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         "Sensor %s (%s, switch) update error:", mac, stype[mac]
                     )
                     _LOGGER.error(err)
-        _LOGGER.debug(
+        _LOGGER.info(
             "Finished. Parsed: %i hci events, %i xiaomi devices.",
             len(hcidump_raw),
             len(macs),
