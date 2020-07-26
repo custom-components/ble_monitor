@@ -4,6 +4,7 @@
 {% if prerelease %}
 
 ### NB!: This is a Beta version!
+Beta version 7.1 is currently not working correctly with Home Assistant 0.113. Commonly observed issue is that Home Assistant hangs in the starting up process. If you observe this, please dowmgrade to stable version 6.10.
 
 {% endif %}
 {% if installed or pending_update %}
