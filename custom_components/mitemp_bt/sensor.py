@@ -686,7 +686,7 @@ class MeasuringSensor(Entity):
             self._device_state_attributes[textattr] = len(measurements)
             self._device_state_attributes["median"] = state_median
             self._device_state_attributes["mean"] = state_mean
-        except AttributeError:
+        except (AttributeError, AssertionError):
             _LOGGER.debug("Sensor %s not yet ready for update", self.name)
         except ZeroDivisionError as err:
             pass
