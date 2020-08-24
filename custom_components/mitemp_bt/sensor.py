@@ -467,8 +467,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         # formaldehyde decimals workaround
         if fdec > 0:
             rdecimals = fdec
-        # LYWSD03MMC "jagged" humidity workaround
-        if stype == "LYWSD03MMC":
+        # LYWSD03MMC / MHO-C401 "jagged" humidity workaround
+        if stype == "LYWSD03MMC" or stype == "MHO-C401":
             measurements = [int(item) for item in measurements_list]
         else:
             measurements = measurements_list
