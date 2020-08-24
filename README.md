@@ -192,7 +192,7 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
 #### encryptors
 
-   (dictionary)(Optional) This option is used to link the mac-address of the sensor broadcasting encrypted advertisements to the encryption key (32 characters = 16 bytes). This is only needed for LYWSD03MMC and CGD1 sensors. The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (dictionary)(Optional) This option is used to link the mac-address of the sensor broadcasting encrypted advertisements to the encryption key (32 characters = 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors. The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
    ```yaml
    sensor:
