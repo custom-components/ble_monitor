@@ -4,46 +4,15 @@
 {% if prerelease %}
 
 ### NB!: This is a Beta version!
-Beta version 7.1 is currently not working correctly with Home Assistant 0.113. Commonly observed issue is that Home Assistant hangs in the starting up process. If you observe this, please dowmgrade to stable version 6.10.
+Beta version 7.1 is currently not working correctly with Home Assistant 0.113 and higher. Commonly observed issue is that Home Assistant hangs in the starting up process. If you observe this, please downgrade to stable version 6.11.
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes since 0.6.6
+# Changes in 0.6.11
 
-- changes to implement support for sensors broadcasting switch state and consumable resource;
+- Added support for MMC MHO-C401 Smart BT Thermometer Hygrometer (by [znanev](https://github.com/znanev));
 
-   The entity class of the binary sensor and the entity name of the consumable sensor are assigned automatically depending on the type of specific device.
-   *Due to the fact that this component has a periodic nature of the operation, the state of the binary sensor will arrive with some delay. For example, if your period option is one minute (by default this is the case), and the state of the sensor has changed by 30 seconds of the period, then the state of the binary sensor entity in HA will change only after the remaining 30 seconds have passed.*
-
-- Xiaomi Mija Mosquito Repellent WX08ZM support;
-
-- new `whitelist` option:
-
-   By default, the component creates entities for all detected supported sensors. However, situations may arise when you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or data from part of your sensors are received using other equipment, and you would not want to see entities you do not need. To resolve this issue, simply list the mac-addresses of the sensors you need in the `whitelist` option:
-
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       whitelist:
-         - '58:C1:38:2F:86:6C'
-         - 'C4:FA:64:D1:61:7D'
-   ```
-
-   data from sensors with other addresses will be ignored.
-   In addition, all addresses listed in the `encryptors` option will be automatically whitelisted.
-   If you have no sensors other than those listed in `encryptors`, then just set `whitelist` to `True`:
-
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       encryptors:
-         'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
-         'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
-       whitelist: True
-   ```
-
----
 {% endif %}
 
 # Xiaomi passive BLE Monitor sensor platform
@@ -240,7 +209,7 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
 #### encryptors
 
-   (dictionary)(Optional) This option is used to link the mac-address of the sensor broadcasting encrypted advertisements to the encryption key (32 characters = 16 bytes). This is only needed for LYWSD03MMC and CGD1 sensors. The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (dictionary)(Optional) This option is used to link the mac-address of the sensor broadcasting encrypted advertisements to the encryption key (32 characters = 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors. The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
    ```yaml
    sensor:
