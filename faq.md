@@ -144,10 +144,10 @@ There are several ways:
 
       - iOS: Two known working options 
         - [using Charles proxy, paid $7-10](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595327131), 
-        - [using Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex) ([Stream setup in more details](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex), [another great instruction](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex)).
+        - [using Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex). For more detailed instructions, check [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex) or [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex).
       - Android: 
-        - using Packet Capture. [Here is](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-599780750) the positive feedback
-        - using Burp Suite, device must be rooted.
+        - using Packet Capture. 
+        - [using Burp Suite](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-599780750), device must be rooted.
 
 2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595874419).
 
