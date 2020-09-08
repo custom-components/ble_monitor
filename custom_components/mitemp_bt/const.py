@@ -48,7 +48,8 @@ XIAOMI_TYPE_DICT = {
     b'\x5B\x05': "LYWSD03MMC",
     b'\x76\x05': "CGD1",
     b'\xDF\x02': "JQJCY01YM",
-    b'\x0A\x04': "WX08ZM"
+    b'\x0A\x04': "WX08ZM",
+    b'\x87\x03': "MHO-C401"
 }
 
 
@@ -65,7 +66,8 @@ MMTS_DICT = {
     'LYWSD03MMC': [0, 1, 9, 9, 9, 9, 9, 9, 2],
     'CGD1'      : [0, 1, 9, 9, 9, 9, 9, 9, 2],
     'JQJCY01YM' : [0, 1, 9, 9, 9, 2, 9, 9, 3],
-    'WX08ZM'    : [9, 9, 9, 9, 9, 9, 0, 1, 2]
+    'WX08ZM'    : [9, 9, 9, 9, 9, 9, 0, 1, 2],
+    'MHO-C401'  : [0, 1, 9, 9, 9, 9, 9, 9, 2]
 }
 
 # Switch binary sensor classes dict

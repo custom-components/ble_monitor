@@ -138,10 +138,16 @@ There are several ways to increase coverage:
 
 There are several ways:
 
-1. Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms) while adding a sensor to the application ("pairing"). If the sensor has already been added before, then you can first delete it and add it again:
+1. Using TelinkFlasher, see instructions [here](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/407)
 
-      - iOS: Two known working options - [using Charles proxy, paid $7-10](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595327131), or [Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex) ([Stream setup in more details](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex), [another great instruction](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex)).
-      - Android: ~~I am not aware of successful interceptions on Android,~~ but there are applications for this (Packet Capture, for example). [Here is](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-599780750) the positive feedback (using Burp Suite, device must be rooted).
+2. Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms) while adding a sensor to the application ("pairing"). If the sensor has already been added before, then you can first delete it and add it again:
+
+      - iOS: Two known working options 
+        - [using Charles proxy, paid $7-10](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595327131), 
+        - [using Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex). For more detailed instructions, check [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex) or [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex).
+      - Android: 
+        - using Packet Capture. 
+        - [using Burp Suite](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-599780750), device must be rooted.
 
 2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595874419).
 
