@@ -56,6 +56,10 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - MHO-C401
   
   (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
+  
+- MHO-C303
+
+  (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
 
 - JQJCY01YM
 
