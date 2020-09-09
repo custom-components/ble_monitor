@@ -25,6 +25,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
+  ![supported sensors](/pictures/LYWSDCGQ.jpeg)
+  
 - LYWSD02
 
   (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
@@ -71,9 +73,13 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
   (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
   
+  ![supported sensors](/pictures/MHO-C401.jpg)
+  
 - MHO-C303
 
   (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
+  
+  ![supported sensors](/pictures/MHO-C303.png)
 
 - JQJCY01YM
 
@@ -84,6 +90,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - WX08ZM
 
   (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
+ 
+  ![supported sensors](/pictures/WX08ZM.jpg)
   
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
