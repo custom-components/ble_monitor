@@ -19,67 +19,65 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## SUPPORTED SENSORS
 
-![supported sensors](/sensors.jpg)
-
 - LYWSDCGQ
 
   (round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
-  ![supported sensors](/pictures/LYWSDCGQ.jpeg)
+  ![LYWSDCGQ](/pictures/LYWSDCGQ.jpg)
   
 - LYWSD02
 
   (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
 
-  ![supported sensors](/pictures/LYWSD02.jpeg)
+  ![LYWSD02](/pictures/LYWSD02.jpeg)
   
 - CGG1
 
   (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
 
-  ![supported sensors](/pictures/CGG1.png)
+  ![CGG1](/pictures/CGG1.png)
 
 - HHCCJCY01
 
   (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
   
-  ![supported sensors](/pictures/HHCCJCY01.jpg)
+  ![HHCCJCY01](/pictures/HHCCJCY01.jpg)
 
 - GCLS002
 
   (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
 
-  ![supported sensors](/pictures/GCLS002.jpg)
+  ![GCLS002](/pictures/GCLS002.jpg)
 
 - HHCCPOT002
 
   (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
   
-  ![supported sensors](/pictures/HHCCPOT002.jpg)
+  ![HHCCPOT002](/pictures/HHCCPOT002.jpg)
 
 - LYWSD03MMC
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
   
-  ![supported sensors](/pictures/LYWSD03MMC.jpg)
+  ![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)
 
 - CGD1
 
   (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
 
-  ![supported sensors](/pictures/CGD1.jpg)
+  ![CGD1](/pictures/CGD1.jpg)
 
 - MHO-C401
   
   (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
   
-  ![supported sensors](/pictures/MHO-C401.jpg)
+  ![MHO-C401](/pictures/MHO-C401.jpg)
   
 - MHO-C303
 
   (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
-  ![supported sensors](/pictures/MHO-C303.png)
+  ![MHO-C303](/pictures/MHO-C303.png)
 
 - JQJCY01YM
 
