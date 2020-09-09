@@ -33,6 +33,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
 
+  ![supported sensors](/pictures/CGG1.png)
+
 - HHCCJCY01
 
   (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
@@ -40,6 +42,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - GCLS002
 
   (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
+
+  ![supported sensors](/pictures/GCLS002.jpg)
 
 - HHCCPOT002
 
@@ -52,6 +56,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - CGD1
 
   (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
+
+  ![supported sensors](/pictures/CGD1.jpg)
 
 - MHO-C401
   
