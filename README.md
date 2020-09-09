@@ -24,11 +24,13 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - LYWSDCGQ
 
   (round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute)
-
+  
 - LYWSD02
 
   (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
 
+  ![supported sensors](/pictures/LYWSD02.jpeg)
+  
 - CGG1
 
   (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
@@ -38,6 +40,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - HHCCJCY01
 
   (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
+  
+  ![supported sensors](/pictures/HHCCJCY01.jpg)
 
 - GCLS002
 
@@ -48,10 +52,14 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - HHCCPOT002
 
   (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
+  
+  ![supported sensors](/pictures/HHCCPOT002.jpg)
 
 - LYWSD03MMC
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
+  
+  ![supported sensors](/pictures/LYWSD03MMC.jpg)
 
 - CGD1
 
@@ -70,6 +78,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - JQJCY01YM
 
   (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute)
+  
+  ![supported sensors](/pictures/JQJCY01YM.jpg)
 
 - WX08ZM
 
