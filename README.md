@@ -19,55 +19,78 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## SUPPORTED SENSORS
 
-![supported sensors](/sensors.jpg)
-
 - LYWSDCGQ
 
   (round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute)
+  
+  ![LYWSDCGQ](/pictures/LYWSDCGQ.jpg)
+  
+- CGG1
+
+  (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
+
+  ![CGG1](/pictures/CGG1.png)
 
 - LYWSD02
 
   (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
 
-- CGG1
-
-  (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
-
-- HHCCJCY01
-
-  (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
-
-- GCLS002
-
-  (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
-
-- HHCCPOT002
-
-  (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
-
+  ![LYWSD02](/pictures/LYWSD02.jpeg)
+  
 - LYWSD03MMC
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
+  
+  ![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)
 
 - CGD1
 
   (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
 
-- MHO-C401
-  
-  (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
+  ![CGD1](/pictures/CGD1.jpg)
+
   
 - MHO-C303
 
   (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
+  
+  ![MHO-C303](/pictures/MHO-C303.png)
+
+- MHO-C401
+  
+  (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
+  
+  ![MHO-C401](/pictures/MHO-C401.jpg)
 
 - JQJCY01YM
 
   (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute)
+  
+  ![supported sensors](/pictures/JQJCY01YM.jpg)
+
+- HHCCJCY01
+
+  (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
+  
+  ![HHCCJCY01](/pictures/HHCCJCY01.jpg)
+
+- GCLS002
+
+  (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
+
+  ![GCLS002](/pictures/GCLS002.jpg)
+
+- HHCCPOT002
+
+  (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
+  
+  ![HHCCPOT002](/pictures/HHCCPOT002.jpg)
 
 - WX08ZM
 
   (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
+ 
+  ![supported sensors](/pictures/WX08ZM.jpg)
   
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
