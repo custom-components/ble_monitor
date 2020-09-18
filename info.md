@@ -56,13 +56,13 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
 - LYWSD03MMC
 
-  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
+  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option)
   
   ![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)
 
 - CGD1
 
-  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
+  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option)
 
   ![CGD1](/pictures/CGD1.jpg)
 
@@ -75,7 +75,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MHO-C401
   
-  (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#configuration-variables) option)
+  (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option)
   
   ![MHO-C401](/pictures/MHO-C401.jpg)
 
