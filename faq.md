@@ -140,10 +140,9 @@ There are several ways:
 
 1. Using TelinkFlasher, see also the instructions [here](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/407)
 
-    - Keep the sensor close to the mobile phone.
-    - On the mobile phone, make sure that the bluetooth connection is enabled.
-    - Using the mobile phone's browser, navigate to https://atc1441.github.io/TelinkFlasher.html.
-    - Enlarge the mobile phone's screen for better readability.
+    - Keep the sensor close to the mobile phone (android only) or computer.
+    - Make sure that the bluetooth is enabled.
+    - Using your browser, navigate to https://atc1441.github.io/TelinkFlasher.html.
     - Now, click the [Connect] button and wait until it shows "Connected." See the Log section at the bottom.
     - Once connected, click the [Do Activation] button and wait until the "Mi Bind Key" shows the information.
   
