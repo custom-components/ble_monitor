@@ -233,9 +233,14 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
     if xiaomi_index == -1:
         return None
     # check for no BR/EDR + LE General discoverable mode flags
-    adv_index = data.find(b"\x02\x01\x06", 14, 17)
-    if adv_index == -1:
+    adv_index1 = data.find(b"\x02\x01\x06", 14, 17)
+    adv_index2 = data.find(b"\x15\x16\x95", 14, 17)
+    if adv_index1 == -1 and adv_index2 == -1:
         return None
+    elif adv_index1 != -1:
+         adv_index = adv_index1
+    elif adv_index2 != -1:
+        adv_index = adv_index2
     # check for BTLE msg size
     msg_length = data[2] + 3
     if msg_length != len(data):
