@@ -39,7 +39,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
 - LYWSD03MMC
 
-  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option)
+  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer))
   
   ![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)
 
