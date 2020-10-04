@@ -11,7 +11,7 @@ Beta version 7.1 is currently not working correctly with Home Assistant 0.113 an
 
 # Changes in 0.6.13
 
-- Added support for LYWSD03MMC sensors with custom Telink firmware (by [benkarro](https://github.com/benkarro)). For more information about Telink firmware, see this [github page](https://github.com/atc1441/ATC_MiThermometer). You can remove the encryption key after flashing the custom firmware;
+- Added support for LYWSD03MMC sensors with custom Telink firmware (by [benkarro](https://github.com/benkarro)). For more information about Telink firmware, see this [github page](https://github.com/atc1441/ATC_MiThermometer). You can remove the encryption key after flashing the custom firmware. Make sure you set advertising type to mi-like.
 
 {% endif %}
 
@@ -56,7 +56,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
 - LYWSD03MMC
 
-  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryptors](#encryptors) option (not needed for sensors with custom firmware))
+  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer) (make sure you set advertising type to mi-like). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryptors](#encryptors) option (not needed for sensors with custom firmware))
   
   ![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)
 
