@@ -95,7 +95,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
 
-  ![GCLS002](/pictures/GCLS002.jpg)
+  ![GCLS002](/pictures/GCLS002.png)
 
 - HHCCPOT002
 
