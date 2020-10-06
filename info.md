@@ -40,74 +40,73 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
-  ![LYWSDCGQ](/pictures/LYWSDCGQ.jpg)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/LYWSDCGQ.jpg">
   
 - CGG1
 
   (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
 
-  ![CGG1](/pictures/CGG1.png)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/CGG1.png">
 
 - LYWSD02
 
   (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
 
-  ![LYWSD02](/pictures/LYWSD02.jpeg)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/LYWSD02.jpeg">
   
 - LYWSD03MMC
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer) (make sure you set advertising type to mi-like). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryptors](#encryptors) option (not needed for sensors with custom firmware))
   
-  ![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/LYWSD03MMC.jpg">
 
 - CGD1
 
   (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option)
 
-  ![CGD1](/pictures/CGD1.jpg)
-
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/CGD1.jpg">
   
 - MHO-C303
 
   (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
-  ![MHO-C303](/pictures/MHO-C303.png)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/MHO-C303.png">
 
 - MHO-C401
   
   (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option)
   
-  ![MHO-C401](/pictures/MHO-C401.jpg)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/MHO-C401.jpg">
 
 - JQJCY01YM
 
   (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute)
   
-  ![supported sensors](/pictures/JQJCY01YM.jpg)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/JQJCY01YM.jpg">
 
 - HHCCJCY01
 
   (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
   
-  ![HHCCJCY01](/pictures/HHCCJCY01.jpg)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/HHCCJCY01.jpg">
 
 - GCLS002
 
   (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
 
-  ![GCLS002](/pictures/GCLS002.png)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/GCLS002.png">
 
 - HHCCPOT002
 
   (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
   
-  ![HHCCPOT002](/pictures/HHCCPOT002.jpg)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/HHCCPOT002.jpg">
 
 - WX08ZM
 
   (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
  
-  ![supported sensors](/pictures/WX08ZM.jpg)
+  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/WX08ZM.jpg">
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
 
