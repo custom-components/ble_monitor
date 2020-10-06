@@ -176,7 +176,7 @@ sensor:
     hci_interface: 0
     batt_entities: False
     encryptors:
-              'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
+      'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
     report_unknown: False
     whitelist: False
 ```
@@ -223,8 +223,8 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
    sensor:
        - platform: mitemp_bt
          hci_interface:
-                       - 0
-                       - 1
+           - 0
+           - 1
    ```
 
    Default value: 0
@@ -241,8 +241,8 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
    sensor:
      - platform: mitemp_bt
        encryptors:
-                'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
-                'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
+         'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
+         'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
    ```
 
 #### report_unknown
