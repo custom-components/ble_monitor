@@ -54,6 +54,7 @@ from .const import (
     CONF_ENCRYPTORS,
     CONF_REPORT_UNKNOWN,
     CONF_WHITELIST,
+    CONF_CUSTOM_NAMES,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -69,6 +70,12 @@ _LOGGER = logging.getLogger(__name__)
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
 AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
+
+CUSTOM_NAMES_LIST_SCHEMA = vol.Schema(
+    {
+        cv.matches_regex(MAC_REGEX): cv.string
+    }
+)
 
 ENCRYPTORS_LIST_SCHEMA = vol.Schema(
     {
@@ -93,6 +100,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(
             CONF_WHITELIST, default=DEFAULT_WHITELIST
         ): vol.Any(vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]), cv.boolean),
+        vol.Optional(CONF_CUSTOM_NAMES, default={}): CUSTOM_NAMES_LIST_SCHEMA,
     }
 )
 
@@ -363,6 +371,16 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
     return result
 
 
+def sensor_name(config, mac):
+    """Set sensor name."""
+    fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
+    if fmac in config[CONF_CUSTOM_NAMES]:
+        custom_name = config[CONF_CUSTOM_NAMES].get(fmac)
+        _LOGGER.debug("Name of sensor with mac adress %s is set to: %s", fmac, custom_name)
+        return custom_name
+    return mac
+
+
 class BLEScanner:
     """BLE scanner."""
 
@@ -450,10 +468,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         if config[CONF_WHITELIST] is True:
             for mac in config[CONF_ENCRYPTORS]:
                 whitelist.append(mac)
+            for mac in config[CONF_CUSTOM_NAMES]:
+                whitelist.append(mac)
     if isinstance(config[CONF_WHITELIST], list):
         for mac in config[CONF_WHITELIST]:
             whitelist.append(mac)
         for mac in config[CONF_ENCRYPTORS]:
+            whitelist.append(mac)
+        for mac in config[CONF_CUSTOM_NAMES]:
             whitelist.append(mac)
     for i, mac in enumerate(whitelist):
         whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
@@ -625,31 +647,31 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             else:
                 sensors = []
                 if t_i != 9:
-                    sensors.insert(t_i, TemperatureSensor(mac))
+                    sensors.insert(t_i, TemperatureSensor(config, mac))
                 if h_i != 9:
-                    sensors.insert(h_i, HumiditySensor(mac))
+                    sensors.insert(h_i, HumiditySensor(config, mac))
                 if m_i != 9:
-                    sensors.insert(m_i, MoistureSensor(mac))
+                    sensors.insert(m_i, MoistureSensor(config, mac))
                 if c_i != 9:
-                    sensors.insert(c_i, ConductivitySensor(mac))
+                    sensors.insert(c_i, ConductivitySensor(config, mac))
                 if i_i != 9:
-                    sensors.insert(i_i, IlluminanceSensor(mac))
+                    sensors.insert(i_i, IlluminanceSensor(config, mac))
                 if f_i != 9:
-                    sensors.insert(f_i, FormaldehydeSensor(mac))
+                    sensors.insert(f_i, FormaldehydeSensor(confing, mac))
                 if cn_i != 9:
-                    sensors.insert(cn_i, ConsumableSensor(mac))
+                    sensors.insert(cn_i, ConsumableSensor(config, mac))
                     try:
                         setattr(sensors[cn_i], "_cn_name", CN_NAME_DICT[stype[mac]])
                     except KeyError:
                         pass
                 if sw_i != 9:
-                    sensors.insert(sw_i, SwitchBinarySensor(mac))
+                    sensors.insert(sw_i, SwitchBinarySensor(config, mac))
                     try:
                         setattr(sensors[sw_i], "_swclass", SW_CLASS_DICT[stype[mac]])
                     except KeyError:
                         pass
                 if config[CONF_BATT_ENTITIES] and (b_i != 9):
-                    sensors.insert(b_i, BatterySensor(mac))
+                    sensors.insert(b_i, BatterySensor(config, mac))
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
             # append joint attributes
@@ -791,18 +813,18 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
 class TemperatureSensor(Entity):
     """Representation of a sensor."""
-
-    def __init__(self, mac):
-        """Initialize the sensor."""
+    def __init__(self, config, mac):
+        "Initialize the sensor."""
         self._state = None
         self._battery = None
-        self._unique_id = "t_" + mac
+        self._sensor_name = sensor_name(config, mac)
+        self._unique_id = "t_" + self._sensor_name
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "mi {}".format(self._unique_id)
+        return "Temperature {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -843,17 +865,18 @@ class TemperatureSensor(Entity):
 class HumiditySensor(Entity):
     """Representation of a Sensor."""
 
-    def __init__(self, mac):
+    def __init__(self, config, mac):
         """Initialize the sensor."""
         self._state = None
         self._battery = None
-        self._unique_id = "h_" + mac
+        self._sensor_name = sensor_name(config, mac)
+        self._unique_id = "h_" + self._sensor_name
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "mi {}".format(self._unique_id)
+        return "Humidity {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -894,17 +917,18 @@ class HumiditySensor(Entity):
 class MoistureSensor(Entity):
     """Representation of a Sensor."""
 
-    def __init__(self, mac):
+    def __init__(self, config, mac):
         """Initialize the sensor."""
         self._state = None
         self._battery = None
-        self._unique_id = "m_" + mac
+        self._sensor_name = sensor_name(config, mac)
+        self._unique_id = "m_" + self._sensor_name
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "mi {}".format(self._unique_id)
+        return "Moisture {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -945,17 +969,18 @@ class MoistureSensor(Entity):
 class ConductivitySensor(Entity):
     """Representation of a Sensor."""
 
-    def __init__(self, mac):
+    def __init__(self, config, mac):
         """Initialize the sensor."""
         self._state = None
         self._battery = None
-        self._unique_id = "c_" + mac
+        self._sensor_name = sensor_name(config, mac)
+        self._unique_id = "c_" + self._sensor_name
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "mi {}".format(self._unique_id)
+        return "Conductivity {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -996,17 +1021,18 @@ class ConductivitySensor(Entity):
 class IlluminanceSensor(Entity):
     """Representation of a Sensor."""
 
-    def __init__(self, mac):
+    def __init__(self, config, mac):
         """Initialize the sensor."""
         self._state = None
         self._battery = None
-        self._unique_id = "l_" + mac
+        self._sensor_name = sensor_name(config, mac)
+        self._unique_id = "l_" + self._sensor_name
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "mi {}".format(self._unique_id)
+        return "Illuminance {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -1046,17 +1072,18 @@ class IlluminanceSensor(Entity):
 class FormaldehydeSensor(Entity):
     """Representation of a Sensor."""
 
-    def __init__(self, mac):
+    def __init__(self, config, mac):
         """Initialize the sensor."""
         self._state = None
         self._battery = None
-        self._unique_id = "f_" + mac
+        self._sensor_name = sensor_name(config, mac)
+        self._unique_id = "f_" + self._sensor_name
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "mi {}".format(self._unique_id)
+        return "Formaldehyde {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -1096,16 +1123,17 @@ class FormaldehydeSensor(Entity):
 class BatterySensor(Entity):
     """Representation of a Sensor."""
 
-    def __init__(self, mac):
+    def __init__(self, config, mac):
         """Initialize the sensor."""
         self._state = None
-        self._unique_id = "batt_" + mac
+        self._sensor_name = sensor_name(config, mac)
+        self._unique_id = "batt_" + self._sensor_name
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "mi {}".format(self._unique_id)
+        return "Battery {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -1145,18 +1173,18 @@ class BatterySensor(Entity):
 class ConsumableSensor(Entity):
     """Representation of a Sensor."""
 
-    def __init__(self, mac):
+    def __init__(self, config, mac):
         """Initialize the sensor."""
         self._state = None
         self._battery = None
-        self._cn_name = "cn_"
-        self._nmac = mac
+        self._sensor_name = sensor_name(config, mac)
+        self._unique_id = "cn_" + self._sensor_name
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "mi {}".format(self._cn_name + self._nmac)
+        return "Consumable {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -1186,7 +1214,7 @@ class ConsumableSensor(Entity):
     @property
     def unique_id(self) -> str:
         """Return a unique ID."""
-        return self._cn_name + self._nmac
+        return self._unique_id
 
     @property
     def force_update(self):
@@ -1196,12 +1224,13 @@ class ConsumableSensor(Entity):
 class SwitchBinarySensor(BinarySensorEntity):
     """Representation of a Sensor."""
 
-    def __init__(self, mac):
+    def __init__(self, config, mac):
         """Initialize the sensor."""
         self._state = None
         self._swclass = None
         self._battery = None
-        self._unique_id = "sw_" + mac
+        self._sensor_name = sensor_name(config, mac)
+        self._unique_id = "sw_" + self._sensor_name
         self._device_state_attributes = {}
 
     @property
@@ -1212,7 +1241,7 @@ class SwitchBinarySensor(BinarySensorEntity):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "mi {}".format(self._unique_id)
+        return "Switch {}".format(self._sensor_name)
 
     @property
     def state(self):
