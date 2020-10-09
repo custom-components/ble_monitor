@@ -54,7 +54,7 @@ from .const import (
     CONF_ENCRYPTORS,
     CONF_REPORT_UNKNOWN,
     CONF_WHITELIST,
-    CONF_CUSTOM_NAMES,
+    CONF_SENSOR_NAMES,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -71,7 +71,7 @@ _LOGGER = logging.getLogger(__name__)
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
 AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
 
-CUSTOM_NAMES_LIST_SCHEMA = vol.Schema(
+SENSOR_NAMES_LIST_SCHEMA = vol.Schema(
     {
         cv.matches_regex(MAC_REGEX): cv.string
     }
@@ -100,7 +100,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(
             CONF_WHITELIST, default=DEFAULT_WHITELIST
         ): vol.Any(vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]), cv.boolean),
-        vol.Optional(CONF_CUSTOM_NAMES, default={}): CUSTOM_NAMES_LIST_SCHEMA,
+        vol.Optional(CONF_SENSOR_NAMES, default={}): SENSOR_NAMES_LIST_SCHEMA,
     }
 )
 
@@ -374,8 +374,8 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
 def sensor_name(config, mac):
     """Set sensor name."""
     fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
-    if fmac in config[CONF_CUSTOM_NAMES]:
-        custom_name = config[CONF_CUSTOM_NAMES].get(fmac)
+    if fmac in config[CONF_SENSOR_NAMES]:
+        custom_name = config[CONF_SENSOR_NAMES].get(fmac)
         _LOGGER.debug("Name of sensor with mac adress %s is set to: %s", fmac, custom_name)
         return custom_name
     return mac
@@ -468,14 +468,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         if config[CONF_WHITELIST] is True:
             for mac in config[CONF_ENCRYPTORS]:
                 whitelist.append(mac)
-            for mac in config[CONF_CUSTOM_NAMES]:
+            for mac in config[CONF_SENSOR_NAMES]:
                 whitelist.append(mac)
     if isinstance(config[CONF_WHITELIST], list):
         for mac in config[CONF_WHITELIST]:
             whitelist.append(mac)
         for mac in config[CONF_ENCRYPTORS]:
             whitelist.append(mac)
-        for mac in config[CONF_CUSTOM_NAMES]:
+        for mac in config[CONF_SENSOR_NAMES]:
             whitelist.append(mac)
     for i, mac in enumerate(whitelist):
         whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
@@ -818,7 +818,7 @@ class TemperatureSensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "t_" + self._sensor_name
+        self._unique_id = "t_" + mac
         self._device_state_attributes = {}
 
     @property
@@ -870,7 +870,7 @@ class HumiditySensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "h_" + self._sensor_name
+        self._unique_id = "h_" + mac
         self._device_state_attributes = {}
 
     @property
@@ -922,7 +922,7 @@ class MoistureSensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "m_" + self._sensor_name
+        self._unique_id = "m_" + mac
         self._device_state_attributes = {}
 
     @property
@@ -974,7 +974,7 @@ class ConductivitySensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "c_" + self._sensor_name
+        self._unique_id = "c_" + mac
         self._device_state_attributes = {}
 
     @property
@@ -1026,7 +1026,7 @@ class IlluminanceSensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "l_" + self._sensor_name
+        self._unique_id = "l_" + mac
         self._device_state_attributes = {}
 
     @property
@@ -1077,7 +1077,7 @@ class FormaldehydeSensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "f_" + self._sensor_name
+        self._unique_id = "f_" + mac
         self._device_state_attributes = {}
 
     @property
@@ -1127,7 +1127,7 @@ class BatterySensor(Entity):
         """Initialize the sensor."""
         self._state = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "batt_" + self._sensor_name
+        self._unique_id = "batt_" + mac
         self._device_state_attributes = {}
 
     @property
@@ -1178,7 +1178,7 @@ class ConsumableSensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "cn_" + self._sensor_name
+        self._unique_id = "cn_" + mac
         self._device_state_attributes = {}
 
     @property
@@ -1230,7 +1230,7 @@ class SwitchBinarySensor(BinarySensorEntity):
         self._swclass = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "sw_" + self._sensor_name
+        self._unique_id = "sw_" + mac
         self._device_state_attributes = {}
 
     @property
