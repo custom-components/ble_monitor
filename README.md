@@ -162,7 +162,7 @@ sensor:
     batt_entities: False
     encryptors:
       'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
-    custom_names:
+    sensor_names:
       'A4:C1:38:2F:86:6C': 'Livingroom'
     report_unknown: False
     whitelist: False
@@ -232,14 +232,14 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
          'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
    ```
 
-#### custom_names
+#### sensor_names
 
    (dictionary)(Optional) Use this option to link a sensor name to the mac-address of the sensor. This sensor name will be used as default name in the UI of Home Assistant (e.g. Temperature Livingroom). If no sensor name is provided for a given mac-address, the mac-address will be used in the UI (e.g. Temperature A4C1382F866C). Default value: Empty
 
    ```yaml
    sensor:
      - platform: mitemp_bt
-       custom_names:
+       sensor_names:
          'A4:C1:38:2F:86:6C': 'Livingroom'
          'A4:C1:38:D1:61:7D': 'Bedroom'
    ```
@@ -261,8 +261,8 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
    ```
 
    Data from sensors with other addresses will be ignored.
-   In addition, all addresses listed in the `encryptors` and `custom_names` option will be automatically whitelisted.
-   If you have no sensors other than those listed in `encryptors` and `custom_names`, then just set `whitelist` to `True`:
+   In addition, all addresses listed in the `encryptors` and `sensor_names` option will be automatically whitelisted.
+   If you have no sensors other than those listed in `encryptors` and `sensor_names`, then just set `whitelist` to `True`:
 
    ```yaml
    sensor:
