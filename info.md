@@ -3,12 +3,15 @@
 
 {% if prerelease %}
 
-### NB!: This is a Beta version!
-Changes in 7.2 beta. 
+# NB!: This is a Beta version!
+
+# Changes in 7.2 beta. 
 
 - Added option to configure sensor names in configuration.yaml, see the [sensor_names option](#sensor_names). Note that when you use or change this option, it will create new entities. This means that you will have to update your lovelace cards, automations and/or scripts that use the `entity_id`. Note that you can still rename sensors afterwards from the UI. After the change, you can manually delete the old entities from the Developer Tools.
 - Added the mac address to the attributes of the sensors
 - New sensors will be named according to a new convention: `mi_sensortype_mac` (e.g. `sensor.mi_temperature_A4C1382F86C`) (default) or `mi_sensortype_sensor_name` (e.g. `sensor.mi_temperature_livingroom`) (with [sensor_names option](#sensor_names)). Your current sensors with the short nameing (e.g. `mi_t_A4C1382F86C`) or manually modified names won't be renamed, unless you use the `sensor_names` option. 
+
+Note that this beta is not based on the 7.1 beta, which had some issues. It is a further developent from 0.6.13. 
 
 {% endif %}
 {% if installed or pending_update %}
