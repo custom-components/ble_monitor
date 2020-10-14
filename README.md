@@ -234,7 +234,7 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
 #### sensor_names
 
-   (dictionary)(Optional) Use this option to link a sensor name to the mac-address of the sensor. This sensor name will be used as default name in the UI of Home Assistant (e.g. Temperature Livingroom). If no sensor name is provided for a given mac-address, the mac-address will be used in the UI (e.g. Temperature A4C1382F866C). Default value: Empty
+   (dictionary)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: sensor.mi_sensortype_sensor_name (e.g. sensor.mi_temperature_livingroom) in stead of the default mi_sensortype_mac (e.g. sensor.mi_temperature_A4C1382F86C). Note that you will have to manually delete the old entities from the Developer Tools section and the old data won't be transfered to the new sensor. Also note that you can still override the entity_id from the UI. Default value: Empty
 
    ```yaml
    sensor:
@@ -262,7 +262,7 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
    Data from sensors with other addresses will be ignored.
    In addition, all addresses listed in the `encryptors` and `sensor_names` option will be automatically whitelisted.
-   If you have no sensors other than those listed in `encryptors` and `sensor_names`, then just set `whitelist` to `True`:
+   If you have no sensors other than those listed in `encryptors` and/or `sensor_names`, then just set `whitelist` to `True`:
 
    ```yaml
    sensor:
