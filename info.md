@@ -5,7 +5,7 @@
 
 # NB!: This is a Beta version!
 
-# Changes in 7.2 beta. 
+# Changes in 0.7.2 beta. 
 
 - Added option to configure sensor names in configuration.yaml, see the [sensor_names option](#sensor_names). Note that when you use or change this option, it will create new entities. This means that you will have to update your lovelace cards, automations and/or scripts that use the `entity_id`. Note that you can still rename sensors afterwards from the UI. After the change, you can manually delete the old entities from the Developer Tools.
 - Added the mac address to the attributes of the sensors
