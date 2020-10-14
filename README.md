@@ -234,7 +234,7 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
 #### sensor_names
 
-   (dictionary)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: sensor.mi_sensortype_sensor_name (e.g. sensor.mi_temperature_livingroom) in stead of the default mi_sensortype_mac (e.g. sensor.mi_temperature_A4C1382F86C). Note that you will have to manually delete the old entities from the Developer Tools section and the old data won't be transfered to the new sensor. Also note that you can still override the entity_id from the UI. Default value: Empty
+   (dictionary)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: `sensor.mi_sensortype_sensor_name` (e.g. `sensor.mi_temperature_livingroom`) in stead of the default `mi_sensortype_mac` (e.g. `sensor.mi_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. After the change, you can manually delete the old entities from the Developer Tools section. The old data won't be transfered to the new sensor. Default value: Empty
 
    ```yaml
    sensor:
