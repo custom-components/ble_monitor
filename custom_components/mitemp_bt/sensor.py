@@ -683,6 +683,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     sts.mean(rssi[mac])
                 )
                 getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
+                getattr(sensor, "_device_state_attributes")["mac address"] = (
+                    ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
+                    )
                 if not isinstance(sensor, BatterySensor) and mac in batt:
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
@@ -818,13 +821,13 @@ class TemperatureSensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "t_" + mac
+        self._unique_id = "t_" + sensor_name(config, mac)
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Temperature {}".format(self._sensor_name)
+        return "mi temperature {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -870,13 +873,13 @@ class HumiditySensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "h_" + mac
+        self._unique_id = "h_" + sensor_name(config, mac)
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Humidity {}".format(self._sensor_name)
+        return "mi humidity {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -922,13 +925,13 @@ class MoistureSensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "m_" + mac
+        self._unique_id = "m_" + sensor_name(config, mac)
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Moisture {}".format(self._sensor_name)
+        return "mi moisture {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -974,13 +977,13 @@ class ConductivitySensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "c_" + mac
+        self._unique_id = "c_" + sensor_name(config, mac)
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Conductivity {}".format(self._sensor_name)
+        return "mi conductivity {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -1026,13 +1029,13 @@ class IlluminanceSensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "l_" + mac
+        self._unique_id = "l_" + sensor_name(config, mac)
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Illuminance {}".format(self._sensor_name)
+        return "mi llluminance {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -1077,13 +1080,13 @@ class FormaldehydeSensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "f_" + mac
+        self._unique_id = "f_" + sensor_name(config, mac)
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Formaldehyde {}".format(self._sensor_name)
+        return "mi formaldehyde {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -1127,13 +1130,13 @@ class BatterySensor(Entity):
         """Initialize the sensor."""
         self._state = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "batt_" + mac
+        self._unique_id = "batt_" + sensor_name(config, mac)
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Battery {}".format(self._sensor_name)
+        return "mi battery {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -1178,13 +1181,13 @@ class ConsumableSensor(Entity):
         self._state = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "cn_" + mac
+        self._unique_id = "cn_" + sensor_name(config, mac)
         self._device_state_attributes = {}
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Consumable {}".format(self._sensor_name)
+        return "mi consumable {}".format(self._sensor_name)
 
     @property
     def state(self):
@@ -1230,7 +1233,7 @@ class SwitchBinarySensor(BinarySensorEntity):
         self._swclass = None
         self._battery = None
         self._sensor_name = sensor_name(config, mac)
-        self._unique_id = "sw_" + mac
+        self._unique_id = "sw_" + sensor_name(config, mac)
         self._device_state_attributes = {}
 
     @property
@@ -1241,7 +1244,7 @@ class SwitchBinarySensor(BinarySensorEntity):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Switch {}".format(self._sensor_name)
+        return "mi switch {}".format(self._sensor_name)
 
     @property
     def state(self):
