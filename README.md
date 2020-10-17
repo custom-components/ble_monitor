@@ -162,6 +162,8 @@ sensor:
     batt_entities: False
     encryptors:
       'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
+    sensor_names:
+      'A4:C1:38:2F:86:6C': 'Livingroom'
     report_unknown: False
     whitelist: False
 ```
@@ -230,6 +232,18 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
          'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
    ```
 
+#### sensor_names
+
+   (dictionary)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: `sensor.mi_sensortype_sensor_name` (e.g. `sensor.mi_temperature_livingroom`) in stead of the default `mi_sensortype_mac` (e.g. `sensor.mi_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. After the change, you can manually delete the old entities from the Developer Tools section. The old data won't be transfered to the new sensor. Default value: Empty
+
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       sensor_names:
+         'A4:C1:38:2F:86:6C': 'Livingroom'
+         'A4:C1:38:D1:61:7D': 'Bedroom'
+   ```
+
 #### report_unknown
 
    (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
@@ -247,8 +261,8 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
    ```
 
    Data from sensors with other addresses will be ignored.
-   In addition, all addresses listed in the `encryptors` option will be automatically whitelisted.
-   If you have no sensors other than those listed in `encryptors`, then just set `whitelist` to `True`:
+   In addition, all addresses listed in the `encryptors` and `sensor_names` option will be automatically whitelisted.
+   If you have no sensors other than those listed in `encryptors` and/or `sensor_names`, then just set `whitelist` to `True`:
 
    ```yaml
    sensor:

@@ -15,6 +15,7 @@ CONF_BATT_ENTITIES = "batt_entities"
 CONF_ENCRYPTORS = "encryptors"
 CONF_REPORT_UNKNOWN = "report_unknown"
 CONF_WHITELIST = "whitelist"
+CONF_SENSOR_NAMES = "sensor_names"
 
 # Default values for configuration options
 DEFAULT_ROUNDING = True
