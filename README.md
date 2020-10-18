@@ -1,5 +1,7 @@
 # Xiaomi passive BLE Monitor sensor platform
 
+# Warning. Do not update to HassOs 4.14. There is an issue with Bluetooth on HassOs 4.14, which will cause this component to stop working. 
+
 <!-- TOC -->
 
 - [Introduction](#introduction)
