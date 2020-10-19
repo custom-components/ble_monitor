@@ -408,9 +408,9 @@ class BLEScanner:
         """Stop HCIdump thread(s)."""
         result = True
         for dumpthread in self.dumpthreads:
-            if dumpthread.isAlive():
+            if dumpthread.is_alive():
                 dumpthread.join()
-                if dumpthread.isAlive():
+                if dumpthread.is_alive():
                     result = False
                     _LOGGER.error(
                         "Waiting for the HCIdump thread to finish took too long! (>10s)"
