@@ -5,25 +5,22 @@
 
 # NB!: This is a Beta version!
 
-# Changes in 0.7.3 beta. 
-This time, only some code optimization, reducing the number of lines of python code with about 20%. 
+# Changes in 0.7.4 beta. 
+
+This time, only some code optimization, reducing the number of lines of python code with about 20%.
 
 - Adding a MeasuringSensor class which is used for all measuring sensors, to shorten the python code (won't affect users)
 - Adding device_class Illuminance to illuminance sensors (will change the icon to default Home Asssistant icon)
 - Using default unit of measurements from Home Assistant constants (won't affect users)
 
-Changes were based on a small part of the changes as proposed in beta 0.7.1 by @Magalex, further developed by me (@Ernst79). 
+Changes were based on a small part of the changes as proposed in beta 0.7.1 by @MagAlex, further developed by me (@Ernst79).
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.7.2.
+# Changes in 0.7.3.
 
-- Added option to configure sensor names in configuration.yaml, see the [sensor_names option](#sensor_names). Note that when you use or change this option, it will create new entities. This means that you will have to update your lovelace cards, automations and/or scripts that use the `entity_id`. Note that you can still rename sensors afterwards from the UI. After the change, you can manually delete the old entities from the Developer Tools.
-- Added the mac address to the attributes of the sensors
-- New sensors will be named according to a new convention: `mi_sensortype_mac` (e.g. `sensor.mi_temperature_A4C1382F86C`) (default) or `mi_sensortype_sensor_name` (e.g. `sensor.mi_temperature_livingroom`) (with [sensor_names option](#sensor_names)). Your current sensors with the short nameing (e.g. `mi_t_A4C1382F86C`) or manually modified names won't be renamed, unless you use the `sensor_names` option. 
-
-Note that this beta is not based on the 7.1 beta, which had some issues. It is a further developent from 0.6.13. 
+- This release fixes a bug when running this component in Python 3.9. (fix by @tirkarthi).
 
 {% endif %}
 
