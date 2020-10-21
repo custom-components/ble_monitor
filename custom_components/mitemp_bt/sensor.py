@@ -17,7 +17,6 @@ from homeassistant.const import (
     DEVICE_CLASS_ILLUMINANCE,
     DEVICE_CLASS_TEMPERATURE,
     CONDUCTIVITY,
-    LIGHT_LUX,
     PERCENTAGE,
     TEMP_CELSIUS,
     ATTR_BATTERY_LEVEL,
@@ -932,7 +931,7 @@ class IlluminanceSensor(MeasuringSensor):
         self._sensor_name = sensor_name(config, mac)
         self._name = "mi llluminance {}".format(self._sensor_name)
         self._unique_id = "l_" + self._sensor_name
-        self._unit_of_measurement = LIGHT_LUX
+        self._unit_of_measurement = "lx"
         self._device_class = DEVICE_CLASS_ILLUMINANCE
 
 
