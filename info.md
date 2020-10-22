@@ -18,9 +18,15 @@ Changes were based on a small part of the changes as proposed in beta 0.7.1 by @
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.7.3.
+# Changes in 0.7.4.
 
-- This release fixes a bug when running this component in Python 3.9. (fix by @tirkarthi).
+This time, only some code optimization, reducing the number of lines of python code with about 20%.
+
+- Adding a MeasuringSensor class which is used for all measuring sensors, to shorten the python code (won't affect users)
+- Adding device_class Illuminance to illuminance sensors (will change the icon to default Home Asssistant icon)
+- Using default unit of measurements from Home Assistant constants (won't affect users)
+
+Changes were based on a small part of the changes as proposed in beta 0.7.1 by @MagAlex, further developed by me (@Ernst79).
 
 {% endif %}
 
