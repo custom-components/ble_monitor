@@ -13,7 +13,7 @@ This time, only some code optimization, reducing the number of lines of python c
 - Adding device_class Illuminance to illuminance sensors (will change the icon to default Home Asssistant icon)
 - Using default unit of measurements from Home Assistant constants (won't affect users)
 
-Changes were based on a small part of the changes as proposed in beta 0.7.1 by @MagAlex, further developed by me (@Ernst79).
+Changes were based on a small part of the changes as proposed in beta 0.7.1 by @Magalex2x14, further developed by me (@Ernst79).
 
 {% endif %}
 {% if installed or pending_update %}
@@ -26,7 +26,7 @@ This time, only some code optimization, reducing the number of lines of python c
 - Adding device_class Illuminance to illuminance sensors (will change the icon to default Home Asssistant icon)
 - Using default unit of measurements from Home Assistant constants (won't affect users)
 
-Changes were based on a small part of the changes as proposed in beta 0.7.1 by @MagAlex, further developed by me (@Ernst79).
+Changes were based on a small part of the changes as proposed in beta 0.7.1 by @Magalex2x14, further developed by me (@Ernst79).
 
 {% endif %}
 
