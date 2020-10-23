@@ -656,7 +656,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 if i_i != 9:
                     sensors.insert(i_i, IlluminanceSensor(config, mac))
                 if f_i != 9:
-                    sensors.insert(f_i, FormaldehydeSensor(confing, mac))
+                    sensors.insert(f_i, FormaldehydeSensor(config, mac))
                 if cn_i != 9:
                     sensors.insert(cn_i, ConsumableSensor(config, mac))
                     try:
