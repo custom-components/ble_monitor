@@ -18,7 +18,11 @@ Changes were based on a small part of the changes as proposed in beta 0.7.1 by @
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.7.4.
+# Changes in 0.7.5
+
+Fix typo in formaldehyde sensor (by @MarpleA)
+
+# Changes in 0.7.4
 
 This time, only some code optimization, reducing the number of lines of python code with about 20%.
 
