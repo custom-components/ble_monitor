@@ -245,7 +245,7 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
     if adv_index1 == -1 and adv_index2 == -1:
         return None
     elif adv_index1 != -1:
-         adv_index = adv_index1
+        adv_index = adv_index1
     elif adv_index2 != -1:
         adv_index = adv_index2
     # check for BTLE msg size
