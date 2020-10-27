@@ -192,7 +192,7 @@ logger:
 
 ### My sensor isn't showing the battery level
 
-Battery level is not broadcasted by all sensors. Check the list of supported sensors to see if your sensor supports battery level. [supported sensors](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#supported-sensors)
+Battery level is not broadcasted by all sensors. Check the list of [supported sensors](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#supported-sensors) to see if your sensor supports battery level. LYWSD02 sensors need to be updated to firmware 1.1.2_00085 or above to the show battery level. 
 
 ## TIPS AND TRICKS
 
