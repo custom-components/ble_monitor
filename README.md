@@ -33,7 +33,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - LYWSD02
 
-  (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
+  (rectangular body, E-Ink, broadcasts temperature, humidity and battery level (battery level is available for firmware version 1.1.2_00085 and later), about 20 readings per minute)
 
   ![LYWSD02](/pictures/LYWSD02.jpeg)
   

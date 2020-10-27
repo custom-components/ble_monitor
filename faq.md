@@ -16,6 +16,7 @@
       - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
       - [My sensor stops receiving updates some time after the system restart](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
       - [My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?](#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)
+      - [My sensor isn't showing the battery level](#my-sensor-isnt-showing-the-battery-level)
   - [TIPS AND TRICKS](#tips-and-tricks)
       - [How to know exactly if the reception of data from my sensors has stopped?](#how-to-know-exactly-if-the-reception-of-data-from-my-sensors-has-stopped)
   - [DEBUG](#debug)
@@ -86,20 +87,20 @@ Devices:
 
 ### How can I create a battery sensor?
 
-You can create a battery sensor by using a template sensor. Add the following to your `configuration.yaml`. Make sure you adjust the name of the sensor with your own sensor.
+You can set option `batt_entities` to `True` - the battery sensor entity will be created automatically for each device reporting battery status.
+
+Or you can create a battery sensor by using a template sensor. Add the following to your `configuration.yaml`. Make sure you adjust the name of the sensor with your own sensor.
 
 ```yaml
 sensor:
   - platform: template
     sensors:
-      mi_b_582d34339449:
+      mi_battery_582d34339449:
         friendly_name: "Battery"
         unit_of_measurement: "%"
-        value_template: "{{ state_attr('sensor.mi_t_582d34339449', 'battery_level') }}"
+        value_template: "{{ state_attr('sensor.mi_temperature_582d34339449', 'battery_level') }}"
         device_class: "battery"
 ```
-
-Or (since v0.5.4) you can set option `batt_entities` to `True` - the battery sensor entity will be created automatically for each device reporting battery status.
 
 ## RECEPTION ISSUES
 
@@ -188,6 +189,10 @@ logger:
 - Create a new [issue](https://github.com/custom-components/sensor.mitemp_bt/issues), write everything you know about your sensor and attach the obtained log.
 - Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.
 - Wait for a response from the developers.
+
+### My sensor isn't showing the battery level
+
+Battery level is not broadcasted by all sensors. Check the list of [supported sensors](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#supported-sensors) to see if your sensor supports battery level. LYWSD02 sensors need to be updated to firmware 1.1.2_00085 or above to the show battery level. 
 
 ## TIPS AND TRICKS
 

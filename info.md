@@ -18,19 +18,9 @@ Changes were based on a small part of the changes as proposed in beta 0.7.1 by @
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.7.5
+# Changes in 0.7.6
 
-Fix typo in formaldehyde sensor (by @MarpleA)
-
-# Changes in 0.7.4
-
-This time, only some code optimization, reducing the number of lines of python code with about 20%.
-
-- Adding a MeasuringSensor class which is used for all measuring sensors, to shorten the python code (won't affect users)
-- Adding device_class Illuminance to illuminance sensors (will change the icon to default Home Asssistant icon)
-- Using default unit of measurements from Home Assistant constants (won't affect users)
-
-Changes were based on a small part of the changes as proposed in beta 0.7.1 by @Magalex2x14, further developed by me (@Ernst79).
+Added battery level support for LYWSD02 sensor. Note that battery level is only supported for LYWSD02 sensors with firmware 1.1.2_00085 or later.
 
 {% endif %}
 
@@ -69,7 +59,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - LYWSD02
 
-  (rectangular body, E-Ink, broadcasts temperature and humidity, about 20 readings per minute, no battery info)
+  (rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute. Battery level is available for firmware version 1.1.2_00085 and later.)
 
   <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/LYWSD02.jpeg">
   
