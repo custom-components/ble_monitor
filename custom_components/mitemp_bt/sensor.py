@@ -19,6 +19,7 @@ from homeassistant.const import (
     CONDUCTIVITY,
     PERCENTAGE,
     TEMP_CELSIUS,
+    TEMP_FAHRENHEIT,
     ATTR_BATTERY_LEVEL,
     STATE_OFF, 
     STATE_ON,
@@ -54,6 +55,7 @@ from .const import (
     CONF_REPORT_UNKNOWN,
     CONF_WHITELIST,
     CONF_SENSOR_NAMES,
+    CONF_SENSOR_FAHRENHEIT,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -100,6 +102,9 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
             CONF_WHITELIST, default=DEFAULT_WHITELIST
         ): vol.Any(vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]), cv.boolean),
         vol.Optional(CONF_SENSOR_NAMES, default={}): SENSOR_NAMES_LIST_SCHEMA,
+        vol.Optional(
+            CONF_SENSOR_FAHRENHEIT, default=[]
+        ): vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]),
     }
 )
 
@@ -378,6 +383,15 @@ def sensor_name(config, mac):
         _LOGGER.debug("Name of sensor with mac adress %s is set to: %s", fmac, custom_name)
         return custom_name
     return mac
+
+
+def unit_of_measurement(config, mac):
+    """Set unit of measurement."""
+    fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
+    if fmac in config[CONF_SENSOR_FAHRENHEIT]:
+        _LOGGER.debug("Sensor with mac adress %s is using Fahrenheit as unit of measurement", fmac)
+        return TEMP_FAHRENHEIT
+    return TEMP_CELSIUS
 
 
 class BLEScanner:
@@ -874,7 +888,7 @@ class TemperatureSensor(MeasuringSensor):
         self._sensor_name = sensor_name(config, mac)
         self._name = "mi temperature {}".format(self._sensor_name)
         self._unique_id = "t_" + self._sensor_name
-        self._unit_of_measurement = TEMP_CELSIUS
+        self._unit_of_measurement = unit_of_measurement(config, mac)
         self._device_class = DEVICE_CLASS_TEMPERATURE
 
 
