@@ -33,9 +33,9 @@ DEFAULT_WHITELIST = False
 
 """Fixed constants."""
 
-# Sensor measurement limits to exclude erroneous spikes from the results
+# Sensor measurement limits to exclude erroneous spikes from the results (temperature in °C)
 CONF_TMIN = -40.0
-CONF_TMAX = 160.0
+CONF_TMAX = 60.0
 CONF_HMIN = 0.0
 CONF_HMAX = 99.9
 
