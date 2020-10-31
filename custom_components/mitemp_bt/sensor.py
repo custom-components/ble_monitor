@@ -72,16 +72,10 @@ _LOGGER = logging.getLogger(__name__)
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
 AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
 
-SENSOR_NAMES_LIST_SCHEMA = vol.Schema(
-    {
-        cv.matches_regex(MAC_REGEX): cv.string
-    }
-)
+SENSOR_NAMES_LIST_SCHEMA = vol.Schema({cv.matches_regex(MAC_REGEX): cv.string})
 
 ENCRYPTORS_LIST_SCHEMA = vol.Schema(
-    {
-        cv.matches_regex(MAC_REGEX): cv.matches_regex(AES128KEY_REGEX)
-    }
+    {cv.matches_regex(MAC_REGEX): cv.matches_regex(AES128KEY_REGEX)}
 )
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
@@ -95,16 +89,20 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(
             CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
         ): vol.All(cv.ensure_list, [cv.positive_int]),
-        vol.Optional(CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES): cv.boolean,
+        vol.Optional(
+            CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
+        ): cv.boolean,
         vol.Optional(CONF_ENCRYPTORS, default={}): ENCRYPTORS_LIST_SCHEMA,
-        vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): cv.boolean,
         vol.Optional(
-            CONF_WHITELIST, default=DEFAULT_WHITELIST
-        ): vol.Any(vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]), cv.boolean),
+            CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
+        ): cv.boolean,
+        vol.Optional(CONF_WHITELIST, default=DEFAULT_WHITELIST): vol.Any(
+            vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]), cv.boolean
+        ),
         vol.Optional(CONF_SENSOR_NAMES, default={}): SENSOR_NAMES_LIST_SCHEMA,
-        vol.Optional(
-            CONF_SENSOR_FAHRENHEIT, default=[]
-        ): vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]),
+        vol.Optional(CONF_SENSOR_FAHRENHEIT, default=[]): vol.All(
+            cv.ensure_list, [cv.matches_regex(MAC_REGEX)]
+        ),
     }
 )
 
@@ -380,18 +378,32 @@ def sensor_name(config, mac):
     fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
     if fmac in config[CONF_SENSOR_NAMES]:
         custom_name = config[CONF_SENSOR_NAMES].get(fmac)
-        _LOGGER.debug("Name of sensor with mac adress %s is set to: %s", fmac, custom_name)
+        _LOGGER.debug(
+            "Name of sensor with mac adress %s is set to: %s", fmac, custom_name
+        )
         return custom_name
     return mac
 
 
 def unit_of_measurement(config, mac):
-    """Set unit of measurement."""
+    """Set unit of measurement to °C or °F."""
     fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
     if fmac in config[CONF_SENSOR_FAHRENHEIT]:
-        _LOGGER.debug("Sensor with mac adress %s is using Fahrenheit as unit of measurement", fmac)
+        _LOGGER.debug(
+            "Sensor with mac address %s is using Fahrenheit as unit of measurement",
+            fmac,
+        )
         return TEMP_FAHRENHEIT
     return TEMP_CELSIUS
+
+
+def temperature_limit(config, mac, temp):
+    """Set limits for temperature measurement in °C or °F."""
+    fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
+    if fmac in config[CONF_SENSOR_FAHRENHEIT]:
+        temp_fahrenheit = temp * 9 / 5 + 32
+        return temp_fahrenheit
+    return temp
 
 
 class BLEScanner:
@@ -497,7 +509,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     sleep(1)
 
     def calc_update_state(
-        entity_to_update, sensor_mac, config, measurements_list, stype=None, fdec = 0
+        entity_to_update,
+        sensor_mac,
+        config,
+        measurements_list,
+        stype=None,
+        fdec=0,
     ):
         """Averages according to options and updates the entity state."""
         textattr = ""
@@ -514,12 +531,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             measurements = measurements_list
         try:
             if config[CONF_ROUNDING]:
-                state_median = round(
-                    sts.median(measurements), rdecimals
-                )
-                state_mean = round(
-                    sts.mean(measurements), rdecimals
-                )
+                state_median = round(sts.median(measurements), rdecimals)
+                state_mean = round(sts.mean(measurements), rdecimals)
             else:
                 state_median = sts.median(measurements)
                 state_mean = sts.mean(measurements)
@@ -529,13 +542,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             else:
                 textattr = "last mean of"
                 setattr(entity_to_update, "_state", state_mean)
-            getattr(entity_to_update, "_device_state_attributes")[textattr] = len(
-                measurements
-            )
+            getattr(entity_to_update, "_device_state_attributes")[
+                textattr
+            ] = len(measurements)
             getattr(entity_to_update, "_device_state_attributes")[
                 "median"
             ] = state_median
-            getattr(entity_to_update, "_device_state_attributes")["mean"] = state_mean
+            getattr(entity_to_update, "_device_state_attributes")[
+                "mean"
+            ] = state_mean
             entity_to_update.schedule_update_ha_state()
             success = True
         except (AttributeError, AssertionError):
@@ -591,7 +606,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 lpacket(data["mac"], packet)
                 # store found readings per device
                 if "temperature" in data:
-                    if CONF_TMAX >= data["temperature"] >= CONF_TMIN:
+                    if (
+                        temperature_limit(config, data["mac"], CONF_TMAX)
+                        >= data["temperature"]
+                        >= temperature_limit(config, data["mac"], CONF_TMIN)
+                    ):
                         if data["mac"] not in temp_m_data:
                             temp_m_data[data["mac"]] = []
                         temp_m_data[data["mac"]].append(data["temperature"])
@@ -610,7 +629,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         macs[data["mac"]] = data["mac"]
                     elif log_spikes:
                         _LOGGER.error(
-                            "Humidity spike: %s (%s)", data["humidity"], data["mac"],
+                            "Humidity spike: %s (%s)",
+                            data["humidity"],
+                            data["mac"],
                         )
                 if "conductivity" in data:
                     if data["mac"] not in cond_m_data:
