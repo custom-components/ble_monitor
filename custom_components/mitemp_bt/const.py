@@ -16,6 +16,7 @@ CONF_ENCRYPTORS = "encryptors"
 CONF_REPORT_UNKNOWN = "report_unknown"
 CONF_WHITELIST = "whitelist"
 CONF_SENSOR_NAMES = "sensor_names"
+CONF_SENSOR_FAHRENHEIT = "sensor_fahrenheit"
 
 # Default values for configuration options
 DEFAULT_ROUNDING = True
@@ -32,7 +33,7 @@ DEFAULT_WHITELIST = False
 
 """Fixed constants."""
 
-# Sensor measurement limits to exclude erroneous spikes from the results
+# Sensor measurement limits to exclude erroneous spikes from the results (temperature in °C)
 CONF_TMIN = -40.0
 CONF_TMAX = 60.0
 CONF_HMIN = 0.0

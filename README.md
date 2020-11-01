@@ -162,6 +162,8 @@ sensor:
     batt_entities: False
     encryptors:
       'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
+    sensor_fahrenheit:
+      - 'C4:7C:8D:6B:4F:F3'
     sensor_names:
       'A4:C1:38:2F:86:6C': 'Livingroom'
     report_unknown: False
@@ -230,6 +232,18 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
        encryptors:
          'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
          'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
+   ```
+
+#### sensor_fahrenheit
+
+   (list)(Optional) Most sensors are sending temperature measurements in Celsius (°C), which is the default assumption for `mitemp_bt`. However, some sensors, like the `LYWSD03MMC` sensor with custom firmware will start sending temperature measurements in Fahrenheit (°F) after changing the display from Celsius to Fahrenheit. This means that you will have to tell mitemp_bt that it should expect Fahrenheit measurements for these specific sensors, by listing the MAC-addresses of these sensors.
+
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       sensor_fahrenheit:
+         - '58:C1:38:2F:86:6C'
+         - 'C4:FA:64:D1:61:7D'
    ```
 
 #### sensor_names

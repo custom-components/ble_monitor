@@ -5,22 +5,16 @@
 
 # NB!: This is a Beta version!
 
-# Changes in 0.7.4 beta. 
+# Changes in 0.7.7 beta. 
 
-This time, only some code optimization, reducing the number of lines of python code with about 20%.
-
-- Adding a MeasuringSensor class which is used for all measuring sensors, to shorten the python code (won't affect users)
-- Adding device_class Illuminance to illuminance sensors (will change the icon to default Home Asssistant icon)
-- Using default unit of measurements from Home Assistant constants (won't affect users)
-
-Changes were based on a small part of the changes as proposed in beta 0.7.1 by @Magalex2x14, further developed by me (@Ernst79).
+Add support for sensors that send their temperature data in Fahrenheit. The LYWSD03MMC with custom firmware will send temperature data in Fahrenheit after changing the display to Fahrenheit. Use the [sensor_fahrenheit](#sensor_fahrenheit) option for these sensors to get the correct data in Home Asssitant.
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.7.6
+# Changes in 0.7.7
 
-Added battery level support for LYWSD02 sensor. Note that battery level is only supported for LYWSD02 sensors with firmware 1.1.2_00085 or later.
+Add support for sensors that send their temperature data in Fahrenheit. The LYWSD03MMC with custom firmware will send temperature data in Fahrenheit after changing the display to Fahrenheit. Use the [sensor_fahrenheit](#sensor_fahrenheit) option for these sensors to get the correct data in Home Asssitant.
 
 {% endif %}
 
@@ -186,6 +180,8 @@ sensor:
     batt_entities: False
     encryptors:
       'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
+     sensor_fahrenheit:
+       - '58:C1:38:2F:86:6C'
     sensor_names:
       'A4:C1:38:2F:86:6C': 'Livingroom'
     report_unknown: False
@@ -254,6 +250,18 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
        encryptors:
          'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
          'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
+   ```
+
+#### sensor_fahrenheit
+
+   (list)(Optional) Most sensors are sending temperature measurements in Celsius (°C), which is the default assumption for `mitemp_bt`. However, some sensors, like the `LYWSD03MMC` sensor with custom firmware will start sending temperature measurements in Fahrenheit (°F) after changing the display from Celsius to Fahrenheit. This means that you will have to tell mitemp_bt that it should expect Fahrenheit measurements for these specific sensors, by listing the MAC-addresses of these sensors.
+
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       sensor_fahrenheit:
+         - '58:C1:38:2F:86:6C'
+         - 'C4:FA:64:D1:61:7D'
    ```
 
 #### sensor_names
