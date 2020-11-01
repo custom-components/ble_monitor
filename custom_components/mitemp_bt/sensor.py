@@ -1036,7 +1036,7 @@ class SwitchBinarySensor(BinarySensorEntity):
         self._sensor_name = sensor_name(config, mac, "switch")
         self._name = "mi switch {}".format(self._sensor_name)
         self._state = None
-        self._unique_id = "sw_" + sensor_name(config, mac)
+        self._unique_id = "sw_" + self._sensor_name
         self._device_state_attributes = {}
         self._device_class = None
 
