@@ -14,7 +14,10 @@ Add support for sensors that send their temperature data in Fahrenheit. The LYWS
 
 # Changes in 0.7.7
 
-Add support for sensors that send their temperature data in Fahrenheit. The LYWSD03MMC with custom firmware will send temperature data in Fahrenheit after changing the display to Fahrenheit. Use the [sensor_fahrenheit](#sensor_fahrenheit) option for these sensors to get the correct data in Home Asssitant.
+- Add support for sensors that send their temperature data in Fahrenheit. The LYWSD03MMC with custom firmware will send temperature data in Fahrenheit after changing the display to Fahrenheit. Use the [sensor_fahrenheit](#sensor_fahrenheit) option for these sensors to get the correct data in Home Asssitant.
+- [sensor_names](#sensor_names) configuration is now case insensitive
+- improved debug logging when using [sensor_names](#sensor_names) option
+
 
 {% endif %}
 
