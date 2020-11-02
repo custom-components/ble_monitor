@@ -489,7 +489,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         _LOGGER.info(
             "Attention! Option report_unknown is enabled, be ready for a huge output..."
         )
-    # prepare device:key list to speedup parser
+    # prepare device:key lists to speedup parser
     aeskeys = {}
     for mac in config[CONF_ENCRYPTORS]:
         p_mac = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
@@ -510,10 +510,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             whitelist.append(mac)
         for mac in config[CONF_SENSOR_NAMES]:
             whitelist.append(mac)
+    # remove duplicates from whitelist
+    whitelist = list(dict.fromkeys(whitelist))
+    _LOGGER.debug("whitelist: [%s]", ', '.join(whitelist).upper())
     for i, mac in enumerate(whitelist):
         whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
     _LOGGER.debug("%s whitelist item(s) loaded.", len(whitelist))
-    _LOGGER.debug("whitelist: %s", whitelist)
     lpacket.cntr = {}
     sleep(1)
 
