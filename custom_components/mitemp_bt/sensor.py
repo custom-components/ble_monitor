@@ -610,73 +610,74 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             if data and "mac" in data:
                 # ignore duplicated message
                 packet = data["packet"]
-                prev_packet = lpacket(mac=data["mac"])
+                mac = data["mac"]
+                prev_packet = lpacket(mac)
                 if prev_packet == packet:
                     # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
                     continue
-                lpacket(data["mac"], packet)
+                lpacket(mac, packet)
                 # store found readings per device
                 if "temperature" in data:
                     if (
-                        temperature_limit(config, data["mac"], CONF_TMAX)
+                        temperature_limit(config, mac, CONF_TMAX)
                         >= data["temperature"]
-                        >= temperature_limit(config, data["mac"], CONF_TMIN)
+                        >= temperature_limit(config, mac, CONF_TMIN)
                     ):
-                        if data["mac"] not in temp_m_data:
-                            temp_m_data[data["mac"]] = []
-                        temp_m_data[data["mac"]].append(data["temperature"])
-                        macs[data["mac"]] = data["mac"]
+                        if mac not in temp_m_data:
+                            temp_m_data[mac] = []
+                        temp_m_data[mac].append(data["temperature"])
+                        macs[mac] = mac
                     elif log_spikes:
                         _LOGGER.error(
                             "Temperature spike: %s (%s)",
                             data["temperature"],
-                            data["mac"],
+                            mac,
                         )
                 if "humidity" in data:
                     if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
-                        if data["mac"] not in hum_m_data:
-                            hum_m_data[data["mac"]] = []
-                        hum_m_data[data["mac"]].append(data["humidity"])
-                        macs[data["mac"]] = data["mac"]
+                        if mac not in hum_m_data:
+                            hum_m_data[mac] = []
+                        hum_m_data[mac].append(data["humidity"])
+                        macs[mac] = mac
                     elif log_spikes:
                         _LOGGER.error(
                             "Humidity spike: %s (%s)",
                             data["humidity"],
-                            data["mac"],
+                            mac,
                         )
                 if "conductivity" in data:
-                    if data["mac"] not in cond_m_data:
-                        cond_m_data[data["mac"]] = []
-                    cond_m_data[data["mac"]].append(data["conductivity"])
-                    macs[data["mac"]] = data["mac"]
+                    if mac not in cond_m_data:
+                        cond_m_data[mac] = []
+                    cond_m_data[mac].append(data["conductivity"])
+                    macs[mac] = mac
                 if "moisture" in data:
-                    if data["mac"] not in moist_m_data:
-                        moist_m_data[data["mac"]] = []
-                    moist_m_data[data["mac"]].append(data["moisture"])
-                    macs[data["mac"]] = data["mac"]
+                    if mac not in moist_m_data:
+                        moist_m_data[mac] = []
+                    moist_m_data[mac].append(data["moisture"])
+                    macs[mac] = mac
                 if "illuminance" in data:
-                    if data["mac"] not in illum_m_data:
-                        illum_m_data[data["mac"]] = []
-                    illum_m_data[data["mac"]].append(data["illuminance"])
-                    macs[data["mac"]] = data["mac"]
+                    if mac not in illum_m_data:
+                        illum_m_data[mac] = []
+                    illum_m_data[mac].append(data["illuminance"])
+                    macs[mac] = mac
                 if "formaldehyde" in data:
-                    if data["mac"] not in formaldehyde_m_data:
-                        formaldehyde_m_data[data["mac"]] = []
-                    formaldehyde_m_data[data["mac"]].append(data["formaldehyde"])
-                    macs[data["mac"]] = data["mac"]
+                    if mac not in formaldehyde_m_data:
+                        formaldehyde_m_data[mac] = []
+                    formaldehyde_m_data[mac].append(data["formaldehyde"])
+                    macs[mac] = mac
                 if "consumable" in data:
-                    cons_m_data[data["mac"]] = int(data["consumable"])
-                    macs[data["mac"]] = data["mac"]
+                    cons_m_data[mac] = int(data["consumable"])
+                    macs[mac] = mac
                 if "switch" in data:
-                    switch_m_data[data["mac"]] = int(data["switch"])
-                    macs[data["mac"]] = data["mac"]
+                    switch_m_data[mac] = int(data["switch"])
+                    macs[mac] =mac
                 if "battery" in data:
-                    batt[data["mac"]] = int(data["battery"])
-                    macs[data["mac"]] = data["mac"]
-                if data["mac"] not in rssi:
-                    rssi[data["mac"]] = []
-                rssi[data["mac"]].append(int(data["rssi"]))
-                stype[data["mac"]] = data["type"]
+                    batt[mac] = int(data["battery"])
+                    macs[mac] = mac
+                if mac not in rssi:
+                    rssi[mac] = []
+                rssi[mac].append(int(data["rssi"]))
+                stype[mac] = data["type"]
             else:
                 # "empty" loop high cpu usage workaround
                 sleep(0.0001)
@@ -684,7 +685,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         for mac in macs:
             # fixed entity index for every measurement type
             # according to the sensor implementation
-            t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, b_i = MMTS_DICT[stype[mac]]
+            sensortype = stype[mac]
+            t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, b_i = MMTS_DICT[sensortype]
             # if necessary, create a list of entities
             # according to the sensor implementation
             if mac in sensors_by_mac:
@@ -706,13 +708,13 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 if cn_i != 9:
                     sensors.insert(cn_i, ConsumableSensor(config, mac))
                     try:
-                        setattr(sensors[cn_i], "_cn_name", CN_NAME_DICT[stype[mac]])
+                        setattr(sensors[cn_i], "_cn_name", CN_NAME_DICT[sensortype])
                     except KeyError:
                         pass
                 if sw_i != 9:
                     sensors.insert(sw_i, SwitchBinarySensor(config, mac))
                     try:
-                        setattr(sensors[sw_i], "_swclass", SW_CLASS_DICT[stype[mac]])
+                        setattr(sensors[sw_i], "_swclass", SW_CLASS_DICT[sensortype])
                     except KeyError:
                         pass
                 if config[CONF_BATT_ENTITIES] and (b_i != 9):
@@ -727,7 +729,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 getattr(sensor, "_device_state_attributes")["rssi"] = round(
                     sts.mean(rssi[mac])
                 )
-                getattr(sensor, "_device_state_attributes")["sensor type"] = stype[mac]
+                getattr(sensor, "_device_state_attributes")["sensor type"] = sensortype
                 getattr(sensor, "_device_state_attributes")["mac address"] = (
                     ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
                     )
@@ -746,11 +748,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         _LOGGER.debug(
                             "Sensor %s (%s, batt.) not yet ready for update",
                             mac,
-                            stype[mac],
+                            sensortype,
                         )
                     except RuntimeError as err:
                         _LOGGER.error(
-                            "Sensor %s (%s, batt.) update error:", mac, stype[mac]
+                            "Sensor %s (%s, batt.) update error:", mac, sensortype
                         )
                         _LOGGER.error(err)
             if mac in temp_m_data:
@@ -759,15 +761,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 )
                 if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, temp.) update error:", mac, stype[mac]
+                        "Sensor %s (%s, temp.) update error:", mac, sensortype
                     )
                     _LOGGER.error(error)
             if mac in hum_m_data:
                 success, error = calc_update_state(
-                    sensors[h_i], mac, config, hum_m_data[mac], stype[mac]
+                    sensors[h_i], mac, config, hum_m_data[mac], sensortype
                 )
                 if not success:
-                    _LOGGER.error("Sensor %s (%s, hum.) update error:", mac, stype[mac])
+                    _LOGGER.error("Sensor %s (%s, hum.) update error:", mac, sensortype)
                     _LOGGER.error(error)
             if mac in moist_m_data:
                 success, error = calc_update_state(
@@ -775,7 +777,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 )
                 if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, moist.) update error:", mac, stype[mac]
+                        "Sensor %s (%s, moist.) update error:", mac, sensortype
                     )
                     _LOGGER.error(error)
             if mac in cond_m_data:
@@ -784,7 +786,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 )
                 if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, cond.) update error:", mac, stype[mac]
+                        "Sensor %s (%s, cond.) update error:", mac, sensortype
                     )
                     _LOGGER.error(error)
             if mac in illum_m_data:
@@ -793,7 +795,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 )
                 if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, illum.) update error:", mac, stype[mac]
+                        "Sensor %s (%s, illum.) update error:", mac, sensortype
                     )
                     _LOGGER.error(error)
             if mac in formaldehyde_m_data:
@@ -802,7 +804,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 )
                 if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, formaldehyde) update error:", mac, stype[mac]
+                        "Sensor %s (%s, formaldehyde) update error:", mac, sensortype
                     )
                     _LOGGER.error(error)
             if mac in cons_m_data:
@@ -813,11 +815,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.debug(
                         "Sensor %s (%s, cons.) not yet ready for update",
                         mac,
-                        stype[mac],
+                        sensortype,
                     )
                 except RuntimeError as err:
                     _LOGGER.error(
-                        "Sensor %s (%s, cons.) update error:", mac, stype[mac]
+                        "Sensor %s (%s, cons.) update error:", mac, sensortype
                     )
                     _LOGGER.error(err)
             if mac in switch_m_data:
@@ -828,11 +830,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     _LOGGER.debug(
                         "Sensor %s (%s, switch) not yet ready for update",
                         mac,
-                        stype[mac],
+                        sensortype,
                     )
                 except RuntimeError as err:
                     _LOGGER.error(
-                        "Sensor %s (%s, switch) update error:", mac, stype[mac]
+                        "Sensor %s (%s, switch) update error:", mac, sensortype
                     )
                     _LOGGER.error(err)
         _LOGGER.debug(
