@@ -12,6 +12,10 @@ from Cryptodome.Cipher import AES
 import voluptuous as vol
 
 from homeassistant.const import (
+    CONF_DEVICES,
+    CONF_MAC,
+    CONF_NAME,
+    CONF_UNIT_OF_MEASUREMENT,
     DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_ILLUMINANCE,
@@ -60,6 +64,7 @@ from .const import (
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
+    CONF_ENCRYPTION_KEY,
     XIAOMI_TYPE_DICT,
     MMTS_DICT,
     SW_CLASS_DICT,
@@ -76,6 +81,15 @@ SENSOR_NAMES_LIST_SCHEMA = vol.Schema({cv.matches_regex(MAC_REGEX): cv.string})
 
 ENCRYPTORS_LIST_SCHEMA = vol.Schema(
     {cv.matches_regex(MAC_REGEX): cv.matches_regex(AES128KEY_REGEX)}
+)
+
+DEVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_MAC): cv.string,
+        vol.Optional(CONF_NAME): cv.string,
+        vol.Optional(CONF_ENCRYPTION_KEY): cv.matches_regex(AES128KEY_REGEX),
+        vol.Optional(CONF_UNIT_OF_MEASUREMENT): cv.string,
+    }
 )
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
@@ -103,6 +117,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_SENSOR_FAHRENHEIT, default=[]): vol.All(
             cv.ensure_list, [cv.matches_regex(MAC_REGEX)]
         ),
+        vol.Optional(CONF_DEVICES, default=[]): vol.All(cv.ensure_list, [DEVICE_SCHEMA]),
     }
 )
 
@@ -389,29 +404,56 @@ def sensor_name(config, mac, sensor_type):
         )
         return custom_name
     return mac
-    
+
 
 def unit_of_measurement(config, mac):
     """Set unit of measurement to °C or °F."""
     fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
-    sensor_fahrenheit_list = [x.upper() for x in config[CONF_SENSOR_FAHRENHEIT]]
-    if fmac in sensor_fahrenheit_list:
-        _LOGGER.debug(
-            "Temperature sensor with mac address %s is set to receive data in Fahrenheit",
-            fmac,
-        )
-        return TEMP_FAHRENHEIT
-    return TEMP_CELSIUS
+
+    if config[CONF_DEVICES]:
+        for device in config[CONF_DEVICES]:
+            if fmac in device["mac"].upper():
+                if "unit_of_measurement" in device:
+                    if device["unit_of_measurement"] == 'fahrenheit':
+                        _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Fahrenheit", fmac)
+                        return TEMP_FAHRENHEIT
+                    else:
+                        _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Celsius", fmac)
+                        return TEMP_CELSIUS
+                else:
+                    _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Celsius", fmac)
+                    return TEMP_CELSIUS
+            else:
+                continue
+        else:
+            _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Celsius", fmac)
+            return TEMP_CELSIUS    
+    else:
+        _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Celsius", fmac)
+        return TEMP_CELSIUS
 
 
 def temperature_limit(config, mac, temp):
     """Set limits for temperature measurement in °C or °F."""
     fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
-    sensor_fahrenheit_list = [x.upper() for x in config[CONF_SENSOR_FAHRENHEIT]]
-    if fmac in sensor_fahrenheit_list:
-        temp_fahrenheit = temp * 9 / 5 + 32
-        return temp_fahrenheit
-    return temp
+
+    if config[CONF_DEVICES]:
+        for device in config[CONF_DEVICES]:
+            if fmac in device["mac"].upper():
+                if "unit_of_measurement" in device:
+                    if device["unit_of_measurement"] == 'fahrenheit':
+                        temp_fahrenheit = temp * 9 / 5 + 32
+                        return temp_fahrenheit
+                    else:
+                        return temp
+                else:
+                    return temp
+            else:
+                continue
+        else:
+            return temp    
+    else:
+        return temp
 
 
 class BLEScanner:
