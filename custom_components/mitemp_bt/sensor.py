@@ -391,19 +391,27 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
 def sensor_name(config, mac, sensor_type):
     """Set sensor name."""
     fmac = ":".join(mac[i : i + 2] for i in range(0, len(mac), 2))
-    sensor_names_dict = {
-        k.upper(): v for k, v in config[CONF_SENSOR_NAMES].items()
-    }
-    if fmac in sensor_names_dict:
-        custom_name = sensor_names_dict.get(fmac)
-        _LOGGER.debug(
-            "Name of %s sensor with mac adress %s is set to: %s",
-            sensor_type,
-            fmac,
-            custom_name,
-        )
-        return custom_name
-    return mac
+
+    if config[CONF_DEVICES]:
+        for device in config[CONF_DEVICES]:
+            if fmac in device["mac"].upper():
+                if "name" in device:
+                    custom_name = device["name"]
+                    _LOGGER.debug(
+                        "Name of %s sensor with mac adress %s is set to: %s",
+                        sensor_type,
+                        fmac,
+                        custom_name,
+                    )
+                    return custom_name
+                else:
+                    return mac
+            else:
+                continue
+        else:
+            return mac
+    else:
+        return mac
 
 
 def unit_of_measurement(config, mac):
@@ -414,7 +422,7 @@ def unit_of_measurement(config, mac):
         for device in config[CONF_DEVICES]:
             if fmac in device["mac"].upper():
                 if "unit_of_measurement" in device:
-                    if device["unit_of_measurement"] == 'fahrenheit':
+                    if device["unit_of_measurement"].lower() == 'fahrenheit':
                         _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Fahrenheit", fmac)
                         return TEMP_FAHRENHEIT
                     else:
@@ -441,7 +449,7 @@ def temperature_limit(config, mac, temp):
         for device in config[CONF_DEVICES]:
             if fmac in device["mac"].upper():
                 if "unit_of_measurement" in device:
-                    if device["unit_of_measurement"] == 'fahrenheit':
+                    if device["unit_of_measurement"].lower() == 'fahrenheit':
                         temp_fahrenheit = temp * 9 / 5 + 32
                         return temp_fahrenheit
                     else:
