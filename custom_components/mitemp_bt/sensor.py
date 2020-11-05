@@ -55,7 +55,6 @@ from .const import (
     CONF_ACTIVE_SCAN,
     CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
-    CONF_ENCRYPTORS,
     CONF_REPORT_UNKNOWN,
     CONF_WHITELIST,
     CONF_TMIN,
@@ -74,10 +73,6 @@ _LOGGER = logging.getLogger(__name__)
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
 AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
-
-ENCRYPTORS_LIST_SCHEMA = vol.Schema(
-    {cv.matches_regex(MAC_REGEX): cv.matches_regex(AES128KEY_REGEX)}
-)
 
 DEVICE_SCHEMA = vol.Schema(
     {
@@ -102,7 +97,6 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(
             CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
         ): cv.boolean,
-        vol.Optional(CONF_ENCRYPTORS, default={}): ENCRYPTORS_LIST_SCHEMA,
         vol.Optional(
             CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
         ): cv.boolean,
@@ -529,22 +523,20 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         )
     # prepare device:key lists to speedup parser
     aeskeys = {}
-    for mac in config[CONF_ENCRYPTORS]:
-        p_mac = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
-        p_key = bytes.fromhex(config[CONF_ENCRYPTORS][mac].lower())
-        aeskeys[p_mac] = p_key
+    if config[CONF_DEVICES]:
+        for device in config[CONF_DEVICES]:
+            if "encryption_key" in device:
+                p_mac = bytes.fromhex(reverse_mac(device["mac"].replace(":", "")).lower())
+                p_key = bytes.fromhex(device["encryption_key"].lower())
+                aeskeys[p_mac] = p_key
+            else:
+                continue
     _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(aeskeys))
     whitelist = []
-    if isinstance(config[CONF_WHITELIST], bool):
-        if config[CONF_WHITELIST] is True:
-            for mac in config[CONF_ENCRYPTORS]:
-                whitelist.append(mac)
-            for mac in config[CONF_SENSOR_NAMES]:
-                whitelist.append(mac)
+#    if isinstance(config[CONF_WHITELIST], bool):
+#        if config[CONF_WHITELIST] is True:
     if isinstance(config[CONF_WHITELIST], list):
         for mac in config[CONF_WHITELIST]:
-            whitelist.append(mac)
-        for mac in config[CONF_ENCRYPTORS]:
             whitelist.append(mac)
     # remove duplicates from whitelist
     whitelist = list(dict.fromkeys(whitelist))
