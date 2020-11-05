@@ -15,8 +15,6 @@ CONF_BATT_ENTITIES = "batt_entities"
 CONF_ENCRYPTORS = "encryptors"
 CONF_REPORT_UNKNOWN = "report_unknown"
 CONF_WHITELIST = "whitelist"
-CONF_SENSOR_NAMES = "sensor_names"
-CONF_SENSOR_FAHRENHEIT = "sensor_fahrenheit"
 CONF_ENCRYPTION_KEY = "encryption_key"
 
 
