@@ -13,6 +13,7 @@ import voluptuous as vol
 
 from homeassistant.const import (
     CONF_DEVICES,
+    CONF_DISCOVERY,
     CONF_MAC,
     CONF_NAME,
     CONF_TEMPERATURE_UNIT,
@@ -46,7 +47,7 @@ from .const import (
     DEFAULT_HCI_INTERFACE,
     DEFAULT_BATT_ENTITIES,
     DEFAULT_REPORT_UNKNOWN,
-    DEFAULT_WHITELIST,
+    DEFAULT_DISCOVERY,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -56,7 +57,6 @@ from .const import (
     CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_REPORT_UNKNOWN,
-    CONF_WHITELIST,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -100,10 +100,10 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(
             CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
         ): cv.boolean,
-        vol.Optional(CONF_WHITELIST, default=DEFAULT_WHITELIST): vol.Any(
-            vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]), cv.boolean
+        vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
+        vol.Optional(CONF_DEVICES, default=[]): vol.All(
+            cv.ensure_list, [DEVICE_SCHEMA]
         ),
-        vol.Optional(CONF_DEVICES, default=[]): vol.All(cv.ensure_list, [DEVICE_SCHEMA]),
     }
 )
 
@@ -402,24 +402,37 @@ def sensor_name(config, mac, sensor_type):
 
 def temperature_unit(config, mac):
     """Set temperature unit to °C or °F."""
-    fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
+    fmac = ":".join(mac[i : i + 2] for i in range(0, len(mac), 2))
 
     if config[CONF_DEVICES]:
         for device in config[CONF_DEVICES]:
             if fmac in device["mac"].upper():
                 if "temperature_unit" in device:
-                    _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in %s", fmac, device["temperature_unit"])
+                    _LOGGER.debug(
+                        "Temperature sensor with mac address %s is set to receive data in %s",
+                        fmac,
+                        device["temperature_unit"],
+                    )
                     return device["temperature_unit"]
                 else:
-                    _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in °C", fmac)
+                    _LOGGER.debug(
+                        "Temperature sensor with mac address %s is set to receive data in °C",
+                        fmac,
+                    )
                     return TEMP_CELSIUS
             else:
                 continue
         else:
-            _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in °C", fmac)
-            return TEMP_CELSIUS    
+            _LOGGER.debug(
+                "Temperature sensor with mac address %s is set to receive data in °C",
+                fmac,
+            )
+            return TEMP_CELSIUS
     else:
-        _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in °C", fmac)
+        _LOGGER.debug(
+            "Temperature sensor with mac address %s is set to receive data in °C",
+            fmac,
+        )
         return TEMP_CELSIUS
 
 
@@ -526,21 +539,24 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     if config[CONF_DEVICES]:
         for device in config[CONF_DEVICES]:
             if "encryption_key" in device:
-                p_mac = bytes.fromhex(reverse_mac(device["mac"].replace(":", "")).lower())
+                p_mac = bytes.fromhex(
+                    reverse_mac(device["mac"].replace(":", "")).lower()
+                )
                 p_key = bytes.fromhex(device["encryption_key"].lower())
                 aeskeys[p_mac] = p_key
             else:
                 continue
     _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(aeskeys))
+
     whitelist = []
-#    if isinstance(config[CONF_WHITELIST], bool):
-#        if config[CONF_WHITELIST] is True:
-    if isinstance(config[CONF_WHITELIST], list):
-        for mac in config[CONF_WHITELIST]:
-            whitelist.append(mac)
+    if isinstance(config[CONF_DISCOVERY], bool):
+        if config[CONF_DISCOVERY] is False:
+            if config[CONF_DEVICES]:
+                for device in config[CONF_DEVICES]:
+                    whitelist.append(device["mac"])
     # remove duplicates from whitelist
     whitelist = list(dict.fromkeys(whitelist))
-    _LOGGER.debug("whitelist: [%s]", ', '.join(whitelist).upper())
+    _LOGGER.debug("whitelist: [%s]", ", ".join(whitelist).upper())
     for i, mac in enumerate(whitelist):
         whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
     _LOGGER.debug("%s whitelist item(s) loaded.", len(whitelist))
