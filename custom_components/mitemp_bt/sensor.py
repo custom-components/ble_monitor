@@ -15,7 +15,7 @@ from homeassistant.const import (
     CONF_DEVICES,
     CONF_MAC,
     CONF_NAME,
-    CONF_UNIT_OF_MEASUREMENT,
+    CONF_TEMPERATURE_UNIT,
     DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_ILLUMINANCE,
@@ -58,8 +58,6 @@ from .const import (
     CONF_ENCRYPTORS,
     CONF_REPORT_UNKNOWN,
     CONF_WHITELIST,
-    CONF_SENSOR_NAMES,
-    CONF_SENSOR_FAHRENHEIT,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -77,8 +75,6 @@ _LOGGER = logging.getLogger(__name__)
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
 AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
 
-SENSOR_NAMES_LIST_SCHEMA = vol.Schema({cv.matches_regex(MAC_REGEX): cv.string})
-
 ENCRYPTORS_LIST_SCHEMA = vol.Schema(
     {cv.matches_regex(MAC_REGEX): cv.matches_regex(AES128KEY_REGEX)}
 )
@@ -88,7 +84,7 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Required(CONF_MAC): cv.string,
         vol.Optional(CONF_NAME): cv.string,
         vol.Optional(CONF_ENCRYPTION_KEY): cv.matches_regex(AES128KEY_REGEX),
-        vol.Optional(CONF_UNIT_OF_MEASUREMENT): cv.string,
+        vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
     }
 )
 
@@ -112,10 +108,6 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         ): cv.boolean,
         vol.Optional(CONF_WHITELIST, default=DEFAULT_WHITELIST): vol.Any(
             vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]), cv.boolean
-        ),
-        vol.Optional(CONF_SENSOR_NAMES, default={}): SENSOR_NAMES_LIST_SCHEMA,
-        vol.Optional(CONF_SENSOR_FAHRENHEIT, default=[]): vol.All(
-            cv.ensure_list, [cv.matches_regex(MAC_REGEX)]
         ),
         vol.Optional(CONF_DEVICES, default=[]): vol.All(cv.ensure_list, [DEVICE_SCHEMA]),
     }
@@ -414,30 +406,26 @@ def sensor_name(config, mac, sensor_type):
         return mac
 
 
-def unit_of_measurement(config, mac):
-    """Set unit of measurement to °C or °F."""
+def temperature_unit(config, mac):
+    """Set temperature unit to °C or °F."""
     fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
 
     if config[CONF_DEVICES]:
         for device in config[CONF_DEVICES]:
             if fmac in device["mac"].upper():
-                if "unit_of_measurement" in device:
-                    if device["unit_of_measurement"].lower() == 'fahrenheit':
-                        _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Fahrenheit", fmac)
-                        return TEMP_FAHRENHEIT
-                    else:
-                        _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Celsius", fmac)
-                        return TEMP_CELSIUS
+                if "temperature_unit" in device:
+                    _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in %s", fmac, device["temperature_unit"])
+                    return device["temperature_unit"]
                 else:
-                    _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Celsius", fmac)
+                    _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in °C", fmac)
                     return TEMP_CELSIUS
             else:
                 continue
         else:
-            _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Celsius", fmac)
+            _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in °C", fmac)
             return TEMP_CELSIUS    
     else:
-        _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in Celsius", fmac)
+        _LOGGER.debug("Temperature sensor with mac address %s is set to receive data in °C", fmac)
         return TEMP_CELSIUS
 
 
@@ -448,8 +436,8 @@ def temperature_limit(config, mac, temp):
     if config[CONF_DEVICES]:
         for device in config[CONF_DEVICES]:
             if fmac in device["mac"].upper():
-                if "unit_of_measurement" in device:
-                    if device["unit_of_measurement"].lower() == 'fahrenheit':
+                if "temperature_unit" in device:
+                    if device["temperature_unit"] == TEMP_FAHRENHEIT:
                         temp_fahrenheit = temp * 9 / 5 + 32
                         return temp_fahrenheit
                     else:
@@ -557,8 +545,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         for mac in config[CONF_WHITELIST]:
             whitelist.append(mac)
         for mac in config[CONF_ENCRYPTORS]:
-            whitelist.append(mac)
-        for mac in config[CONF_SENSOR_NAMES]:
             whitelist.append(mac)
     # remove duplicates from whitelist
     whitelist = list(dict.fromkeys(whitelist))
@@ -972,7 +958,7 @@ class TemperatureSensor(MeasuringSensor):
         self._sensor_name = sensor_name(config, mac, "temperature")
         self._name = "mi temperature {}".format(self._sensor_name)
         self._unique_id = "t_" + self._sensor_name
-        self._unit_of_measurement = unit_of_measurement(config, mac)
+        self._unit_of_measurement = temperature_unit(config, mac)
         self._device_class = DEVICE_CLASS_TEMPERATURE
 
 
