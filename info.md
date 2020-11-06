@@ -7,7 +7,9 @@
 
 # BREAKING CHANGES in 0.8.0 beta. 
 
-The configuration options have been restructured. Part of the options have been moved to a new `devices` option. If you use one of the following options, please update your configuration after updating to 0.8.0. (update component in HACS first --> restart Home Assistant --> update your configuration --> restart Home Assistant. 
+The configuration options have been restructured. Part of the options have been moved to a new `devices` option. If you use one of the following options, please update your configuration after updating to 0.8.0. 
+
+(update component in HACS first --> restart Home Assistant --> update your configuration --> restart Home Assistant) 
 - `encryptors`
 - `whitelist`
 - `sensor_names`
@@ -18,9 +20,11 @@ ADD LINK TO INSTRUCTIONS
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.8.0
+# BREAKING CHANGES in 0.8.0
 
-The configuration options have been restructured. Part of the options have been moved to a new `devices` option. If you use one of the following options, please update your configuration after updating to 0.8.0. (update component in HACS first --> restart Home Assistant --> update your configuration --> restart Home Assistant. 
+The configuration options have been restructured. Part of the options have been moved to a new `devices` option. If you use one of the following options, please update your configuration after updating to 0.8.0. 
+
+(update component in HACS first --> restart Home Assistant --> update your configuration --> restart Home Assistant)
 - `encryptors`
 - `whitelist`
 - `sensor_names`
