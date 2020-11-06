@@ -26,7 +26,7 @@ from homeassistant.const import (
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
     ATTR_BATTERY_LEVEL,
-    STATE_OFF, 
+    STATE_OFF,
     STATE_ON,
 )
 
@@ -158,7 +158,9 @@ class HCIdump(Thread):
             try:
                 self._event_loop.run_forever()
             finally:
-                _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
+                _LOGGER.debug(
+                    "HCIdump thread: main event_loop stopped, finishing",
+                )
                 btctrl.stop_scan_request()
                 conn.close()
                 self._event_loop.run_until_complete(asyncio.sleep(0))
@@ -267,7 +269,7 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
             return None
     # extract RSSI byte
     (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
-    #strange positive RSSI workaround
+    # strange positive RSSI workaround
     if rssi > 0:
         rssi = -rssi
     try:
@@ -376,7 +378,7 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
 
 def sensor_name(config, mac, sensor_type):
     """Set sensor name."""
-    fmac = ":".join(mac[i : i + 2] for i in range(0, len(mac), 2))
+    fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
 
     if config[CONF_DEVICES]:
         for device in config[CONF_DEVICES]:
@@ -402,7 +404,7 @@ def sensor_name(config, mac, sensor_type):
 
 def temperature_unit(config, mac):
     """Set temperature unit to °C or °F."""
-    fmac = ":".join(mac[i : i + 2] for i in range(0, len(mac), 2))
+    fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
 
     if config[CONF_DEVICES]:
         for device in config[CONF_DEVICES]:
@@ -454,7 +456,7 @@ def temperature_limit(config, mac, temp):
             else:
                 continue
         else:
-            return temp    
+            return temp
     else:
         return temp
 
@@ -496,7 +498,6 @@ class BLEScanner:
         if result is True:
             self.dumpthreads.clear()
         return result
-
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
@@ -714,7 +715,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     macs[mac] = mac
                 if "switch" in data:
                     switch_m_data[mac] = int(data["switch"])
-                    macs[mac] =mac
+                    macs[mac] = mac
                 if "battery" in data:
                     batt[mac] = int(data["battery"])
                     macs[mac] = mac
@@ -730,7 +731,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             # fixed entity index for every measurement type
             # according to the sensor implementation
             sensortype = stype[mac]
-            t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, b_i = MMTS_DICT[sensortype]
+            t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, b_i = MMTS_DICT[
+                sensortype
+            ]
             # if necessary, create a list of entities
             # according to the sensor implementation
             if mac in sensors_by_mac:
@@ -752,13 +755,17 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 if cn_i != 9:
                     sensors.insert(cn_i, ConsumableSensor(config, mac))
                     try:
-                        setattr(sensors[cn_i], "_cn_name", CN_NAME_DICT[sensortype])
+                        setattr(
+                            sensors[cn_i], "_cn_name", CN_NAME_DICT[sensortype]
+                        )
                     except KeyError:
                         pass
                 if sw_i != 9:
                     sensors.insert(sw_i, SwitchBinarySensor(config, mac))
                     try:
-                        setattr(sensors[sw_i], "_swclass", SW_CLASS_DICT[sensortype])
+                        setattr(
+                            sensors[sw_i], "_swclass", SW_CLASS_DICT[sensortype]
+                        )
                     except KeyError:
                         pass
                 if config[CONF_BATT_ENTITIES] and (b_i != 9):
@@ -767,16 +774,18 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 add_entities(sensors)
             # append joint attributes
             for sensor in sensors:
-                getattr(sensor, "_device_state_attributes")["last packet id"] = lpacket(
-                    mac
-                )
+                getattr(sensor, "_device_state_attributes")[
+                    "last packet id"
+                ] = lpacket(mac)
                 getattr(sensor, "_device_state_attributes")["rssi"] = round(
                     sts.mean(rssi[mac])
                 )
-                getattr(sensor, "_device_state_attributes")["sensor type"] = sensortype
-                getattr(sensor, "_device_state_attributes")["mac address"] = (
-                    ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
-                    )
+                getattr(sensor, "_device_state_attributes")[
+                    "sensor type"
+                ] = sensortype
+                getattr(sensor, "_device_state_attributes")[
+                    "mac address"
+                ] = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
                 if not isinstance(sensor, BatterySensor) and mac in batt:
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
@@ -796,7 +805,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         )
                     except RuntimeError as err:
                         _LOGGER.error(
-                            "Sensor %s (%s, batt.) update error:", mac, sensortype
+                            "Sensor %s (%s, batt.) update error:",
+                            mac,
+                            sensortype,
                         )
                         _LOGGER.error(err)
             if mac in temp_m_data:
@@ -813,7 +824,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     sensors[h_i], mac, config, hum_m_data[mac], sensortype
                 )
                 if not success:
-                    _LOGGER.error("Sensor %s (%s, hum.) update error:", mac, sensortype)
+                    _LOGGER.error(
+                        "Sensor %s (%s, hum.) update error:", mac, sensortype
+                    )
                     _LOGGER.error(error)
             if mac in moist_m_data:
                 success, error = calc_update_state(
@@ -848,7 +861,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 )
                 if not success:
                     _LOGGER.error(
-                        "Sensor %s (%s, formaldehyde) update error:", mac, sensortype
+                        "Sensor %s (%s, formaldehyde) update error:",
+                        mac,
+                        sensortype,
                     )
                     _LOGGER.error(error)
             if mac in cons_m_data:
@@ -863,7 +878,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     )
                 except RuntimeError as err:
                     _LOGGER.error(
-                        "Sensor %s (%s, cons.) update error:", mac, sensortype
+                        "Sensor %s (%s, cons.) update error:",
+                        mac,
+                        sensortype,
                     )
                     _LOGGER.error(err)
             if mac in switch_m_data:
@@ -906,7 +923,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
 
 class MeasuringSensor(Entity):
-    """Base class for measuring sensor entity"""
+    """Base class for measuring sensor entity."""
 
     def __init__(self, config, mac):
         """Initialize the sensor."""
@@ -957,11 +974,12 @@ class MeasuringSensor(Entity):
         """Force update."""
         return True
 
+
 class TemperatureSensor(MeasuringSensor):
     """Representation of a sensor."""
 
     def __init__(self, config, mac):
-        "Initialize the sensor."""
+        """Initialize the sensor."""
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "temperature")
         self._name = "mi temperature {}".format(self._sensor_name)
@@ -979,7 +997,7 @@ class HumiditySensor(MeasuringSensor):
         self._sensor_name = sensor_name(config, mac, "humidity")
         self._name = "mi humidity {}".format(self._sensor_name)
         self._unique_id = "h_" + self._sensor_name
-        self._unit_of_measurement = PERCENTAGE 
+        self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
 
 
@@ -992,7 +1010,7 @@ class MoistureSensor(MeasuringSensor):
         self._sensor_name = sensor_name(config, mac, "moisture")
         self._name = "mi moisture {}".format(self._sensor_name)
         self._unique_id = "m_" + self._sensor_name
-        self._unit_of_measurement = PERCENTAGE 
+        self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
 
 
@@ -1007,7 +1025,7 @@ class ConductivitySensor(MeasuringSensor):
         self._unique_id = "c_" + self._sensor_name
         self._unit_of_measurement = CONDUCTIVITY
         self._device_class = None
-        
+
     @property
     def icon(self):
         """Return the icon of the sensor."""
