@@ -9,13 +9,12 @@
 
 The configuration options have been restructured. Part of the options have been moved to a new `devices` option. If you use one of the following options, please update your configuration after updating to 0.8.0. 
 
-(update component in HACS first --> restart Home Assistant --> update your configuration --> restart Home Assistant) 
 - `encryptors`
 - `whitelist`
 - `sensor_names`
 - `sensor_fahrenheit`
 
-ADD LINK TO INSTRUCTIONS
+[Instructions to convert your configuration can be found here.](https://github.com/custom-components/sensor.mitemp_bt/blob/restructure_config/update_instructions.md)
 
 {% endif %}
 {% if installed or pending_update %}
@@ -24,13 +23,12 @@ ADD LINK TO INSTRUCTIONS
 
 The configuration options have been restructured. Part of the options have been moved to a new `devices` option. If you use one of the following options, please update your configuration after updating to 0.8.0. 
 
-(update component in HACS first --> restart Home Assistant --> update your configuration --> restart Home Assistant)
 - `encryptors`
 - `whitelist`
 - `sensor_names`
 - `sensor_fahrenheit`
 
-ADD LINK TO INSTRUCTIONS
+[Instructions to convert your configuration can be found here.](https://github.com/custom-components/sensor.mitemp_bt/blob/master/update_instructions.md)
 
 {% endif %}
 
