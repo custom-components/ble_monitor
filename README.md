@@ -169,7 +169,7 @@ sensor:
       encryption_key: '217C568CF5D22808DA20181502D84C1B'
       temperature_unit: C
     - mac: 'C4:3C:4D:6B:4F:F3'
-      name: Livingroom
+      name: Bedroom
       temperature_unit: F
     - mac: 'B4:7C:8D:6D:4C:D3'
 ```
