@@ -5,19 +5,28 @@
 
 # NB!: This is a Beta version!
 
-# Changes in 0.7.7 beta. 
+# BREAKING CHANGES in 0.8.0 beta. 
 
-Add support for sensors that send their temperature data in Fahrenheit. The LYWSD03MMC with custom firmware will send temperature data in Fahrenheit after changing the display to Fahrenheit. Use the [sensor_fahrenheit](#sensor_fahrenheit) option for these sensors to get the correct data in Home Assistant.
+The configuration options have been restructured. Part of the options have been moved to a new `devices` option. If you use one of the following options, please update your configuration after updating to 0.8.0. (update component in HACS first --> restart Home Assistant --> update your configuration --> restart Home Assistant. 
+- `encryptors`
+- `whitelist`
+- `sensor_names`
+- `sensor_fahrenheit`
+
+ADD LINK TO INSTRUCTIONS
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.7.7
+# Changes in 0.8.0
 
-- Add support for sensors that send their temperature data in Fahrenheit. The LYWSD03MMC with custom firmware will send temperature data in Fahrenheit after changing the display to Fahrenheit. Use the [sensor_fahrenheit](#sensor_fahrenheit) option for these sensors to get the correct data in Home Assistant.
-- [sensor_names](#sensor_names) configuration is now case insensitive
-- improved debug logging when using [sensor_names](#sensor_names) option
+The configuration options have been restructured. Part of the options have been moved to a new `devices` option. If you use one of the following options, please update your configuration after updating to 0.8.0. (update component in HACS first --> restart Home Assistant --> update your configuration --> restart Home Assistant. 
+- `encryptors`
+- `whitelist`
+- `sensor_names`
+- `sensor_fahrenheit`
 
+ADD LINK TO INSTRUCTIONS
 
 {% endif %}
 
@@ -29,7 +38,8 @@ Add support for sensors that send their temperature data in Fahrenheit. The LYWS
 - [Supported sensors](#supported-sensors)
 - [How to install](#how-to-install)
 - [Configuration](#configuration)
-  - [Configuration variables](#configuration-variables)
+  - [Configuration variables at component level](#configuration-variables-at-component-level)
+  - [Configuration variables at device level](#configuration-variables-at-device-level)
 - [Frequently asked questions](#frequently-asked-questions)
 - [Credits](#credits)
 - [Forum](#forum)
@@ -62,13 +72,13 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
 - LYWSD03MMC
 
-  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer) (make sure you set advertising type to mi-like). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryptors](#encryptors) option (not needed for sensors with custom firmware))
+  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer) (make sure you set advertising type to mi-like). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware))
   
   <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/LYWSD03MMC.jpg">
 
 - CGD1
 
-  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option)
+  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
   <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/CGD1.jpg">
   
@@ -80,7 +90,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MHO-C401
   
-  (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option)
+  (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
   
   <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/MHO-C401.jpg">
 
@@ -181,19 +191,22 @@ sensor:
     active_scan: False
     hci_interface: 0
     batt_entities: False
-    encryptors:
-      'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
-     sensor_fahrenheit:
-       - '58:C1:38:2F:86:6C'
-    sensor_names:
-      'A4:C1:38:2F:86:6C': 'Livingroom'
+    discovery: True
     report_unknown: False
-    whitelist: False
+    devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      name: Livingroom
+      encryption_key: '217C568CF5D22808DA20181502D84C1B'
+      temperature_unit: C
+    - mac: 'C4:3C:4D:6B:4F:F3'
+      name: Bedroom
+      temperature_unit: F
+    - mac: 'B4:7C:8D:6D:4C:D3'
 ```
 
-Note: The encryptors parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
+Note: The `encryption_key` parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
 
-### Configuration Variables
+### Configuration Variables at component level
 
 #### rounding
 
@@ -243,72 +256,79 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
    (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
 
-#### encryptors
+#### discovery
 
-   (dictionary)(Optional) This option is used to link the mac-address of the sensor broadcasting encrypted advertisements to the encryption key (32 characters = 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
-
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       encryptors:
-         'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
-         'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
-   ```
-
-#### sensor_fahrenheit
-
-   (list)(Optional) Most sensors are sending temperature measurements in Celsius (°C), which is the default assumption for `mitemp_bt`. However, some sensors, like the `LYWSD03MMC` sensor with custom firmware will start sending temperature measurements in Fahrenheit (°F) after changing the display from Celsius to Fahrenheit. This means that you will have to tell mitemp_bt that it should expect Fahrenheit measurements for these specific sensors, by listing the MAC-addresses of these sensors.
+   (boolean)(Optional) By default, the component creates entities for all discovered, supported sensors. However, situations may arise where you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or when data from part of your sensors are received using other equipment, and you don't want to see entities you do not need. To resolve this issue, simply add an entry of each MAC-address of the sensors you need under `devices`, by using the `mac` option, and set the `discovery` option to False:
 
    ```yaml
    sensor:
      - platform: mitemp_bt
-       sensor_fahrenheit:
-         - '58:C1:38:2F:86:6C'
-         - 'C4:FA:64:D1:61:7D'
+       discovery: False
+       devices:
+       - mac: '58:C1:38:2F:86:6C'
+       - mac: 'C4:FA:64:D1:61:7D'
    ```
 
-#### sensor_names
-
-   (dictionary)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: `sensor.mi_sensortype_sensor_name` (e.g. `sensor.mi_temperature_livingroom`) in stead of the default `mi_sensortype_mac` (e.g. `sensor.mi_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. After the change, you can manually delete the old entities from the Developer Tools section. The old data won't be transfered to the new sensor. Default value: Empty
-
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       sensor_names:
-         'A4:C1:38:2F:86:6C': 'Livingroom'
-         'A4:C1:38:D1:61:7D': 'Bedroom'
-   ```
+   Data from sensors with other addresses will be ignored. Default value: True
 
 #### report_unknown
 
    (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log (`logger` component must be enabled). **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
-#### whitelist
+### Configuration Variables at device level
 
-   (list or boolean)(Optional) By default, the component creates entities for all detected supported sensors. However, situations may arise where you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or when data from part of your sensors are received using other equipment, and you don't want to see entities you do not need. To resolve this issue, simply list the MAC-addresses of the sensors you need in the `whitelist` option:
-
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       whitelist:
-         - '58:C1:38:2F:86:6C'
-         - 'C4:FA:64:D1:61:7D'
-   ```
-
-   Data from sensors with other addresses will be ignored.
-   In addition, all addresses listed in the `encryptors` and `sensor_names` option will be automatically whitelisted.
-   If you have no sensors other than those listed in `encryptors` and/or `sensor_names`, then just set `whitelist` to `True`:
+#### devices
+   (Optional) The devices option is used for setting options at the level of the device and/or if you want to whitelist certain sensors with the `discovery` option. Note that if you use the `devices` option, the `mac` option is also required.
 
    ```yaml
    sensor:
      - platform: mitemp_bt
-       encryptors:
-         'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
-         'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
-       whitelist: True
+       devices:
+       - mac: 'A4:C1:38:2F:86:6C'
+         name: Livingroom
+         encryption_key: '217C568CF5D22808DA20181502D84C1B'
+         temperature_unit: C
+       - mac: 'C4:3C:4D:6B:4F:F3'
    ```
 
-   Default value: False
+#### mac
+   (string)(Required) The `mac` option is used to identify your sensor device based on its mac-address. This allows you to define other additional options for this specific sensor device and/or to whitelist it with the `discovery` option. You can find the mac-address in the attributes of your sensor (`Developers Tools` --> `States`).
+
+#### name
+   (string)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: `sensor.mi_sensortype_sensor_name` (e.g. `sensor.mi_temperature_livingroom`) in stead of the default `mi_sensortype_mac` (e.g. `sensor.mi_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. After the change, you can manually delete the old entities from the Developer Tools section. The old data won't be transfered to the new sensor. Default value: Empty
+
+   
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       devices:
+       - mac: 'A4:C1:38:2F:86:6C'
+         name: 'Livingroom'
+   ```
+
+#### sensor_fahrenheit
+
+   (C or F)(Optional) Most sensors are sending temperature measurements in Celsius (C), which is the default assumption for `mitemp_bt`. However, some sensors, like the `LYWSD03MMC` sensor with custom firmware will start sending temperature measurements in Fahrenheit (F) after changing the display from Celsius to Fahrenheit. This means that you will have to tell `mitemp_bt` that it should expect Fahrenheit measurements for these specific sensors. Default value: C
+
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       devices:
+       - mac: 'A4:C1:38:2F:86:6C'
+         temperature_unit: F
+   ```
+
+#### encryption_key
+
+   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+
+   ```yaml
+   sensor:
+     - platform: mitemp_bt
+       devices:
+       - mac: 'A4:C1:38:2F:86:6C'
+         encryption_key: '217C568CF5D22808DA20181502D84C1B'
+   ```
 
 ## FREQUENTLY ASKED QUESTIONS
 
