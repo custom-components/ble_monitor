@@ -196,14 +196,14 @@ sensor:
     discovery: True
     report_unknown: False
     devices:
-    - mac: 'A4:C1:38:2F:86:6C'
-      name: Livingroom
-      encryption_key: '217C568CF5D22808DA20181502D84C1B'
-      temperature_unit: C
-    - mac: 'C4:3C:4D:6B:4F:F3'
-      name: Bedroom
-      temperature_unit: F
-    - mac: 'B4:7C:8D:6D:4C:D3'
+      - mac: 'A4:C1:38:2F:86:6C'
+        name: Livingroom
+        encryption_key: '217C568CF5D22808DA20181502D84C1B'
+        temperature_unit: C
+      - mac: 'C4:3C:4D:6B:4F:F3'
+        name: Bedroom
+        temperature_unit: F
+      - mac: 'B4:7C:8D:6D:4C:D3'
 ```
 
 Note: The `encryption_key` parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
@@ -246,10 +246,10 @@ Note: The `encryption_key` parameter is only needed for sensors, for which it is
 
    ```yaml
    sensor:
-       - platform: mitemp_bt
-         hci_interface:
-           - 0
-           - 1
+     - platform: mitemp_bt
+       hci_interface:
+         - 0
+         - 1
    ```
 
    Default value: 0
@@ -267,8 +267,8 @@ Note: The `encryption_key` parameter is only needed for sensors, for which it is
      - platform: mitemp_bt
        discovery: False
        devices:
-       - mac: '58:C1:38:2F:86:6C'
-       - mac: 'C4:FA:64:D1:61:7D'
+         - mac: '58:C1:38:2F:86:6C'
+         - mac: 'C4:FA:64:D1:61:7D'
    ```
 
    Data from sensors with other addresses will be ignored. Default value: True
@@ -286,11 +286,11 @@ Note: The `encryption_key` parameter is only needed for sensors, for which it is
    sensor:
      - platform: mitemp_bt
        devices:
-       - mac: 'A4:C1:38:2F:86:6C'
-         name: Livingroom
-         encryption_key: '217C568CF5D22808DA20181502D84C1B'
-         temperature_unit: C
-       - mac: 'C4:3C:4D:6B:4F:F3'
+         - mac: 'A4:C1:38:2F:86:6C'
+           name: Livingroom
+           encryption_key: '217C568CF5D22808DA20181502D84C1B'
+           temperature_unit: C
+         - mac: 'C4:3C:4D:6B:4F:F3'
    ```
 
 #### mac
@@ -304,8 +304,8 @@ Note: The `encryption_key` parameter is only needed for sensors, for which it is
    sensor:
      - platform: mitemp_bt
        devices:
-       - mac: 'A4:C1:38:2F:86:6C'
-         name: 'Livingroom'
+         - mac: 'A4:C1:38:2F:86:6C'
+           name: 'Livingroom'
    ```
 
 #### sensor_fahrenheit
@@ -316,8 +316,8 @@ Note: The `encryption_key` parameter is only needed for sensors, for which it is
    sensor:
      - platform: mitemp_bt
        devices:
-       - mac: 'A4:C1:38:2F:86:6C'
-         temperature_unit: F
+         - mac: 'A4:C1:38:2F:86:6C'
+           temperature_unit: F
    ```
 
 #### encryption_key
@@ -328,8 +328,8 @@ Note: The `encryption_key` parameter is only needed for sensors, for which it is
    sensor:
      - platform: mitemp_bt
        devices:
-       - mac: 'A4:C1:38:2F:86:6C'
-         encryption_key: '217C568CF5D22808DA20181502D84C1B'
+         - mac: 'A4:C1:38:2F:86:6C'
+           encryption_key: '217C568CF5D22808DA20181502D84C1B'
    ```
 
 ## FREQUENTLY ASKED QUESTIONS
