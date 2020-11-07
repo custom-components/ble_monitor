@@ -246,13 +246,11 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
     if xiaomi_index == -1:
         return None
     # check for no BR/EDR + LE General discoverable mode flags
-    adv_index1 = data.find(b"\x02\x01\x06", 14, 17)
+    adv_index = data.find(b"\x02\x01\x06", 14, 17)
     adv_index2 = data.find(b"\x15\x16\x95", 14, 17)
-    if adv_index1 == -1 and adv_index2 == -1:
+    if adv_index == -1 and adv_index2 == -1:
         return None
-    elif adv_index1 != -1:
-        adv_index = adv_index1
-    elif adv_index2 != -1:
+    if adv_index2 != -1:
         adv_index = adv_index2
     # check for BTLE msg size
     msg_length = data[2] + 3
@@ -392,14 +390,8 @@ def sensor_name(config, mac, sensor_type):
                         custom_name,
                     )
                     return custom_name
-                else:
-                    return mac
-            else:
-                continue
-        else:
-            return mac
-    else:
-        return mac
+                break
+    return mac
 
 
 def temperature_unit(config, mac):
@@ -416,26 +408,12 @@ def temperature_unit(config, mac):
                         device["temperature_unit"],
                     )
                     return device["temperature_unit"]
-                else:
-                    _LOGGER.debug(
-                        "Temperature sensor with mac address %s is set to receive data in °C",
-                        fmac,
-                    )
-                    return TEMP_CELSIUS
-            else:
-                continue
-        else:
-            _LOGGER.debug(
-                "Temperature sensor with mac address %s is set to receive data in °C",
-                fmac,
-            )
-            return TEMP_CELSIUS
-    else:
-        _LOGGER.debug(
+                break
+    _LOGGER.debug(
             "Temperature sensor with mac address %s is set to receive data in °C",
             fmac,
-        )
-        return TEMP_CELSIUS
+    )
+    return TEMP_CELSIUS
 
 
 def temperature_limit(config, mac, temp):
@@ -449,16 +427,8 @@ def temperature_limit(config, mac, temp):
                     if device["temperature_unit"] == TEMP_FAHRENHEIT:
                         temp_fahrenheit = temp * 9 / 5 + 32
                         return temp_fahrenheit
-                    else:
-                        return temp
-                else:
-                    return temp
-            else:
-                continue
-        else:
-            return temp
-    else:
-        return temp
+                break
+    return temp
 
 
 class BLEScanner:
@@ -581,7 +551,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         if fdec > 0:
             rdecimals = fdec
         # LYWSD03MMC / MHO-C401 "jagged" humidity workaround
-        if stype == "LYWSD03MMC" or stype == "MHO-C401":
+        if stype in ('LYWSD03MMC', 'MHO-C401'):
             measurements = [int(item) for item in measurements_list]
         else:
             measurements = measurements_list
