@@ -27,14 +27,14 @@ sensor:
   - platform: mitemp_bt
     discovery: True
     devices:
-    - mac: 'A4:C1:38:2F:86:6C'
-      name: Livingroom
-      encryption_key: '217C568CF5D22808DA20181502D84C1B'
-      temperature_unit: C
-    - mac: 'C4:3C:4D:6B:4F:F3'
-      name: Bedroom
-      temperature_unit: F
-    - mac: 'B4:7C:8D:6D:4C:D3'
+      - mac: 'A4:C1:38:2F:86:6C'
+        name: Livingroom
+        encryption_key: '217C568CF5D22808DA20181502D84C1B'
+        temperature_unit: C
+      - mac: 'C4:3C:4D:6B:4F:F3'
+        name: Bedroom
+        temperature_unit: F
+      - mac: 'B4:7C:8D:6D:4C:D3'
 ```
 
 For each of the old options, the old and new format is given below. You can combine the options, as shown above. 
@@ -57,10 +57,10 @@ New configuration.yaml
 sensor:
   - platform: mitemp_bt
     devices:
-    - mac: 'A4:C1:38:2F:86:6C'
-      encryption_key: '217C568CF5D22808DA20181502D84C1B'
-    - mac: 'C4:3C:4D:6B:4F:F3'
-      encryption_key: 'C99D2313182473B38001086FEBF781BD'
+      - mac: 'A4:C1:38:2F:86:6C'
+        encryption_key: '217C568CF5D22808DA20181502D84C1B'
+      - mac: 'C4:3C:4D:6B:4F:F3'
+        encryption_key: 'C99D2313182473B38001086FEBF781BD'
 ```
 
 ### sensor_names
@@ -81,10 +81,10 @@ New configuration.yaml
 sensor:
   - platform: mitemp_bt
     devices:
-    - mac: 'A4:C1:38:2F:86:6C'
-      name: 'Livingroom'
-    - mac: 'C4:3C:4D:6B:4F:F3'
-      name: 'Bedroom'
+      - mac: 'A4:C1:38:2F:86:6C'
+        name: 'Livingroom'
+      - mac: 'C4:3C:4D:6B:4F:F3'
+        name: 'Bedroom'
 ```
 
 ### sensor_fahrenheit
@@ -105,10 +105,10 @@ New configuration.yaml
 sensor:
   - platform: mitemp_bt
     devices:
-    - mac: '58:C1:38:2F:86:6C'
-      temperature_unit: F
-    - mac: 'C4:FA:64:D1:61:7D'
-      temperature_unit: F
+      - mac: '58:C1:38:2F:86:6C'
+        temperature_unit: F
+      - mac: 'C4:FA:64:D1:61:7D'
+        temperature_unit: F
 ```
 
 Note, is is not needed to set the temperature_unit to C for sensors that measure in Celsius. C is the default value. 
@@ -132,8 +132,8 @@ sensor:
   - platform: mitemp_bt
     discovery: False
     devices:
-    - mac: '58:C1:38:2F:86:6C'
-    - mac: 'C4:FA:64:D1:61:7D'
+      - mac: '58:C1:38:2F:86:6C'
+      - mac: 'C4:FA:64:D1:61:7D'
 ```
 
 The `discovery: False` will prevent new sensors being discoverd. Only sensors under devices will be monitored. 
