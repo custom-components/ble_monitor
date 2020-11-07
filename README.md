@@ -171,11 +171,11 @@ sensor:
     report_unknown: False
     devices:
       - mac: 'A4:C1:38:2F:86:6C'
-        name: Livingroom
+        name: 'Livingroom'
         encryption_key: '217C568CF5D22808DA20181502D84C1B'
         temperature_unit: C
       - mac: 'C4:3C:4D:6B:4F:F3'
-        name: Bedroom
+        name: 'Bedroom'
         temperature_unit: F
       - mac: 'B4:7C:8D:6D:4C:D3'
 ```
@@ -261,7 +261,7 @@ Note: The encryption_key parameter is only needed for sensors, for which it is [
      - platform: mitemp_bt
        devices:
          - mac: 'A4:C1:38:2F:86:6C'
-           name: Livingroom
+           name: 'Livingroom'
            encryption_key: '217C568CF5D22808DA20181502D84C1B'
            temperature_unit: C
          - mac: 'C4:3C:4D:6B:4F:F3'
