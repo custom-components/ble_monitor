@@ -1,7 +1,7 @@
 # Update instructions for 0.8.0
 
 ## Why is the configuration input changed?
-The configuration options have been restructured in 0.8.0. This will allow us to furher develop the component in the future and add more options at the level of the sensor device.
+The configuration options have been restructured in 0.8.0. This will allow us to further develop the component in the future and add more options at the level of the sensor device.
 To make this possible, it was needed to restructure the configuration input. Part of the options have been moved to a new `devices` option, which has sub-options at device level. 
 
 ## Do I need to modify my configuration?
