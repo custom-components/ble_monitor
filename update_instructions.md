@@ -63,6 +63,8 @@ sensor:
         encryption_key: 'C99D2313182473B38001086FEBF781BD'
 ```
 
+Note that if you use secrets to hide your encryption keys, you will have to modify your 'secrets.yaml' file as well and create an entry of each 'encryption key'. 
+
 ### sensor_names
 
 Old configuration
