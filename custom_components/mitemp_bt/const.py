@@ -79,7 +79,7 @@ SW_CLASS_DICT = {
     'WX08ZM'    : DEVICE_CLASS_POWER
 }
 
-# Consumable sensor name dict
-CN_NAME_DICT = {
-    'WX08ZM'    : "tablet_"
+# Consumable sensor type dict
+CN_TYPE_DICT = {
+    'WX08ZM'    : "tablet"
 }
