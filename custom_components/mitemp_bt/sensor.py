@@ -237,7 +237,7 @@ def decrypt_payload(encrypted_payload, key, nonce):
     return plaindata
 
 
-def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
+def parse_raw_message(data, aeskeyslist, whitelist, report_unknown=False):
     """Parse the raw data."""
     if data is None:
         return None
@@ -325,7 +325,7 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
             ]
         )
         decrypted_payload = decrypt_payload(
-            data[xdata_point:msg_length-1], key, nonce
+            data[xdata_point:msg_length - 1], key, nonce
         )
         if decrypted_payload is None:
             _LOGGER.error(
@@ -334,7 +334,7 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
             )
             return None
         # replace cipher with decrypted data
-        msg_length -= len(data[xdata_point:msg_length-1])
+        msg_length -= len(data[xdata_point:msg_length - 1])
         data = b"".join((data[:xdata_point], decrypted_payload, data[-1:]))
         msg_length += len(decrypted_payload)
     packet_id = data[xiaomi_index + 7]
@@ -750,12 +750,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 getattr(sensor, "_device_state_attributes")["rssi"] = round(
                     sts.mean(rssi[mac])
                 )
-                getattr(sensor, "_device_state_attributes")[
-                    "sensor type"
-                ] = sensortype
-                getattr(sensor, "_device_state_attributes")[
-                    "mac address"
-                ] = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
+                getattr(sensor, "_device_state_attributes")["sensor type"] = sensortype
+                getattr(sensor, "_device_state_attributes")["mac address"] = (
+                    ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
+                )
                 if not isinstance(sensor, BatterySensor) and mac in batt:
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
