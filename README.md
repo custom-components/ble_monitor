@@ -14,7 +14,8 @@
 <!-- /TOC -->
 
 ## 0.8.0-BETA USER?
-For 0.8.0-beta users, please follow this [link](https://github.com/custom-components/sensor.mitemp_bt/tree/restructure_config) for updated configuration instructions. Instructions below only apply for versions up to 0.7.x. 
+
+For 0.8.0-beta users, please follow this [link](https://github.com/custom-components/sensor.mitemp_bt/tree/restructure_config) for updated configuration instructions. Instructions below only apply for versions up to 0.7.x.
 
 ## INTRODUCTION
 
@@ -52,7 +53,6 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   ![CGD1](/pictures/CGD1.jpg)
 
-  
 - MHO-C303
 
   (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
@@ -92,9 +92,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - WX08ZM
 
   (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
- 
+
   ![supported sensors](/pictures/WX08ZM.jpg)
-  
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
