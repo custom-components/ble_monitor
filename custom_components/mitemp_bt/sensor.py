@@ -21,7 +21,7 @@ from homeassistant.const import (
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
     ATTR_BATTERY_LEVEL,
-    STATE_OFF, 
+    STATE_OFF,
     STATE_ON,
 )
 
@@ -234,7 +234,7 @@ def decrypt_payload(encrypted_payload, key, nonce):
     return plaindata
 
 
-def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
+def parse_raw_message(data, aeskeyslist, whitelist, report_unknown=False):
     """Parse the raw data."""
     if data is None:
         return None
@@ -266,7 +266,7 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
             return None
     # extract RSSI byte
     (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
-    #strange positive RSSI workaround
+    # strange positive RSSI workaround
     if rssi > 0:
         rssi = -rssi
     try:
@@ -324,7 +324,7 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
             ]
         )
         decrypted_payload = decrypt_payload(
-            data[xdata_point:msg_length-1], key, nonce
+            data[xdata_point:msg_length - 1], key, nonce
         )
         if decrypted_payload is None:
             _LOGGER.error(
@@ -333,7 +333,7 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
             )
             return None
         # replace cipher with decrypted data
-        msg_length -= len(data[xdata_point:msg_length-1])
+        msg_length -= len(data[xdata_point:msg_length - 1])
         data = b"".join((data[:xdata_point], decrypted_payload, data[-1:]))
         msg_length += len(decrypted_payload)
     packet_id = data[xiaomi_index + 7]
@@ -389,11 +389,11 @@ def sensor_name(config, mac, sensor_type):
         )
         return custom_name
     return mac
-    
+
 
 def unit_of_measurement(config, mac):
     """Set unit of measurement to °C or °F."""
-    fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
+    fmac = ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
     sensor_fahrenheit_list = [x.upper() for x in config[CONF_SENSOR_FAHRENHEIT]]
     if fmac in sensor_fahrenheit_list:
         _LOGGER.debug(
@@ -406,7 +406,7 @@ def unit_of_measurement(config, mac):
 
 def temperature_limit(config, mac, temp):
     """Set limits for temperature measurement in °C or °F."""
-    fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
+    fmac = ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
     sensor_fahrenheit_list = [x.upper() for x in config[CONF_SENSOR_FAHRENHEIT]]
     if fmac in sensor_fahrenheit_list:
         temp_fahrenheit = temp * 9 / 5 + 32
@@ -451,7 +451,6 @@ class BLEScanner:
         if result is True:
             self.dumpthreads.clear()
         return result
-
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
@@ -670,7 +669,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                     macs[mac] = mac
                 if "switch" in data:
                     switch_m_data[mac] = int(data["switch"])
-                    macs[mac] =mac
+                    macs[mac] = mac
                 if "battery" in data:
                     batt[mac] = int(data["battery"])
                     macs[mac] = mac
@@ -731,8 +730,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 )
                 getattr(sensor, "_device_state_attributes")["sensor type"] = sensortype
                 getattr(sensor, "_device_state_attributes")["mac address"] = (
-                    ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
-                    )
+                    ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
+                )
                 if not isinstance(sensor, BatterySensor) and mac in batt:
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
@@ -913,6 +912,7 @@ class MeasuringSensor(Entity):
         """Force update."""
         return True
 
+
 class TemperatureSensor(MeasuringSensor):
     """Representation of a sensor."""
 
@@ -935,7 +935,7 @@ class HumiditySensor(MeasuringSensor):
         self._sensor_name = sensor_name(config, mac, "humidity")
         self._name = "mi humidity {}".format(self._sensor_name)
         self._unique_id = "h_" + self._sensor_name
-        self._unit_of_measurement = PERCENTAGE 
+        self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
 
 
@@ -948,7 +948,7 @@ class MoistureSensor(MeasuringSensor):
         self._sensor_name = sensor_name(config, mac, "moisture")
         self._name = "mi moisture {}".format(self._sensor_name)
         self._unique_id = "m_" + self._sensor_name
-        self._unit_of_measurement = PERCENTAGE 
+        self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
 
 
@@ -963,7 +963,7 @@ class ConductivitySensor(MeasuringSensor):
         self._unique_id = "c_" + self._sensor_name
         self._unit_of_measurement = CONDUCTIVITY
         self._device_class = None
-        
+
     @property
     def icon(self):
         """Return the icon of the sensor."""
