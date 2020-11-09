@@ -63,7 +63,7 @@ from .const import (
     XIAOMI_TYPE_DICT,
     MMTS_DICT,
     SW_CLASS_DICT,
-    CN_NAME_DICT,
+    CN_TYPE_DICT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -693,7 +693,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             else:
                 sensors = []
                 if t_i != 9:
-                    sensors.insert(t_i, TemperatureSensor(config, mac))
+                    sensors.insert(t_i, TemperatureSensor(config, mac, sensortype))
                 if h_i != 9:
                     sensors.insert(h_i, HumiditySensor(config, mac))
                 if m_i != 9:
@@ -705,15 +705,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 if f_i != 9:
                     sensors.insert(f_i, FormaldehydeSensor(config, mac))
                 if cn_i != 9:
-                    sensors.insert(cn_i, ConsumableSensor(config, mac))
+                    sensors.insert(cn_i, ConsumableSensor(config, mac, sensortype))
                     try:
-                        setattr(sensors[cn_i], "_cn_name", CN_NAME_DICT[sensortype])
+                        setattr(sensors[cn_i], "_cn_type", CN_TYPE_DICT[sensortype])
                     except KeyError:
                         pass
                 if sw_i != 9:
                     sensors.insert(sw_i, SwitchBinarySensor(config, mac))
                     try:
-                        setattr(sensors[sw_i], "_swclass", SW_CLASS_DICT[sensortype])
+                        setattr(sensors[sw_i], "_device", SW_CLASS_DICT[sensortype])
                     except KeyError:
                         pass
                 if config[CONF_BATT_ENTITIES] and (b_i != 9):
@@ -863,7 +863,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class MeasuringSensor(Entity):
     """Base class for measuring sensor entity"""
 
-    def __init__(self, config, mac):
+    def __init__(self, devicetype, config, integer=False):
         """Initialize the sensor."""
         self._name = ""
         self._state = None
@@ -871,6 +871,15 @@ class MeasuringSensor(Entity):
         self._device_class = None
         self._device_state_attributes = {}
         self._unique_id = ""
+        self._measurements = []
+        self._measurement = "measurement"
+        self._devicetype = devicetype
+        self.pending_update = False
+        self._rdecimals = config[CONF_DECIMALS]
+        self._rounding = config[CONF_ROUNDING]
+        self._usemedian = config[CONF_USE_MEDIAN]
+        self._fdec = 0
+        self._integer = integer
 
     @property
     def name(self):
@@ -912,13 +921,62 @@ class MeasuringSensor(Entity):
         """Force update."""
         return True
 
+    def collect(self, data, batt_attr=None):
+        """Measurements collector"""
+        self._measurements.append(data[self._measurement])
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["rssi"] = data["rssi"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
+
+    def update(self):
+        """updates sensor state and attributes"""
+        textattr = ""
+        rdecimals = self._rdecimals
+        # formaldehyde decimals workaround
+        if self._fdec > 0:
+            rdecimals = self._fdec
+        # "jagged" humidity workaround
+        if self._integer:
+            measurements = [int(item) for item in self._measurements]
+        else:
+            measurements = self._measurements
+        try:
+            if self._rounding:
+                state_median = round(
+                    sts.median(measurements), rdecimals
+                )
+                state_mean = round(
+                    sts.mean(measurements), rdecimals
+                )
+            else:
+                state_median = sts.median(measurements)
+                state_mean = sts.mean(measurements)
+            if self._usemedian:
+                textattr = "last median of"
+                self._state = state_median
+            else:
+                textattr = "last mean of"
+                self._state = state_mean
+            self._device_state_attributes[textattr] = len(measurements)
+            self._device_state_attributes["median"] = state_median
+            self._device_state_attributes["mean"] = state_mean
+        except (AttributeError, AssertionError):
+            _LOGGER.debug("Sensor %s not yet ready for update", self.name)
+        except (ZeroDivisionError, IndexError, RuntimeError) as err:
+            _LOGGER.error("Sensor %s (%s) update error:", self.name, self._devicetype)
+            _LOGGER.error(err)
+        self._measurements.clear()
+        self.pending_update = False
+
 
 class TemperatureSensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devicetype):
         "Initialize the sensor."""
-        super().__init__(config, mac)
+        super().__init__(devicetype, config)
         self._sensor_name = sensor_name(config, mac, "temperature")
         self._name = "mi temperature {}".format(self._sensor_name)
         self._unique_id = "t_" + self._sensor_name
@@ -1017,10 +1075,11 @@ class BatterySensor(MeasuringSensor):
 class ConsumableSensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devicetype):
         """Initialize the sensor."""
-        super().__init__(config, mac)
-        self._sensor_name = sensor_name(config, mac, "consumbable")
+        super().__init__(devicetype, config)
+        self._cn_type = ""
+        self._sensor_name = sensor_name(config, mac, self._cn_type)
         self._name = "mi consumable {}".format(self._sensor_name)
         self._unique_id = "cn__" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
@@ -1043,6 +1102,9 @@ class SwitchBinarySensor(BinarySensorEntity):
         self._unique_id = "sw_" + self._sensor_name
         self._device_state_attributes = {}
         self._device_class = None
+        self._newstate = None
+        self.prev_state = None
+        self.pending_update = False
 
     @property
     def is_on(self):
@@ -1083,3 +1145,19 @@ class SwitchBinarySensor(BinarySensorEntity):
     def force_update(self):
         """Force update."""
         return True
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector"""
+        self._newstate = data["switch"]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["rssi"] = data["rssi"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        if self._newstate != self.prev_state:
+            self.pending_update = True
+
+    def update(self):
+        """updates sensor state and attributes"""
+        self.prev_state = self._state
+        self._state = self._newstate
+        self.pending_update = False
