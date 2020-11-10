@@ -3,6 +3,8 @@ from homeassistant.const import (
     DEVICE_CLASS_POWER,
 )
 
+DOMAIN = "mitemp_bt"
+
 # Configuration options
 CONF_ROUNDING = "rounding"
 CONF_DECIMALS = "decimals"
