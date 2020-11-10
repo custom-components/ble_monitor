@@ -372,48 +372,6 @@ def parse_raw_message(data, aeskeyslist,  whitelist, report_unknown=False):
     return result
 
 
-def sensor_name(config, mac, sensor_type):
-    """Set sensor name."""
-    fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
-
-    if config[DOMAIN][CONF_DEVICES]:
-        for device in config[DOMAIN][CONF_DEVICES]:
-            if fmac in device["mac"].upper():
-                if "name" in device:
-                    custom_name = device["name"]
-                    _LOGGER.debug(
-                        "Name of %s sensor with mac adress %s is set to: %s",
-                        sensor_type,
-                        fmac,
-                        custom_name,
-                    )
-                    return custom_name
-                break
-    return mac
-
-
-def temperature_unit(config, mac):
-    """Set temperature unit to °C or °F."""
-    fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
-
-    if config[DOMAIN][CONF_DEVICES]:
-        for device in config[DOMAIN][CONF_DEVICES]:
-            if fmac in device["mac"].upper():
-                if "temperature_unit" in device:
-                    _LOGGER.debug(
-                        "Temperature sensor with mac address %s is set to receive data in %s",
-                        fmac,
-                        device["temperature_unit"],
-                    )
-                    return device["temperature_unit"]
-                break
-    _LOGGER.debug(
-            "Temperature sensor with mac address %s is set to receive data in °C",
-            fmac,
-    )
-    return TEMP_CELSIUS
-
-
 def temperature_limit(config, mac, temp):
     """Set limits for temperature measurement in °C or °F."""
     fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
