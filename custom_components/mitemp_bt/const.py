@@ -1,9 +1,9 @@
-"""Constants for the Xiaomi passive BLE monitor sensor integration."""
+"""Constants for the Passive BLE monitor integration."""
 from homeassistant.const import (
     DEVICE_CLASS_POWER,
 )
 
-DOMAIN = "mitemp_bt"
+DOMAIN = "ble_monitor"
 
 # Configuration options
 CONF_ROUNDING = "rounding"
