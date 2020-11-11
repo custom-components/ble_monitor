@@ -1,4 +1,4 @@
-"""Platform for sensor integration."""
+"""Xiaomi passive BLE monitor integration."""
 import asyncio
 from datetime import timedelta
 import logging
@@ -11,11 +11,6 @@ import aioblescan as aiobs
 from Cryptodome.Cipher import AES
 
 from homeassistant.const import (
-    CONF_DEVICES,
-    CONF_DISCOVERY,
-    CONF_MAC,
-    CONF_NAME,
-    CONF_TEMPERATURE_UNIT,
     DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_ILLUMINANCE,
@@ -28,25 +23,17 @@ from homeassistant.const import (
     STATE_OFF,
     STATE_ON,
 )
-
 from homeassistant.components.binary_sensor import BinarySensorEntity
-#from homeassistant.components.sensor import PLATFORM_SCHEMA
-#import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import track_point_in_utc_time
 import homeassistant.util.dt as dt_util
 
-from .const import (
-#    DEFAULT_ROUNDING,
-#    DEFAULT_DECIMALS,
-#    DEFAULT_PERIOD,
-#    DEFAULT_LOG_SPIKES,
-#    DEFAULT_USE_MEDIAN,
-#    DEFAULT_ACTIVE_SCAN,
-#    DEFAULT_HCI_INTERFACE,
-#    DEFAULT_BATT_ENTITIES,
-#    DEFAULT_REPORT_UNKNOWN,
-#    DEFAULT_DISCOVERY,
+from . import (
+    CONF_DEVICES,
+    CONF_DISCOVERY,
+    CONF_MAC,
+    CONF_NAME,
+    CONF_TEMPERATURE_UNIT,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -56,24 +43,393 @@ from .const import (
     CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_REPORT_UNKNOWN,
+)
+from .const import (
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
     CONF_ENCRYPTION_KEY,
-    DOMAIN,
     XIAOMI_TYPE_DICT,
     MMTS_DICT,
     SW_CLASS_DICT,
     CN_NAME_DICT,
-    DOMAIN,
+    DOMAIN
 )
 
 _LOGGER = logging.getLogger(__name__)
 
+# Structured objects for data conversions
+TH_STRUCT = struct.Struct("<hH")
+H_STRUCT = struct.Struct("<H")
+T_STRUCT = struct.Struct("<h")
+CND_STRUCT = struct.Struct("<H")
+ILL_STRUCT = struct.Struct("<I")
+FMDH_STRUCT = struct.Struct("<H")
+
+
+class HCIdump(Thread):
+    """Mimic deprecated hcidump tool."""
+
+    def __init__(self, dumplist, interface=0, active=0):
+        """Initiate HCIdump thread."""
+        Thread.__init__(self)
+        _LOGGER.debug("HCIdump thread: Init")
+        self._interface = interface
+        self._active = active
+        self.dumplist = dumplist
+        self._event_loop = None
+        _LOGGER.debug("HCIdump thread: Init finished")
+
+    def process_hci_events(self, data):
+        """Collect HCI events."""
+        self.dumplist.append(data)
+
+    def run(self):
+        """Run HCIdump thread."""
+        _LOGGER.debug("HCIdump thread: Run")
+        try:
+            mysocket = aiobs.create_bt_socket(self._interface)
+        except OSError as error:
+            _LOGGER.error("HCIdump thread: OS error: %s", error)
+        else:
+            self._event_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self._event_loop)
+            fac = self._event_loop._create_connection_transport(
+                mysocket, aiobs.BLEScanRequester, None, None
+            )
+            _LOGGER.debug("HCIdump thread: Connection")
+            conn, btctrl = self._event_loop.run_until_complete(fac)
+            _LOGGER.debug("HCIdump thread: Connected")
+            btctrl.process = self.process_hci_events
+            btctrl.send_command(
+                aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active)
+            )
+            btctrl.send_scan_request()
+            _LOGGER.debug("HCIdump thread: start main event_loop")
+            try:
+                self._event_loop.run_forever()
+            finally:
+                _LOGGER.debug(
+                    "HCIdump thread: main event_loop stopped, finishing",
+                )
+                btctrl.stop_scan_request()
+                conn.close()
+                self._event_loop.run_until_complete(asyncio.sleep(0))
+                self._event_loop.close()
+                _LOGGER.debug("HCIdump thread: Run finished")
+
+    def join(self, timeout=10):
+        """Join HCIdump thread."""
+        _LOGGER.debug("HCIdump thread: joining")
+        try:
+            self._event_loop.call_soon_threadsafe(self._event_loop.stop)
+        except AttributeError as error:
+            _LOGGER.debug("%s", error)
+        finally:
+            Thread.join(self, timeout)
+            _LOGGER.debug("HCIdump thread: joined")
+
+
+def parse_xiaomi_value(hexvalue, typecode):
+    """Convert value depending on its type."""
+    vlength = len(hexvalue)
+    if vlength == 4:
+        if typecode == b'\x0D\x10':
+            (temp, humi) = TH_STRUCT.unpack(hexvalue)
+            return {"temperature": temp / 10, "humidity": humi / 10}
+    if vlength == 2:
+        if typecode == b'\x06\x10':
+            (humi,) = H_STRUCT.unpack(hexvalue)
+            return {"humidity": humi / 10}
+        if typecode == b'\x04\x10':
+            (temp,) = T_STRUCT.unpack(hexvalue)
+            return {"temperature": temp / 10}
+        if typecode == b'\x09\x10':
+            (cond,) = CND_STRUCT.unpack(hexvalue)
+            return {"conductivity": cond}
+        if typecode == b'\x10\x10':
+            (fmdh,) = FMDH_STRUCT.unpack(hexvalue)
+            return {"formaldehyde": fmdh / 100}
+    if vlength == 1:
+        if typecode == b'\x0A\x10':
+            return {"battery": hexvalue[0]}
+        if typecode == b'\x08\x10':
+            return {"moisture": hexvalue[0]}
+        if typecode == b'\x12\x10':
+            return {"switch": hexvalue[0]}
+        if typecode == b'\x13\x10':
+            return {"consumable": hexvalue[0]}
+    if vlength == 3:
+        if typecode == b'\x07\x10':
+            (illum,) = ILL_STRUCT.unpack(hexvalue + b'\x00')
+            return {"illuminance": illum}
+    return None
+
+
+def decrypt_payload(encrypted_payload, key, nonce):
+    """Decrypt payload."""
+    aad = b"\x11"
+    token = encrypted_payload[-4:]
+    payload_counter = encrypted_payload[-7:-4]
+    nonce = b"".join([nonce, payload_counter])
+    cipherpayload = encrypted_payload[:-7]
+    cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
+    cipher.update(aad)
+    plaindata = None
+    try:
+        plaindata = cipher.decrypt_and_verify(cipherpayload, token)
+    except ValueError as error:
+        _LOGGER.error("Decryption failed: %s", error)
+        _LOGGER.error("token: %s", token.hex())
+        _LOGGER.error("nonce: %s", nonce.hex())
+        _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
+        _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
+        return None
+    return plaindata
+
+
+def parse_raw_message(data, aeskeyslist, whitelist, report_unknown=False):
+    """Parse the raw data."""
+    if data is None:
+        return None
+    # check for Xiaomi service data
+    xiaomi_index = data.find(b'\x16\x95\xFE', 15)
+    if xiaomi_index == -1:
+        return None
+    # check for no BR/EDR + LE General discoverable mode flags
+    adv_index = data.find(b"\x02\x01\x06", 14, 17)
+    adv_index2 = data.find(b"\x15\x16\x95", 14, 17)
+    if adv_index == -1 and adv_index2 == -1:
+        return None
+    if adv_index2 != -1:
+        adv_index = adv_index2
+    # check for BTLE msg size
+    msg_length = data[2] + 3
+    if msg_length != len(data):
+        return None
+    # check for MAC presence in message and in service data
+    xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
+    source_mac_reversed = data[adv_index - 7:adv_index - 1]
+    if xiaomi_mac_reversed != source_mac_reversed:
+        return None
+    # check for MAC presence in whitelist, if needed
+    if whitelist:
+        if xiaomi_mac_reversed not in whitelist:
+            return None
+    # extract RSSI byte
+    (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
+    # strange positive RSSI workaround
+    if rssi > 0:
+        rssi = -rssi
+    try:
+        sensor_type = XIAOMI_TYPE_DICT[
+            data[xiaomi_index + 5:xiaomi_index + 7]
+        ]
+    except KeyError:
+        if report_unknown:
+            _LOGGER.info(
+                "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
+                rssi,
+                ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+                data.hex()
+            )
+        return None
+    # frame control bits
+    framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
+    # check data is present
+    if not (framectrl & 0x4000):
+        return None
+    xdata_length = 0
+    xdata_point = 0
+    # check capability byte present
+    if framectrl & 0x2000:
+        xdata_length = -1
+        xdata_point = 1
+    # xiaomi data length = message length
+    #     -all bytes before XiaomiUUID
+    #     -3 bytes Xiaomi UUID + ADtype
+    #     -1 byte rssi
+    #     -3+1 bytes sensor type
+    #     -1 byte packet_id
+    #     -6 bytes MAC
+    #     - capability byte offset
+    xdata_length += msg_length - xiaomi_index - 15
+    if xdata_length < 3:
+        return None
+    xdata_point += xiaomi_index + 14
+    # check if xiaomi data start and length is valid
+    if xdata_length != len(data[xdata_point:-1]):
+        return None
+    # check encrypted data flags
+    if framectrl & 0x0800:
+        # try to find encryption key for current device
+        try:
+            key = aeskeyslist[xiaomi_mac_reversed]
+        except KeyError:
+            # no encryption key found
+            return None
+        nonce = b"".join(
+            [
+                xiaomi_mac_reversed,
+                data[xiaomi_index + 5:xiaomi_index + 7],
+                data[xiaomi_index + 7:xiaomi_index + 8]
+            ]
+        )
+        decrypted_payload = decrypt_payload(
+            data[xdata_point:msg_length - 1], key, nonce
+        )
+        if decrypted_payload is None:
+            _LOGGER.error(
+                "Decryption failed for %s, decrypted payload is None",
+                "".join("{:02X}".format(x) for x in xiaomi_mac_reversed[::-1]),
+            )
+            return None
+        # replace cipher with decrypted data
+        msg_length -= len(data[xdata_point:msg_length - 1])
+        data = b"".join((data[:xdata_point], decrypted_payload, data[-1:]))
+        msg_length += len(decrypted_payload)
+    packet_id = data[xiaomi_index + 7]
+    result = {
+        "rssi": rssi,
+        "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+        "type": sensor_type,
+        "packet": packet_id,
+    }
+    # loop through xiaomi payload
+    # assume that the data may have several values of different types,
+    # although I did not notice this behavior with my LYWSDCGQ sensors
+    while True:
+        xvalue_typecode = data[xdata_point:xdata_point + 2]
+        try:
+            xvalue_length = data[xdata_point + 2]
+        except ValueError as error:
+            _LOGGER.error("xvalue_length conv. error: %s", error)
+            _LOGGER.error("xdata_point: %s", xdata_point)
+            _LOGGER.error("data: %s", data.hex())
+            result = {}
+            break
+        except IndexError as error:
+            _LOGGER.error("Wrong xdata_point: %s", error)
+            _LOGGER.error("xdata_point: %s", xdata_point)
+            _LOGGER.error("data: %s", data.hex())
+            result = {}
+            break
+        xnext_point = xdata_point + 3 + xvalue_length
+        xvalue = data[xdata_point + 3:xnext_point]
+        res = parse_xiaomi_value(xvalue, xvalue_typecode)
+        if res:
+            result.update(res)
+        if xnext_point > msg_length - 3:
+            break
+        xdata_point = xnext_point
+    return result
+
+
+def sensor_name(config, mac, sensor_type):
+    """Set sensor name."""
+    fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
+
+    if config[DOMAIN][CONF_DEVICES]:
+        for device in config[DOMAIN][CONF_DEVICES]:
+            if fmac in device["mac"].upper():
+                if "name" in device:
+                    custom_name = device["name"]
+                    _LOGGER.debug(
+                        "Name of %s sensor with mac adress %s is set to: %s",
+                        sensor_type,
+                        fmac,
+                        custom_name,
+                    )
+                    return custom_name
+                break
+    return mac
+
+
+def temperature_unit(config, mac):
+    """Set temperature unit to °C or °F."""
+    fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
+
+    if config[DOMAIN][CONF_DEVICES]:
+        for device in config[DOMAIN][CONF_DEVICES]:
+            if fmac in device["mac"].upper():
+                if "temperature_unit" in device:
+                    _LOGGER.debug(
+                        "Temperature sensor with mac address %s is set to receive data in %s",
+                        fmac,
+                        device["temperature_unit"],
+                    )
+                    return device["temperature_unit"]
+                break
+    _LOGGER.debug(
+            "Temperature sensor with mac address %s is set to receive data in °C",
+            fmac,
+    )
+    return TEMP_CELSIUS
+
+
+def temperature_limit(config, mac, temp):
+    """Set limits for temperature measurement in °C or °F."""
+    fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
+
+    if config[DOMAIN][CONF_DEVICES]:
+        for device in config[DOMAIN][CONF_DEVICES]:
+            if fmac in device["mac"].upper():
+                if "temperature_unit" in device:
+                    if device["temperature_unit"] == TEMP_FAHRENHEIT:
+                        temp_fahrenheit = temp * 9 / 5 + 32
+                        return temp_fahrenheit
+                break
+    return temp
+
+
+class BLEScanner:
+    """BLE scanner."""
+
+    dumpthreads = []
+    hcidump_data = []
+
+    def start(self, config):
+        """Start receiving broadcasts."""
+        active_scan = config[DOMAIN][CONF_ACTIVE_SCAN]
+        hci_interfaces = config[DOMAIN][CONF_HCI_INTERFACE]
+        self.hcidump_data.clear()
+        _LOGGER.debug("Spawning HCIdump thread(s).")
+        for hci_int in hci_interfaces:
+            dumpthread = HCIdump(
+                dumplist=self.hcidump_data,
+                interface=hci_int,
+                active=int(active_scan is True),
+            )
+            self.dumpthreads.append(dumpthread)
+            _LOGGER.debug("Starting HCIdump thread for hci%s", hci_int)
+            dumpthread.start()
+        _LOGGER.debug("HCIdump threads count = %s", len(self.dumpthreads))
+
+    def stop(self):
+        """Stop HCIdump thread(s)."""
+        result = True
+        for dumpthread in self.dumpthreads:
+            if dumpthread.is_alive():
+                dumpthread.join()
+                if dumpthread.is_alive():
+                    result = False
+                    _LOGGER.error(
+                        "Waiting for the HCIdump thread to finish took too long! (>10s)"
+                    )
+        if result is True:
+            self.dumpthreads.clear()
+        return result
+
+    def shutdown_handler(self, event):
+        """Run homeassistant_stop event handler."""
+        _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
+        self.stop()
+
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
+
     def reverse_mac(rmac):
         """Change LE order to BE."""
         if len(rmac) != 12:
@@ -214,7 +570,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             _LOGGER.error("HCIdump thread(s) is not completed, interrupting data processing!")
             return []
         hcidump_raw = [*scanner.hcidump_data]
-        scanner.start()  # minimum delay between HCIdumps
+        scanner.start(config)  # minimum delay between HCIdumps
         report_unknown = config[DOMAIN][CONF_REPORT_UNKNOWN]
         for msg in hcidump_raw:
             data = parse_raw_message(msg, aeskeyslist, whitelist, report_unknown)
@@ -346,12 +702,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 getattr(sensor, "_device_state_attributes")["rssi"] = round(
                     sts.mean(rssi[mac])
                 )
-                getattr(sensor, "_device_state_attributes")[
-                    "sensor type"
-                ] = sensortype
-                getattr(sensor, "_device_state_attributes")[
-                    "mac address"
-                ] = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
+                getattr(sensor, "_device_state_attributes")["sensor type"] = sensortype
+                getattr(sensor, "_device_state_attributes")["mac address"] = (
+                    ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
+                )
                 if not isinstance(sensor, BatterySensor) and mac in batt:
                     getattr(sensor, "_device_state_attributes")[
                         ATTR_BATTERY_LEVEL
@@ -486,48 +840,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     update_ble(dt_util.utcnow())
     # Return successful setup
     return True
-
-
-def sensor_name(config, mac, sensor_type):
-    """Set sensor name."""
-    fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
-
-    if config[DOMAIN][CONF_DEVICES]:
-        for device in config[DOMAIN][CONF_DEVICES]:
-            if fmac in device["mac"].upper():
-                if "name" in device:
-                    custom_name = device["name"]
-                    _LOGGER.debug(
-                        "Name of %s sensor with mac adress %s is set to: %s",
-                        sensor_type,
-                        fmac,
-                        custom_name,
-                    )
-                    return custom_name
-                break
-    return mac
-
-
-def temperature_unit(config, mac):
-    """Set temperature unit to °C or °F."""
-    fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
-
-    if config[DOMAIN][CONF_DEVICES]:
-        for device in config[DOMAIN][CONF_DEVICES]:
-            if fmac in device["mac"].upper():
-                if "temperature_unit" in device:
-                    _LOGGER.debug(
-                        "Temperature sensor with mac address %s is set to receive data in %s",
-                        fmac,
-                        device["temperature_unit"],
-                    )
-                    return device["temperature_unit"]
-                break
-    _LOGGER.debug(
-            "Temperature sensor with mac address %s is set to receive data in °C",
-            fmac,
-    )
-    return TEMP_CELSIUS
 
 
 class MeasuringSensor(Entity):
@@ -753,4 +1065,3 @@ class SwitchBinarySensor(BinarySensorEntity):
     def force_update(self):
         """Force update."""
         return True
-    
