@@ -88,21 +88,7 @@ CONFIG_SCHEMA = vol.Schema(
 
 def setup(hass, config):
     """Set up the VeSync component."""
-    conf = config[DOMAIN]
 
-#    manager = VeSync(conf.get(CONF_USERNAME), conf.get(CONF_PASSWORD),
-#                     time_zone=conf.get(CONF_TIME_ZONE))
-
-#    if not manager.login():
-#        _LOGGER.error("Unable to login to VeSync")
-#        return
-
-#    manager.update()
-
-#    hass.data[DOMAIN] = {
-#        'manager': manager
-#    }
-
-    discovery.load_platform(hass, 'sensor', DOMAIN, {}, config)
-
+    hass.data[DOMAIN] = config[DOMAIN]
+    discovery.load_platform(hass, "sensor", DOMAIN, {}, config)
     return True

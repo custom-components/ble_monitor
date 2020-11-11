@@ -330,8 +330,8 @@ def sensor_name(config, mac, sensor_type):
     """Set sensor name."""
     fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
 
-    if config[DOMAIN][CONF_DEVICES]:
-        for device in config[DOMAIN][CONF_DEVICES]:
+    if config[CONF_DEVICES]:
+        for device in config[CONF_DEVICES]:
             if fmac in device["mac"].upper():
                 if "name" in device:
                     custom_name = device["name"]
@@ -350,8 +350,8 @@ def temperature_unit(config, mac):
     """Set temperature unit to °C or °F."""
     fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
 
-    if config[DOMAIN][CONF_DEVICES]:
-        for device in config[DOMAIN][CONF_DEVICES]:
+    if config[CONF_DEVICES]:
+        for device in config[CONF_DEVICES]:
             if fmac in device["mac"].upper():
                 if "temperature_unit" in device:
                     _LOGGER.debug(
@@ -372,8 +372,8 @@ def temperature_limit(config, mac, temp):
     """Set limits for temperature measurement in °C or °F."""
     fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
 
-    if config[DOMAIN][CONF_DEVICES]:
-        for device in config[DOMAIN][CONF_DEVICES]:
+    if config[CONF_DEVICES]:
+        for device in config[CONF_DEVICES]:
             if fmac in device["mac"].upper():
                 if "temperature_unit" in device:
                     if device["temperature_unit"] == TEMP_FAHRENHEIT:
@@ -391,8 +391,8 @@ class BLEScanner:
 
     def start(self, config):
         """Start receiving broadcasts."""
-        active_scan = config[DOMAIN][CONF_ACTIVE_SCAN]
-        hci_interfaces = config[DOMAIN][CONF_HCI_INTERFACE]
+        active_scan = config[CONF_ACTIVE_SCAN]
+        hci_interfaces = config[CONF_HCI_INTERFACE]
         self.hcidump_data.clear()
         _LOGGER.debug("Spawning HCIdump thread(s).")
         for hci_int in hci_interfaces:
@@ -427,7 +427,7 @@ class BLEScanner:
         self.stop()
 
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
+def setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
 
     def reverse_mac(rmac):
@@ -448,19 +448,20 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             return cntr
 
     _LOGGER.debug("Starting")
+    config = hass.data[DOMAIN]
     firstrun = True
     scanner = BLEScanner()
     hass.bus.listen("homeassistant_stop", scanner.shutdown_handler)
     scanner.start(config)
     sensors_by_mac = {}
-    if config[DOMAIN][CONF_REPORT_UNKNOWN]:
+    if config[CONF_REPORT_UNKNOWN]:
         _LOGGER.info(
             "Attention! Option report_unknown is enabled, be ready for a huge output..."
         )
     # prepare device:key lists to speedup parser
     aeskeys = {}
-    if config[DOMAIN][CONF_DEVICES]:
-        for device in config[DOMAIN][CONF_DEVICES]:
+    if config[CONF_DEVICES]:
+        for device in config[CONF_DEVICES]:
             if "encryption_key" in device:
                 p_mac = bytes.fromhex(
                     reverse_mac(device["mac"].replace(":", "")).lower()
@@ -472,10 +473,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(aeskeys))
 
     whitelist = []
-    if isinstance(config[DOMAIN][CONF_DISCOVERY], bool):
-        if config[DOMAIN][CONF_DISCOVERY] is False:
-            if config[DOMAIN][CONF_DEVICES]:
-                for device in config[DOMAIN][CONF_DEVICES]:
+    if isinstance(config[CONF_DISCOVERY], bool):
+        if config[CONF_DISCOVERY] is False:
+            if config[CONF_DEVICES]:
+                for device in config[CONF_DEVICES]:
                     whitelist.append(device["mac"])
     # remove duplicates from whitelist
     whitelist = list(dict.fromkeys(whitelist))
@@ -498,7 +499,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         textattr = ""
         success = False
         error = ""
-        rdecimals = config[DOMAIN][CONF_DECIMALS]
+        rdecimals = config[CONF_DECIMALS]
         # formaldehyde decimals workaround
         if fdec > 0:
             rdecimals = fdec
@@ -508,13 +509,13 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         else:
             measurements = measurements_list
         try:
-            if config[DOMAIN][CONF_ROUNDING]:
+            if config[CONF_ROUNDING]:
                 state_median = round(sts.median(measurements), rdecimals)
                 state_mean = round(sts.mean(measurements), rdecimals)
             else:
                 state_median = sts.median(measurements)
                 state_mean = sts.mean(measurements)
-            if config[DOMAIN][CONF_USE_MEDIAN]:
+            if config[CONF_USE_MEDIAN]:
                 textattr = "last median of"
                 setattr(entity_to_update, "_state", state_median)
             else:
@@ -550,7 +551,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             _LOGGER.debug("First run, skip parsing.")
             return []
         _LOGGER.debug("Discovering Bluetooth LE devices")
-        log_spikes = config[DOMAIN][CONF_LOG_SPIKES]
+        log_spikes = config[CONF_LOG_SPIKES]
         _LOGGER.debug("Time to analyze...")
         stype = {}
         hum_m_data = {}
@@ -571,7 +572,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             return []
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
-        report_unknown = config[DOMAIN][CONF_REPORT_UNKNOWN]
+        report_unknown = config[CONF_REPORT_UNKNOWN]
         for msg in hcidump_raw:
             data = parse_raw_message(msg, aeskeyslist, whitelist, report_unknown)
             if data and "mac" in data:
@@ -690,7 +691,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                         )
                     except KeyError:
                         pass
-                if config[DOMAIN][CONF_BATT_ENTITIES] and (b_i != 9):
+                if config[CONF_BATT_ENTITIES] and (b_i != 9):
                     sensors.insert(b_i, BatterySensor(config, mac))
                 sensors_by_mac[mac] = sensors
                 add_entities(sensors)
@@ -713,7 +714,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
             # averaging and states updating
             if mac in batt:
-                if config[DOMAIN][CONF_BATT_ENTITIES]:
+                if config[CONF_BATT_ENTITIES]:
                     setattr(sensors[b_i], "_state", batt[mac])
                     try:
                         sensors[b_i].schedule_update_ha_state()
@@ -827,7 +828,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     def update_ble(now):
         """Lookup Bluetooth LE devices and update status."""
-        period = config[DOMAIN][CONF_PERIOD]
+        period = config[CONF_PERIOD]
         _LOGGER.debug("update_ble called")
         try:
             discover_ble_devices(config, aeskeys, whitelist)
