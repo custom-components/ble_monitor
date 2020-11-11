@@ -713,7 +713,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 if sw_i != 9:
                     sensors.insert(sw_i, SwitchBinarySensor(config, mac))
                     try:
-                        setattr(sensors[sw_i], "_device", SW_CLASS_DICT[sensortype])
+                        setattr(sensors[sw_i], "_device_class", SW_CLASS_DICT[sensortype])
                     except KeyError:
                         pass
                 if config[CONF_BATT_ENTITIES] and (b_i != 9):
