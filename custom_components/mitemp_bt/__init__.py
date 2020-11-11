@@ -1,4 +1,4 @@
-"""Xiaomi passive BLE monitor integration."""
+"""Passive BLE monitor integration."""
 import logging
 import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
