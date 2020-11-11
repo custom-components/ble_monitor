@@ -1,4 +1,4 @@
-"""Passive BLE monitor integration."""
+"""Passive BLE monitor sensor platform."""
 import asyncio
 from datetime import timedelta
 import logging
