@@ -1,4 +1,4 @@
-"""Xiaomi passive BLE monitor integration."""
+"""Xiaomi passive BLE monitor sensor platform."""
 import asyncio
 from datetime import timedelta
 import logging
@@ -31,9 +31,6 @@ import homeassistant.util.dt as dt_util
 from . import (
     CONF_DEVICES,
     CONF_DISCOVERY,
-    CONF_MAC,
-    CONF_NAME,
-    CONF_TEMPERATURE_UNIT,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -49,12 +46,11 @@ from .const import (
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
-    CONF_ENCRYPTION_KEY,
     XIAOMI_TYPE_DICT,
     MMTS_DICT,
     SW_CLASS_DICT,
     CN_NAME_DICT,
-    DOMAIN
+    DOMAIN,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -328,7 +324,7 @@ def parse_raw_message(data, aeskeyslist, whitelist, report_unknown=False):
 
 def sensor_name(config, mac, sensor_type):
     """Set sensor name."""
-    fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
+    fmac = ":".join(mac[i:i + 2] for i in range(0, len(mac), 2))
 
     if config[CONF_DEVICES]:
         for device in config[CONF_DEVICES]:
@@ -348,7 +344,7 @@ def sensor_name(config, mac, sensor_type):
 
 def temperature_unit(config, mac):
     """Set temperature unit to °C or °F."""
-    fmac = ":".join(mac[i:i+2] for i in range(0, len(mac), 2))
+    fmac = ":".join(mac[i:i + 2] for i in range(0, len(mac), 2))
 
     if config[CONF_DEVICES]:
         for device in config[CONF_DEVICES]:
@@ -362,15 +358,15 @@ def temperature_unit(config, mac):
                     return device["temperature_unit"]
                 break
     _LOGGER.debug(
-            "Temperature sensor with mac address %s is set to receive data in °C",
-            fmac,
+        "Temperature sensor with mac address %s is set to receive data in °C",
+        fmac,
     )
     return TEMP_CELSIUS
 
 
 def temperature_limit(config, mac, temp):
     """Set limits for temperature measurement in °C or °F."""
-    fmac = ':'.join(mac[i:i+2] for i in range(0, len(mac), 2))
+    fmac = ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
 
     if config[CONF_DEVICES]:
         for device in config[CONF_DEVICES]:

@@ -1,4 +1,5 @@
 """Xiaomi passive BLE monitor integration."""
+import logging
 import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
 
@@ -10,8 +11,6 @@ from homeassistant.const import (
     CONF_TEMPERATURE_UNIT,
 )
 
-import logging
-from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import discovery
 
 from .const import (
@@ -34,12 +33,8 @@ from .const import (
     CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_REPORT_UNKNOWN,
-    CONF_TMIN,
-    CONF_TMAX,
-    CONF_HMIN,
-    CONF_HMAX,
     CONF_ENCRYPTION_KEY,
-    DOMAIN
+    DOMAIN,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -86,9 +81,9 @@ CONFIG_SCHEMA = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
-def setup(hass, config):
-    """Set up the VeSync component."""
 
+def setup(hass, config):
+    """Set up integration."""
     hass.data[DOMAIN] = config[DOMAIN]
     discovery.load_platform(hass, "sensor", DOMAIN, {}, config)
     return True
