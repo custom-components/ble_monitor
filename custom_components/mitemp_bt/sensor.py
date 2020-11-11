@@ -1,4 +1,4 @@
-"""Xiaomi passive BLE monitor sensor platform."""
+"""Passive BLE monitor integration."""
 import asyncio
 from datetime import timedelta
 import logging
