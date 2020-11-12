@@ -6,6 +6,8 @@ Our custom component `mitemp_bt` was designed as a so called `sensor platform`, 
 
 So, we decided to make this change and, as it will be a breaking change anyways, we also decided to think about the name of the integration. During time we started to add more and more sensors, not only Xiaomi Mi Temperature sensors, what the name `mitemp_bt` suggests. We decided that `ble_monitor` would be a better name to reflect the capablities of our integration. The full name will become Passive BLE Monitor integration.
 
+Note that your sensor names are most likely also renamed. Look for sensors that start for ble_ (e.g. `ble_temperature_livingroom`). We recommend to use the new `name` option to easily rename and find your sensors. 
+
 ## Do I need to modify my configuration?
 
 Yes, everybody has to change their config. All users have to change the following lines
