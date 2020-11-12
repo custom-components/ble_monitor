@@ -16,6 +16,7 @@
 
 <!-- /TOC -->
 
+
 ## BREAKING CHANGES IN 0.8.1
 
 This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading to 0.8.1 (and higher).
@@ -50,6 +51,7 @@ Of course, all additional parameters can still be set, as explained below. Howev
 
 If you use one of these parameters, make sure you read the following
 [instructions to convert your configuration to the new format.](update_instructions.md)
+
 
 ## INTRODUCTION
 
