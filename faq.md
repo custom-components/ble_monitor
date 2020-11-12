@@ -3,24 +3,24 @@
 ## Table of contents
 
 <!-- TOC -->
-  - [Why is this component called “passive” and what does this mean](#why-is-this-component-called-passive-and-what-does-this-mean)
-  - [INSTALLATION ISSUES](#installation-issues)
+- [Why is this component called “passive” and what does this mean](#why-is-this-component-called-passive-and-what-does-this-mean)
+- [INSTALLATION ISSUES](#installation-issues)
       - [I get a PermissionError in Home Assistant after the installation](#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade)
       - [How do I find the number of the HCI interface?](#how-do-i-find-the-number-of-the-hci-interface)
       - [How can I create a battery sensor?](#how-can-i-create-a-battery-sensor)
-  - [RECEPTION ISSUES](#reception-issues)
+- [RECEPTION ISSUES](#reception-issues)
       - [My sensor doesn't receive any readings from my sensors anymore or only occasionally](#my-sensor-doesnt-receive-any-readings-from-my-sensors-anymore-or-only-occasionally)
       - [How to increase coverage](#how-to-increase-coverage)
       - [My sensor's BLE advertisements are encrypted, how can I get the key?](#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key)
-  - [OTHER ISSUES](#other-issues)
+- [OTHER ISSUES](#other-issues)
       - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
       - [My sensor stops receiving updates some time after the system restart](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
       - [My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?](#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)
       - [My sensor isn't showing the battery level](#my-sensor-isnt-showing-the-battery-level)
-  - [TIPS AND TRICKS](#tips-and-tricks)
+- [TIPS AND TRICKS](#tips-and-tricks)
       - [How to know exactly if the reception of data from my sensors has stopped?](#how-to-know-exactly-if-the-reception-of-data-from-my-sensors-has-stopped)
-  - [DEBUG](#debug)
-  - [FORUM](#forum)
+- [DEBUG](#debug)
+- [FORUM](#forum)
 <!-- /TOC -->
 
 ## Why is this component called passive and what does this mean
@@ -143,20 +143,20 @@ There are several ways:
 
     - Keep the sensor close to the mobile phone (android only) or Windows computer.
     - Make sure that the bluetooth is enabled.
-    - Using your browser, navigate to https://atc1441.github.io/TelinkFlasher.html.
+    - Using your browser, navigate to [this page](https://atc1441.github.io/TelinkFlasher.html).
     - Now, click the [Connect] button and wait until it shows "Connected." See the Log section at the bottom.
     - Once connected, click the [Do Activation] button and wait until the "Mi Bind Key" shows the information.
   
 2. Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms) while adding a sensor to the application ("pairing"). If the sensor has already been added before, then you can first delete it and add it again:
 
-      - iOS: Two known working options 
-        - [using Charles proxy, paid $7-10](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595327131), 
+      - iOS: Two known working options
+        - [using Charles proxy, paid $7-10](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595327131),
         - [using Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex). For more detailed instructions, check [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex) or [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex).
-      - Android: 
-        - using Packet Capture. 
+      - Android:
+        - using Packet Capture.
         - [using Burp Suite](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-599780750), device must be rooted.
 
-2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595874419).
+3. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595874419).
 
 ## OTHER ISSUES
 
@@ -192,7 +192,7 @@ logger:
 
 ### My sensor isn't showing the battery level
 
-Battery level is not broadcasted by all sensors. Check the list of [supported sensors](https://github.com/custom-components/ble_monitor/blob/master/README.md#supported-sensors) to see if your sensor supports battery level. LYWSD02 sensors need to be updated to firmware 1.1.2_00085 or above to the show battery level. 
+Battery level is not broadcasted by all sensors. Check the list of [supported sensors](https://github.com/custom-components/ble_monitor/blob/master/README.md#supported-sensors) to see if your sensor supports battery level. LYWSD02 sensors need to be updated to firmware 1.1.2_00085 or above to the show battery level.
 
 ## TIPS AND TRICKS
 

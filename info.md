@@ -5,36 +5,39 @@
 
 # NB!: This is a Beta version!
 
-# BREAKING CHANGES in 0.8.1 beta. 
+# BREAKING CHANGES in 0.8.1 beta
 
 [Instructions to convert your configuration can be found here.](https://github.com/custom-components/ble_monitor/blob/integration_level/update_instructions.md)
 
-This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading to 0.8.1 (and higher). 
+This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading to 0.8.1 (and higher).
 
 Our custom component `mitemp_bt` was designed as a so called `sensor platform`, which is in Home Assistant language a `platform` under the `sensor` integration. Home Assistant however has made an architecture decision in [ADR 0007](https://github.com/home-assistant/architecture/blob/413e3cb248cf8dca766c0280997f3b516e23fb6d/adr/0007-integration-config-yaml-structure.md), which basically says that `mitemp_bt` should be a `integration` on its own.
 
-So, we decided to make this change and, as it will be a breaking change anyways, we also decided to think about the name of the integration. During time we started to add more and more sensors, not only Xiaomi Mi Temperature sensors, what the name `mitemp_bt` suggests. We decided that `ble_monitor` would be a better name to reflect the capablities of our integration. The full name will become Passive BLE Monitor integration. 
+So, we decided to make this change and, as it will be a breaking change anyways, we also decided to think about the name of the integration. During time we started to add more and more sensors, not only Xiaomi Mi Temperature sensors, what the name `mitemp_bt` suggests. We decided that `ble_monitor` would be a better name to reflect the capablities of our integration. The full name will become Passive BLE Monitor integration.
 
-In short,  if you have the minimal configuration, you will have to change your configuration.yaml 
+In short,  if you have the minimal configuration, you will have to change your configuration.yaml
 
 Old configuration
+
 ```yaml
 sensor:
   - platform: mitemp_bt
 ```
 
 New configuration
+
 ```yaml
 ble_monitor:
 ```
 
-Of course, all additional parameters can still be set, as explained below. However, for the following parameters, the configuration has changed compared to the old situation. 
+Of course, all additional parameters can still be set, as explained below. However, for the following parameters, the configuration has changed compared to the old situation.
+
 - `sensor_names`
 - `sensor_fahrenheit`
 - `encryptors`
 - `whitelist`
 
-If you use one of these parameters, make sure you read the following 
+If you use one of these parameters, make sure you read the following
 [instructions to convert your configuration to the new format.](https://github.com/custom-components/ble_monitor/blob/integration_level/update_instructions.md)
 
 {% endif %}
@@ -44,37 +47,41 @@ If you use one of these parameters, make sure you read the following
 
 [Instructions to convert your configuration can be found here.](https://github.com/custom-components/ble_monitor/blob/master/update_instructions.md)
 
-This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading to 0.8.1 (and higher). 
+This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading to 0.8.1 (and higher).
 
 Our custom component `mitemp_bt` was designed as a so called `sensor platform`, which is in Home Assistant language a `platform` under the `sensor` integration. Home Assistant however has made an architecture decision in [ADR 0007](https://github.com/home-assistant/architecture/blob/413e3cb248cf8dca766c0280997f3b516e23fb6d/adr/0007-integration-config-yaml-structure.md), which basically says that `mitemp_bt` should be a `integration` on its own.
 
-So, we decided to make this change and, as it will be a breaking change anyways, we also decided to think about the name of the integration. During time we started to add more and more sensors, not only Xiaomi Mi Temperature sensors, what the name `mitemp_bt` suggests. We decided that `ble_monitor` would be a better name to reflect the capablities of our integration. The full name will become Passive BLE Monitor integration. 
+So, we decided to make this change and, as it will be a breaking change anyways, we also decided to think about the name of the integration. During time we started to add more and more sensors, not only Xiaomi Mi Temperature sensors, what the name `mitemp_bt` suggests. We decided that `ble_monitor` would be a better name to reflect the capablities of our integration. The full name will become Passive BLE Monitor integration.
 
-In short,  if you have the minimal configuration, you will have to change your configuration.yaml 
+In short,  if you have the minimal configuration, you will have to change your configuration.yaml
 
 Old configuration
+
 ```yaml
 sensor:
   - platform: mitemp_bt
 ```
 
 New configuration
+
 ```yaml
 ble_monitor:
 ```
 
-Of course, all additional parameters can still be set, as explained below. However, for the following parameters, the configuration has changed compared to the old situation. 
+Of course, all additional parameters can still be set, as explained below. However, for the following parameters, the configuration has changed compared to the old situation.
+
 - `sensor_names`
 - `sensor_fahrenheit`
 - `encryptors`
 - `whitelist`
 
-If you use one of these parameters, make sure you read the following 
+If you use one of these parameters, make sure you read the following
 [instructions to convert your configuration to the new format.](https://github.com/custom-components/ble_monitor/blob/master/update_instructions.md)
 
 {% endif %}
 
 # Passive BLE Monitor integration
+
 ### Xiaomi Mijia BLE MiBeacon Monitor
 
 <!-- TOC -->
@@ -127,7 +134,6 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   ![CGD1](/pictures/CGD1.jpg)
 
-  
 - MHO-C303
 
   (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
@@ -167,9 +173,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - WX08ZM
 
   (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
- 
+
   ![supported sensors](/pictures/WX08ZM.jpg)
-  
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
@@ -246,6 +251,7 @@ ble_monitor:
       temperature_unit: F
     - mac: 'B4:7C:8D:6D:4C:D3'
 ```
+
 Note: The encryption_key parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
 
 ### Configuration Variables at component level
@@ -318,6 +324,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 ### Configuration Variables at device level
 
 #### devices
+
    (Optional) The devices option is used for setting options at the level of the device and/or if you want to whitelist certain sensors with the `discovery` option. Note that if you use the `devices` option, the `mac` option is also required.
 
 ```yaml
@@ -331,12 +338,13 @@ ble_monitor:
 ```
 
 #### mac
+
    (string)(Required) The `mac` option is used to identify your sensor device based on its mac-address. This allows you to define other additional options for this specific sensor device and/or to whitelist it with the `discovery` option. You can find the mac-address in the attributes of your sensor (`Developers Tools` --> `States`).
 
 #### name
+
    (string)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: `sensor.mi_sensortype_sensor_name` (e.g. `sensor.mi_temperature_livingroom`) in stead of the default `mi_sensortype_mac` (e.g. `sensor.mi_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. After the change, you can manually delete the old entities from the Developer Tools section. The old data won't be transfered to the new sensor. Default value: Empty
 
-   
 ```yaml
 ble_monitor:
   devices:
