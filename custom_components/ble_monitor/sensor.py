@@ -899,7 +899,7 @@ class TemperatureSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "temperature")
-        self._name = "mi temperature {}".format(self._sensor_name)
+        self._name = "ble temperature {}".format(self._sensor_name)
         self._unique_id = "t_" + self._sensor_name
         self._unit_of_measurement = temperature_unit(config, mac)
         self._device_class = DEVICE_CLASS_TEMPERATURE
@@ -912,7 +912,7 @@ class HumiditySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "humidity")
-        self._name = "mi humidity {}".format(self._sensor_name)
+        self._name = "ble humidity {}".format(self._sensor_name)
         self._unique_id = "h_" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
@@ -925,7 +925,7 @@ class MoistureSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "moisture")
-        self._name = "mi moisture {}".format(self._sensor_name)
+        self._name = "ble moisture {}".format(self._sensor_name)
         self._unique_id = "m_" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
@@ -938,7 +938,7 @@ class ConductivitySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "conductivity")
-        self._name = "mi conductivity {}".format(self._sensor_name)
+        self._name = "ble conductivity {}".format(self._sensor_name)
         self._unique_id = "c_" + self._sensor_name
         self._unit_of_measurement = CONDUCTIVITY
         self._device_class = None
@@ -956,7 +956,7 @@ class IlluminanceSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "illuminance")
-        self._name = "mi llluminance {}".format(self._sensor_name)
+        self._name = "ble llluminance {}".format(self._sensor_name)
         self._unique_id = "l_" + self._sensor_name
         self._unit_of_measurement = "lx"
         self._device_class = DEVICE_CLASS_ILLUMINANCE
@@ -969,7 +969,7 @@ class FormaldehydeSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "formaldehyde")
-        self._name = "mi formaldehyde {}".format(self._sensor_name)
+        self._name = "ble formaldehyde {}".format(self._sensor_name)
         self._unique_id = "f_" + self._sensor_name
         self._unit_of_measurement = "mg/m³"
         self._device_class = None
@@ -987,7 +987,7 @@ class BatterySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "battery")
-        self._name = "mi battery {}".format(self._sensor_name)
+        self._name = "ble battery {}".format(self._sensor_name)
         self._unique_id = "batt__" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_BATTERY
@@ -1000,7 +1000,7 @@ class ConsumableSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "consumbable")
-        self._name = "mi consumable {}".format(self._sensor_name)
+        self._name = "ble consumable {}".format(self._sensor_name)
         self._unique_id = "cn__" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = None
@@ -1017,7 +1017,7 @@ class SwitchBinarySensor(BinarySensorEntity):
     def __init__(self, config, mac):
         """Initialize the sensor."""
         self._sensor_name = sensor_name(config, mac, "switch")
-        self._name = "mi switch {}".format(self._sensor_name)
+        self._name = "ble switch {}".format(self._sensor_name)
         self._state = None
         self._unique_id = "sw_" + self._sensor_name
         self._device_state_attributes = {}
