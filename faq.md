@@ -95,10 +95,10 @@ Or you can create a battery sensor by using a template sensor. Add the following
 sensor:
   - platform: template
     sensors:
-      mi_battery_582d34339449:
+      ble_battery_582d34339449:
         friendly_name: "Battery"
         unit_of_measurement: "%"
-        value_template: "{{ state_attr('sensor.mi_temperature_582d34339449', 'battery_level') }}"
+        value_template: "{{ state_attr('sensor.ble_temperature_582d34339449', 'battery_level') }}"
         device_class: "battery"
 ```
 
