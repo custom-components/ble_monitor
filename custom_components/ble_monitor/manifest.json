@@ -1,0 +1,11 @@
+{
+  "domain": "ble_monitor",
+  "name": "Passive BLE monitor integration",
+  "documentation": "https://github.com/custom-components/ble_monitor",
+  "requirements": ["aioblescan>=0.2.4", "pycryptodomex>=3.9.7"],
+  "dependencies": [],
+  "codeowners": [
+    "@Magalex2x14",
+    "@Ernst79"
+  ]
+}
