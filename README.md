@@ -24,6 +24,8 @@ Our custom component `mitemp_bt` was designed as a so called `sensor platform`, 
 
 So, we decided to make this change and, as it will be a breaking change anyways, we also decided to think about the name of the integration. During time we started to add more and more sensors, not only Xiaomi Mi Temperature sensors, what the name `mitemp_bt` suggests. We decided that `ble_monitor` would be a better name to reflect the capablities of our integration. The full name will become Passive BLE Monitor integration.
 
+Note that your sensor names are most likely also renamed. Look for sensors that start for ble_ (e.g. `ble_temperature_livingroom`). We recommend to use the new [name](#name) option to easily rename and find your sensors. 
+
 In short,  if you have the minimal configuration, you will have to change your configuration.yaml
 
 Old configuration
@@ -252,7 +254,7 @@ ble_monitor:
 
 #### batt_entities
 
-   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
+   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.ble_batt_ <sensor_mac_address>`. Default value: False
 
 #### discovery
 
@@ -294,7 +296,7 @@ ble_monitor:
 
 #### name
 
-   (string)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: `sensor.mi_sensortype_sensor_name` (e.g. `sensor.mi_temperature_livingroom`) in stead of the default `mi_sensortype_mac` (e.g. `sensor.mi_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. After the change, you can manually delete the old entities from the Developer Tools section. The old data won't be transfered to the new sensor. Default value: Empty
+   (string)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: `sensor.ble_sensortype_sensor_name` (e.g. `sensor.ble_temperature_livingroom`) in stead of the default `ble_sensortype_mac` (e.g. `sensor.ble_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. After the change, you can manually delete the old entities from the Developer Tools section. The old data won't be transfered to the new sensor. Default value: Empty
 
 ```yaml
 ble_monitor:
