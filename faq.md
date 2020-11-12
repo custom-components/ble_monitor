@@ -223,4 +223,4 @@ You can write to the hcitrace.snoop and hcitrace.txt files the moment the proble
 
 ## FORUM
 
-You can more freely discuss the operation of the component, ask for support, leave feedback and share your experience in [our topic](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/) on the Home Assistant forum.
+You can more freely discuss the operation of the component, ask for support, leave feedback and share your experience in [our topic](https://community.home-assistant.io/t/passive-ble-monitor-integration-xiaomi-mijia-ble-mibeacon-monitor/) on the Home Assistant forum.
