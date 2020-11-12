@@ -14,7 +14,7 @@
 <!-- /TOC -->
 
 ## 0.8.1-BETA USER?
-For 0.8.1-beta users, please follow this [link](https://github.com/custom-components/ble_monitor/blob/integration_level/update_instructions.md) for updated configuration instructions. Instructions below only apply for versions up to 0.7.x. 
+For 0.8.1-beta users, please follow this [link](https://github.com/custom-components/ble_monitor/tree/integration_level) for updated configuration instructions. Instructions below only apply for versions up to 0.7.x. 
 
 ## INTRODUCTION
 
