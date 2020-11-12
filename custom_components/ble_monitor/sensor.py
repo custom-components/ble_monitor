@@ -988,7 +988,7 @@ class BatterySensor(MeasuringSensor):
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "battery")
         self._name = "ble battery {}".format(self._sensor_name)
-        self._unique_id = "batt__" + self._sensor_name
+        self._unique_id = "batt_" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_BATTERY
 
@@ -1001,7 +1001,7 @@ class ConsumableSensor(MeasuringSensor):
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "consumbable")
         self._name = "ble consumable {}".format(self._sensor_name)
-        self._unique_id = "cn__" + self._sensor_name
+        self._unique_id = "cn_" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = None
 
