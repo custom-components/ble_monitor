@@ -3,29 +3,29 @@
 ## Table of contents
 
 <!-- TOC -->
-  - [Why is this component called “passive” and what does this mean](#why-is-this-component-called-passive-and-what-does-this-mean)
-  - [INSTALLATION ISSUES](#installation-issues)
+- [Why is this component called “passive” and what does this mean](#why-is-this-component-called-passive-and-what-does-this-mean)
+- [INSTALLATION ISSUES](#installation-issues)
       - [I get a PermissionError in Home Assistant after the installation](#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade)
       - [How do I find the number of the HCI interface?](#how-do-i-find-the-number-of-the-hci-interface)
       - [How can I create a battery sensor?](#how-can-i-create-a-battery-sensor)
-  - [RECEPTION ISSUES](#reception-issues)
+- [RECEPTION ISSUES](#reception-issues)
       - [My sensor doesn't receive any readings from my sensors anymore or only occasionally](#my-sensor-doesnt-receive-any-readings-from-my-sensors-anymore-or-only-occasionally)
       - [How to increase coverage](#how-to-increase-coverage)
       - [My sensor's BLE advertisements are encrypted, how can I get the key?](#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key)
-  - [OTHER ISSUES](#other-issues)
+- [OTHER ISSUES](#other-issues)
       - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
       - [My sensor stops receiving updates some time after the system restart](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
       - [My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?](#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)
       - [My sensor isn't showing the battery level](#my-sensor-isnt-showing-the-battery-level)
-  - [TIPS AND TRICKS](#tips-and-tricks)
+- [TIPS AND TRICKS](#tips-and-tricks)
       - [How to know exactly if the reception of data from my sensors has stopped?](#how-to-know-exactly-if-the-reception-of-data-from-my-sensors-has-stopped)
-  - [DEBUG](#debug)
-  - [FORUM](#forum)
+- [DEBUG](#debug)
+- [FORUM](#forum)
 <!-- /TOC -->
 
 ## Why is this component called passive and what does this mean
 
-Unlike the original component (and most other solutions), this custom component does not use connections (polling) to collect data. The fact is that many sensors from the Xiaomi ecosystem transmit information themselves about their condition to the air with some frequency. We need only to "passively" receive these messages and update the status of the corresponding entities in the Home Assistant. What does this give us?
+Unlike the original `mitemp_bt` component (and most other solutions), this custom component does not use connections (polling) to collect data. The fact is that many sensors from the Xiaomi ecosystem transmit information themselves about their condition to the air with some frequency. We need only to "passively" receive these messages and update the status of the corresponding entities in the Home Assistant. What does this give us?
 
 - firstly, it reduces the power consumption of the sensors (the battery lasts longer), since the sensor does not transmit anything other than that provided by its developers.
 - secondly, since the range of bluetooth is rather limited, passive reception can solve some problems that arise when using "polling" components. In the case of connecting to a sensor, a two-way exchange takes place, which means we not only should “hear” the sensor well, but the sensor, in its turn, must also “hear” us well, and this could be problematic. To increase the radius of reception, you can, for example, install an external bt-dongle with a large antenna on your host, to make it "hear" better, but you can’t do anything with the sensor itself. A passive data collection method solves this problem, because in this case the sensor does not know about our existence, and should not "hear" us at all. The main thing is that we "hear" it well.
@@ -95,10 +95,10 @@ Or you can create a battery sensor by using a template sensor. Add the following
 sensor:
   - platform: template
     sensors:
-      mi_battery_582d34339449:
+      ble_battery_582d34339449:
         friendly_name: "Battery"
         unit_of_measurement: "%"
-        value_template: "{{ state_attr('sensor.mi_temperature_582d34339449', 'battery_level') }}"
+        value_template: "{{ state_attr('sensor.ble_temperature_582d34339449', 'battery_level') }}"
         device_class: "battery"
 ```
 
@@ -143,20 +143,20 @@ There are several ways:
 
     - Keep the sensor close to the mobile phone (android only) or Windows computer.
     - Make sure that the bluetooth is enabled.
-    - Using your browser, navigate to https://atc1441.github.io/TelinkFlasher.html.
+    - Using your browser, navigate to [this page](https://atc1441.github.io/TelinkFlasher.html).
     - Now, click the [Connect] button and wait until it shows "Connected." See the Log section at the bottom.
     - Once connected, click the [Do Activation] button and wait until the "Mi Bind Key" shows the information.
   
 2. Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms) while adding a sensor to the application ("pairing"). If the sensor has already been added before, then you can first delete it and add it again:
 
-      - iOS: Two known working options 
-        - [using Charles proxy, paid $7-10](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595327131), 
+      - iOS: Two known working options
+        - [using Charles proxy, paid $7-10](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595327131),
         - [using Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex). For more detailed instructions, check [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex) or [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex).
-      - Android: 
-        - using Packet Capture. 
-        - [using Burp Suite](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-599780750), device must be rooted.
+      - Android:
+        - using Packet Capture.
+        - [using Burp Suite](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-599780750), device must be rooted.
 
-2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/sensor.mitemp_bt/issues/7#issuecomment-595874419).
+3. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595874419).
 
 ## OTHER ISSUES
 
@@ -167,39 +167,39 @@ A reliable, but not the only way out of this situation (apart from the refusal t
 
 ### My sensor stops receiving updates some time after the system restart
 
-Often, the cause of this is the presence of bugs in the system components responsible for the BT operation (kernel modules, firmwares, etc). As a rule, in such cases, the corresponding entries appear in the system log. Please carefully review the contents of your `syslog`, and try searching the Internet for a solution - with high probability you are not alone in this. For example, here is an issue with a typical Raspberry PI problem - [BT problem, Raspberry PI3 and Hass.io](https://github.com/custom-components/sensor.mitemp_bt/issues/31#issuecomment-595417222)
+Often, the cause of this is the presence of bugs in the system components responsible for the BT operation (kernel modules, firmwares, etc). As a rule, in such cases, the corresponding entries appear in the system log. Please carefully review the contents of your `syslog`, and try searching the Internet for a solution - with high probability you are not alone in this. For example, here is an issue with a typical Raspberry PI problem - [BT problem, Raspberry PI3 and Hass.io](https://github.com/custom-components/ble_monitor/issues/31#issuecomment-595417222)
 
 In addition, in the case of Raspberry Pi, a common problem is a lack of power. If you do not observe any negative effects associated with a lack of power, then this does not mean that they actually are not present. We have feedback from users who have solved their bluetooth problems installing a more powerful power supply and high-quality cable. Good powering is very important for raspberry. In addition to a sufficiently powerful power supply, attention should be paid to the power cable - it should be able to deliver this power. Often, to compensate for losses, power supplies are made with a slightly higher output voltage (up to 5.1V or even 5.25V).
 
 ### My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?
 
-- [Install the component](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#how-to-install) if you have not already done so.
-- Make sure you have [logger](https://www.home-assistant.io/integrations/logger/) enabled, and logging enabled for `info` level (globally or just for `custom_components.mitemp_bt`). For example:
+- [Install the component](https://github.com/custom-components/ble_monitor/blob/master/README.md#how-to-install) if you have not already done so.
+- Make sure you have [logger](https://www.home-assistant.io/integrations/logger/) enabled, and logging enabled for `info` level (globally or just for `custom_components.ble_monitor`). For example:
 
 ```yaml
 logger:
   default: warn
   logs:
-    custom_components.mitemp_bt: info
+    custom_components.ble_monitor: info
 ```
 
 - Place your sensor extremely close to the HA host (BT interface).
-- [Enable the option](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#configuration) `report_unknown`.
+- [Enable the option](https://github.com/custom-components/ble_monitor/blob/master/README.md#configuration) `report_unknown`.
 - Wait until a number of "BLE ADV from UNKNOWN" messages accumulate in the log.
-- Create a new [issue](https://github.com/custom-components/sensor.mitemp_bt/issues), write everything you know about your sensor and attach the obtained log.
+- Create a new [issue](https://github.com/custom-components/ble_monitor/issues), write everything you know about your sensor and attach the obtained log.
 - Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.
 - Wait for a response from the developers.
 
 ### My sensor isn't showing the battery level
 
-Battery level is not broadcasted by all sensors. Check the list of [supported sensors](https://github.com/custom-components/sensor.mitemp_bt/blob/master/README.md#supported-sensors) to see if your sensor supports battery level. LYWSD02 sensors need to be updated to firmware 1.1.2_00085 or above to the show battery level. 
+Battery level is not broadcasted by all sensors. Check the list of [supported sensors](https://github.com/custom-components/ble_monitor/blob/master/README.md#supported-sensors) to see if your sensor supports battery level. LYWSD02 sensors need to be updated to firmware 1.1.2_00085 or above to the show battery level.
 
 ## TIPS AND TRICKS
 
 ### How to know exactly if the reception of data from my sensors has stopped?
 
 When the reception of data from sensors is stopped for some reason (hardware failure, errors at the system level, and so on), it may take an unacceptably long time before we notice this fact.
-[Here is](https://github.com/custom-components/sensor.mitemp_bt/issues/65#issuecomment-615911228) a discussion of a solution to solve this problem using a template binary sensor, which can be used in automation to send notifications, for example.
+[Here is](https://github.com/custom-components/ble_monitor/issues/65#issuecomment-615911228) a discussion of a solution to solve this problem using a template binary sensor, which can be used in automation to send notifications, for example.
 
 ## DEBUG
 
@@ -209,7 +209,7 @@ To enable debug logging, add the following lines to `configuration.yaml`:
 logger:
   default: warn
   logs:
-    custom_components.mitemp_bt: debug
+    custom_components.ble_monitor: debug
 ```
 
 In addition, the `btmon` utility can provide a lot of useful information.
@@ -223,4 +223,4 @@ You can write to the hcitrace.snoop and hcitrace.txt files the moment the proble
 
 ## FORUM
 
-You can more freely discuss the operation of the component, ask for support, leave feedback and share your experience in [our topic](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/) on the Home Assistant forum.
+You can more freely discuss the operation of the component, ask for support, leave feedback and share your experience in [our topic](https://community.home-assistant.io/t/passive-ble-monitor-integration-xiaomi-mijia-ble-mibeacon-monitor/) on the Home Assistant forum.

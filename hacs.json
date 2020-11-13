@@ -1,5 +1,5 @@
 {
-  "name": "Xiaomi passive BLE monitor sensor platform",
-  "domains": "sensor",
+  "name": "Passive BLE monitor integration (Xiaomi Mijia BLE MiBeacon monitor)",
+  "domains": "ble_monitor",
   "iot_class": "local push"
 }

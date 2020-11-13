@@ -5,23 +5,88 @@
 
 # NB!: This is a Beta version!
 
-# Changes in 0.7.7 beta. 
+# BREAKING CHANGES in 0.8.1 beta
 
-Add support for sensors that send their temperature data in Fahrenheit. The LYWSD03MMC with custom firmware will send temperature data in Fahrenheit after changing the display to Fahrenheit. Use the [sensor_fahrenheit](#sensor_fahrenheit) option for these sensors to get the correct data in Home Assistant.
+[Instructions to convert your configuration can be found here.](https://github.com/custom-components/ble_monitor/blob/integration_level/update_instructions.md)
+
+This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading to 0.8.1 (and higher).
+
+Our custom component `mitemp_bt` was designed as a so called `sensor platform`, which is in Home Assistant language a `platform` under the `sensor` integration. Home Assistant however has made an architecture decision in [ADR 0007](https://github.com/home-assistant/architecture/blob/413e3cb248cf8dca766c0280997f3b516e23fb6d/adr/0007-integration-config-yaml-structure.md), which basically says that `mitemp_bt` should be a `integration` on its own.
+
+So, we decided to make this change and, as it will be a breaking change anyways, we also decided to think about the name of the integration. During time we started to add more and more sensors, not only Xiaomi Mi Temperature sensors, what the name `mitemp_bt` suggests. We decided that `ble_monitor` would be a better name to reflect the capablities of our integration. The full name will become Passive BLE Monitor integration.
+
+Note that your sensor names are most likely also renamed. Look for sensors that start for ble_ (e.g. `ble_temperature_livingroom`). We recommend to use the new [name](#name) option to easily rename and find your sensors. 
+
+In short,  if you have the minimal configuration, you will have to change your configuration.yaml
+
+Old configuration
+
+```yaml
+sensor:
+  - platform: mitemp_bt
+```
+
+New configuration
+
+```yaml
+ble_monitor:
+```
+
+Of course, all additional parameters can still be set, as explained below. However, for the following parameters, the configuration has changed compared to the old situation.
+
+- `sensor_names`
+- `sensor_fahrenheit`
+- `encryptors`
+- `whitelist`
+
+If you use one of these parameters, make sure you read the following
+[instructions to convert your configuration to the new format.](https://github.com/custom-components/ble_monitor/blob/integration_level/update_instructions.md)
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.7.7
+# BREAKING CHANGES in 0.8.1
 
-- Add support for sensors that send their temperature data in Fahrenheit. The LYWSD03MMC with custom firmware will send temperature data in Fahrenheit after changing the display to Fahrenheit. Use the [sensor_fahrenheit](#sensor_fahrenheit) option for these sensors to get the correct data in Home Assistant.
-- [sensor_names](#sensor_names) configuration is now case insensitive
-- improved debug logging when using [sensor_names](#sensor_names) option
+[Instructions to convert your configuration can be found here.](https://github.com/custom-components/ble_monitor/blob/master/update_instructions.md)
 
+This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading to 0.8.1 (and higher).
+
+Our custom component `mitemp_bt` was designed as a so called `sensor platform`, which is in Home Assistant language a `platform` under the `sensor` integration. Home Assistant however has made an architecture decision in [ADR 0007](https://github.com/home-assistant/architecture/blob/413e3cb248cf8dca766c0280997f3b516e23fb6d/adr/0007-integration-config-yaml-structure.md), which basically says that `mitemp_bt` should be a `integration` on its own.
+
+So, we decided to make this change and, as it will be a breaking change anyways, we also decided to think about the name of the integration. During time we started to add more and more sensors, not only Xiaomi Mi Temperature sensors, what the name `mitemp_bt` suggests. We decided that `ble_monitor` would be a better name to reflect the capablities of our integration. The full name will become Passive BLE Monitor integration.
+
+Note that your sensor names are most likely also renamed. Look for sensors that start for ble_ (e.g. `ble_temperature_livingroom`). We recommend to use the new [name](#name) option to easily rename and find your sensors. 
+
+In short,  if you have the minimal configuration, you will have to change your configuration.yaml
+
+Old configuration
+
+```yaml
+sensor:
+  - platform: mitemp_bt
+```
+
+New configuration
+
+```yaml
+ble_monitor:
+```
+
+Of course, all additional parameters can still be set, as explained below. However, for the following parameters, the configuration has changed compared to the old situation.
+
+- `sensor_names`
+- `sensor_fahrenheit`
+- `encryptors`
+- `whitelist`
+
+If you use one of these parameters, make sure you read the following
+[instructions to convert your configuration to the new format.](https://github.com/custom-components/ble_monitor/blob/master/update_instructions.md)
 
 {% endif %}
 
-# Xiaomi passive BLE Monitor sensor platform
+# Passive BLE Monitor integration
+
+### Xiaomi Mijia BLE MiBeacon Monitor
 
 <!-- TOC -->
 
@@ -29,7 +94,8 @@ Add support for sensors that send their temperature data in Fahrenheit. The LYWS
 - [Supported sensors](#supported-sensors)
 - [How to install](#how-to-install)
 - [Configuration](#configuration)
-  - [Configuration variables](#configuration-variables)
+  - [Configuration variables at component level](#configuration-variables-at-component-level)
+  - [Configuration variables at device level](#configuration-variables-at-device-level)
 - [Frequently asked questions](#frequently-asked-questions)
 - [Credits](#credits)
 - [Forum](#forum)
@@ -38,7 +104,7 @@ Add support for sensors that send their temperature data in Fahrenheit. The LYWS
 
 ## INTRODUCTION
 
-This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously). Read more in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean).
+This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously). Read more in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean).
 
 ## SUPPORTED SENSORS
 
@@ -46,75 +112,75 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/LYWSDCGQ.jpg">
+  ![LYWSDCGQ](/pictures/LYWSDCGQ.jpg)
   
 - CGG1
 
   (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
 
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/CGG1.png">
+  ![CGG1](/pictures/CGG1.png)
 
 - LYWSD02
 
-  (rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute. Battery level is available for firmware version 1.1.2_00085 and later.)
+  (rectangular body, E-Ink, broadcasts temperature, humidity and battery level (battery level is available for firmware version 1.1.2_00085 and later), about 20 readings per minute)
 
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/LYWSD02.jpeg">
+  ![LYWSD02](/pictures/LYWSD02.jpeg)
   
 - LYWSD03MMC
 
-  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer) (make sure you set advertising type to mi-like). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryptors](#encryptors) option (not needed for sensors with custom firmware))
+  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer) (make sure you set advertising type to mi-like). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware))
   
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/LYWSD03MMC.jpg">
+  ![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)
 
 - CGD1
 
-  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option)
+  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/CGD1.jpg">
-  
+  ![CGD1](/pictures/CGD1.jpg)
+
 - MHO-C303
 
   (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/MHO-C303.png">
+  ![MHO-C303](/pictures/MHO-C303.png)
 
 - MHO-C401
   
-  (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryptors](#encryptors) option)
+  (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
   
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/MHO-C401.jpg">
+  ![MHO-C401](/pictures/MHO-C401.jpg)
 
 - JQJCY01YM
 
   (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute)
   
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/JQJCY01YM.jpg">
+  ![supported sensors](/pictures/JQJCY01YM.jpg)
 
 - HHCCJCY01
 
   (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
   
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/HHCCJCY01.jpg">
+  ![HHCCJCY01](/pictures/HHCCJCY01.jpg)
 
 - GCLS002
 
   (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
 
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/GCLS002.png">
+  ![GCLS002](/pictures/GCLS002.png)
 
 - HHCCPOT002
 
   (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
   
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/HHCCPOT002.jpg">
+  ![HHCCPOT002](/pictures/HHCCPOT002.jpg)
 
 - WX08ZM
 
   (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
- 
-  <img src="https://github.com/custom-components/sensor.mitemp_bt/blob/master/pictures/WX08ZM.jpg">
 
-*The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -70dBm till -75dBm.*
+  ![supported sensors](/pictures/WX08ZM.jpg)
+
+*The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
 **Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
 
@@ -134,24 +200,24 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
      sudo getcap `readlink -f \`which python3\``
      ```
 
-*In case you get a PermissionError, check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md).
+*In case you get a PermissionError, check the [Frequently Asked Questions (FAQ) page](faq.md).
 
 **2. Install the custom component:**
 
 - The easiest way is to install it with [HACS](https://hacs.xyz/). First install [HACS](https://hacs.xyz/) if you don't have it yet. After installation you can find this custom component in the HACS store under integrations.
 
-- Alternatively, you can install it manually. Just copy paste the content of the `sensor.mitemp_bt/custom_components` folder in your `config/custom_components` directory.
-     As example, you will get the `sensor.py` file in the following path: `/config/custom_components/mitemp_bt/sensor.py`.
+- Alternatively, you can install it manually. Just copy paste the content of the `ble_monitor/custom_components` folder in your `config/custom_components` directory.
+     As example, you will get the `sensor.py` file in the following path: `/config/custom_components/ble_monitor/sensor.py`.
 
-**3. Stop and start Home Assistant:**
+**3. Remove build-in mitemp_bt:**
 
-- Stop and start Home Assistant. Make sure you first stop Home Assistant and then start Home Assistant again. Restarting Home Assistant is not sufficient, as the python process does not exit upon restart. Stopping and starting Home Assistant is also required to unload the build in component and load the custom component. Do this before step 4, as Home Assistant will otherwise complain that your configuration is not ok (as it still uses the build in `mitemp_bt` integration).
+- Remove the standard `mitemp_bt` integration from your configuration, as it will be replaced by this new component. Using them at the same time, might cause issues, especially when you only have one Bluetooth adapter and both components use the same adapter.
 
 **4. Add the platform to your configuration.yaml file (see [below](#configuration))**
 
 **5. Restart Home Assistant:**
 
-- A second restart is required to load the configuration. After a few minutes, the sensors should be added to your home-assistant automatically (at least one [period](#period) required).
+- A restart is required to load the configuration. After a few minutes, the sensors should be added to your Home Assistant automatically (at least one [period](#period) required).
 
 **6. Add your sensors to the MiHome app if you haven’t already.**
 
@@ -162,38 +228,37 @@ Many Xiaomi ecosystem sensors (maybe all) do not brodcasts BLE advertisements co
 Add the following to your `configuration.yaml` file.
 
 ```yaml
-sensor:
-  - platform: mitemp_bt
+ble_monitor:
 ```
-
-IMPORTANT. If you used the standard Home Assistant built ['mitemp_bt'](https://www.home-assistant.io/integrations/mitemp_bt/) integration, make sure you delete the additional parameters, like `mac:` and `monitored_conditions:`.
 
 An example of `configuration.yaml` with all optional parameters is:
 
 ```yaml
-sensor:
-  - platform: mitemp_bt
-    rounding: True
-    decimals: 1
-    period: 60
-    log_spikes: False
-    use_median: False
-    active_scan: False
-    hci_interface: 0
-    batt_entities: False
-    encryptors:
-      'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
-     sensor_fahrenheit:
-       - '58:C1:38:2F:86:6C'
-    sensor_names:
-      'A4:C1:38:2F:86:6C': 'Livingroom'
-    report_unknown: False
-    whitelist: False
+ble_monitor:
+  rounding: True
+  decimals: 1
+  period: 60
+  log_spikes: False
+  use_median: False
+  active_scan: False
+  hci_interface: 0
+  batt_entities: False
+  discovery: True
+  report_unknown: False
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      name: 'Livingroom'
+      encryption_key: '217C568CF5D22808DA20181502D84C1B'
+      temperature_unit: C
+    - mac: 'C4:3C:4D:6B:4F:F3'
+      name: 'Bedroom'
+      temperature_unit: F
+    - mac: 'B4:7C:8D:6D:4C:D3'
 ```
 
-Note: The encryptors parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
+Note: The encryption_key parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
 
-### Configuration Variables
+### Configuration Variables at component level
 
 #### rounding
 
@@ -229,90 +294,93 @@ Note: The encryptors parameter is only needed for sensors, for which it is [poin
 
    (positive integer or list of positive integers)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
 
-   ```yaml
-   sensor:
-       - platform: mitemp_bt
-         hci_interface:
-           - 0
-           - 1
-   ```
+```yaml
+ble_monitor:
+  hci_interface:
+    - 0
+    - 1
+```
 
    Default value: 0
 
 #### batt_entities
 
-   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.mi_batt_ <sensor_mac_address>`. Default value: False
+   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.ble_batt_ <sensor_mac_address>`. Default value: False
 
-#### encryptors
+#### discovery
 
-   (dictionary)(Optional) This option is used to link the mac-address of the sensor broadcasting encrypted advertisements to the encryption key (32 characters = 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (boolean)(Optional) By default, the component creates entities for all discovered, supported sensors. However, situations may arise where you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or when data from part of your sensors are received using other equipment, and you don't want to see entities you do not need. To resolve this issue, simply add an entry of each MAC-address of the sensors you need under `devices`, by using the `mac` option, and set the `discovery` option to False:
 
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       encryptors:
-         'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
-         'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
-   ```
+```yaml
+ble_monitor:
+  discovery: False
+  devices:
+    - mac: '58:C1:38:2F:86:6C'
+    - mac: 'C4:FA:64:D1:61:7D'
+```
 
-#### sensor_fahrenheit
-
-   (list)(Optional) Most sensors are sending temperature measurements in Celsius (°C), which is the default assumption for `mitemp_bt`. However, some sensors, like the `LYWSD03MMC` sensor with custom firmware will start sending temperature measurements in Fahrenheit (°F) after changing the display from Celsius to Fahrenheit. This means that you will have to tell mitemp_bt that it should expect Fahrenheit measurements for these specific sensors, by listing the MAC-addresses of these sensors.
-
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       sensor_fahrenheit:
-         - '58:C1:38:2F:86:6C'
-         - 'C4:FA:64:D1:61:7D'
-   ```
-
-#### sensor_names
-
-   (dictionary)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: `sensor.mi_sensortype_sensor_name` (e.g. `sensor.mi_temperature_livingroom`) in stead of the default `mi_sensortype_mac` (e.g. `sensor.mi_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. After the change, you can manually delete the old entities from the Developer Tools section. The old data won't be transfered to the new sensor. Default value: Empty
-
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       sensor_names:
-         'A4:C1:38:2F:86:6C': 'Livingroom'
-         'A4:C1:38:D1:61:7D': 'Bedroom'
-   ```
+Data from sensors with other addresses will be ignored. Default value: True
 
 #### report_unknown
 
    (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log (`logger` component must be enabled). **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
-#### whitelist
+### Configuration Variables at device level
 
-   (list or boolean)(Optional) By default, the component creates entities for all detected supported sensors. However, situations may arise where you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or when data from part of your sensors are received using other equipment, and you don't want to see entities you do not need. To resolve this issue, simply list the MAC-addresses of the sensors you need in the `whitelist` option:
+#### devices
 
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       whitelist:
-         - '58:C1:38:2F:86:6C'
-         - 'C4:FA:64:D1:61:7D'
-   ```
+   (Optional) The devices option is used for setting options at the level of the device and/or if you want to whitelist certain sensors with the `discovery` option. Note that if you use the `devices` option, the `mac` option is also required.
 
-   Data from sensors with other addresses will be ignored.
-   In addition, all addresses listed in the `encryptors` and `sensor_names` option will be automatically whitelisted.
-   If you have no sensors other than those listed in `encryptors` and/or `sensor_names`, then just set `whitelist` to `True`:
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      name: 'Livingroom'
+      encryption_key: '217C568CF5D22808DA20181502D84C1B'
+      temperature_unit: C
+    - mac: 'C4:3C:4D:6B:4F:F3'
+```
 
-   ```yaml
-   sensor:
-     - platform: mitemp_bt
-       encryptors:
-         'A4:C1:38:2F:86:6C': '217C568CF5D22808DA20181502D84C1B'
-         'A4:C1:38:D1:61:7D': 'C99D2313182473B38001086FEBF781BD'
-       whitelist: True
-   ```
+#### mac
 
-   Default value: False
+   (string)(Required) The `mac` option is used to identify your sensor device based on its mac-address. This allows you to define other additional options for this specific sensor device and/or to whitelist it with the `discovery` option. You can find the mac-address in the attributes of your sensor (`Developers Tools` --> `States`).
+
+#### name
+
+   (string)(Optional) Use this option to link a sensor name to the mac-address of the sensor. Using this option (or changing a name) will create new entities after restarting Home Assistant. These sensors are named with the following convention: `sensor.ble_sensortype_sensor_name` (e.g. `sensor.ble_temperature_livingroom`) in stead of the default `ble_sensortype_mac` (e.g. `sensor.ble_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. After the change, you can manually delete the old entities from the Developer Tools section. The old data won't be transfered to the new sensor. Default value: Empty
+
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      name: 'Livingroom'
+```
+
+#### sensor_fahrenheit
+
+   (C or F)(Optional) Most sensors are sending temperature measurements in Celsius (C), which is the default assumption for `mitemp_bt`. However, some sensors, like the `LYWSD03MMC` sensor with custom firmware will start sending temperature measurements in Fahrenheit (F) after changing the display from Celsius to Fahrenheit. This means that you will have to tell `mitemp_bt` that it should expect Fahrenheit measurements for these specific sensors. Default value: C
+
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      temperature_unit: F
+```
+
+#### encryption_key
+
+   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      encryption_key: '217C568CF5D22808DA20181502D84C1B'
+```
 
 ## FREQUENTLY ASKED QUESTIONS
 
-Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md) to see if your question is already answered.
+Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. There are some useful tips also.
 If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues).
 
 ## CREDITS
@@ -324,4 +392,4 @@ Credits and big thanks should be given to:
 
 ## FORUM
 
-You can more freely discuss the operation of the component, ask for support, leave feedback and share your experience in [our topic](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/) on the Home Assistant forum.
+You can more freely discuss the operation of the component, ask for support, leave feedback and share your experience in [our topic](https://community.home-assistant.io/t/passive-ble-monitor-integration-xiaomi-mijia-ble-mibeacon-monitor/) on the Home Assistant forum.
