@@ -120,7 +120,7 @@ class HCIdump(Thread):
 
     def __init__(self, dumplist, interface=0, active=0):
         """Initiate HCIdump thread."""
-        Thread.__init__(self)
+        Thread.__init__(self, daemon=True)
         _LOGGER.debug("HCIdump thread: Init")
         self._interface = interface
         self._active = active
