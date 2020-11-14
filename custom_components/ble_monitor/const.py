@@ -1,7 +1,4 @@
 """Constants for the Passive BLE monitor integration."""
-from homeassistant.const import (
-    DEVICE_CLASS_POWER,
-)
 
 DOMAIN = "ble_monitor"
 
@@ -74,12 +71,14 @@ MMTS_DICT = {
     'MHO-C303'  : [0, 1, 9, 9, 9, 9, 9, 9, 2]
 }
 
+# The use of the following dictionaries is lost when changing the sensor naming system
+# Left here as a reminder, as we will probably return to this with the HA 0.118.x update
 # Switch binary sensor classes dict
-SW_CLASS_DICT = {
-    'WX08ZM'    : DEVICE_CLASS_POWER
-}
+#  SW_CLASS_DICT = {
+#     'WX08ZM'    : DEVICE_CLASS_POWER
+# }
 
 # Consumable sensor name dict
-CN_NAME_DICT = {
-    'WX08ZM'    : "tablet_"
-}
+# CN_NAME_DICT = {
+#     'WX08ZM'    : "tablet_"
+# }

@@ -48,8 +48,6 @@ from .const import (
     CONF_HMAX,
     XIAOMI_TYPE_DICT,
     MMTS_DICT,
-    SW_CLASS_DICT,
-    CN_NAME_DICT,
     DOMAIN,
 )
 
@@ -673,20 +671,8 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
                     sensors.insert(f_i, FormaldehydeSensor(config, mac))
                 if cn_i != 9:
                     sensors.insert(cn_i, ConsumableSensor(config, mac))
-                    try:
-                        setattr(
-                            sensors[cn_i], "_cn_name", CN_NAME_DICT[sensortype]
-                        )
-                    except KeyError:
-                        pass
                 if sw_i != 9:
                     sensors.insert(sw_i, SwitchBinarySensor(config, mac))
-                    try:
-                        setattr(
-                            sensors[sw_i], "_swclass", SW_CLASS_DICT[sensortype]
-                        )
-                    except KeyError:
-                        pass
                 if config[CONF_BATT_ENTITIES] and (b_i != 9):
                     sensors.insert(b_i, BatterySensor(config, mac))
                 sensors_by_mac[mac] = sensors
@@ -842,7 +828,7 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
 class MeasuringSensor(Entity):
     """Base class for measuring sensor entity."""
 
-    def __init__(self, config, mac):
+    def __init__(self):
         """Initialize the sensor."""
         self._name = ""
         self._state = None
@@ -897,7 +883,7 @@ class TemperatureSensor(MeasuringSensor):
 
     def __init__(self, config, mac):
         """Initialize the sensor."""
-        super().__init__(config, mac)
+        super().__init__()
         self._sensor_name = sensor_name(config, mac, "temperature")
         self._name = "ble temperature {}".format(self._sensor_name)
         self._unique_id = "t_" + self._sensor_name
@@ -910,7 +896,7 @@ class HumiditySensor(MeasuringSensor):
 
     def __init__(self, config, mac):
         """Initialize the sensor."""
-        super().__init__(config, mac)
+        super().__init__()
         self._sensor_name = sensor_name(config, mac, "humidity")
         self._name = "ble humidity {}".format(self._sensor_name)
         self._unique_id = "h_" + self._sensor_name
@@ -923,7 +909,7 @@ class MoistureSensor(MeasuringSensor):
 
     def __init__(self, config, mac):
         """Initialize the sensor."""
-        super().__init__(config, mac)
+        super().__init__()
         self._sensor_name = sensor_name(config, mac, "moisture")
         self._name = "ble moisture {}".format(self._sensor_name)
         self._unique_id = "m_" + self._sensor_name
@@ -936,7 +922,7 @@ class ConductivitySensor(MeasuringSensor):
 
     def __init__(self, config, mac):
         """Initialize the sensor."""
-        super().__init__(config, mac)
+        super().__init__()
         self._sensor_name = sensor_name(config, mac, "conductivity")
         self._name = "ble conductivity {}".format(self._sensor_name)
         self._unique_id = "c_" + self._sensor_name
@@ -954,7 +940,7 @@ class IlluminanceSensor(MeasuringSensor):
 
     def __init__(self, config, mac):
         """Initialize the sensor."""
-        super().__init__(config, mac)
+        super().__init__()
         self._sensor_name = sensor_name(config, mac, "illuminance")
         self._name = "ble illuminance {}".format(self._sensor_name)
         self._unique_id = "l_" + self._sensor_name
@@ -967,7 +953,7 @@ class FormaldehydeSensor(MeasuringSensor):
 
     def __init__(self, config, mac):
         """Initialize the sensor."""
-        super().__init__(config, mac)
+        super().__init__()
         self._sensor_name = sensor_name(config, mac, "formaldehyde")
         self._name = "ble formaldehyde {}".format(self._sensor_name)
         self._unique_id = "f_" + self._sensor_name
@@ -985,7 +971,7 @@ class BatterySensor(MeasuringSensor):
 
     def __init__(self, config, mac):
         """Initialize the sensor."""
-        super().__init__(config, mac)
+        super().__init__()
         self._sensor_name = sensor_name(config, mac, "battery")
         self._name = "ble battery {}".format(self._sensor_name)
         self._unique_id = "batt_" + self._sensor_name
@@ -998,7 +984,7 @@ class ConsumableSensor(MeasuringSensor):
 
     def __init__(self, config, mac):
         """Initialize the sensor."""
-        super().__init__(config, mac)
+        super().__init__()
         self._sensor_name = sensor_name(config, mac, "consumbable")
         self._name = "ble consumable {}".format(self._sensor_name)
         self._unique_id = "cn_" + self._sensor_name
@@ -1011,15 +997,15 @@ class ConsumableSensor(MeasuringSensor):
         return "mdi:mdi-recycle-variant"
 
 
-class SwitchBinarySensor(BinarySensorEntity):
+class SwitchingSensor(BinarySensorEntity):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self):
         """Initialize the sensor."""
-        self._sensor_name = sensor_name(config, mac, "switch")
-        self._name = "ble switch {}".format(self._sensor_name)
+        self._sensor_name = ""
+        self._name = ""
         self._state = None
-        self._unique_id = "sw_" + self._sensor_name
+        self._unique_id = ""
         self._device_state_attributes = {}
         self._device_class = None
 
@@ -1062,3 +1048,14 @@ class SwitchBinarySensor(BinarySensorEntity):
     def force_update(self):
         """Force update."""
         return True
+
+
+class SwitchBinarySensor(SwitchingSensor):
+    """Representation of a Sensor."""
+
+    def __init__(self, config, mac):
+        """Initialize the sensor."""
+        super().__init__()
+        self._sensor_name = sensor_name(config, mac, "switch")
+        self._name = "ble switch {}".format(self._sensor_name)
+        self._unique_id = "sw_" + self._sensor_name
