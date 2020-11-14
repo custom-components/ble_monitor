@@ -977,7 +977,7 @@ class IlluminanceSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac)
         self._sensor_name = sensor_name(config, mac, "illuminance")
-        self._name = "mi llluminance {}".format(self._sensor_name)
+        self._name = "mi illuminance {}".format(self._sensor_name)
         self._unique_id = "l_" + self._sensor_name
         self._unit_of_measurement = "lx"
         self._device_class = DEVICE_CLASS_ILLUMINANCE
