@@ -491,62 +491,6 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
     lpacket.cntr = {}
     sleep(1)
 
-    def calc_update_state(
-        entity_to_update,
-        sensor_mac,
-        config,
-        measurements_list,
-        stype=None,
-        fdec=0,
-    ):
-        """Averages according to options and updates the entity state."""
-        textattr = ""
-        success = False
-        error = ""
-        rdecimals = config[CONF_DECIMALS]
-        # formaldehyde decimals workaround
-        if fdec > 0:
-            rdecimals = fdec
-        # LYWSD03MMC / MHO-C401 "jagged" humidity workaround
-        if stype in ('LYWSD03MMC', 'MHO-C401'):
-            measurements = [int(item) for item in measurements_list]
-        else:
-            measurements = measurements_list
-        try:
-            if config[CONF_ROUNDING]:
-                state_median = round(sts.median(measurements), rdecimals)
-                state_mean = round(sts.mean(measurements), rdecimals)
-            else:
-                state_median = sts.median(measurements)
-                state_mean = sts.mean(measurements)
-            if config[CONF_USE_MEDIAN]:
-                textattr = "last median of"
-                setattr(entity_to_update, "_state", state_median)
-            else:
-                textattr = "last mean of"
-                setattr(entity_to_update, "_state", state_mean)
-            getattr(entity_to_update, "_device_state_attributes")[
-                textattr
-            ] = len(measurements)
-            getattr(entity_to_update, "_device_state_attributes")[
-                "median"
-            ] = state_median
-            getattr(entity_to_update, "_device_state_attributes")[
-                "mean"
-            ] = state_mean
-            entity_to_update.schedule_update_ha_state()
-            success = True
-        except (AttributeError, AssertionError):
-            _LOGGER.debug("Sensor %s not yet ready for update", sensor_mac)
-            success = True
-        except ZeroDivisionError as err:
-            error = err
-        except IndexError as err:
-            error = err
-        except RuntimeError as err:
-            error = err
-        return success, error
-
     def discover_ble_devices(config, aeskeyslist, whitelist):
         """Discover Bluetooth LE devices."""
         nonlocal firstrun
@@ -557,20 +501,6 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
         _LOGGER.debug("Discovering Bluetooth LE devices")
         log_spikes = config[CONF_LOG_SPIKES]
         _LOGGER.debug("Time to analyze...")
-        stype = {}
-        hum_m_data = {}
-        temp_m_data = {}
-        illum_m_data = {}
-        moist_m_data = {}
-        cond_m_data = {}
-        formaldehyde_m_data = {}
-        cons_m_data = {}
-        switch_m_data = {}
-        opening_m_data = {}
-        light_m_data = {}
-        batt = {}  # battery
-        rssi = {}
-        macs = {}  # all found macs
         _LOGGER.debug("Getting data from HCIdump thread")
         jres = scanner.stop()
         if jres is False:
@@ -579,28 +509,82 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
         hcidump_raw = [*scanner.hcidump_data]
         scanner.start(config)  # minimum delay between HCIdumps
         report_unknown = config[CONF_REPORT_UNKNOWN]
+        hci_events_cnt = len(hcidump_raw)
+        ble_adv_cnt = 0
+        mac_cnt = 0
+        batt = {}  # battery
+        rssi = {}
         for msg in hcidump_raw:
             data = parse_raw_message(msg, aeskeyslist, whitelist, report_unknown)
             if data and "mac" in data:
+                ble_adv_cnt += 1
                 # ignore duplicated message
                 packet = data["packet"]
                 mac = data["mac"]
+                # the RSSI value is calculated per device
+                if mac not in rssi:
+                    rssi[mac] = []
+                rssi[mac].append(int(data["rssi"]))
                 prev_packet = lpacket(mac)
                 if prev_packet == packet:
                     # _LOGGER.debug("DUPLICATE: %s, IGNORING!", data)
                     continue
                 lpacket(mac, packet)
+                # fixed entity index for every measurement type
+                # according to the sensor implementation
+                # if necessary, create a list of entities
+                # according to the sensor implementation
+                batt_attr = None
+                sensortype = data["type"]
+                t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, op_i, l_i, b_i = MMTS_DICT[sensortype]
+                if mac not in sensors_by_mac:
+                    sensors = []
+                    if t_i != 9:
+                        sensors.insert(t_i, TemperatureSensor(config, mac, sensortype))
+                    if h_i != 9:
+                        sensors.insert(h_i, HumiditySensor(config, mac, sensortype))
+                    if m_i != 9:
+                        sensors.insert(m_i, MoistureSensor(config, mac, sensortype))
+                    if c_i != 9:
+                        sensors.insert(c_i, ConductivitySensor(config, mac, sensortype))
+                    if i_i != 9:
+                        sensors.insert(i_i, IlluminanceSensor(config, mac, sensortype))
+                    if f_i != 9:
+                        sensors.insert(f_i, FormaldehydeSensor(config, mac, sensortype))
+                    if cn_i != 9:
+                        sensors.insert(cn_i, ConsumableSensor(config, mac, sensortype))
+                    if sw_i != 9:
+                        sensors.insert(sw_i, SwitchBinarySensor(config, mac, sensortype))
+                    if op_i != 9:
+                        sensors.insert(op_i, OpeningBinarySensor(config, mac, sensortype))
+                    if l_i != 9:
+                        sensors.insert(l_i, LightBinarySensor(config, mac, sensortype))
+                    if config[CONF_BATT_ENTITIES] and (b_i != 9):
+                        sensors.insert(b_i, BatterySensor(config, mac, sensortype))
+                    sensors_by_mac[mac] = sensors
+                    add_entities(sensors)
+                else:
+                    sensors = sensors_by_mac[mac]
+
                 # store found readings per device
+                if (b_i != 9):
+                    if "battery" in data:
+                        batt[mac] = int(data["battery"])
+                        batt_attr = batt[mac]
+                        if config[CONF_BATT_ENTITIES]:
+                            sensors[b_i].collect(data)
+                    else:
+                        try:
+                            batt_attr = batt[mac]
+                        except KeyError:
+                            batt_attr = None
                 if "temperature" in data:
                     if (
                         temperature_limit(config, mac, CONF_TMAX)
                         >= data["temperature"]
                         >= temperature_limit(config, mac, CONF_TMIN)
                     ):
-                        if mac not in temp_m_data:
-                            temp_m_data[mac] = []
-                        temp_m_data[mac].append(data["temperature"])
-                        macs[mac] = mac
+                        sensors[t_i].collect(data, batt_attr)
                     elif log_spikes:
                         _LOGGER.error(
                             "Temperature spike: %s (%s)",
@@ -609,10 +593,7 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
                         )
                 if "humidity" in data:
                     if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
-                        if mac not in hum_m_data:
-                            hum_m_data[mac] = []
-                        hum_m_data[mac].append(data["humidity"])
-                        macs[mac] = mac
+                        sensors[h_i].collect(data, batt_attr)
                     elif log_spikes:
                         _LOGGER.error(
                             "Humidity spike: %s (%s)",
@@ -620,243 +601,46 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
                             mac,
                         )
                 if "conductivity" in data:
-                    if mac not in cond_m_data:
-                        cond_m_data[mac] = []
-                    cond_m_data[mac].append(data["conductivity"])
-                    macs[mac] = mac
+                    sensors[c_i].collect(data, batt_attr)
                 if "moisture" in data:
-                    if mac not in moist_m_data:
-                        moist_m_data[mac] = []
-                    moist_m_data[mac].append(data["moisture"])
-                    macs[mac] = mac
+                    sensors[m_i].collect(data, batt_attr)
                 if "illuminance" in data:
-                    if mac not in illum_m_data:
-                        illum_m_data[mac] = []
-                    illum_m_data[mac].append(data["illuminance"])
-                    macs[mac] = mac
+                    sensors[i_i].collect(data, batt_attr)
                 if "formaldehyde" in data:
-                    if mac not in formaldehyde_m_data:
-                        formaldehyde_m_data[mac] = []
-                    formaldehyde_m_data[mac].append(data["formaldehyde"])
-                    macs[mac] = mac
+                    sensors[f_i].collect(data, batt_attr)
                 if "consumable" in data:
-                    cons_m_data[mac] = int(data["consumable"])
-                    macs[mac] = mac
+                    sensors[cn_i].collect(data, batt_attr)
                 if "switch" in data:
-                    switch_m_data[mac] = int(data["switch"])
-                    macs[mac] = mac
+                    sensors[sw_i].collect(data, batt_attr)
                 if "opening" in data:
-                    opening_m_data[mac] = int(data["opening"])
-                    macs[mac] = mac
+                    sensors[op_i].collect(data, batt_attr)
                 if "light" in data:
-                    light_m_data[mac] = int(data["light"])
-                    macs[mac] = mac
-                if "battery" in data:
-                    batt[mac] = int(data["battery"])
-                    macs[mac] = mac
-                if mac not in rssi:
-                    rssi[mac] = []
-                rssi[mac].append(int(data["rssi"]))
-                stype[mac] = data["type"]
+                    sensors[l_i].collect(data, batt_attr)
             else:
                 # "empty" loop high cpu usage workaround
                 sleep(0.0001)
-        # for every seen device
-        for mac in macs:
-            # fixed entity index for every measurement type
-            # according to the sensor implementation
-            sensortype = stype[mac]
-            t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, op_i, l_i, b_i = MMTS_DICT[
-                sensortype
-            ]
-            # if necessary, create a list of entities
-            # according to the sensor implementation
-            if mac in sensors_by_mac:
-                sensors = sensors_by_mac[mac]
-            else:
-                sensors = []
-                if t_i != 9:
-                    sensors.insert(t_i, TemperatureSensor(config, mac))
-                if h_i != 9:
-                    sensors.insert(h_i, HumiditySensor(config, mac))
-                if m_i != 9:
-                    sensors.insert(m_i, MoistureSensor(config, mac))
-                if c_i != 9:
-                    sensors.insert(c_i, ConductivitySensor(config, mac))
-                if i_i != 9:
-                    sensors.insert(i_i, IlluminanceSensor(config, mac))
-                if f_i != 9:
-                    sensors.insert(f_i, FormaldehydeSensor(config, mac))
-                if cn_i != 9:
-                    sensors.insert(cn_i, ConsumableSensor(config, mac))
-                if sw_i != 9:
-                    sensors.insert(sw_i, SwitchBinarySensor(config, mac))
-                if op_i != 9:
-                    sensors.insert(op_i, OpeningBinarySensor(config, mac))
-                if l_i != 9:
-                    sensors.insert(l_i, LightBinarySensor(config, mac))
-                if config[CONF_BATT_ENTITIES] and (b_i != 9):
-                    sensors.insert(b_i, BatterySensor(config, mac))
-                sensors_by_mac[mac] = sensors
-                add_entities(sensors)
-            # append joint attributes
-            for sensor in sensors:
-                getattr(sensor, "_device_state_attributes")[
-                    "last packet id"
-                ] = lpacket(mac)
-                getattr(sensor, "_device_state_attributes")["rssi"] = round(
-                    sts.mean(rssi[mac])
-                )
-                getattr(sensor, "_device_state_attributes")["sensor type"] = sensortype
-                getattr(sensor, "_device_state_attributes")["mac address"] = (
-                    ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
-                )
-                if not isinstance(sensor, BatterySensor) and mac in batt:
-                    getattr(sensor, "_device_state_attributes")[
-                        ATTR_BATTERY_LEVEL
-                    ] = batt[mac]
 
-            # averaging and states updating
-            if mac in batt:
-                if config[CONF_BATT_ENTITIES]:
-                    setattr(sensors[b_i], "_state", batt[mac])
-                    try:
-                        sensors[b_i].schedule_update_ha_state()
-                    except (AttributeError, AssertionError):
-                        _LOGGER.debug(
-                            "Sensor %s (%s, batt.) not yet ready for update",
-                            mac,
-                            sensortype,
-                        )
-                    except RuntimeError as err:
-                        _LOGGER.error(
-                            "Sensor %s (%s, batt.) update error:",
-                            mac,
-                            sensortype,
-                        )
-                        _LOGGER.error(err)
-            if mac in temp_m_data:
-                success, error = calc_update_state(
-                    sensors[t_i], mac, config, temp_m_data[mac]
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, temp.) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(error)
-            if mac in hum_m_data:
-                success, error = calc_update_state(
-                    sensors[h_i], mac, config, hum_m_data[mac], sensortype
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, hum.) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(error)
-            if mac in moist_m_data:
-                success, error = calc_update_state(
-                    sensors[m_i], mac, config, moist_m_data[mac]
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, moist.) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(error)
-            if mac in cond_m_data:
-                success, error = calc_update_state(
-                    sensors[c_i], mac, config, cond_m_data[mac]
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, cond.) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(error)
-            if mac in illum_m_data:
-                success, error = calc_update_state(
-                    sensors[i_i], mac, config, illum_m_data[mac]
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, illum.) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(error)
-            if mac in formaldehyde_m_data:
-                success, error = calc_update_state(
-                    sensors[f_i], mac, config, formaldehyde_m_data[mac], fdec=3
-                )
-                if not success:
-                    _LOGGER.error(
-                        "Sensor %s (%s, formaldehyde) update error:",
-                        mac,
-                        sensortype,
-                    )
-                    _LOGGER.error(error)
-            if mac in cons_m_data:
-                setattr(sensors[cn_i], "_state", cons_m_data[mac])
-                try:
-                    sensors[cn_i].schedule_update_ha_state()
-                except (AttributeError, AssertionError):
-                    _LOGGER.debug(
-                        "Sensor %s (%s, cons.) not yet ready for update",
-                        mac,
-                        sensortype,
-                    )
-                except RuntimeError as err:
-                    _LOGGER.error(
-                        "Sensor %s (%s, cons.) update error:",
-                        mac,
-                        sensortype,
-                    )
-                    _LOGGER.error(err)
-            if mac in switch_m_data:
-                setattr(sensors[sw_i], "_state", switch_m_data[mac])
-                try:
-                    sensors[sw_i].schedule_update_ha_state()
-                except (AttributeError, AssertionError):
-                    _LOGGER.debug(
-                        "Sensor %s (%s, switch) not yet ready for update",
-                        mac,
-                        sensortype,
-                    )
-                except RuntimeError as err:
-                    _LOGGER.error(
-                        "Sensor %s (%s, switch) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(err)
-            if mac in opening_m_data:
-                setattr(sensors[op_i], "_state", opening_m_data[mac])
-                try:
-                    sensors[op_i].schedule_update_ha_state()
-                except (AttributeError, AssertionError):
-                    _LOGGER.debug(
-                        "Sensor %s (%s, opening) not yet ready for update",
-                        mac,
-                        sensortype,
-                    )
-                except RuntimeError as err:
-                    _LOGGER.error(
-                        "Sensor %s (%s, opening) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(err)
-            if mac in light_m_data:
-                setattr(sensors[l_i], "_state", light_m_data[mac])
-                try:
-                    sensors[l_i].schedule_update_ha_state()
-                except (AttributeError, AssertionError):
-                    _LOGGER.debug(
-                        "Sensor %s (%s, light) not yet ready for update",
-                        mac,
-                        sensortype,
-                    )
-                except RuntimeError as err:
-                    _LOGGER.error(
-                        "Sensor %s (%s, light) update error:", mac, sensortype
-                    )
-                    _LOGGER.error(err)
+        # for every seen device
+        upd_evt = False
+        for mac, elist in sensors_by_mac.items():
+            for entity in elist:
+                if entity.pending_update:
+                    entity.rssi_values = [*rssi[mac]]
+                    entity.schedule_update_ha_state(True)
+                    upd_evt = True
+            try:
+                rssi[mac].clear()
+            except KeyError:
+                _LOGGER.debug("RSSI list key error for device %s", mac)
+            if upd_evt:
+                mac_cnt += 1
+            upd_evt = False
+
         _LOGGER.debug(
-            "Finished. Parsed: %i hci events, %i xiaomi devices.",
-            len(hcidump_raw),
-            len(macs),
+            "%i HCI Events parsed, %i BLE ADV messages processed for %i known device(s).",
+            hci_events_cnt,
+            ble_adv_cnt,
+            mac_cnt
         )
         return []
 
@@ -880,14 +664,29 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
 class MeasuringSensor(Entity):
     """Base class for measuring sensor entity."""
 
-    def __init__(self):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
         self._name = ""
         self._state = None
         self._unit_of_measurement = ""
         self._device_class = None
+        self._device_type = devtype
         self._device_state_attributes = {}
+        self._device_state_attributes["sensor type"] = devtype
+        self._device_state_attributes["mac address"] = (
+            ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
+        )
         self._unique_id = ""
+        self._measurement = "measurement"
+        self._measurements = []
+        self.rssi_values = []
+        self.pending_update = False
+        self._rdecimals = config[CONF_DECIMALS]
+        self._jagged = False
+        self._fmdh_dec = 0
+        self._rounding = config[CONF_ROUNDING]
+        self._use_median = config[CONF_USE_MEDIAN]
+        self._err = None
 
     @property
     def name(self):
@@ -929,14 +728,65 @@ class MeasuringSensor(Entity):
         """Force update."""
         return True
 
+    def collect(self, data, batt_attr=None):
+        """Measurements collector"""
+        if self._jagged is True:
+            self._measurements.append(int(data[self._measurement]))
+        else:
+            self._measurements.append(data[self._measurement])
+        self._device_state_attributes["last packet id"] = data["packet"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
+
+    def update(self):
+        """updates sensor state and attributes"""
+        textattr = ""
+        rdecimals = self._rdecimals
+        # formaldehyde decimals workaround
+        if self._fmdh_dec > 0:
+            rdecimals = self._fmdh_dec
+        try:
+            measurements = self._measurements
+            if self._rounding:
+                state_median = round(sts.median(measurements), rdecimals)
+                state_mean = round(sts.mean(measurements), rdecimals)
+            else:
+                state_median = sts.median(measurements)
+                state_mean = sts.mean(measurements)
+            if self._use_median:
+                textattr = "last median of"
+                self._state = state_median
+            else:
+                textattr = "last mean of"
+                self._state = state_mean
+            self._device_state_attributes[textattr] = len(measurements)
+            self._device_state_attributes["median"] = state_median
+            self._device_state_attributes["mean"] = state_mean
+            self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        except (AttributeError, AssertionError):
+            _LOGGER.debug("Sensor %s not yet ready for update", self._name)
+        except ZeroDivisionError as err:
+            self._err = err
+        except IndexError as err:
+            self._err = err
+        except RuntimeError as err:
+            self._err = err
+        if self._err:
+            _LOGGER.error("Sensor %s (%s) update error: %s", self._name, self._device_type, self._err)
+        self._measurements.clear()
+        self.rssi_values.clear()
+        self.pending_update = False
+
 
 class TemperatureSensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "temperature")
+        super().__init__(config, mac, devtype)
+        self._measurement = "temperature"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble temperature {}".format(self._sensor_name)
         self._unique_id = "t_" + self._sensor_name
         self._unit_of_measurement = temperature_unit(config, mac)
@@ -946,23 +796,28 @@ class TemperatureSensor(MeasuringSensor):
 class HumiditySensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "humidity")
+        super().__init__(config, mac, devtype)
+        self._measurement = "humidity"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble humidity {}".format(self._sensor_name)
         self._unique_id = "h_" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
+        # LYWSD03MMC / MHO-C401 "jagged" humidity workaround
+        if devtype in ('LYWSD03MMC', 'MHO-C401'):
+            self._jagged = True
 
 
 class MoistureSensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "moisture")
+        super().__init__(config, mac, devtype)
+        self._measurement = "moisture"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble moisture {}".format(self._sensor_name)
         self._unique_id = "m_" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
@@ -972,10 +827,11 @@ class MoistureSensor(MeasuringSensor):
 class ConductivitySensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "conductivity")
+        super().__init__(config, mac, devtype)
+        self._measurement = "conductivity"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble conductivity {}".format(self._sensor_name)
         self._unique_id = "c_" + self._sensor_name
         self._unit_of_measurement = CONDUCTIVITY
@@ -990,10 +846,11 @@ class ConductivitySensor(MeasuringSensor):
 class IlluminanceSensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "illuminance")
+        super().__init__(config, mac, devtype)
+        self._measurement = "illuminance"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble illuminance {}".format(self._sensor_name)
         self._unique_id = "l_" + self._sensor_name
         self._unit_of_measurement = "lx"
@@ -1003,14 +860,16 @@ class IlluminanceSensor(MeasuringSensor):
 class FormaldehydeSensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "formaldehyde")
+        super().__init__(config, mac, devtype)
+        self._measurement = "formaldehyde"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble formaldehyde {}".format(self._sensor_name)
         self._unique_id = "f_" + self._sensor_name
         self._unit_of_measurement = "mg/m³"
         self._device_class = None
+        self._fmdh_dec = 3
 
     @property
     def icon(self):
@@ -1021,23 +880,37 @@ class FormaldehydeSensor(MeasuringSensor):
 class BatterySensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "battery")
+        super().__init__(config, mac, devtype)
+        self._measurement = "battery"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble battery {}".format(self._sensor_name)
         self._unique_id = "batt_" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_BATTERY
 
+    def collect(self, data, batt_attr=None):
+        """Battery measurements collector"""
+        self._state = data[self._measurement]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self.pending_update = True
+
+    def update(self):
+        """updates sensor state and attributes"""
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        self.rssi_values.clear()
+        self.pending_update = False
+
 
 class ConsumableSensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "consumbable")
+        super().__init__(config, mac, devtype)
+        self._measurement = "consumable"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble consumable {}".format(self._sensor_name)
         self._unique_id = "cn_" + self._sensor_name
         self._unit_of_measurement = PERCENTAGE
@@ -1048,18 +921,40 @@ class ConsumableSensor(MeasuringSensor):
         """Return the icon of the sensor."""
         return "mdi:mdi-recycle-variant"
 
+    def collect(self, data, batt_attr=None):
+        """Measurements collector"""
+        self._state = data[self._measurement]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
+
+    def update(self):
+        self.pending_update = False
+
 
 class SwitchingSensor(BinarySensorEntity):
     """Representation of a Sensor."""
 
-    def __init__(self):
+    def __init__(self, mac, devtype):
         """Initialize the sensor."""
         self._sensor_name = ""
         self._name = ""
         self._state = None
         self._unique_id = ""
+        self._device_type = devtype
         self._device_state_attributes = {}
+        self._device_state_attributes["sensor type"] = devtype
+        self._device_state_attributes["mac address"] = (
+            ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
+        )
         self._device_class = None
+        self._newstate = None
+        self.prev_state = None
+        self.pending_update = False
+        self._measurement = "measurement"
+        self.rssi_values = []
 
     @property
     def is_on(self):
@@ -1101,35 +996,57 @@ class SwitchingSensor(BinarySensorEntity):
         """Force update."""
         return True
 
+    def collect(self, data, batt_attr=None):
+        """Measurements collector"""
+        self._newstate = data[self._measurement]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        if self._newstate != self.prev_state:
+            self.pending_update = True
+
+    def update(self):
+        """updates sensor state and attributes"""
+        self.prev_state = self._state
+        self._state = self._newstate
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        self.rssi_values.clear()
+        self.pending_update = False
+
 
 class SwitchBinarySensor(SwitchingSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "switch")
+        super().__init__(mac, devtype)
+        self._measurement = "switch"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble switch {}".format(self._sensor_name)
         self._unique_id = "sw_" + self._sensor_name
+        self._measurement = "switch"
 
 
 class LightBinarySensor(SwitchingSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "light")
+        super().__init__(mac, devtype)
+        self._measurement = "light"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble light {}".format(self._sensor_name)
         self._unique_id = "lt_" + self._sensor_name
+        self._measurement = "light"
 
 
 class OpeningBinarySensor(SwitchingSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac):
+    def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
-        super().__init__()
-        self._sensor_name = sensor_name(config, mac, "opening")
+        super().__init__(mac, devtype)
+        self._measurement = "opening"
+        self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble opening {}".format(self._sensor_name)
         self._unique_id = "op_" + self._sensor_name
