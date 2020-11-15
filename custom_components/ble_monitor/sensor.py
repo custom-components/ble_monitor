@@ -628,12 +628,9 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
                     entity.rssi_values = [*rssi[mac]]
                     entity.schedule_update_ha_state(True)
                     upd_evt = True
-            try:
-                rssi[mac].clear()
-            except KeyError:
-                _LOGGER.debug("RSSI list key error for device %s", mac)
             if upd_evt:
                 mac_cnt += 1
+                rssi[mac].clear()
             upd_evt = False
 
         _LOGGER.debug(
