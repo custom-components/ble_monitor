@@ -7,7 +7,6 @@ import struct
 from threading import Thread
 from time import sleep
 
-import aioblescan as aiobs
 from Cryptodome.Cipher import AES
 
 from homeassistant.const import (
@@ -27,6 +26,11 @@ from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import track_point_in_utc_time
 import homeassistant.util.dt as dt_util
+
+# It was decided to temporarily include this file in the integration bundle
+# until the issue with checking the adapter's capabilities is resolved in the official aioblescan repo
+# see https://github.com/frawau/aioblescan/pull/30, thanks to @vicamo
+from . import aioblescan_ext as aiobs
 
 from . import (
     CONF_DEVICES,
@@ -96,10 +100,10 @@ class HCIdump(Thread):
             conn, btctrl = self._event_loop.run_until_complete(fac)
             _LOGGER.debug("HCIdump thread: Connected")
             btctrl.process = self.process_hci_events
-            btctrl.send_command(
-                aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active)
-            )
-            btctrl.send_scan_request()
+#            self._event_loop.run_until_complete(
+#                btctrl.send_command(aiobs.HCI_Cmd_LE_Set_Scan_Params(scan_type=self._active))
+#            )
+            self._event_loop.run_until_complete(btctrl.send_scan_request(self._active))
             _LOGGER.debug("HCIdump thread: start main event_loop")
             try:
                 self._event_loop.run_forever()
@@ -187,13 +191,16 @@ def parse_raw_message(data, aeskeyslist, whitelist, report_unknown=False):
     """Parse the raw data."""
     if data is None:
         return None
+    # check if packet is Extended scan result
+    is_ext_packet = True if data[3] == 0x0d else False
     # check for Xiaomi service data
-    xiaomi_index = data.find(b'\x16\x95\xFE', 15)
+    xiaomi_index = data.find(b'\x16\x95\xFE', 15 + 15 if is_ext_packet else 0)
     if xiaomi_index == -1:
         return None
     # check for no BR/EDR + LE General discoverable mode flags
-    adv_index = data.find(b"\x02\x01\x06", 14, 17)
-    adv_index2 = data.find(b"\x15\x16\x95", 14, 17)
+    advert_start = 29 if is_ext_packet else 14
+    adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
+    adv_index2 = data.find(b"\x15\x16\x95", advert_start, 3 + advert_start)
     if adv_index == -1 and adv_index2 == -1:
         return None
     if adv_index2 != -1:
@@ -204,7 +211,8 @@ def parse_raw_message(data, aeskeyslist, whitelist, report_unknown=False):
         return None
     # check for MAC presence in message and in service data
     xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
-    source_mac_reversed = data[adv_index - 7:adv_index - 1]
+    mac_index = adv_index - 14 if is_ext_packet else adv_index
+    source_mac_reversed = data[mac_index - 7:mac_index - 1]
     if xiaomi_mac_reversed != source_mac_reversed:
         return None
     # check for MAC presence in whitelist, if needed
@@ -212,7 +220,8 @@ def parse_raw_message(data, aeskeyslist, whitelist, report_unknown=False):
         if xiaomi_mac_reversed not in whitelist:
             return None
     # extract RSSI byte
-    (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
+    rssi_index = 18 if is_ext_packet else msg_length - 1
+    (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
     # strange positive RSSI workaround
     if rssi > 0:
         rssi = -rssi
