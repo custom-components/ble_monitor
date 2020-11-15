@@ -153,6 +153,10 @@ def parse_xiaomi_value(hexvalue, typecode):
             return {"moisture": hexvalue[0]}
         if typecode == b'\x12\x10':
             return {"switch": hexvalue[0]}
+        if typecode == b'\x18\x10':
+            return {"light": hexvalue[0]}
+        if typecode == b'\x19\x10':
+            return {"opening": hexvalue[0]}
         if typecode == b'\x13\x10':
             return {"consumable": hexvalue[0]}
     if vlength == 3:
@@ -562,6 +566,8 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
         formaldehyde_m_data = {}
         cons_m_data = {}
         switch_m_data = {}
+        opening_m_data = {}
+        light_m_data = {}
         batt = {}  # battery
         rssi = {}
         macs = {}  # all found macs
@@ -639,6 +645,12 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
                 if "switch" in data:
                     switch_m_data[mac] = int(data["switch"])
                     macs[mac] = mac
+                if "opening" in data:
+                    opening_m_data[mac] = int(data["opening"])
+                    macs[mac] = mac
+                if "light" in data:
+                    light_m_data[mac] = int(data["light"])
+                    macs[mac] = mac
                 if "battery" in data:
                     batt[mac] = int(data["battery"])
                     macs[mac] = mac
@@ -654,7 +666,7 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
             # fixed entity index for every measurement type
             # according to the sensor implementation
             sensortype = stype[mac]
-            t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, b_i = MMTS_DICT[
+            t_i, h_i, m_i, c_i, i_i, f_i, cn_i, sw_i, op_i, l_i, b_i = MMTS_DICT[
                 sensortype
             ]
             # if necessary, create a list of entities
@@ -679,6 +691,10 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
                     sensors.insert(cn_i, ConsumableSensor(config, mac))
                 if sw_i != 9:
                     sensors.insert(sw_i, SwitchBinarySensor(config, mac))
+                if op_i != 9:
+                    sensors.insert(op_i, OpeningBinarySensor(config, mac))
+                if l_i != 9:
+                    sensors.insert(l_i, LightBinarySensor(config, mac))
                 if config[CONF_BATT_ENTITIES] and (b_i != 9):
                     sensors.insert(b_i, BatterySensor(config, mac))
                 sensors_by_mac[mac] = sensors
@@ -805,6 +821,36 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
                 except RuntimeError as err:
                     _LOGGER.error(
                         "Sensor %s (%s, switch) update error:", mac, sensortype
+                    )
+                    _LOGGER.error(err)
+            if mac in opening_m_data:
+                setattr(sensors[op_i], "_state", opening_m_data[mac])
+                try:
+                    sensors[op_i].schedule_update_ha_state()
+                except (AttributeError, AssertionError):
+                    _LOGGER.debug(
+                        "Sensor %s (%s, opening) not yet ready for update",
+                        mac,
+                        sensortype,
+                    )
+                except RuntimeError as err:
+                    _LOGGER.error(
+                        "Sensor %s (%s, opening) update error:", mac, sensortype
+                    )
+                    _LOGGER.error(err)
+            if mac in light_m_data:
+                setattr(sensors[l_i], "_state", light_m_data[mac])
+                try:
+                    sensors[l_i].schedule_update_ha_state()
+                except (AttributeError, AssertionError):
+                    _LOGGER.debug(
+                        "Sensor %s (%s, light) not yet ready for update",
+                        mac,
+                        sensortype,
+                    )
+                except RuntimeError as err:
+                    _LOGGER.error(
+                        "Sensor %s (%s, light) update error:", mac, sensortype
                     )
                     _LOGGER.error(err)
         _LOGGER.debug(
@@ -1065,3 +1111,25 @@ class SwitchBinarySensor(SwitchingSensor):
         self._sensor_name = sensor_name(config, mac, "switch")
         self._name = "ble switch {}".format(self._sensor_name)
         self._unique_id = "sw_" + self._sensor_name
+
+
+class LightBinarySensor(SwitchingSensor):
+    """Representation of a Sensor."""
+
+    def __init__(self, config, mac):
+        """Initialize the sensor."""
+        super().__init__()
+        self._sensor_name = sensor_name(config, mac, "light")
+        self._name = "ble light {}".format(self._sensor_name)
+        self._unique_id = "lt_" + self._sensor_name
+
+
+class OpeningBinarySensor(SwitchingSensor):
+    """Representation of a Sensor."""
+
+    def __init__(self, config, mac):
+        """Initialize the sensor."""
+        super().__init__()
+        self._sensor_name = sensor_name(config, mac, "opening")
+        self._name = "ble opening {}".format(self._sensor_name)
+        self._unique_id = "op_" + self._sensor_name
