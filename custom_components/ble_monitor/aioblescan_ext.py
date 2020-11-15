@@ -1476,7 +1476,7 @@ class BLEScanRequester(asyncio.Protocol):
 
     def data_received(self, packet):
         ev=HCI_Event()
-        #extra_data=ev.decode(packet)
+        extra_data=ev.decode(packet)
         if ev.payload[0].val == b'\x0e':
             cc=ev.retrieve("Command Completed")[0]
             cmd=cc.retrieve(OgfOcf)[0]
