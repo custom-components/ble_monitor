@@ -77,7 +77,7 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
     track_point_in_utc_time(
         hass,
         monitor.dataparser_loop,
-        dt_util.utcnow() + timedelta(seconds=config[CONF_PERIOD])
+        dt_util.utcnow() + timedelta(seconds=1)
     )
     # Return successful setup
     return True
@@ -175,7 +175,7 @@ class BLEmonitor:
             if xiaomi_mac_reversed != source_mac_reversed:
                 return None
             # check for MAC presence in whitelist, if needed
-            if self.discovery is True:
+            if self.discovery is False:
                 if xiaomi_mac_reversed not in self.whitelist:
                     return None
             # extract RSSI byte
@@ -343,6 +343,7 @@ class BLEmonitor:
                 xdata_point = xnext_point
             return result
 
+        _LOGGER.debug("Dataparser loop started!")
         self.scanner = BLEScanner(self.config, self.dataqueue)
         self.scanner.start()
 
@@ -469,6 +470,12 @@ class BLEmonitor:
             if ts_now - ts_last < timedelta(seconds=self.period):
                 continue
             ts_last = ts_now
+            # restarting scanner
+            jres = self.scanner.stop()
+            if jres is False:
+                _LOGGER.error("HCIdump thread(s) is not completed, interrupting data processing!")
+                continue
+            self.scanner.start()
             # for every updated device
             upd_evt = False
             for mac, elist in sensors_by_mac.items():
