@@ -25,7 +25,7 @@ from homeassistant.const import (
 )
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.event import track_point_in_utc_time
+from homeassistant.helpers.event import call_later
 import homeassistant.util.dt as dt_util
 
 # It was decided to temporarily include this file in the integration bundle
@@ -70,15 +70,10 @@ FMDH_STRUCT = struct.Struct("<H")
 def setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
 
-    _LOGGER.debug("Startup")
+    _LOGGER.debug("Platform startup")
     config = hass.data[DOMAIN]
-    monitor = BLEmonitor(config, add_entities)
-    hass.bus.listen(EVENT_HOMEASSISTANT_STOP, monitor.shutdown_handler)
-    track_point_in_utc_time(
-        hass,
-        monitor.dataparser_loop,
-        dt_util.utcnow() + timedelta(seconds=1)
-    )
+    BLEmonitor(hass, config, add_entities)
+    _LOGGER.debug("Platform setup finished")
     # Return successful setup
     return True
 
@@ -86,7 +81,7 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
 class BLEmonitor:
     """ BLE ADV messages parser and entities updater """
 
-    def __init__(self, config, add_entities):
+    def __init__(self, hass, config, add_entities):
 
         def reverse_mac(rmac):
             """Change LE order to BE."""
@@ -95,8 +90,6 @@ class BLEmonitor:
             return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
 
         _LOGGER.debug("BLE_monitor initialization")
-        self.firstrun = True
-        self.scanner = None
         self.dataqueue = queue.Queue()
         self.config = config
         self.aeskeys = {}
@@ -137,6 +130,10 @@ class BLEmonitor:
         _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
 
         self.add_entities = add_entities
+        self.scanner = BLEScanner(self.config, self.dataqueue)
+        hass.bus.listen(EVENT_HOMEASSISTANT_STOP, self.shutdown_handler)
+        call_later(hass, 5, self.dataparser_loop)
+        _LOGGER.debug("BLE_monitor initialized")
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
@@ -344,7 +341,6 @@ class BLEmonitor:
             return result
 
         _LOGGER.debug("Dataparser loop started!")
-        self.scanner = BLEScanner(self.config, self.dataqueue)
         self.scanner.start()
 
         parse_raw_message.lpacket_id = {}
@@ -642,6 +638,8 @@ class BLEScanner:
     def stop(self):
         """Stop HCIdump thread(s)."""
         result = True
+        if self.dumpthread is None:
+            return True
         if self.dumpthread.is_alive():
             self.dumpthread.join()
             if self.dumpthread.is_alive():
