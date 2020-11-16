@@ -514,12 +514,13 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
         mac_cnt = 0
         batt = {}  # battery
         rssi = {}
-        while qsize != 0:
+        while (qsize > 0):
             try:
                 msg = scanner.dataqueue.get_nowait()
             except queue.Empty:
-                _LOGGER.debug("HCI events queue end has been reached!")
+                _LOGGER.debug("HCI events queue end has been reached! qsize = %i", qsize)
                 break
+            qsize -= 1
             data = parse_raw_message(msg, aeskeyslist, whitelist, report_unknown)
             if data and "mac" in data:
                 ble_adv_cnt += 1
@@ -624,7 +625,6 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
             else:
                 # "empty" loop high cpu usage workaround
                 sleep(0.0001)
-            qsize -= 1
         # for every seen device
         upd_evt = False
         for mac, elist in sensors_by_mac.items():
@@ -1052,3 +1052,16 @@ class OpeningBinarySensor(SwitchingSensor):
         self._sensor_name = sensor_name(config, mac, self._measurement)
         self._name = "ble opening {}".format(self._sensor_name)
         self._unique_id = "op_" + self._sensor_name
+        self._ext_state = None
+
+    def update(self):
+        """updates sensor state and attributes"""
+        self._ext_state = self._newstate
+        if self._newstate > 1:
+            self._newstate = self.prev_state
+        self.prev_state = self._state
+        self._state = not bool(self._newstate)
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        self._device_state_attributes["ext_state"] = self._ext_state
+        self.rssi_values.clear()
+        self.pending_update = False
