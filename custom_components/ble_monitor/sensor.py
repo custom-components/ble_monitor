@@ -82,6 +82,8 @@ class HCIdump(Thread):
 
     def process_hci_events(self, data):
         """Collect HCI events."""
+        if data is None:
+            return None
         self.dataqueue.put(data)
 
     def run(self):
@@ -195,8 +197,6 @@ def decrypt_payload(encrypted_payload, key, nonce):
 
 def parse_raw_message(data, aeskeyslist, whitelist, report_unknown=False):
     """Parse the raw data."""
-    if data is None:
-        return None
     # check if packet is Extended scan result
     is_ext_packet = True if data[3] == 0x0d else False
     # check for Xiaomi service data
@@ -639,7 +639,7 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
             upd_evt = False
 
         _LOGGER.debug(
-            "%i HCI Events parsed, %i BLE ADV messages processed for %i known device(s).",
+            "%i HCI Events parsed, %i MiBeacon BLE ADV messages processed for %i known device(s).",
             hci_events_cnt,
             ble_adv_cnt,
             mac_cnt
