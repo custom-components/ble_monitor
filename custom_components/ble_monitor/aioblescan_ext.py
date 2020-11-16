@@ -1443,13 +1443,15 @@ class BLEScanRequester(asyncio.Protocol):
         await self._initialized.wait()
 
         if self._use_ext_scan():
-            command=HCI_Cmd_LE_Set_Extended_Scan_Params(scan_type=isactivescan)
+            sparam = [int(isactivescan)]*8
+            command=HCI_Cmd_LE_Set_Extended_Scan_Params(scan_type=sparam)
             self._send_command_no_wait(command)
 
             command=HCI_Cmd_LE_Set_Extended_Scan_Enable(True,1)
             return self._send_command_no_wait(command)
         else:
-            command=HCI_Cmd_LE_Set_Scan_Params(scan_type=isactivescan)
+            sparam = int(isactivescan)
+            command=HCI_Cmd_LE_Set_Scan_Params(scan_type=sparam)
             self._send_command_no_wait(command)
 
             command=HCI_Cmd_LE_Scan_Enable(True,False)
