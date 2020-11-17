@@ -25,7 +25,6 @@ from homeassistant.const import (
 )
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.event import call_later
 import homeassistant.util.dt as dt_util
 
 # It was decided to temporarily include this file in the integration bundle
@@ -72,13 +71,14 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
 
     _LOGGER.debug("Platform startup")
     config = hass.data[DOMAIN]
-    BLEmonitor(hass, config, add_entities)
+    monitor = BLEmonitor(hass, config, add_entities)
+    monitor.start()
     _LOGGER.debug("Platform setup finished")
     # Return successful setup
     return True
 
 
-class BLEmonitor:
+class BLEmonitor(Thread):
     """ BLE ADV messages parser and entities updater """
 
     def __init__(self, hass, config, add_entities):
@@ -88,9 +88,11 @@ class BLEmonitor:
             if len(rmac) != 12:
                 return None
             return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
-
-        _LOGGER.debug("BLE_monitor initialization")
+        Thread.__init__(self)
+        _LOGGER.debug("BLE monitor initialization")
         self.dataqueue = queue.Queue()
+        self.scanner = None
+        self.hass = hass
         self.config = config
         self.aeskeys = {}
         self.whitelist = []
@@ -130,19 +132,24 @@ class BLEmonitor:
         _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
 
         self.add_entities = add_entities
-        self.scanner = BLEScanner(self.config, self.dataqueue)
-        hass.bus.listen(EVENT_HOMEASSISTANT_STOP, self.shutdown_handler)
-        call_later(hass, 5, self.dataparser_loop)
-        _LOGGER.debug("BLE_monitor initialized")
+        self.hass.bus.listen(EVENT_HOMEASSISTANT_STOP, self.shutdown_handler)
+        _LOGGER.debug("BLE monitor initialized")
 
     def shutdown_handler(self, event):
         """Run homeassistant_stop event handler."""
         _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
+        self.join()
+
+    def join(self, timeout=10):
+        """ Joining BLEmonitor thread """
+        _LOGGER.debug("BLE monitor thread: joining")
         if isinstance(self.scanner, BLEScanner):
             self.scanner.stop()
-            self.dataqueue.put(None)
+        self.dataqueue.put(None)
+        Thread.join(self, timeout)
+        _LOGGER.debug("BLE monitor thread: joined")
 
-    def dataparser_loop(self, event):
+    def run(self):
         """ parser and entity update loop """
 
         def parse_raw_message(data):
@@ -341,8 +348,8 @@ class BLEmonitor:
             return result
 
         _LOGGER.debug("Dataparser loop started!")
+        self.scanner = BLEScanner(self.config, self.dataqueue)
         self.scanner.start()
-
         parse_raw_message.lpacket_id = {}
         sensors_by_mac = {}
         batt = {}  # batteries
@@ -356,7 +363,7 @@ class BLEmonitor:
             try:
                 advevent = self.dataqueue.get(block=True, timeout=1)
                 if advevent is None:
-                    _LOGGER.debug("BLE_monitor stopped!")
+                    _LOGGER.debug("Dataparser loop stopped")
                     return True
                 data = parse_raw_message(advevent)
                 hcievent_cnt += 1
@@ -560,6 +567,39 @@ class HCIdump(Thread):
             _LOGGER.debug("HCIdump thread: joined")
 
 
+class BLEScanner:
+    """BLE scanner."""
+
+    def __init__(self, config, dataqueue):
+        """Init"""
+        self.dataqueue = dataqueue
+        self.dumpthread = None
+        self.config = config
+
+    def start(self):
+        """Start receiving broadcasts."""
+        _LOGGER.debug("Spawning HCIdump thread")
+        self.dumpthread = HCIdump(
+            config=self.config,
+            dataqueue=self.dataqueue,
+        )
+        self.dumpthread.start()
+
+    def stop(self):
+        """Stop HCIdump thread(s)."""
+        result = True
+        if self.dumpthread is None:
+            return True
+        if self.dumpthread.is_alive():
+            self.dumpthread.join()
+            if self.dumpthread.is_alive():
+                result = False
+                _LOGGER.error(
+                    "Waiting for the HCIdump thread to finish took too long! (>10s)"
+                )
+        return result
+
+
 def sensor_name(config, mac, sensor_type):
     """Set sensor name."""
     fmac = ":".join(mac[i:i + 2] for i in range(0, len(mac), 2))
@@ -615,39 +655,6 @@ def temperature_limit(config, mac, temp):
                         return temp_fahrenheit
                 break
     return temp
-
-
-class BLEScanner:
-    """BLE scanner."""
-
-    def __init__(self, config, dataqueue):
-        """Init"""
-        self.dataqueue = dataqueue
-        self.dumpthread = None
-        self.config = config
-
-    def start(self):
-        """Start receiving broadcasts."""
-        _LOGGER.debug("Spawning HCIdump thread")
-        self.dumpthread = HCIdump(
-            config=self.config,
-            dataqueue=self.dataqueue,
-        )
-        self.dumpthread.start()
-
-    def stop(self):
-        """Stop HCIdump thread(s)."""
-        result = True
-        if self.dumpthread is None:
-            return True
-        if self.dumpthread.is_alive():
-            self.dumpthread.join()
-            if self.dumpthread.is_alive():
-                result = False
-                _LOGGER.error(
-                    "Waiting for the HCIdump thread to finish took too long! (>10s)"
-                )
-        return result
 
 
 class MeasuringSensor(Entity):
