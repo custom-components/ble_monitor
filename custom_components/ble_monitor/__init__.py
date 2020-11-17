@@ -45,7 +45,7 @@ AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
 
 DEVICE_SCHEMA = vol.Schema(
     {
-        vol.Optional(CONF_MAC): cv.string,
+        vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
         vol.Optional(CONF_NAME): cv.string,
         vol.Optional(CONF_ENCRYPTION_KEY): cv.matches_regex(AES128KEY_REGEX),
         vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
