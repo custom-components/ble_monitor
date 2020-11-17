@@ -71,8 +71,9 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
 
     _LOGGER.debug("Platform startup")
     config = hass.data[DOMAIN]
-    monitor = BLEmonitor(hass, config, add_entities)
+    monitor = BLEmonitor(config, add_entities)
     monitor.start()
+    hass.bus.listen(EVENT_HOMEASSISTANT_STOP, monitor.shutdown_handler)
     _LOGGER.debug("Platform setup finished")
     # Return successful setup
     return True
@@ -81,7 +82,7 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
 class BLEmonitor(Thread):
     """ BLE ADV messages parser and entities updater """
 
-    def __init__(self, hass, config, add_entities):
+    def __init__(self, config, add_entities):
 
         def reverse_mac(rmac):
             """Change LE order to BE."""
@@ -92,7 +93,6 @@ class BLEmonitor(Thread):
         _LOGGER.debug("BLE monitor initialization")
         self.dataqueue = queue.Queue()
         self.scanner = None
-        self.hass = hass
         self.config = config
         self.aeskeys = {}
         self.whitelist = []
@@ -130,9 +130,7 @@ class BLEmonitor(Thread):
         for i, mac in enumerate(self.whitelist):
             self.whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
         _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
-
         self.add_entities = add_entities
-        self.hass.bus.listen(EVENT_HOMEASSISTANT_STOP, self.shutdown_handler)
         _LOGGER.debug("BLE monitor initialized")
 
     def shutdown_handler(self, event):
