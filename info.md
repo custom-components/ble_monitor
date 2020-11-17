@@ -5,6 +5,11 @@
 
 # NB!: This is a Beta version!
 
+In addition to the breaking changes described below, 0.8.2-beta includes:
+
+- trying to get it working on some of the newest bt adapters commonly found on the Intel NUC platform (testing required)
+- initial support for MCCGQ02HL device (testing required)
+
 # BREAKING CHANGES in 0.8.1 beta
 
 [Instructions to convert your configuration can be found here.](https://github.com/custom-components/ble_monitor/blob/integration_level/update_instructions.md)
