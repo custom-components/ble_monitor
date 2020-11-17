@@ -130,6 +130,12 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
 
   ![supported sensors](/pictures/WX08ZM.jpg)
+
+- MCCGQ02HL
+
+  (Xiaomi Mija Window Door Sensor 2, broadcasts open/closed state, dark/light state, battery level, about xx messages per minute)
+
+  ![supported sensors](/pictures/MCCGQ02HL.png)
   
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
