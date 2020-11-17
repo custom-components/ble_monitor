@@ -68,7 +68,6 @@ FMDH_STRUCT = struct.Struct("<H")
 
 def setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
-
     _LOGGER.debug("Platform startup")
     config = hass.data[DOMAIN]
     monitor = BLEmonitor(config, add_entities)
@@ -80,10 +79,10 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
 
 
 class BLEmonitor(Thread):
-    """ BLE ADV messages parser and entities updater """
+    """BLE ADV messages parser and entities updater."""
 
     def __init__(self, config, add_entities):
-
+        """Initiate BLE monitor."""
         def reverse_mac(rmac):
             """Change LE order to BE."""
             if len(rmac) != 12:
@@ -139,7 +138,7 @@ class BLEmonitor(Thread):
         self.join()
 
     def join(self, timeout=10):
-        """ Joining BLEmonitor thread """
+        """Join BLEmonitor thread."""
         _LOGGER.debug("BLE monitor thread: joining")
         if isinstance(self.scanner, BLEScanner):
             self.scanner.stop()
@@ -148,7 +147,7 @@ class BLEmonitor(Thread):
         _LOGGER.debug("BLE monitor thread: joined")
 
     def run(self):
-        """ parser and entity update loop """
+        """Parser and entity update loop."""
 
         def parse_raw_message(data):
             """Parse the raw data."""
@@ -581,7 +580,7 @@ class BLEScanner:
     """BLE scanner."""
 
     def __init__(self, config, dataqueue):
-        """Init"""
+        """Init."""
         self.dataqueue = dataqueue
         self.dumpthread = None
         self.config = config
@@ -680,7 +679,7 @@ class MeasuringSensor(Entity):
         return True
 
     def collect(self, data, batt_attr=None):
-        """Measurements collector"""
+        """Measurements collector."""
         if self._jagged is True:
             self._measurements.append(int(data[self._measurement]))
         else:
@@ -691,7 +690,7 @@ class MeasuringSensor(Entity):
         self.pending_update = True
 
     def update(self):
-        """updates sensor state and attributes"""
+        """Updates sensor state and attributes."""
         textattr = ""
         rdecimals = self._rdecimals
         # formaldehyde decimals workaround
@@ -882,13 +881,13 @@ class BatterySensor(MeasuringSensor):
         self._device_class = DEVICE_CLASS_BATTERY
 
     def collect(self, data, batt_attr=None):
-        """Battery measurements collector"""
+        """Battery measurements collector."""
         self._state = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
         self.pending_update = True
 
     def update(self):
-        """updates sensor state and attributes"""
+        """Update sensor state and attributes."""
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self.rssi_values.clear()
         self.pending_update = False
@@ -913,7 +912,7 @@ class ConsumableSensor(MeasuringSensor):
         return "mdi:mdi-recycle-variant"
 
     def collect(self, data, batt_attr=None):
-        """Measurements collector"""
+        """Measurements collector."""
         self._state = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
@@ -922,6 +921,7 @@ class ConsumableSensor(MeasuringSensor):
         self.pending_update = True
 
     def update(self):
+        """Update."""
         self.pending_update = False
 
 
@@ -1009,7 +1009,7 @@ class SwitchingSensor(BinarySensorEntity):
         return self._mac
 
     def collect(self, data, batt_attr=None):
-        """Measurements collector"""
+        """Measurements collector."""
         self._newstate = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
         if batt_attr is not None:
@@ -1018,7 +1018,7 @@ class SwitchingSensor(BinarySensorEntity):
             self.pending_update = True
 
     def update(self):
-        """updates sensor state and attributes"""
+        """Update sensor state and attribute."""
         self.prev_state = self._state
         self._state = self._newstate
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
@@ -1036,7 +1036,7 @@ class SwitchBinarySensor(SwitchingSensor):
         self._sensor_name = self.get_sensorname()
         self._name = "ble switch {}".format(self._sensor_name)
         self._unique_id = "sw_" + self._sensor_name
-        self._measurement = "switch"
+        self._device_class = "switch"
 
 
 class LightBinarySensor(SwitchingSensor):
@@ -1049,7 +1049,7 @@ class LightBinarySensor(SwitchingSensor):
         self._sensor_name = self.get_sensorname()
         self._name = "ble light {}".format(self._sensor_name)
         self._unique_id = "lt_" + self._sensor_name
-        self._measurement = "light"
+        self._device_class = "light"
 
 
 class OpeningBinarySensor(SwitchingSensor):
@@ -1063,9 +1063,10 @@ class OpeningBinarySensor(SwitchingSensor):
         self._name = "ble opening {}".format(self._sensor_name)
         self._unique_id = "op_" + self._sensor_name
         self._ext_state = None
+        self._device_class = "opening"
 
     def update(self):
-        """updates sensor state and attributes"""
+        """Update sensor state and attributes."""
         self._ext_state = self._newstate
         if self._newstate > 1:
             self._newstate = self.prev_state
