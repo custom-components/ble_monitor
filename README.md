@@ -133,7 +133,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MCCGQ02HL
 
-  (Xiaomi Mija Window Door Sensor 2, broadcasts open/closed state, dark/light state, battery level, about xx messages per minute)
+  (Xiaomi Mijia Window Door Sensor 2, broadcasts open/closed state, dark/light state, battery level, initial support, data to be confirmed)
 
   ![supported sensors](/pictures/MCCGQ02HL.png)
   
