@@ -117,83 +117,83 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
-  ![LYWSDCGQ](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/LYWSDCGQ.jpg)
+  ![LYWSDCGQ](https://raw.github.com/custom-components/ble_monitor/master/pictures/LYWSDCGQ.jpg)
   
 - CGG1
 
   (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
 
-  ![CGG1](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/CGG1.png)
+  ![CGG1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGG1.png)
 
 - LYWSD02
 
   (rectangular body, E-Ink, broadcasts temperature, humidity and battery level (battery level is available for firmware version 1.1.2_00085 and later), about 20 readings per minute)
 
-  ![LYWSD02](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/LYWSD02.jpeg)
+  ![LYWSD02](https://raw.github.com/custom-components/ble_monitor/master/pictures/LYWSD02.jpeg)
   
 - LYWSD03MMC
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer) (make sure you set advertising type to mi-like). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware))
   
-  ![LYWSD03MMC](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/LYWSD03MMC.jpg)
+  ![LYWSD03MMC](https://raw.github.com/custom-components/ble_monitor/master/pictures/LYWSD03MMC.jpg)
 
 - CGD1
 
   (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
-  ![CGD1](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/CGD1.jpg)
+  ![CGD1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGD1.jpg)
 
 - MHO-C303
 
   (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
-  ![MHO-C303](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/MHO-C303.png)
+  ![MHO-C303](https://raw.github.com/custom-components/ble_monitor/master/pictures/MHO-C303.png)
 
 - MHO-C401
   
   (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
   
-  ![MHO-C401](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/MHO-C401.jpg)
+  ![MHO-C401](https://raw.github.com/custom-components/ble_monitor/master/pictures/MHO-C401.jpg)
 
 - JQJCY01YM
 
   (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute)
   
-  ![supported sensors](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/JQJCY01YM.jpg)
+  ![supported sensors](https://raw.github.com/custom-components/ble_monitor/master/pictures/JQJCY01YM.jpg)
 
 - HHCCJCY01
 
   (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
   
-  ![HHCCJCY01](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/HHCCJCY01.jpg)
+  ![HHCCJCY01](https://raw.github.com/custom-components/ble_monitor/master/pictures/HHCCJCY01.jpg)
 
 - GCLS002
 
   (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
 
-  ![GCLS002](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/GCLS002.png)
+  ![GCLS002](https://raw.github.com/custom-components/ble_monitor/master/pictures/GCLS002.png)
 
 - HHCCPOT002
 
   (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
   
-  ![HHCCPOT002](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/HHCCPOT002.jpg)
+  ![HHCCPOT002](https://raw.github.com/custom-components/ble_monitor/master/pictures/HHCCPOT002.jpg)
 
 - WX08ZM
 
   (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
 
-  ![WX08ZM](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/WX08ZM.jpg)
+  ![WX08ZM](https://raw.github.com/custom-components/ble_monitor/master/pictures/WX08ZM.jpg)
 
 - MCCGQ02HL
 
   (Xiaomi Mijia Window Door Sensor 2, broadcasts open/closed state, dark/light state, battery level, initial support, data to be confirmed)
 
-  ![MCCGQ02HL](https://raw.github.com/custom-components/sensor.mitemp_bt/master/pictures/MCCGQ02HL.png)
+  ![MCCGQ02HL](https://raw.github.com/custom-components/ble_monitor/master/pictures/MCCGQ02HL.png)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
-**Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
+**Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
 
 ## HOW TO INSTALL
 
@@ -334,7 +334,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### report_unknown
 
-   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log (`logger` component must be enabled). **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log (`logger` component must be enabled). **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
 ### Configuration Variables at device level
 
@@ -380,7 +380,7 @@ ble_monitor:
 
 #### encryption_key
 
-   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
 ```yaml
 ble_monitor:
@@ -392,7 +392,7 @@ ble_monitor:
 ## FREQUENTLY ASKED QUESTIONS
 
 Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. There are some useful tips also.
-If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues).
+If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/ble_monitor/issues).
 
 ## CREDITS
 
