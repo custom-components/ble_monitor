@@ -24,6 +24,7 @@ from .const import (
     DEFAULT_BATT_ENTITIES,
     DEFAULT_REPORT_UNKNOWN,
     DEFAULT_DISCOVERY,
+    DEFAULT_RESTORE_STATE,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -33,6 +34,7 @@ from .const import (
     CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_REPORT_UNKNOWN,
+    CONF_RESTORE_STATE,
     CONF_ENCRYPTION_KEY,
     DOMAIN,
 )
@@ -72,6 +74,7 @@ CONFIG_SCHEMA = vol.Schema(
                     CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
                 ): cv.boolean,
                 vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
+                vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
                 vol.Optional(CONF_DEVICES, default=[]): vol.All(
                     cv.ensure_list, [DEVICE_SCHEMA]
                 ),
