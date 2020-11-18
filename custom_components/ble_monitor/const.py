@@ -12,6 +12,7 @@ CONF_ACTIVE_SCAN = "active_scan"
 CONF_HCI_INTERFACE = "hci_interface"
 CONF_BATT_ENTITIES = "batt_entities"
 CONF_REPORT_UNKNOWN = "report_unknown"
+CONF_RESTORE_STATE = "restore_state"
 CONF_ENCRYPTION_KEY = "encryption_key"
 
 
@@ -26,6 +27,7 @@ DEFAULT_HCI_INTERFACE = 0
 DEFAULT_BATT_ENTITIES = False
 DEFAULT_REPORT_UNKNOWN = False
 DEFAULT_DISCOVERY = True
+DEFAULT_RESTORE_STATE = True
 
 
 """Fixed constants."""
