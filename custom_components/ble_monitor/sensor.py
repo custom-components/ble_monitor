@@ -23,8 +23,7 @@ from homeassistant.const import (
     STATE_OFF,
     STATE_ON,
 )
-from homeassistant.components.binary_sensor import BinarySensorEntity
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 
 # It was decided to temporarily include this file in the integration bundle
@@ -44,6 +43,7 @@ from . import (
     CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_REPORT_UNKNOWN,
+    CONF_RESTORE_STATE,
 )
 from .const import (
     CONF_TMIN,
@@ -64,7 +64,6 @@ T_STRUCT = struct.Struct("<h")
 CND_STRUCT = struct.Struct("<H")
 ILL_STRUCT = struct.Struct("<I")
 FMDH_STRUCT = struct.Struct("<H")
-
 
 def setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
@@ -609,7 +608,7 @@ class BLEScanner:
         return result
 
 
-class MeasuringSensor(Entity):
+class MeasuringSensor(RestoreEntity):
     """Base class for measuring sensor entity."""
 
     def __init__(self, config, mac, devtype):
@@ -636,7 +635,35 @@ class MeasuringSensor(Entity):
         self._fmdh_dec = 0
         self._rounding = config[CONF_ROUNDING]
         self._use_median = config[CONF_USE_MEDIAN]
+        self._restore_state = config[CONF_RESTORE_STATE]
         self._err = None
+
+    async def async_added_to_hass(self):
+        """Handle entity which will be added."""
+        await super().async_added_to_hass()
+
+        # Restore the old state if available
+        old_state = await self.async_get_last_state()
+        _LOGGER.debug("old state is %s",  old_state)
+        if not old_state:
+            return
+        if self._restore_state is False:
+            return
+        self._state = old_state.state
+        if "median" in old_state.attributes:
+            self._device_state_attributes["median"] = old_state.attributes["median"]
+        if "mean" in old_state.attributes:
+            self._device_state_attributes["mean"] = old_state.attributes["mean"]
+        if "last median of" in old_state.attributes:
+            self._device_state_attributes["last median of"] = old_state.attributes["last median of"]
+        if "last mean of" in old_state.attributes:
+            self._device_state_attributes["last mean of"] = old_state.attributes["last mean of"]
+        if "rssi" in old_state.attributes:
+            self._device_state_attributes["rssi"] = old_state.attributes["rssi"]
+        if "last packet id" in old_state.attributes:
+            self._device_state_attributes["last packet id"] = old_state.attributes["last packet id"]
+        if ATTR_BATTERY_LEVEL in old_state.attributes:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = old_state.attributes[ATTR_BATTERY_LEVEL]
 
     @property
     def name(self):
@@ -926,7 +953,7 @@ class ConsumableSensor(MeasuringSensor):
         self.pending_update = False
 
 
-class SwitchingSensor(BinarySensorEntity):
+class SwitchingSensor(RestoreEntity):
     """Representation of a Sensor."""
 
     def __init__(self, config, mac, devtype):
@@ -934,6 +961,7 @@ class SwitchingSensor(BinarySensorEntity):
         self._sensor_name = ""
         self._mac = mac
         self._config = config
+        self._restore_state = config[CONF_RESTORE_STATE]
         self._name = ""
         self._state = None
         self._unique_id = ""
@@ -949,6 +977,26 @@ class SwitchingSensor(BinarySensorEntity):
         self.pending_update = False
         self._measurement = "measurement"
         self.rssi_values = []
+
+    async def async_added_to_hass(self):
+        """Handle entity which will be added."""
+        await super().async_added_to_hass()
+
+        # Restore the old state if available
+        old_state = await self.async_get_last_state()
+        if not old_state:
+            return
+        if self._restore_state is False:
+            return
+        self._state = old_state.state
+        if "ext_state" in old_state.attributes:
+            self._device_state_attributes["ext_state"] = old_state.attributes["ext_state"]
+        if "rssi" in old_state.attributes:
+            self._device_state_attributes["rssi"] = old_state.attributes["rssi"]
+        if "last packet id" in old_state.attributes:
+            self._device_state_attributes["last packet id"] = old_state.attributes["last packet id"]
+        if ATTR_BATTERY_LEVEL in old_state.attributes:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = old_state.attributes[ATTR_BATTERY_LEVEL]
 
     @property
     def is_on(self):
