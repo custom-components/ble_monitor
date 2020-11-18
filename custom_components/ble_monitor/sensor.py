@@ -494,8 +494,8 @@ class BLEmonitor(Thread):
             upd_evt = False
             for mac, elist in sensors_by_mac.items():
                 for entity in elist:
-                    if entity.pending_update:
-                        entity.rssi_values = [*rssi[mac]]
+                    if entity.pending_update is True:
+                        entity.rssi_values = rssi[mac].copy()
                         entity.schedule_update_ha_state(True)
                         upd_evt = True
                 if upd_evt:
@@ -711,9 +711,11 @@ class MeasuringSensor(Entity):
                 textattr = "last mean of"
                 self._state = state_mean
             self._device_state_attributes[textattr] = len(measurements)
+            self._measurements.clear()
             self._device_state_attributes["median"] = state_median
             self._device_state_attributes["mean"] = state_mean
             self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+            self.rssi_values.clear()
         except (AttributeError, AssertionError):
             _LOGGER.debug("Sensor %s not yet ready for update", self._name)
         except ZeroDivisionError as err:
@@ -724,8 +726,6 @@ class MeasuringSensor(Entity):
             self._err = err
         if self._err:
             _LOGGER.error("Sensor %s (%s) update error: %s", self._name, self._device_type, self._err)
-        self._measurements.clear()
-        self.rssi_values.clear()
         self.pending_update = False
 
     def get_sensorname(self):
@@ -915,13 +915,14 @@ class ConsumableSensor(MeasuringSensor):
         """Measurements collector."""
         self._state = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
-        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
 
     def update(self):
         """Update."""
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        self.rssi_values.clear()
         self.pending_update = False
 
 
