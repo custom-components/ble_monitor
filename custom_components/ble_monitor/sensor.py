@@ -179,6 +179,14 @@ class BLEmonitor(Thread):
             if self.discovery is False:
                 if xiaomi_mac_reversed not in self.whitelist:
                     return None
+            packet_id = data[xiaomi_index + 7]
+            try:
+                prev_packet = parse_raw_message.lpacket_id[xiaomi_mac_reversed]
+            except KeyError:
+                prev_packet = None
+            if prev_packet == packet_id:
+                return None
+            parse_raw_message.lpacket_id[xiaomi_mac_reversed] = packet_id
             # extract RSSI byte
             rssi_index = 18 if is_ext_packet else msg_length - 1
             (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
@@ -198,19 +206,18 @@ class BLEmonitor(Thread):
                         data.hex()
                     )
                 return None
-            packet_id = data[xiaomi_index + 7]
-            try:
-                prev_packet = parse_raw_message.lpacket_id[xiaomi_mac_reversed]
-            except KeyError:
-                prev_packet = None
-            if prev_packet == packet_id:
-                return None
-            parse_raw_message.lpacket_id[xiaomi_mac_reversed] = packet_id
             # frame control bits
             framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
             # check data is present
             if not (framectrl & 0x4000):
-                return None
+                return {
+                    "rssi": rssi,
+                    "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+                    "type": sensor_type,
+                    "packet": packet_id,
+                    "data": False,
+                }
+                # return None
             xdata_length = 0
             xdata_point = 0
             # check capability byte present
@@ -280,10 +287,12 @@ class BLEmonitor(Thread):
                 "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
                 "type": sensor_type,
                 "packet": packet_id,
+                "data": True,
             }
             # loop through xiaomi payload
             # assume that the data may have several values of different types,
             # although I did not notice this behavior with my LYWSDCGQ sensors
+            res = None
             while True:
                 xvalue_typecode = data[xdata_point:xdata_point + 2]
                 try:
@@ -339,6 +348,14 @@ class BLEmonitor(Thread):
                         res = {"illuminance": illum}
                 if res:
                     result.update(res)
+                else:
+                    if self.report_unknown:
+                        _LOGGER.info(
+                            "UNKNOWN data from DEVICE: %s, MAC: %s, ADV: %s",
+                            sensor_type,
+                            ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+                            data.hex()
+                        )
                 if xnext_point > msg_length - 3:
                     break
                 xdata_point = xnext_point
@@ -424,6 +441,11 @@ class BLEmonitor(Thread):
                     self.add_entities(sensors)
                 else:
                     sensors = sensors_by_mac[mac]
+
+                if data["data"] is False:
+                    data = None
+                    continue
+
                 # store found readings per device
                 if (b_i != 9):
                     if "battery" in data:
@@ -514,6 +536,7 @@ class BLEmonitor(Thread):
                 if upd_evt:
                     rssi[mac].clear()
                 upd_evt = False
+            rssi.clear()
 
             _LOGGER.debug(
                 "%i HCI Events parsed, %i valuable MiBeacon BLE ADV messages. Found %i known device(s) total. Priority queue = %i",
@@ -1021,7 +1044,7 @@ class SwitchingSensor(RestoreEntity):
     @property
     def is_on(self):
         """Return true if the binary sensor is on."""
-        return bool(self._state)
+        return bool(self._state) if self._state is not None else None
 
     @property
     def name(self):
@@ -1031,6 +1054,8 @@ class SwitchingSensor(RestoreEntity):
     @property
     def state(self):
         """Return the state of the binary sensor."""
+        if self.is_on is None:
+            return None
         return STATE_ON if self.is_on else STATE_OFF
 
     @property
@@ -1134,6 +1159,5 @@ class OpeningBinarySensor(SwitchingSensor):
         """Update sensor state and attributes."""
         self.prev_state = self._state
         self._ext_state = self._newstate
-        if self._newstate < 2:
-            self._state = not bool(self._newstate)
+        self._state = not bool(self._newstate)
         self._device_state_attributes["ext_state"] = self._ext_state
