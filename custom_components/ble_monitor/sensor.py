@@ -643,11 +643,10 @@ class MeasuringSensor(RestoreEntity):
         await super().async_added_to_hass()
 
         # Restore the old state if available
-        old_state = await self.async_get_last_state()
-        _LOGGER.debug("old state is %s",  old_state)
-        if not old_state:
-            return
         if self._restore_state is False:
+            return
+        old_state = await self.async_get_last_state()
+        if not old_state:
             return
         self._state = old_state.state
         if "median" in old_state.attributes:
@@ -983,10 +982,10 @@ class SwitchingSensor(RestoreEntity):
         await super().async_added_to_hass()
 
         # Restore the old state if available
+        if self._restore_state is False:
+            return
         old_state = await self.async_get_last_state()
         if not old_state:
-            return
-        if self._restore_state is False:
             return
         self._state = old_state.state
         if "ext_state" in old_state.attributes:
