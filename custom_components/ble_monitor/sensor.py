@@ -65,6 +65,7 @@ CND_STRUCT = struct.Struct("<H")
 ILL_STRUCT = struct.Struct("<I")
 FMDH_STRUCT = struct.Struct("<H")
 
+
 def setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
     _LOGGER.debug("Platform startup")
@@ -366,9 +367,10 @@ class BLEmonitor(Thread):
         rssi = {}
         hcievent_cnt = 0
         mibeacon_cnt = 0
-        mac_cnt = 0
+        hpriority = []
         ts_last = dt_util.now()
         ts_now = ts_last
+        data = None
         while True:
             try:
                 advevent = self.dataqueue.get(block=True, timeout=1)
@@ -379,6 +381,11 @@ class BLEmonitor(Thread):
                 hcievent_cnt += 1
             except queue.Empty:
                 pass
+            if len(hpriority) > 0:
+                for entity in hpriority:
+                    if entity.ready_for_update is True:
+                        hpriority.remove(entity)
+                        entity.schedule_update_ha_state(True)
             if data:
                 mibeacon_cnt += 1
                 mac = data["mac"]
@@ -417,7 +424,6 @@ class BLEmonitor(Thread):
                     self.add_entities(sensors)
                 else:
                     sensors = sensors_by_mac[mac]
-
                 # store found readings per device
                 if (b_i != 9):
                     if "battery" in data:
@@ -430,21 +436,28 @@ class BLEmonitor(Thread):
                             batt_attr = batt[mac]
                         except KeyError:
                             batt_attr = None
-
                 # schedule an immediate update of binary sensors
                 if "switch" in data:
-                    sensors[sw_i].collect(data, batt_attr)
-                    sensors[sw_i].schedule_update_ha_state(True)
-                    mac_cnt += 1
+                    switch = sensors[sw_i]
+                    switch.collect(data, batt_attr)
+                    if switch.ready_for_update is True:
+                        switch.schedule_update_ha_state(True)
+                    else:
+                        hpriority.append(switch)
                 if "opening" in data:
-                    sensors[op_i].collect(data, batt_attr)
-                    sensors[op_i].schedule_update_ha_state(True)
-                    mac_cnt += 1
+                    opening = sensors[op_i]
+                    opening.collect(data, batt_attr)
+                    if opening.ready_for_update is True:
+                        opening.schedule_update_ha_state(True)
+                    else:
+                        hpriority.append(opening)
                 if "light" in data:
-                    sensors[l_i].collect(data, batt_attr)
-                    sensors[l_i].schedule_update_ha_state(True)
-                    mac_cnt += 1
-
+                    light = sensors[l_i]
+                    light.collect(data, batt_attr)
+                    if light.ready_for_update is True:
+                        light.schedule_update_ha_state(True)
+                    else:
+                        hpriority.append(light)
                 # measuring sensors
                 if "temperature" in data:
                     if (
@@ -478,7 +491,7 @@ class BLEmonitor(Thread):
                     sensors[f_i].collect(data, batt_attr)
                 if "consumable" in data:
                     sensors[cn_i].collect(data, batt_attr)
-                data.clear()
+                data = None
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
                 continue
@@ -494,23 +507,23 @@ class BLEmonitor(Thread):
             for mac, elist in sensors_by_mac.items():
                 for entity in elist:
                     if entity.pending_update is True:
-                        entity.rssi_values = rssi[mac].copy()
-                        entity.schedule_update_ha_state(True)
-                        upd_evt = True
+                        if entity.ready_for_update is True:
+                            entity.rssi_values = rssi[mac].copy()
+                            entity.schedule_update_ha_state(True)
+                            upd_evt = True
                 if upd_evt:
-                    mac_cnt += 1
                     rssi[mac].clear()
                 upd_evt = False
 
             _LOGGER.debug(
-                "%i HCI Events parsed, %i valuable MiBeacon BLE ADV messages processed for %i known device(s).",
+                "%i HCI Events parsed, %i valuable MiBeacon BLE ADV messages. Found %i known device(s) total. Priority queue = %i",
                 hcievent_cnt,
                 mibeacon_cnt,
-                mac_cnt
+                len(sensors_by_mac),
+                len(hpriority),
             )
             hcievent_cnt = 0
             mibeacon_cnt = 0
-            mac_cnt = 0
 
 
 class HCIdump(Thread):
@@ -613,6 +626,7 @@ class MeasuringSensor(RestoreEntity):
 
     def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
+        self.ready_for_update = False
         self._config = config
         self._mac = mac
         self._name = ""
@@ -640,13 +654,16 @@ class MeasuringSensor(RestoreEntity):
 
     async def async_added_to_hass(self):
         """Handle entity which will be added."""
+        _LOGGER.debug("async_added_to_hass called for %s", self.name)
         await super().async_added_to_hass()
 
         # Restore the old state if available
         if self._restore_state is False:
+            self.ready_for_update = True
             return
         old_state = await self.async_get_last_state()
         if not old_state:
+            self.ready_for_update = True
             return
         self._state = old_state.state
         if "median" in old_state.attributes:
@@ -663,6 +680,7 @@ class MeasuringSensor(RestoreEntity):
             self._device_state_attributes["last packet id"] = old_state.attributes["last packet id"]
         if ATTR_BATTERY_LEVEL in old_state.attributes:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = old_state.attributes[ATTR_BATTERY_LEVEL]
+        self.ready_for_update = True
 
     @property
     def name(self):
@@ -957,6 +975,7 @@ class SwitchingSensor(RestoreEntity):
 
     def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
+        self.ready_for_update = False
         self._sensor_name = ""
         self._mac = mac
         self._config = config
@@ -973,19 +992,20 @@ class SwitchingSensor(RestoreEntity):
         self._device_class = None
         self._newstate = None
         self.prev_state = None
-        self.pending_update = False
         self._measurement = "measurement"
-        self.rssi_values = []
+        self.pending_update = False
 
     async def async_added_to_hass(self):
         """Handle entity which will be added."""
+        _LOGGER.debug("async_added_to_hass called for %s", self.name)
         await super().async_added_to_hass()
-
         # Restore the old state if available
         if self._restore_state is False:
+            self.ready_for_update = True
             return
         old_state = await self.async_get_last_state()
         if not old_state:
+            self.ready_for_update = True
             return
         self._state = old_state.state
         if "ext_state" in old_state.attributes:
@@ -996,6 +1016,7 @@ class SwitchingSensor(RestoreEntity):
             self._device_state_attributes["last packet id"] = old_state.attributes["last packet id"]
         if ATTR_BATTERY_LEVEL in old_state.attributes:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = old_state.attributes[ATTR_BATTERY_LEVEL]
+        self.ready_for_update = True
 
     @property
     def is_on(self):
@@ -1060,18 +1081,14 @@ class SwitchingSensor(RestoreEntity):
         """Measurements collector."""
         self._newstate = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["rssi"] = data["rssi"]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
-        if self._newstate != self.prev_state:
-            self.pending_update = True
 
     def update(self):
         """Update sensor state and attribute."""
         self.prev_state = self._state
         self._state = self._newstate
-        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
-        self.rssi_values.clear()
-        self.pending_update = False
 
 
 class SwitchBinarySensor(SwitchingSensor):
@@ -1115,12 +1132,8 @@ class OpeningBinarySensor(SwitchingSensor):
 
     def update(self):
         """Update sensor state and attributes."""
-        self._ext_state = self._newstate
-        if self._newstate > 1:
-            self._newstate = self.prev_state
         self.prev_state = self._state
-        self._state = not bool(self._newstate)
-        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        self._ext_state = self._newstate
+        if self._newstate < 2:
+            self._state = not bool(self._newstate)
         self._device_state_attributes["ext_state"] = self._ext_state
-        self.rssi_values.clear()
-        self.pending_update = False
