@@ -9,6 +9,12 @@ from threading import Thread
 
 from Cryptodome.Cipher import AES
 
+from homeassistant.components.binary_sensor import (
+    DEVICE_CLASS_LIGHT,
+    DEVICE_CLASS_OPENING,
+    DEVICE_CLASS_POWER,
+    BinarySensorEntity,
+)
 from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_HUMIDITY,
@@ -430,7 +436,7 @@ class BLEmonitor(Thread):
                     if cn_i != 9:
                         sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype))
                     if sw_i != 9:
-                        sensors.insert(sw_i, SwitchBinarySensor(self.config, mac, sensortype))
+                        sensors.insert(sw_i, PowerBinarySensor(self.config, mac, sensortype))
                     if op_i != 9:
                         sensors.insert(op_i, OpeningBinarySensor(self.config, mac, sensortype))
                     if l_i != 9:
@@ -993,7 +999,7 @@ class ConsumableSensor(MeasuringSensor):
         self.pending_update = False
 
 
-class SwitchingSensor(RestoreEntity):
+class SwitchingSensor(RestoreEntity, BinarySensorEntity):
     """Representation of a Sensor."""
 
     def __init__(self, config, mac, devtype):
@@ -1115,7 +1121,7 @@ class SwitchingSensor(RestoreEntity):
         self._state = self._newstate
 
 
-class SwitchBinarySensor(SwitchingSensor):
+class PowerBinarySensor(SwitchingSensor):
     """Representation of a Sensor."""
 
     def __init__(self, config, mac, devtype):
@@ -1125,7 +1131,7 @@ class SwitchBinarySensor(SwitchingSensor):
         self._sensor_name = self.get_sensorname()
         self._name = "ble switch {}".format(self._sensor_name)
         self._unique_id = "sw_" + self._sensor_name
-        self._device_class = "switch"
+        self._device_class = DEVICE_CLASS_POWER
 
 
 class LightBinarySensor(SwitchingSensor):
@@ -1138,7 +1144,7 @@ class LightBinarySensor(SwitchingSensor):
         self._sensor_name = self.get_sensorname()
         self._name = "ble light {}".format(self._sensor_name)
         self._unique_id = "lt_" + self._sensor_name
-        self._device_class = "light"
+        self._device_class = DEVICE_CLASS_LIGHT
 
 
 class OpeningBinarySensor(SwitchingSensor):
@@ -1152,7 +1158,7 @@ class OpeningBinarySensor(SwitchingSensor):
         self._name = "ble opening {}".format(self._sensor_name)
         self._unique_id = "op_" + self._sensor_name
         self._ext_state = None
-        self._device_class = "opening"
+        self._device_class = DEVICE_CLASS_OPENING
 
     def update(self):
         """Update sensor state and attributes."""
