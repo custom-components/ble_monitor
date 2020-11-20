@@ -255,7 +255,7 @@ ble_monitor:
   hci_interface: 0
   batt_entities: False
   discovery: True
-  restore_state: True
+  restore_state: False
   report_unknown: False
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
@@ -335,7 +335,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### restore_state
 
-   (boolean)(Optional) This option restores the state right after a restart of Home Assistant to the start just before the restart. The component needs some time (see [period](#period) option) to receive data and to determine the mean or median value. During this period, the entity will have a state "unknown" when `restore_state` is set to `False`. When set to `True` the previous state will be used till it has processed new data. Setting this option to `False` can be helpful for debugging. Default value: True
+   (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors immediately after a restart of Home Assistant to the state right before the restart. The integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. If you only use measuring sensors like temperature sensors, this option can be safely set to `True`. Default value: False
 
 #### report_unknown
 
