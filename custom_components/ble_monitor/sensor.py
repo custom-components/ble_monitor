@@ -1159,5 +1159,5 @@ class OpeningBinarySensor(SwitchingSensor):
         """Update sensor state and attributes."""
         self.prev_state = self._state
         self._ext_state = self._newstate
-        self._state = not bool(self._newstate)
+        self._state = not bool(self._newstate) if self._ext_state < 2 else bool(self._newstate)
         self._device_state_attributes["ext_state"] = self._ext_state
