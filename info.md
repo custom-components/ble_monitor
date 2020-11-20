@@ -5,10 +5,13 @@
 
 # NB!: This is a Beta version!
 
+# Changes in 0.8.3 beta
+
 In addition to the breaking changes described below, 0.8.2-beta includes:
 
 - trying to get it working on some of the newest bt adapters commonly found on the Intel NUC platform (testing required)
 - initial support for MCCGQ02HL device (testing required)
+- new restore_state option added to restore the state of sensors directly after a restart
 
 # BREAKING CHANGES in 0.8.1 beta
 
