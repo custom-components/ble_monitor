@@ -1014,7 +1014,6 @@ class SwitchingSensor(RestoreEntity):
         )
         self._device_class = None
         self._newstate = None
-        self.prev_state = None
         self._measurement = "measurement"
         self.pending_update = False
 
@@ -1027,10 +1026,11 @@ class SwitchingSensor(RestoreEntity):
             self.ready_for_update = True
             return
         old_state = await self.async_get_last_state()
+        _LOGGER.info(old_state)
         if not old_state:
             self.ready_for_update = True
             return
-        self._state = old_state.state
+        self._state = True if old_state.state == "on" else False
         if "ext_state" in old_state.attributes:
             self._device_state_attributes["ext_state"] = old_state.attributes["ext_state"]
         if "rssi" in old_state.attributes:
@@ -1112,7 +1112,6 @@ class SwitchingSensor(RestoreEntity):
 
     def update(self):
         """Update sensor state and attribute."""
-        self.prev_state = self._state
         self._state = self._newstate
 
 
@@ -1157,7 +1156,6 @@ class OpeningBinarySensor(SwitchingSensor):
 
     def update(self):
         """Update sensor state and attributes."""
-        self.prev_state = self._state
         self._ext_state = self._newstate
         self._state = not bool(self._newstate) if self._ext_state < 2 else bool(self._newstate)
         self._device_state_attributes["ext_state"] = self._ext_state
