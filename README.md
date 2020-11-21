@@ -127,13 +127,13 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - WX08ZM
 
-  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
+  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute. `switch` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. We are looking into the possibility to convert these to real `binary_sensors` in the future. In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor.)
 
-  ![WX08ZM](/pictures/WX08ZM.jpg)
+  ![WX08ZM](https://raw.github.com/custom-components/ble_monitor/master/pictures/WX08ZM.jpg)
 
 - MCCGQ02HL
 
-  (Xiaomi Mijia Window Door Sensor 2, broadcasts open/closed state, dark/light state, battery level, initial support, data to be confirmed)
+  (Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. `opening` and `light` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. We are looking into the possibility to convert these to real `binary_sensors` in the future, with the correct state (`open/closed` for opening sensor, `light/dark` for light sensor). In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor. Battery level is send very rarely, possible only with actual level change)
 
   ![MCCGQ02HL](/pictures/MCCGQ02HL.png)
   
