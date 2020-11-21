@@ -17,7 +17,7 @@ Notes:
 
 [1] Sensors like the `MCCQ02HL` and `WX08ZM` are currently discovered as `sensor` with `on/off` state. We are looking into the possibility to convert these to `binary_sensors`, which they actually are, with the correct state (e.g. `open/closed` for opening binary sensors). This will take some time, as we have to rewrite a large part of the code. In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor.
 
-[2] MCCGQ02HL sensors send messages only at the moment of an event occurrence, it does not notify about its state periodically. There is information about the battery, but very rarely (possibly only with actual level change?). 
+[2] `MCCGQ02HL` sensors send messages only at the moment of an event occurrence, it does not notify about its state periodically. There is information about the battery, but very rarely (possibly only with actual level change?). 
 
 # Upgrading from 0.7.x [BREAKING CHANGES]
 
