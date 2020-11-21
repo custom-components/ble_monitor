@@ -17,9 +17,9 @@
 <!-- /TOC -->
 
 
-## BREAKING CHANGES IN 0.8.1
+## BREAKING CHANGES IN 0.8.x
 
-This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading to 0.8.1 (and higher).
+This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading from 0.7.x to 0.8.x.
 
 Our custom component `mitemp_bt` was designed as a so called `sensor platform`, which is in Home Assistant language a `platform` under the `sensor` integration. Home Assistant however has made an architecture decision in [ADR 0007](https://github.com/home-assistant/architecture/blob/413e3cb248cf8dca766c0280997f3b516e23fb6d/adr/0007-integration-config-yaml-structure.md), which basically says that `mitemp_bt` should be a `integration` on its own.
 
