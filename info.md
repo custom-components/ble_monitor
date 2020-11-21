@@ -7,13 +7,19 @@
 
 # Changes in 0.8.3 beta
 
-In addition to the breaking changes described below, 0.8.3-beta includes:
+- Added Support for Extended Advertising features (Intel NUC and other BLE5 adapters)
+- new `restore_state` option to restore the state of sensors directly after a restart
+- Added support for MCCGQ02HL device [1] [2]
+- Processing of events from binary sensors in real-time [1]
+- sensor entities are now created directly when any device activity is detected (almost instantaneous status change from unavailable to unknown when the device is working and is in the reception area)
 
-- Support for the newest bt adapters commonly found on the Intel NUC platform
-- initial support for MCCGQ02HL device (testing required)
-- new restore_state option added to restore the state of sensors directly after a restart
+Notes:
 
-# BREAKING CHANGES in 0.8.1 beta
+[1] Sensors like the `MCCQ02HL` and `WX08ZM` are currently discovered as `sensor` with `on/off` state. We are looking into the possibility to convert these to `binary_sensors`, which they actually are, with the correct state (e.g. `open/closed` for opening binary sensors). This will take some time, as we have to rewrite a large part of the code. In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor.
+
+[2] MCCGQ02HL sensors send messages only at the moment of an event occurrence, it does not notify about its state periodically. There is information about the battery, but very rarely (possibly only with actual level change?). 
+
+# Upgrading from 0.7.x [BREAKING CHANGES]
 
 [Instructions to convert your configuration can be found here.](https://github.com/custom-components/ble_monitor/blob/integration_level/update_instructions.md)
 
