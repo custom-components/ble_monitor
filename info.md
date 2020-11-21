@@ -7,9 +7,9 @@
 
 # Changes in 0.8.3 beta
 
-In addition to the breaking changes described below, 0.8.2-beta includes:
+In addition to the breaking changes described below, 0.8.3-beta includes:
 
-- trying to get it working on some of the newest bt adapters commonly found on the Intel NUC platform (testing required)
+- Support for the newest bt adapters commonly found on the Intel NUC platform
 - initial support for MCCGQ02HL device (testing required)
 - new restore_state option added to restore the state of sensors directly after a restart
 
@@ -53,11 +53,25 @@ If you use one of these parameters, make sure you read the following
 {% endif %}
 {% if installed or pending_update %}
 
-# BREAKING CHANGES in 0.8.1
+# Changes in 0.8.3
+
+- Added Support for Extended Advertising features (Intel NUC and other BLE5 adapters)
+- new `restore_state` option to restore the state of sensors directly after a restart
+- Added support for MCCGQ02HL device [1] [2]
+- Processing of events from binary sensors in real-time [1]
+- sensor entities are now created directly when any device activity is detected (almost instantaneous status change from unavailable to unknown when the device is working and is in the reception area)
+
+Notes:
+
+[1] Sensors like the `MCCQ02HL` and `WX08ZM` are currently discovered as `sensor` with `on/off` state. We are looking into the possibility to convert these to `binary_sensors`, which they actually are, with the correct state (e.g. `open/closed` for opening binary sensors). This will take some time, as we have to rewrite a large part of the code. In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor.
+
+[2] MCCGQ02HL sensors send messages only at the moment of an event occurrence, it does not notify about its state periodically. There is information about the battery, but very rarely (possibly only with actual level change?). 
+
+# Upgrading from 0.7.x [BREAKING CHANGES]
+
+Upgrading from 0.7.x requires configuration changes from you. So please read carefully when upgrading from 0.7.x to 0.8.3 (and higher).
 
 [Instructions to convert your configuration can be found here.](https://github.com/custom-components/ble_monitor/blob/master/update_instructions.md)
-
-This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading to 0.8.1 (and higher).
 
 Our custom component `mitemp_bt` was designed as a so called `sensor platform`, which is in Home Assistant language a `platform` under the `sensor` integration. Home Assistant however has made an architecture decision in [ADR 0007](https://github.com/home-assistant/architecture/blob/413e3cb248cf8dca766c0280997f3b516e23fb6d/adr/0007-integration-config-yaml-structure.md), which basically says that `mitemp_bt` should be a `integration` on its own.
 
@@ -184,14 +198,14 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - WX08ZM
 
-  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
+  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute. `switch` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. We are looking into the possibility to convert these to real `binary_sensors` in the future. In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor.)
 
   ![WX08ZM](https://raw.github.com/custom-components/ble_monitor/master/pictures/WX08ZM.jpg)
 
 - MCCGQ02HL
 
-  (Xiaomi Mijia Window Door Sensor 2, broadcasts open/closed state, dark/light state, battery level, initial support, data to be confirmed)
-
+  (Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. `opening` and `light` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. We are looking into the possibility to convert these to real `binary_sensors` in the future, with the correct state (`open/closed` for opening sensor, `light/dark` for light sensor). In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor. Battery level is send very rarely, possible only with actual level change)
+  
   ![MCCGQ02HL](https://raw.github.com/custom-components/ble_monitor/master/pictures/MCCGQ02HL.png)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
