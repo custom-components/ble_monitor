@@ -5,7 +5,21 @@
 
 # NB!: This is a Beta version!
 
-# BREAKING CHANGES in 0.8.1 beta
+# Changes in 0.8.3 beta
+
+- Added Support for Extended Advertising features (Intel NUC and other BLE5 adapters)
+- new `restore_state` option to restore the state of sensors directly after a restart
+- Added support for MCCGQ02HL device [1] [2]
+- Processing of events from binary sensors in real-time [1]
+- sensor entities are now created directly when any device activity is detected (almost instantaneous status change from unavailable to unknown when the device is working and is in the reception area)
+
+Notes:
+
+[1] Sensors like the `MCCQ02HL` and `WX08ZM` are currently discovered as `sensor` with `on/off` state. We are looking into the possibility to convert these to `binary_sensors`, which they actually are, with the correct state (e.g. `open/closed` for opening binary sensors). This will take some time, as we have to rewrite a large part of the code. In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor.
+
+[2] `MCCGQ02HL` sensors send messages only at the moment of an event occurrence, it does not notify about its state periodically. There is information about the battery, but very rarely (possibly only with actual level change?). 
+
+# Upgrading from 0.7.x [BREAKING CHANGES]
 
 [Instructions to convert your configuration can be found here.](https://github.com/custom-components/ble_monitor/blob/integration_level/update_instructions.md)
 
@@ -45,11 +59,25 @@ If you use one of these parameters, make sure you read the following
 {% endif %}
 {% if installed or pending_update %}
 
-# BREAKING CHANGES in 0.8.1
+# Changes in 0.8.3
+
+- Added Support for Extended Advertising features (Intel NUC and other BLE5 adapters)
+- new `restore_state` option to restore the state of sensors directly after a restart
+- Added support for MCCGQ02HL device [1] [2]
+- Processing of events from binary sensors in real-time [1]
+- sensor entities are now created directly when any device activity is detected (almost instantaneous status change from unavailable to unknown when the device is working and is in the reception area)
+
+Notes:
+
+[1] Sensors like the `MCCQ02HL` and `WX08ZM` are currently discovered as `sensor` with `on/off` state. We are looking into the possibility to convert these to `binary_sensors`, which they actually are, with the correct state (e.g. `open/closed` for opening binary sensors). This will take some time, as we have to rewrite a large part of the code. In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor.
+
+[2] MCCGQ02HL sensors send messages only at the moment of an event occurrence, it does not notify about its state periodically. There is information about the battery, but very rarely (possibly only with actual level change?). 
+
+# Upgrading from 0.7.x [BREAKING CHANGES]
+
+Upgrading from 0.7.x requires configuration changes from you. So please read carefully when upgrading from 0.7.x to 0.8.3 (and higher).
 
 [Instructions to convert your configuration can be found here.](https://github.com/custom-components/ble_monitor/blob/master/update_instructions.md)
-
-This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading to 0.8.1 (and higher).
 
 Our custom component `mitemp_bt` was designed as a so called `sensor platform`, which is in Home Assistant language a `platform` under the `sensor` integration. Home Assistant however has made an architecture decision in [ADR 0007](https://github.com/home-assistant/architecture/blob/413e3cb248cf8dca766c0280997f3b516e23fb6d/adr/0007-integration-config-yaml-structure.md), which basically says that `mitemp_bt` should be a `integration` on its own.
 
@@ -112,77 +140,83 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
-  ![LYWSDCGQ](/pictures/LYWSDCGQ.jpg)
+  ![LYWSDCGQ](https://raw.github.com/custom-components/ble_monitor/master/pictures/LYWSDCGQ.jpg)
   
 - CGG1
 
   (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
 
-  ![CGG1](/pictures/CGG1.png)
+  ![CGG1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGG1.png)
 
 - LYWSD02
 
   (rectangular body, E-Ink, broadcasts temperature, humidity and battery level (battery level is available for firmware version 1.1.2_00085 and later), about 20 readings per minute)
 
-  ![LYWSD02](/pictures/LYWSD02.jpeg)
+  ![LYWSD02](https://raw.github.com/custom-components/ble_monitor/master/pictures/LYWSD02.jpeg)
   
 - LYWSD03MMC
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer) (make sure you set advertising type to mi-like). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware))
   
-  ![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)
+  ![LYWSD03MMC](https://raw.github.com/custom-components/ble_monitor/master/pictures/LYWSD03MMC.jpg)
 
 - CGD1
 
   (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
-  ![CGD1](/pictures/CGD1.jpg)
+  ![CGD1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGD1.jpg)
 
 - MHO-C303
 
   (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
   
-  ![MHO-C303](/pictures/MHO-C303.png)
+  ![MHO-C303](https://raw.github.com/custom-components/ble_monitor/master/pictures/MHO-C303.png)
 
 - MHO-C401
   
   (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
   
-  ![MHO-C401](/pictures/MHO-C401.jpg)
+  ![MHO-C401](https://raw.github.com/custom-components/ble_monitor/master/pictures/MHO-C401.jpg)
 
 - JQJCY01YM
 
   (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute)
   
-  ![supported sensors](/pictures/JQJCY01YM.jpg)
+  ![supported sensors](https://raw.github.com/custom-components/ble_monitor/master/pictures/JQJCY01YM.jpg)
 
 - HHCCJCY01
 
   (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
   
-  ![HHCCJCY01](/pictures/HHCCJCY01.jpg)
+  ![HHCCJCY01](https://raw.github.com/custom-components/ble_monitor/master/pictures/HHCCJCY01.jpg)
 
 - GCLS002
 
   (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
 
-  ![GCLS002](/pictures/GCLS002.png)
+  ![GCLS002](https://raw.github.com/custom-components/ble_monitor/master/pictures/GCLS002.png)
 
 - HHCCPOT002
 
   (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
   
-  ![HHCCPOT002](/pictures/HHCCPOT002.jpg)
+  ![HHCCPOT002](https://raw.github.com/custom-components/ble_monitor/master/pictures/HHCCPOT002.jpg)
 
 - WX08ZM
 
-  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
+  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute. `switch` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. We are looking into the possibility to convert these to real `binary_sensors` in the future. In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor.)
 
-  ![supported sensors](/pictures/WX08ZM.jpg)
+  ![WX08ZM](https://raw.github.com/custom-components/ble_monitor/master/pictures/WX08ZM.jpg)
+
+- MCCGQ02HL
+
+  (Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. `opening` and `light` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. We are looking into the possibility to convert these to real `binary_sensors` in the future, with the correct state (`open/closed` for opening sensor, `light/dark` for light sensor). In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor. Battery level is send very rarely, possible only with actual level change)
+  
+  ![MCCGQ02HL](https://raw.github.com/custom-components/ble_monitor/master/pictures/MCCGQ02HL.png)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
-**Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
+**Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
 
 ## HOW TO INSTALL
 
@@ -244,6 +278,7 @@ ble_monitor:
   hci_interface: 0
   batt_entities: False
   discovery: True
+  restore_state: False
   report_unknown: False
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
@@ -321,9 +356,13 @@ ble_monitor:
 
 Data from sensors with other addresses will be ignored. Default value: True
 
+#### restore_state
+
+   (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors immediately after a restart of Home Assistant to the state right before the restart. The integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. If you only use measuring sensors like temperature sensors, this option can be safely set to `True`. Default value: False
+
 #### report_unknown
 
-   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log (`logger` component must be enabled). **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log (`logger` component must be enabled). **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
 ### Configuration Variables at device level
 
@@ -369,7 +408,7 @@ ble_monitor:
 
 #### encryption_key
 
-   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/sensor.mitemp_bt/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
 ```yaml
 ble_monitor:
@@ -381,7 +420,7 @@ ble_monitor:
 ## FREQUENTLY ASKED QUESTIONS
 
 Still having questions or issues? Please first have a look on our [Frequently Asked Questions (FAQ) page](faq.md) to see if your question is already answered. There are some useful tips also.
-If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/sensor.mitemp_bt/issues).
+If your question or issue isn't answered in the FAQ, please open an [issue](https://github.com/custom-components/ble_monitor/issues).
 
 ## CREDITS
 
