@@ -17,7 +17,7 @@ Notes:
 
 [1] Sensors like the `MCCQ02HL` and `WX08ZM` are currently discovered as `sensor` with `on/off` state. We are looking into the possibility to convert these to `binary_sensors`, which they actually are, with the correct state (e.g. `open/closed` for opening binary sensors). This will take some time, as we have to rewrite a large part of the code. In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor.
 
-[2] `MCCGQ02HL` sensors send messages only at the moment of an event occurrence, it does not notify about its state periodically. There is information about the battery, but very rarely (possibly only with actual level change?). 
+[2] `MCCGQ02HL` sensors send messages only at the moment of an event occurrence, it does not notify about its state periodically. Battery level is only send once in approximately 24 hours. 
 
 # Upgrading from 0.7.x [BREAKING CHANGES]
 
@@ -210,7 +210,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MCCGQ02HL
 
-  (Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. `opening` and `light` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. We are looking into the possibility to convert these to real `binary_sensors` in the future, with the correct state (`open/closed` for opening sensor, `light/dark` for light sensor). In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor. Battery level is send very rarely, possible only with actual level change)
+  (Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. `opening` and `light` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. State changes will be realtime. We are looking into the possibility to convert these to real `binary_sensors` in the future, with the correct state (`open/closed` for opening sensor, `light/dark` for light sensor). In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor. Battery level is only send once in approximately 24 hours)
   
   ![MCCGQ02HL](https://raw.github.com/custom-components/ble_monitor/master/pictures/MCCGQ02HL.png)
 
