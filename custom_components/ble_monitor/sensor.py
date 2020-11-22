@@ -83,6 +83,16 @@ def setup_platform(hass, conf, add_entities, discovery_info=None):
     # Return successful setup
     return True
 
+def setup_entry(hass, config_entry, add_entities):
+    """Set up the sensor platform."""
+    _LOGGER.debug("Platform startup")
+    config = config_entry
+    monitor = BLEmonitor(config, add_entities)
+    monitor.start()
+    hass.bus.listen(EVENT_HOMEASSISTANT_STOP, monitor.shutdown_handler)
+    _LOGGER.debug("Platform setup finished")
+    # Return successful setup
+    return True
 
 class BLEmonitor(Thread):
     """BLE ADV messages parser and entities updater."""

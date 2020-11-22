@@ -1,6 +1,7 @@
 {
   "domain": "ble_monitor",
   "name": "Passive BLE monitor integration",
+  "config_flow": true,
   "documentation": "https://github.com/custom-components/ble_monitor",
   "requirements": ["pycryptodomex>=3.9.7"],
   "dependencies": [],

@@ -1,7 +1,11 @@
 """Passive BLE monitor integration."""
 import logging
+import asyncio
 import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
+
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 
 from homeassistant.const import (
     CONF_DEVICES,
@@ -45,6 +49,8 @@ _LOGGER = logging.getLogger(__name__)
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
 AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
 
+PLATFORMS = ["sensor"]
+
 DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
@@ -85,8 +91,43 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 
-def setup(hass, config):
+async def async_setup(hass, config):
     """Set up integration."""
-    hass.data[DOMAIN] = config[DOMAIN]
-    discovery.load_platform(hass, "sensor", DOMAIN, {}, config)
+    _LOGGER.info("Initializing BLE Monitor integration")
+
+    if not config[DOMAIN]:
+        return False
+
+    for p_config in config[DOMAIN]:
+        hass.async_add_job(hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": SOURCE_IMPORT}, data=p_config
+        ))        
+    
     return True
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Set up BLE Monitor from a config entry."""
+    _LOGGER.info("Initializing BLE Monitor entry")
+
+    if not entry.unique_id:
+        hass.config_entries.async_update_entry(entry, unique_id=entry.title)
+
+    for component in PLATFORMS:
+        hass.async_create_task(
+            hass.config_entries.async_forward_entry_setup(entry, component)
+        )
+
+    return True
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Unload a config entry."""
+    unload_ok = all(
+        await asyncio.gather(
+            *[
+                hass.config_entries.async_forward_entry_unload(entry, component)
+                for component in PLATFORMS
+            ]
+        )
+    )
+
+    return unload_ok
