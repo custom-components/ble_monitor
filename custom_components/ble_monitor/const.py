@@ -29,6 +29,9 @@ DEFAULT_REPORT_UNKNOWN = False
 DEFAULT_DISCOVERY = True
 DEFAULT_RESTORE_STATE = False
 
+# regex constants for configuration schema
+MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
+AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
 
 """Fixed constants."""
 

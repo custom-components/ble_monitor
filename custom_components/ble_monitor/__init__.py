@@ -41,13 +41,11 @@ from .const import (
     CONF_RESTORE_STATE,
     CONF_ENCRYPTION_KEY,
     DOMAIN,
+    MAC_REGEX,
+    AES128KEY_REGEX,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-# regex constants for configuration schema
-MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
-AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
 
 PLATFORMS = ["sensor"]
 
@@ -93,15 +91,14 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass, config):
     """Set up integration."""
+
+    if not DOMAIN in config:
+        return True
+
     _LOGGER.info("Initializing BLE Monitor integration")
-
-    if not config[DOMAIN]:
-        return False
-
-    for p_config in config[DOMAIN]:
-        hass.async_add_job(hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_IMPORT}, data=p_config
-        ))        
+    hass.async_add_job(hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_IMPORT}, data=config[DOMAIN]
+    ))        
     
     return True
 
@@ -112,6 +109,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if not entry.unique_id:
         hass.config_entries.async_update_entry(entry, unique_id=entry.title)
 
+    if not entry.options:
+        options = entry.data
+        hass.config_entries.async_update_entry(entry, options=options)
+
+    entry.add_update_listener(_async_update_listener)
+        
     for component in PLATFORMS:
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
@@ -131,3 +134,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     )
 
     return unload_ok
+
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle options update."""
+    await hass.config_entries.async_reload(entry.entry_id)

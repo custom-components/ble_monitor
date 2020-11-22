@@ -50,6 +50,7 @@ from . import (
     CONF_BATT_ENTITIES,
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
+    DEFAULT_HCI_INTERFACE,
 )
 from .const import (
     CONF_TMIN,
@@ -72,24 +73,31 @@ ILL_STRUCT = struct.Struct("<I")
 FMDH_STRUCT = struct.Struct("<H")
 
 
-def setup_platform(hass, conf, add_entities, discovery_info=None):
+async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
     _LOGGER.debug("Platform startup")
     config = hass.data[DOMAIN]
     monitor = BLEmonitor(config, add_entities)
     monitor.start()
-    hass.bus.listen(EVENT_HOMEASSISTANT_STOP, monitor.shutdown_handler)
+    hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, monitor.shutdown_handler)
     _LOGGER.debug("Platform setup finished")
     # Return successful setup
     return True
 
-def setup_entry(hass, config_entry, add_entities):
+async def async_setup_entry(hass, config_entry, add_entities):
     """Set up the sensor platform."""
     _LOGGER.debug("Platform startup")
-    config = config_entry
+
+    config = {}
+    for key, value in config_entry.data.items():
+        config[key] = value
+    if not CONF_HCI_INTERFACE in config:
+        config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE,]
+    if not CONF_DEVICES in config:
+        config[CONF_DEVICES] = []
     monitor = BLEmonitor(config, add_entities)
     monitor.start()
-    hass.bus.listen(EVENT_HOMEASSISTANT_STOP, monitor.shutdown_handler)
+    hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, monitor.shutdown_handler)
     _LOGGER.debug("Platform setup finished")
     # Return successful setup
     return True
@@ -735,6 +743,17 @@ class MeasuringSensor(RestoreEntity):
     def unit_of_measurement(self):
         """Return the unit of measurement."""
         return self._unit_of_measurement
+
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {
+                # Serial numbers are unique identifiers within a specific domain
+                (DOMAIN, self.get_sensorname())
+            },
+            "name": self.get_sensorname(),
+            "model": self._device_state_attributes["sensor type"],
+        }
 
     @property
     def device_class(self):
