@@ -210,7 +210,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MCCGQ02HL
 
-  (Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. `opening` and `light` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. State changes will be realtime. We are looking into the possibility to convert these to real `binary_sensors` in the future, with the correct state (`open/closed` for opening sensor, `light/dark` for light sensor). In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor. Battery level is only send once in approximately 24 hours)
+  (Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. Advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option. `opening` and `light` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. State changes will be realtime. We are looking into the possibility to convert these to real `binary_sensors` in the future, with the correct state (`open/closed` for opening sensor, `light/dark` for light sensor). In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor. Battery level is only send once in approximately 24 hours.)
   
   ![MCCGQ02HL](https://raw.github.com/custom-components/ble_monitor/master/pictures/MCCGQ02HL.png)
 
