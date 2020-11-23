@@ -1032,7 +1032,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
             self.ready_for_update = True
             return
         old_state = await self.async_get_last_state()
-        _LOGGER.info(old_state)
+        _LOGGER.debug(old_state)
         if not old_state:
             self.ready_for_update = True
             return
