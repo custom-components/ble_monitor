@@ -112,7 +112,7 @@ class BLEMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
 class BLEMonitorOptionsFlow(config_entries.OptionsFlow):
-    """Handle SpeedTest options."""
+    """Handle BLE Monitor options."""
 
     def __init__(self, config_entry):
         """Initialize options flow."""
