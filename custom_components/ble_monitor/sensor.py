@@ -551,11 +551,7 @@ class BLEmonitor(Thread):
                 continue
             ts_last = ts_now
             # restarting scanner
-            jres = self.scanner.stop()
-            if jres is False:
-                _LOGGER.error("HCIdump thread(s) is not completed, interrupting data processing!")
-                continue
-            self.scanner.start()
+            self.scanner.restart()
             # for every updated device
             upd_evt = False
             for mac, elist in sensors_by_mac.items():
@@ -592,6 +588,7 @@ class HCIdump(Thread):
         self._active = int(config[CONF_ACTIVE_SCAN] is True)
         self.dataqueue = dataqueue
         self._event_loop = None
+        self._joining = False
 
     def process_hci_events(self, data):
         """Collect HCI events."""
@@ -599,41 +596,47 @@ class HCIdump(Thread):
 
     def run(self):
         """Run HCIdump thread."""
-        _LOGGER.debug("HCIdump thread: Run")
-        mysocket = {}
-        fac = {}
-        conn = {}
-        btctrl = {}
-        self._event_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self._event_loop)
-        for hci in self._interfaces:
-            try:
-                mysocket[hci] = aiobs.create_bt_socket(hci)
-            except OSError as error:
-                _LOGGER.error("HCIdump thread: OS error (hci%i): %s", hci, error)
-            else:
-                fac[hci] = getattr(self._event_loop, "_create_connection_transport")(
-                    mysocket[hci], aiobs.BLEScanRequester, None, None
-                )
-                conn[hci], btctrl[hci] = self._event_loop.run_until_complete(fac[hci])
-                _LOGGER.debug("HCIdump thread: connected to hci%i", hci)
-                btctrl[hci].process = self.process_hci_events
-                self._event_loop.run_until_complete(btctrl[hci].send_scan_request(self._active))
-        _LOGGER.debug("HCIdump thread: start main event_loop")
-        try:
-            self._event_loop.run_forever()
-        finally:
-            _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
+        while True:
+            _LOGGER.debug("HCIdump thread: Run")
+            mysocket = {}
+            fac = {}
+            conn = {}
+            btctrl = {}
+            if self._event_loop is None:
+                self._event_loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(self._event_loop)
             for hci in self._interfaces:
-                self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
-                conn[hci].close()
-            self._event_loop.run_until_complete(asyncio.sleep(0))
-            self._event_loop.close()
-            _LOGGER.debug("HCIdump thread: Run finished")
+                try:
+                    mysocket[hci] = aiobs.create_bt_socket(hci)
+                except OSError as error:
+                    _LOGGER.error("HCIdump thread: OS error (hci%i): %s", hci, error)
+                else:
+                    fac[hci] = getattr(self._event_loop, "_create_connection_transport")(
+                        mysocket[hci], aiobs.BLEScanRequester, None, None
+                    )
+                    conn[hci], btctrl[hci] = self._event_loop.run_until_complete(fac[hci])
+                    _LOGGER.debug("HCIdump thread: connected to hci%i", hci)
+                    btctrl[hci].process = self.process_hci_events
+                    self._event_loop.run_until_complete(btctrl[hci].send_scan_request(self._active))
+            _LOGGER.debug("HCIdump thread: start main event_loop")
+            try:
+                self._event_loop.run_forever()
+            finally:
+                _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
+                for hci in self._interfaces:
+                    self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
+                    conn[hci].close()
+                self._event_loop.run_until_complete(asyncio.sleep(0))
+            if self._joining is True:
+                break
+            _LOGGER.debug("HCIdump thread: Scanning will be restarted")
+        self._event_loop.close()
+        _LOGGER.debug("HCIdump thread: Run finished")
 
     def join(self, timeout=10):
         """Join HCIdump thread."""
         _LOGGER.debug("HCIdump thread: joining")
+        self._joining = True
         try:
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
         except AttributeError as error:
@@ -641,6 +644,13 @@ class HCIdump(Thread):
         finally:
             Thread.join(self, timeout)
             _LOGGER.debug("HCIdump thread: joined")
+
+    def restart(self):
+        """Restarting scanner"""
+        try:
+            self._event_loop.call_soon_threadsafe(self._event_loop.stop)
+        except AttributeError as error:
+            _LOGGER.debug("%s", error)
 
 
 class BLEScanner:
@@ -674,6 +684,13 @@ class BLEScanner:
                     "Waiting for the HCIdump thread to finish took too long! (>10s)"
                 )
         return result
+
+    def restart(self):
+        """Restart scanning"""
+        if self.dumpthread.is_alive():
+            self.dumpthread.restart()
+        else:
+            self.start()
 
 
 class MeasuringSensor(RestoreEntity):
