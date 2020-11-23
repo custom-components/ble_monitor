@@ -139,7 +139,7 @@ There are several ways to increase coverage:
 
 There are several ways:
 
-1. Using TelinkFlasher, see also the instructions [here](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/407)
+1. LYWSD03MMC only: using TelinkFlasher, see also the instructions [here](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/407)
 
     - Keep the sensor close to the mobile phone (android only) or Windows computer.
     - Make sure that the bluetooth is enabled.
@@ -147,7 +147,9 @@ There are several ways:
     - Now, click the [Connect] button and wait until it shows "Connected." See the Log section at the bottom.
     - Once connected, click the [Do Activation] button and wait until the "Mi Bind Key" shows the information.
   
-2. Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms) while adding a sensor to the application ("pairing"). If the sensor has already been added before, then you can first delete it and add it again:
+2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595874419).
+
+3. ~~Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms) while adding a sensor to the application ("pairing"). If the sensor has already been added before, then you can first delete it and add it again~~: Unfortunately, the steps described below do not work anymore, since Xiaomi has enabled additional encryption of API requests, and therefore the procedure for intercepting traffic has become much more complicated. There are no instructions yet, so try to get by with the first two methods. If you have no choice, then create a separate issue, in which I will tell you what to do step by step, and we will use this issue as a guide for others.
 
       - iOS: Two known working options
         - [using Charles proxy, paid $7-10](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595327131),
@@ -155,8 +157,6 @@ There are several ways:
       - Android:
         - using Packet Capture.
         - [using Burp Suite](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-599780750), device must be rooted.
-
-3. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595874419).
 
 ## OTHER ISSUES
 
