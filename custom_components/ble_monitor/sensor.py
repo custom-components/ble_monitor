@@ -155,6 +155,63 @@ class BLEmonitor(Thread):
     def run(self):
         """Parser and entity update loop."""
 
+        def obj0d10(xobj):
+            (temp, humi) = TH_STRUCT.unpack(xobj)
+            return {"temperature": temp / 10, "humidity": humi / 10}
+
+        def obj0610(xobj):
+            (humi,) = H_STRUCT.unpack(xobj)
+            return {"humidity": humi / 10}
+
+        def obj0410(xobj):
+            (temp,) = T_STRUCT.unpack(xobj)
+            return {"temperature": temp / 10}
+
+        def obj0910(xobj):
+            (cond,) = CND_STRUCT.unpack(xobj)
+            return {"conductivity": cond}
+
+        def obj1010(xobj):
+            (fmdh,) = FMDH_STRUCT.unpack(xobj)
+            return {"formaldehyde": fmdh / 100}
+
+        def obj0a10(xobj):
+            return {"battery": xobj[0]}
+
+        def obj0810(xobj):
+            return {"moisture": xobj[0]}
+
+        def obj1210(xobj):
+            return {"switch": xobj[0]}
+
+        def obj1810(xobj):
+            return {"light": xobj[0]}
+
+        def obj1910(xobj):
+            return {"opening": xobj[0]}
+
+        def obj1310(xobj):
+            return {"consumable": xobj[0]}
+
+        def obj0710(xobj):
+            (illum,) = ILL_STRUCT.unpack(xobj + b'\x00')
+            return {"illuminance": illum}
+
+        dataobject_dict = {
+            b'\x0D\x10': obj0d10,
+            b'\x06\x10': obj0610,
+            b'\x04\x10': obj0410,
+            b'\x09\x10': obj0910,
+            b'\x10\x10': obj1010,
+            b'\x0A\x10': obj0a10,
+            b'\x08\x10': obj0810,
+            b'\x12\x10': obj1210,
+            b'\x18\x10': obj1810,
+            b'\x19\x10': obj1910,
+            b'\x13\x10': obj1310,
+            b'\x07\x10': obj0710,
+        }
+
         def parse_raw_message(data):
             """Parse the raw data."""
             # check if packet is Extended scan result
@@ -298,7 +355,6 @@ class BLEmonitor(Thread):
             # loop through xiaomi payload
             # assume that the data may have several values of different types,
             # although I did not notice this behavior with my LYWSDCGQ sensors
-            res = None
             while True:
                 xvalue_typecode = data[xdata_point:xdata_point + 2]
                 try:
@@ -317,43 +373,9 @@ class BLEmonitor(Thread):
                     break
                 xnext_point = xdata_point + 3 + xvalue_length
                 xvalue = data[xdata_point + 3:xnext_point]
-                vlength = len(xvalue)
-                if vlength == 4:
-                    if xvalue_typecode == b'\x0D\x10':
-                        (temp, humi) = TH_STRUCT.unpack(xvalue)
-                        res = {"temperature": temp / 10, "humidity": humi / 10}
-                if vlength == 2:
-                    if xvalue_typecode == b'\x06\x10':
-                        (humi,) = H_STRUCT.unpack(xvalue)
-                        res = {"humidity": humi / 10}
-                    if xvalue_typecode == b'\x04\x10':
-                        (temp,) = T_STRUCT.unpack(xvalue)
-                        res = {"temperature": temp / 10}
-                    if xvalue_typecode == b'\x09\x10':
-                        (cond,) = CND_STRUCT.unpack(xvalue)
-                        res = {"conductivity": cond}
-                    if xvalue_typecode == b'\x10\x10':
-                        (fmdh,) = FMDH_STRUCT.unpack(xvalue)
-                        res = {"formaldehyde": fmdh / 100}
-                if vlength == 1:
-                    if xvalue_typecode == b'\x0A\x10':
-                        res = {"battery": xvalue[0]}
-                    if xvalue_typecode == b'\x08\x10':
-                        res = {"moisture": xvalue[0]}
-                    if xvalue_typecode == b'\x12\x10':
-                        res = {"switch": xvalue[0]}
-                    if xvalue_typecode == b'\x18\x10':
-                        res = {"light": xvalue[0]}
-                    if xvalue_typecode == b'\x19\x10':
-                        res = {"opening": xvalue[0]}
-                    if xvalue_typecode == b'\x13\x10':
-                        res = {"consumable": xvalue[0]}
-                if vlength == 3:
-                    if xvalue_typecode == b'\x07\x10':
-                        (illum,) = ILL_STRUCT.unpack(xvalue + b'\x00')
-                        res = {"illuminance": illum}
-                if res:
-                    result.update(res)
+                resfunc = dataobject_dict.get(xvalue_typecode, None)
+                if resfunc:
+                    result.update(resfunc(xvalue))
                 else:
                     if self.report_unknown:
                         _LOGGER.info(
