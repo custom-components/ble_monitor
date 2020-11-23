@@ -170,15 +170,16 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - Remove the standard `mitemp_bt` integration from your configuration, as it will be replaced by this new component. Using them at the same time, might cause issues, especially when you only have one Bluetooth adapter and both components use the same adapter.
 
-**4. Add the platform to your configuration.yaml file (see [below](#configuration))**
+**4. Add your sensors to the MiHome app if you haven’t already.**
 
-**5. Restart Home Assistant:**
+Many Xiaomi ecosystem sensors (maybe all) do not broadcasts BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first. 
+
+**5. Add the integration to your configuration.yaml file (see [below](#configuration))**
+
+**6. Restart Home Assistant:**
 
 - A restart is required to load the configuration. After a few minutes, the sensors should be added to your Home Assistant automatically (at least one [period](#period) required).
 
-**6. Add your sensors to the MiHome app if you haven’t already.**
-
-Many Xiaomi ecosystem sensors (maybe all) do not brodcasts BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app.
 
 ## CONFIGURATION
 
@@ -331,7 +332,7 @@ ble_monitor:
 
 #### encryption_key
 
-   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1 and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1, MCCGQ02HL and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
 ```yaml
 ble_monitor:
