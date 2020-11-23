@@ -53,6 +53,7 @@ XIAOMI_TYPE_DICT = {
     b'\x87\x03': "MHO-C401",
     b'\xd3\x06': "MHO-C303",
     b'\x8B\x09': "MCCGQ02HL",
+    b'\x83\x00': "YM-K1501",
 }
 
 
@@ -73,6 +74,7 @@ MMTS_DICT = {
     'MHO-C401'  : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
     'MHO-C303'  : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
     'MCCGQ02HL' : [9, 9, 9, 9, 9, 9, 9, 9, 0, 1, 2],
+    'YM-K1501'  : [0, 9, 9, 9, 9, 9, 9, 1, 9, 9, 9],
 }
 
 # The use of the following dictionaries is lost when changing the sensor naming system

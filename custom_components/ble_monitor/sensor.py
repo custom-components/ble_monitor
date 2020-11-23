@@ -197,6 +197,9 @@ class BLEmonitor(Thread):
             (illum,) = ILL_STRUCT.unpack(xobj + b'\x00')
             return {"illuminance": illum}
 
+        def obj0510(xobj):
+            return {"switch": xobj[0], "temperature": xobj[1]}
+
         dataobject_dict = {
             b'\x0D\x10': obj0d10,
             b'\x06\x10': obj0610,
@@ -210,6 +213,7 @@ class BLEmonitor(Thread):
             b'\x19\x10': obj1910,
             b'\x13\x10': obj1310,
             b'\x07\x10': obj0710,
+            b'\x05\x10': obj0510,
         }
 
         def parse_raw_message(data):
