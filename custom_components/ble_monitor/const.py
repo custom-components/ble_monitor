@@ -78,6 +78,23 @@ MMTS_DICT = {
     'MCCGQ02HL' : [9, 9, 9, 9, 9, 9, 9, 9, 0, 1, 2],
 }
 
+# Sensor manufacturer dictionary
+MANUFACTURER_DICT = {
+    'HHCCJCY01' : 'Xiaomi',
+    'GCLS002'   : 'Xiaomi',
+    'HHCCPOT002': 'Xiaomi',
+    'LYWSDCGQ'  : 'Xiaomi',
+    'LYWSD02'   : 'Xiaomi',
+    'CGG1'      : 'Xiaomi',
+    'LYWSD03MMC': 'Xiaomi',
+    'CGD1'      : 'ClearGrass',
+    'JQJCY01YM' : 'Honeywell',
+    'WX08ZM'    : 'Xiaomi',
+    'MHO-C401'  : 'Miaomiaoce',
+    'MHO-C303'  : 'Miaomiaoce',
+    'MCCGQ02HL' : 'Xiaomi',
+}
+
 # The use of the following dictionaries is lost when changing the sensor naming system
 # Left here as a reminder, as we will probably return to this with the HA 0.118.x update
 # Switch binary sensor classes dict
