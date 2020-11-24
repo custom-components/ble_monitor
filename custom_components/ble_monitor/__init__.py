@@ -58,37 +58,6 @@ DEVICE_SCHEMA = vol.Schema(
     }
 )
 
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.boolean,
-                vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
-                vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
-                vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
-                vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
-                vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
-                vol.Optional(
-                    CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
-                ): vol.All(cv.ensure_list, [cv.positive_int]),
-                vol.Optional(
-                    CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
-                ): cv.boolean,
-                vol.Optional(
-                    CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
-                ): cv.boolean,
-                vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
-                vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
-                vol.Optional(CONF_DEVICES, default=[]): vol.All(
-                    cv.ensure_list, [DEVICE_SCHEMA]
-                ),
-            }
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
-)
-
-
 async def async_setup(hass, config):
     """Set up integration."""
 
@@ -110,8 +79,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.config_entries.async_update_entry(entry, unique_id=entry.title)
 
     if not entry.options:
+        # Move settings to options after initial setup
         options = entry.data
-        hass.config_entries.async_update_entry(entry, options=options)
+        data = {}
+        hass.config_entries.async_update_entry(entry, data=data, options=options)
 
     entry.add_update_listener(_async_update_listener)
         

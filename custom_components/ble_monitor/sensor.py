@@ -90,12 +90,12 @@ async def async_setup_entry(hass, config_entry, add_entities):
     _LOGGER.debug("Platform startup")
 
     config = {}
-    for key, value in config_entry.data.items():
+    for key, value in config_entry.options.items():
         config[key] = value
     if not CONF_HCI_INTERFACE in config:
         config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE,]
     else:
-        config[CONF_HCI_INTERFACE] = [config[CONF_HCI_INTERFACE],]
+        config[CONF_HCI_INTERFACE] = [config_entry.options.get(CONF_HCI_INTERFACE),]
     if not CONF_DEVICES in config:
         config[CONF_DEVICES] = []
     monitor = BLEmonitor(config, add_entities)
