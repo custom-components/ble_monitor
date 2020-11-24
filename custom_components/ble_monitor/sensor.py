@@ -1,5 +1,4 @@
 """Passive BLE monitor sensor platform."""
-import asyncio
 from datetime import timedelta
 import logging
 import queue
@@ -21,7 +20,6 @@ from homeassistant.const import (
     DEVICE_CLASS_ILLUMINANCE,
     DEVICE_CLASS_TEMPERATURE,
     CONDUCTIVITY,
-    EVENT_HOMEASSISTANT_STOP,
     PERCENTAGE,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
@@ -32,11 +30,6 @@ from homeassistant.const import (
 from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 
-# It was decided to temporarily include this file in the integration bundle
-# until the issue with checking the adapter's capabilities is resolved in the official aioblescan repo
-# see https://github.com/frawau/aioblescan/pull/30, thanks to @vicamo
-from . import aioblescan_ext as aiobs
-
 from . import (
     CONF_DEVICES,
     CONF_DISCOVERY,
@@ -45,8 +38,6 @@ from . import (
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
-    CONF_ACTIVE_SCAN,
-    CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
@@ -75,45 +66,44 @@ FMDH_STRUCT = struct.Struct("<H")
 def setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
     _LOGGER.debug("Platform startup")
-    config = hass.data[DOMAIN]
-    monitor = BLEmonitor(config, add_entities)
-    monitor.start()
-    hass.bus.listen(EVENT_HOMEASSISTANT_STOP, monitor.shutdown_handler)
+    blemonitor = hass.data[DOMAIN]
+    bleparser = BLEparser(blemonitor, add_entities)
+    bleparser.start()
     _LOGGER.debug("Platform setup finished")
     # Return successful setup
     return True
 
 
-class BLEmonitor(Thread):
+class BLEparser(Thread):
     """BLE ADV messages parser and entities updater."""
 
-    def __init__(self, config, add_entities):
-        """Initiate BLE monitor."""
+    def __init__(self, blemonitor, add_entities):
+        """Initiate BLE parser."""
         def reverse_mac(rmac):
             """Change LE order to BE."""
             if len(rmac) != 12:
                 return None
             return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
-        Thread.__init__(self)
-        _LOGGER.debug("BLE monitor initialization")
-        self.dataqueue = queue.Queue()
-        self.scanner = None
-        self.config = config
+        Thread.__init__(self, daemon=True)
+        _LOGGER.debug("BLE parser initialization")
+        self.monitor = blemonitor
+        self.dataqueue = blemonitor.dataqueue
+        self.config = blemonitor.config
         self.aeskeys = {}
         self.whitelist = []
         self.discovery = True
-        self.period = config[CONF_PERIOD]
-        self.log_spikes = config[CONF_LOG_SPIKES]
-        self.batt_entities = config[CONF_BATT_ENTITIES]
+        self.period = self.config[CONF_PERIOD]
+        self.log_spikes = self.config[CONF_LOG_SPIKES]
+        self.batt_entities = self.config[CONF_BATT_ENTITIES]
         self.report_unknown = False
-        if config[CONF_REPORT_UNKNOWN]:
+        if self.config[CONF_REPORT_UNKNOWN]:
             self.report_unknown = True
             _LOGGER.info(
                 "Attention! Option report_unknown is enabled, be ready for a huge output..."
             )
         # prepare device:key lists to speedup parser
-        if config[CONF_DEVICES]:
-            for device in config[CONF_DEVICES]:
+        if self.config[CONF_DEVICES]:
+            for device in self.config[CONF_DEVICES]:
                 if "encryption_key" in device:
                     p_mac = bytes.fromhex(
                         reverse_mac(device["mac"].replace(":", "")).lower()
@@ -123,11 +113,11 @@ class BLEmonitor(Thread):
                 else:
                     continue
         _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(self.aeskeys))
-        if isinstance(config[CONF_DISCOVERY], bool):
-            if config[CONF_DISCOVERY] is False:
+        if isinstance(self.config[CONF_DISCOVERY], bool):
+            if self.config[CONF_DISCOVERY] is False:
                 self.discovery = False
-                if config[CONF_DEVICES]:
-                    for device in config[CONF_DEVICES]:
+                if self.config[CONF_DEVICES]:
+                    for device in self.config[CONF_DEVICES]:
                         self.whitelist.append(device["mac"])
         # remove duplicates from whitelist
         self.whitelist = list(dict.fromkeys(self.whitelist))
@@ -136,21 +126,7 @@ class BLEmonitor(Thread):
             self.whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
         _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
         self.add_entities = add_entities
-        _LOGGER.debug("BLE monitor initialized")
-
-    def shutdown_handler(self, event):
-        """Run homeassistant_stop event handler."""
-        _LOGGER.debug("Running homeassistant_stop event handler: %s", event)
-        self.join()
-
-    def join(self, timeout=10):
-        """Join BLEmonitor thread."""
-        _LOGGER.debug("BLE monitor thread: joining")
-        if isinstance(self.scanner, BLEScanner):
-            self.scanner.stop()
-        self.dataqueue.put(None)
-        Thread.join(self, timeout)
-        _LOGGER.debug("BLE monitor thread: joined")
+        _LOGGER.debug("BLE parser initialized")
 
     def run(self):
         """Parser and entity update loop."""
@@ -408,8 +384,6 @@ class BLEmonitor(Thread):
             return temp
 
         _LOGGER.debug("Dataparser loop started!")
-        self.scanner = BLEScanner(self.config, self.dataqueue)
-        self.scanner.start()
         parse_raw_message.lpacket_id = {}
         sensors_by_mac = {}
         batt = {}  # batteries
@@ -424,7 +398,7 @@ class BLEmonitor(Thread):
             try:
                 advevent = self.dataqueue.get(block=True, timeout=1)
                 if advevent is None:
-                    _LOGGER.debug("Dataparser loop stopped")
+                    _LOGGER.debug("BLE parser loop stopped")
                     return True
                 data = parse_raw_message(advevent)
                 hcievent_cnt += 1
@@ -551,7 +525,7 @@ class BLEmonitor(Thread):
                 continue
             ts_last = ts_now
             # restarting scanner
-            self.scanner.restart()
+            self.monitor.restart()
             # for every updated device
             upd_evt = False
             for mac, elist in sensors_by_mac.items():
@@ -575,122 +549,6 @@ class BLEmonitor(Thread):
             )
             hcievent_cnt = 0
             mibeacon_cnt = 0
-
-
-class HCIdump(Thread):
-    """Mimic deprecated hcidump tool."""
-
-    def __init__(self, config, dataqueue):
-        """Initiate HCIdump thread."""
-        Thread.__init__(self)
-        _LOGGER.debug("HCIdump thread: Init")
-        self._interfaces = config[CONF_HCI_INTERFACE]
-        self._active = int(config[CONF_ACTIVE_SCAN] is True)
-        self.dataqueue = dataqueue
-        self._event_loop = None
-        self._joining = False
-
-    def process_hci_events(self, data):
-        """Collect HCI events."""
-        self.dataqueue.put(data)
-
-    def run(self):
-        """Run HCIdump thread."""
-        while True:
-            _LOGGER.debug("HCIdump thread: Run")
-            mysocket = {}
-            fac = {}
-            conn = {}
-            btctrl = {}
-            if self._event_loop is None:
-                self._event_loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(self._event_loop)
-            for hci in self._interfaces:
-                try:
-                    mysocket[hci] = aiobs.create_bt_socket(hci)
-                except OSError as error:
-                    _LOGGER.error("HCIdump thread: OS error (hci%i): %s", hci, error)
-                else:
-                    fac[hci] = getattr(self._event_loop, "_create_connection_transport")(
-                        mysocket[hci], aiobs.BLEScanRequester, None, None
-                    )
-                    conn[hci], btctrl[hci] = self._event_loop.run_until_complete(fac[hci])
-                    _LOGGER.debug("HCIdump thread: connected to hci%i", hci)
-                    btctrl[hci].process = self.process_hci_events
-                    self._event_loop.run_until_complete(btctrl[hci].send_scan_request(self._active))
-            _LOGGER.debug("HCIdump thread: start main event_loop")
-            try:
-                self._event_loop.run_forever()
-            finally:
-                _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
-                for hci in self._interfaces:
-                    self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
-                    conn[hci].close()
-                self._event_loop.run_until_complete(asyncio.sleep(0))
-            if self._joining is True:
-                break
-            _LOGGER.debug("HCIdump thread: Scanning will be restarted")
-        self._event_loop.close()
-        _LOGGER.debug("HCIdump thread: Run finished")
-
-    def join(self, timeout=10):
-        """Join HCIdump thread."""
-        _LOGGER.debug("HCIdump thread: joining")
-        self._joining = True
-        try:
-            self._event_loop.call_soon_threadsafe(self._event_loop.stop)
-        except AttributeError as error:
-            _LOGGER.debug("%s", error)
-        finally:
-            Thread.join(self, timeout)
-            _LOGGER.debug("HCIdump thread: joined")
-
-    def restart(self):
-        """Restarting scanner"""
-        try:
-            self._event_loop.call_soon_threadsafe(self._event_loop.stop)
-        except AttributeError as error:
-            _LOGGER.debug("%s", error)
-
-
-class BLEScanner:
-    """BLE scanner."""
-
-    def __init__(self, config, dataqueue):
-        """Init."""
-        self.dataqueue = dataqueue
-        self.dumpthread = None
-        self.config = config
-
-    def start(self):
-        """Start receiving broadcasts."""
-        _LOGGER.debug("Spawning HCIdump thread")
-        self.dumpthread = HCIdump(
-            config=self.config,
-            dataqueue=self.dataqueue,
-        )
-        self.dumpthread.start()
-
-    def stop(self):
-        """Stop HCIdump thread(s)."""
-        result = True
-        if self.dumpthread is None:
-            return True
-        if self.dumpthread.is_alive():
-            self.dumpthread.join()
-            if self.dumpthread.is_alive():
-                result = False
-                _LOGGER.error(
-                    "Waiting for the HCIdump thread to finish took too long! (>10s)"
-                )
-        return result
-
-    def restart(self):
-        """Restart scanning"""
-        if self.dumpthread.is_alive():
-            self.dumpthread.restart()
-        else:
-            self.start()
 
 
 class MeasuringSensor(RestoreEntity):
