@@ -59,6 +59,7 @@ from .const import (
     CONF_HMAX,
     XIAOMI_TYPE_DICT,
     MMTS_DICT,
+    MANUFACTURER_DICT,
     DOMAIN,
 )
 
@@ -683,6 +684,7 @@ class MeasuringSensor(RestoreEntity):
         self._unit_of_measurement = ""
         self._device_class = None
         self._device_type = devtype
+        self._device_manufacturer = MANUFACTURER_DICT[devtype]
         self._device_state_attributes = {}
         self._device_state_attributes["sensor type"] = devtype
         self._device_state_attributes["mac address"] = (
@@ -747,17 +749,6 @@ class MeasuringSensor(RestoreEntity):
         return self._unit_of_measurement
 
     @property
-    def device_info(self):
-        return {
-            "identifiers": {
-                # Serial numbers are unique identifiers within a specific domain
-                (DOMAIN, self.get_sensorname())
-            },
-            "name": self.get_sensorname(),
-            "model": self._device_state_attributes["sensor type"],
-        }
-
-    @property
     def device_class(self):
         """Return the device class."""
         return self._device_class
@@ -776,6 +767,18 @@ class MeasuringSensor(RestoreEntity):
     def unique_id(self) -> str:
         """Return a unique ID."""
         return self._unique_id
+
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {
+                # Unique identifiers within a specific domain
+                (DOMAIN, self.get_sensorname())
+            },
+            "name": self.get_sensorname(),
+            "model": self._device_type,
+            "manufacturer": self._device_manufacturer,
+        }
 
     @property
     def force_update(self):
@@ -1044,6 +1047,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         self._state = None
         self._unique_id = ""
         self._device_type = devtype
+        self._device_manufacturer = MANUFACTURER_DICT[devtype]
         self._device_state_attributes = {}
         self._device_state_attributes["sensor type"] = devtype
         self._device_state_attributes["mac address"] = (
@@ -1119,6 +1123,18 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
     def force_update(self):
         """Force update."""
         return True
+
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {
+                # Unique identifiers within a specific domain
+                (DOMAIN, self.get_sensorname())
+            },
+            "name": self.get_sensorname(),
+            "model": self._device_type,
+            "manufacturer": self._device_manufacturer,
+        }
 
     def get_sensorname(self):
         """Set sensor name."""
