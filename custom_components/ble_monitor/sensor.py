@@ -1120,11 +1120,6 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         return self._device_class
 
     @property
-    def force_update(self):
-        """Force update."""
-        return True
-
-    @property
     def device_info(self):
         return {
             "identifiers": {
@@ -1135,6 +1130,11 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
             "model": self._device_type,
             "manufacturer": self._device_manufacturer,
         }
+
+    @property
+    def force_update(self):
+        """Force update."""
+        return True
 
     def get_sensorname(self):
         """Set sensor name."""
