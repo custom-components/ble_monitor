@@ -3,10 +3,7 @@ from datetime import timedelta
 import logging
 import queue
 import statistics as sts
-import struct
 from threading import Thread
-
-from Cryptodome.Cipher import AES
 
 from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_LIGHT,
@@ -32,14 +29,12 @@ import homeassistant.util.dt as dt_util
 
 from . import (
     CONF_DEVICES,
-    CONF_DISCOVERY,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
     CONF_BATT_ENTITIES,
-    CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
 )
 from .const import (
@@ -47,327 +42,42 @@ from .const import (
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
-    XIAOMI_TYPE_DICT,
-    MMTS_DICT,
     DOMAIN,
+    MMTS_DICT,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-# Structured objects for data conversions
-TH_STRUCT = struct.Struct("<hH")
-H_STRUCT = struct.Struct("<H")
-T_STRUCT = struct.Struct("<h")
-CND_STRUCT = struct.Struct("<H")
-ILL_STRUCT = struct.Struct("<I")
-FMDH_STRUCT = struct.Struct("<H")
-
 
 def setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
-    _LOGGER.debug("Platform startup")
+    _LOGGER.debug("Sensor platform setup")
     blemonitor = hass.data[DOMAIN]
-    bleparser = BLEparser(blemonitor, add_entities)
-    bleparser.start()
-    _LOGGER.debug("Platform setup finished")
+    bleupdater = BLEupdater(blemonitor, add_entities)
+    bleupdater.start()
+    _LOGGER.debug("Sensor platform setup finished")
     # Return successful setup
     return True
 
 
-class BLEparser(Thread):
-    """BLE ADV messages parser and entities updater."""
+class BLEupdater(Thread):
+    """BLE monitor entities updater."""
 
     def __init__(self, blemonitor, add_entities):
-        """Initiate BLE parser."""
-        def reverse_mac(rmac):
-            """Change LE order to BE."""
-            if len(rmac) != 12:
-                return None
-            return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
+        """Initiate BLE updater."""
         Thread.__init__(self, daemon=True)
-        _LOGGER.debug("BLE parser initialization")
+        _LOGGER.debug("BLE updater initialization")
         self.monitor = blemonitor
         self.dataqueue = blemonitor.dataqueue
         self.config = blemonitor.config
-        self.aeskeys = {}
-        self.whitelist = []
-        self.discovery = True
         self.period = self.config[CONF_PERIOD]
         self.log_spikes = self.config[CONF_LOG_SPIKES]
         self.batt_entities = self.config[CONF_BATT_ENTITIES]
-        self.report_unknown = False
-        if self.config[CONF_REPORT_UNKNOWN]:
-            self.report_unknown = True
-            _LOGGER.info(
-                "Attention! Option report_unknown is enabled, be ready for a huge output..."
-            )
-        # prepare device:key lists to speedup parser
-        if self.config[CONF_DEVICES]:
-            for device in self.config[CONF_DEVICES]:
-                if "encryption_key" in device:
-                    p_mac = bytes.fromhex(
-                        reverse_mac(device["mac"].replace(":", "")).lower()
-                    )
-                    p_key = bytes.fromhex(device["encryption_key"].lower())
-                    self.aeskeys[p_mac] = p_key
-                else:
-                    continue
-        _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(self.aeskeys))
-        if isinstance(self.config[CONF_DISCOVERY], bool):
-            if self.config[CONF_DISCOVERY] is False:
-                self.discovery = False
-                if self.config[CONF_DEVICES]:
-                    for device in self.config[CONF_DEVICES]:
-                        self.whitelist.append(device["mac"])
-        # remove duplicates from whitelist
-        self.whitelist = list(dict.fromkeys(self.whitelist))
-        _LOGGER.debug("whitelist: [%s]", ", ".join(self.whitelist).upper())
-        for i, mac in enumerate(self.whitelist):
-            self.whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
-        _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
         self.add_entities = add_entities
-        _LOGGER.debug("BLE parser initialized")
+        _LOGGER.debug("BLE updater initialized")
 
     def run(self):
-        """Parser and entity update loop."""
-
-        def obj0d10(xobj):
-            (temp, humi) = TH_STRUCT.unpack(xobj)
-            return {"temperature": temp / 10, "humidity": humi / 10}
-
-        def obj0610(xobj):
-            (humi,) = H_STRUCT.unpack(xobj)
-            return {"humidity": humi / 10}
-
-        def obj0410(xobj):
-            (temp,) = T_STRUCT.unpack(xobj)
-            return {"temperature": temp / 10}
-
-        def obj0910(xobj):
-            (cond,) = CND_STRUCT.unpack(xobj)
-            return {"conductivity": cond}
-
-        def obj1010(xobj):
-            (fmdh,) = FMDH_STRUCT.unpack(xobj)
-            return {"formaldehyde": fmdh / 100}
-
-        def obj0a10(xobj):
-            return {"battery": xobj[0]}
-
-        def obj0810(xobj):
-            return {"moisture": xobj[0]}
-
-        def obj1210(xobj):
-            return {"switch": xobj[0]}
-
-        def obj1810(xobj):
-            return {"light": xobj[0]}
-
-        def obj1910(xobj):
-            return {"opening": xobj[0]}
-
-        def obj1310(xobj):
-            return {"consumable": xobj[0]}
-
-        def obj0710(xobj):
-            (illum,) = ILL_STRUCT.unpack(xobj + b'\x00')
-            return {"illuminance": illum}
-
-        def obj0510(xobj):
-            return {"switch": xobj[0], "temperature": xobj[1]}
-
-        dataobject_dict = {
-            b'\x0D\x10': obj0d10,
-            b'\x06\x10': obj0610,
-            b'\x04\x10': obj0410,
-            b'\x09\x10': obj0910,
-            b'\x10\x10': obj1010,
-            b'\x0A\x10': obj0a10,
-            b'\x08\x10': obj0810,
-            b'\x12\x10': obj1210,
-            b'\x18\x10': obj1810,
-            b'\x19\x10': obj1910,
-            b'\x13\x10': obj1310,
-            b'\x07\x10': obj0710,
-            b'\x05\x10': obj0510,
-        }
-
-        def parse_raw_message(data):
-            """Parse the raw data."""
-            # check if packet is Extended scan result
-            is_ext_packet = True if data[3] == 0x0d else False
-            # check for Xiaomi service data
-            xiaomi_index = data.find(b'\x16\x95\xFE', 15 + 15 if is_ext_packet else 0)
-            if xiaomi_index == -1:
-                return None
-            # check for no BR/EDR + LE General discoverable mode flags
-            advert_start = 29 if is_ext_packet else 14
-            adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
-            adv_index2 = data.find(b"\x15\x16\x95", advert_start, 3 + advert_start)
-            if adv_index == -1 and adv_index2 == -1:
-                return None
-            if adv_index2 != -1:
-                adv_index = adv_index2
-            # check for BTLE msg size
-            msg_length = data[2] + 3
-            if msg_length != len(data):
-                return None
-            # check for MAC presence in message and in service data
-            xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
-            mac_index = adv_index - 14 if is_ext_packet else adv_index
-            source_mac_reversed = data[mac_index - 7:mac_index - 1]
-            if xiaomi_mac_reversed != source_mac_reversed:
-                return None
-            # check for MAC presence in whitelist, if needed
-            if self.discovery is False:
-                if xiaomi_mac_reversed not in self.whitelist:
-                    return None
-            packet_id = data[xiaomi_index + 7]
-            try:
-                prev_packet = parse_raw_message.lpacket_id[xiaomi_mac_reversed]
-            except KeyError:
-                prev_packet = None
-            if prev_packet == packet_id:
-                return None
-            parse_raw_message.lpacket_id[xiaomi_mac_reversed] = packet_id
-            # extract RSSI byte
-            rssi_index = 18 if is_ext_packet else msg_length - 1
-            (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
-            # strange positive RSSI workaround
-            if rssi > 0:
-                rssi = -rssi
-            try:
-                sensor_type = XIAOMI_TYPE_DICT[
-                    data[xiaomi_index + 5:xiaomi_index + 7]
-                ]
-            except KeyError:
-                if self.report_unknown:
-                    _LOGGER.info(
-                        "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
-                        rssi,
-                        ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
-                        data.hex()
-                    )
-                return None
-            # frame control bits
-            framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
-            # check data is present
-            if not (framectrl & 0x4000):
-                return {
-                    "rssi": rssi,
-                    "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
-                    "type": sensor_type,
-                    "packet": packet_id,
-                    "data": False,
-                }
-                # return None
-            xdata_length = 0
-            xdata_point = 0
-            # check capability byte present
-            if framectrl & 0x2000:
-                xdata_length = -1
-                xdata_point = 1
-            # xiaomi data length = message length
-            #     -all bytes before XiaomiUUID
-            #     -3 bytes Xiaomi UUID + ADtype
-            #     -1 byte rssi
-            #     -3+1 bytes sensor type
-            #     -1 byte packet_id
-            #     -6 bytes MAC
-            #     - capability byte offset
-            xdata_length += msg_length - xiaomi_index - 15
-            if xdata_length < 3:
-                return None
-            xdata_point += xiaomi_index + 14
-            # check if xiaomi data start and length is valid
-            if xdata_length != len(data[xdata_point:-1]):
-                return None
-            # check encrypted data flags
-            if framectrl & 0x0800:
-                # try to find encryption key for current device
-                try:
-                    key = self.aeskeys[xiaomi_mac_reversed]
-                except KeyError:
-                    # no encryption key found
-                    return None
-                nonce = b"".join(
-                    [
-                        xiaomi_mac_reversed,
-                        data[xiaomi_index + 5:xiaomi_index + 7],
-                        data[xiaomi_index + 7:xiaomi_index + 8]
-                    ]
-                )
-                encrypted_payload = data[xdata_point:msg_length - 1]
-                aad = b"\x11"
-                token = encrypted_payload[-4:]
-                payload_counter = encrypted_payload[-7:-4]
-                nonce = b"".join([nonce, payload_counter])
-                cipherpayload = encrypted_payload[:-7]
-                cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
-                cipher.update(aad)
-                decrypted_payload = None
-                try:
-                    decrypted_payload = cipher.decrypt_and_verify(cipherpayload, token)
-                except ValueError as error:
-                    _LOGGER.error("Decryption failed: %s", error)
-                    _LOGGER.error("token: %s", token.hex())
-                    _LOGGER.error("nonce: %s", nonce.hex())
-                    _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
-                    _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
-                    return None
-                if decrypted_payload is None:
-                    _LOGGER.error(
-                        "Decryption failed for %s, decrypted payload is None",
-                        "".join("{:02X}".format(x) for x in xiaomi_mac_reversed[::-1]),
-                    )
-                    return None
-                # replace cipher with decrypted data
-                msg_length -= len(data[xdata_point:msg_length - 1])
-                data = b"".join((data[:xdata_point], decrypted_payload, data[-1:]))
-                msg_length += len(decrypted_payload)
-            result = {
-                "rssi": rssi,
-                "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
-                "type": sensor_type,
-                "packet": packet_id,
-                "data": True,
-            }
-            # loop through xiaomi payload
-            # assume that the data may have several values of different types,
-            # although I did not notice this behavior with my LYWSDCGQ sensors
-            while True:
-                xvalue_typecode = data[xdata_point:xdata_point + 2]
-                try:
-                    xvalue_length = data[xdata_point + 2]
-                except ValueError as error:
-                    _LOGGER.error("xvalue_length conv. error: %s", error)
-                    _LOGGER.error("xdata_point: %s", xdata_point)
-                    _LOGGER.error("data: %s", data.hex())
-                    result = {}
-                    break
-                except IndexError as error:
-                    _LOGGER.error("Wrong xdata_point: %s", error)
-                    _LOGGER.error("xdata_point: %s", xdata_point)
-                    _LOGGER.error("data: %s", data.hex())
-                    result = {}
-                    break
-                xnext_point = xdata_point + 3 + xvalue_length
-                xvalue = data[xdata_point + 3:xnext_point]
-                resfunc = dataobject_dict.get(xvalue_typecode, None)
-                if resfunc:
-                    result.update(resfunc(xvalue))
-                else:
-                    if self.report_unknown:
-                        _LOGGER.info(
-                            "UNKNOWN data from DEVICE: %s, MAC: %s, ADV: %s",
-                            sensor_type,
-                            ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
-                            data.hex()
-                        )
-                if xnext_point > msg_length - 3:
-                    break
-                xdata_point = xnext_point
-            return result
+        """Entities updater loop."""
 
         def temperature_limit(config, mac, temp):
             """Set limits for temperature measurement in °C or °F."""
@@ -383,12 +93,10 @@ class BLEparser(Thread):
                         break
             return temp
 
-        _LOGGER.debug("Dataparser loop started!")
-        parse_raw_message.lpacket_id = {}
+        _LOGGER.debug("Entities updater loop started!")
         sensors_by_mac = {}
         batt = {}  # batteries
         rssi = {}
-        hcievent_cnt = 0
         mibeacon_cnt = 0
         hpriority = []
         ts_last = dt_util.now()
@@ -398,10 +106,9 @@ class BLEparser(Thread):
             try:
                 advevent = self.dataqueue.get(block=True, timeout=1)
                 if advevent is None:
-                    _LOGGER.debug("BLE parser loop stopped")
+                    _LOGGER.debug("Entities updater loop stopped")
                     return True
-                data = parse_raw_message(advevent)
-                hcievent_cnt += 1
+                data = advevent
             except queue.Empty:
                 pass
             if len(hpriority) > 0:
@@ -541,13 +248,11 @@ class BLEparser(Thread):
             rssi.clear()
 
             _LOGGER.debug(
-                "%i HCI Events parsed, %i valuable MiBeacon BLE ADV messages. Found %i known device(s) total. Priority queue = %i",
-                hcievent_cnt,
+                "%i MiBeacon BLE ADV messages processed. Found %i known device(s) total. Priority queue = %i",
                 mibeacon_cnt,
                 len(sensors_by_mac),
                 len(hpriority),
             )
-            hcievent_cnt = 0
             mibeacon_cnt = 0
 
 
