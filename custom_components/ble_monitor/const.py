@@ -29,6 +29,9 @@ DEFAULT_REPORT_UNKNOWN = False
 DEFAULT_DISCOVERY = True
 DEFAULT_RESTORE_STATE = False
 
+# regex constants for configuration schema
+MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
+AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
 
 """Fixed constants."""
 
@@ -76,6 +79,24 @@ MMTS_DICT = {
     'MHO-C303'  : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
     'MCCGQ02HL' : [9, 9, 9, 9, 9, 9, 9, 9, 0, 1, 2],
     'YM-K1501'  : [0, 9, 9, 9, 9, 9, 9, 1, 9, 9, 9],
+}
+
+# Sensor manufacturer dictionary
+MANUFACTURER_DICT = {
+    'HHCCJCY01' : 'Xiaomi',
+    'GCLS002'   : 'Xiaomi',
+    'HHCCPOT002': 'Xiaomi',
+    'LYWSDCGQ'  : 'Xiaomi',
+    'LYWSD02'   : 'Xiaomi',
+    'CGG1'      : 'Xiaomi',
+    'LYWSD03MMC': 'Xiaomi',
+    'CGD1'      : 'ClearGrass',
+    'JQJCY01YM' : 'Honeywell',
+    'WX08ZM'    : 'Xiaomi',
+    'MHO-C401'  : 'Miaomiaoce',
+    'MHO-C303'  : 'Miaomiaoce',
+    'MCCGQ02HL' : 'Xiaomi',
+    'YM-K1501'  : 'Xiaomi',
 }
 
 # The use of the following dictionaries is lost when changing the sensor naming system
