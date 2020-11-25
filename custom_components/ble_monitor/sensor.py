@@ -92,10 +92,15 @@ async def async_setup_entry(hass, config_entry, add_entities):
     config = {}
     for key, value in config_entry.options.items():
         config[key] = value
-    if not CONF_HCI_INTERFACE in config:
+
+    if not config[CONF_HCI_INTERFACE]:
         config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE,]
     else:
-        config[CONF_HCI_INTERFACE] = [config_entry.options.get(CONF_HCI_INTERFACE),]
+        hci_list = config_entry.options.get(CONF_HCI_INTERFACE)
+        for hci in range(0, len(hci_list)): 
+            hci_list[hci] = int(hci_list[hci])
+        config[CONF_HCI_INTERFACE] = hci_list
+    _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
     if not CONF_DEVICES in config:
         config[CONF_DEVICES] = []
     monitor = BLEmonitor(config, add_entities)
@@ -620,8 +625,11 @@ class HCIdump(Thread):
         finally:
             _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
             for hci in self._interfaces:
-                self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
-                conn[hci].close()
+                try:
+                    self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
+                    conn[hci].close()
+                except KeyError as error:
+                    _LOGGER.error("HCIdump thread finishing: Key Error, no device on hci%i", hci)
             self._event_loop.run_until_complete(asyncio.sleep(0))
             self._event_loop.close()
             _LOGGER.debug("HCIdump thread: Run finished")
