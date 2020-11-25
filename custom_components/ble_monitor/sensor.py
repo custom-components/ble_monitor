@@ -34,20 +34,48 @@ from .const import (
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
-    DOMAIN,
+    DEFAULT_HCI_INTERFACE,
+    MANUFACTURER_DICT,
     MMTS_DICT,
+    DOMAIN,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def setup_platform(hass, conf, add_entities, discovery_info=None):
+async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
     _LOGGER.debug("Sensor platform setup")
     blemonitor = hass.data[DOMAIN]
     bleupdater = BLEupdater(blemonitor, add_entities)
     bleupdater.start()
     _LOGGER.debug("Sensor platform setup finished")
+    # Return successful setup
+    return True
+
+
+async def async_setup_entry(hass, config_entry, add_entities):
+    """Set up the sensor platform."""
+    _LOGGER.debug("Platform startup")
+
+    config = {}
+    for key, value in config_entry.options.items():
+        config[key] = value
+
+    if not config[CONF_HCI_INTERFACE]:
+        config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE,]
+    else:
+        hci_list = config_entry.options.get(CONF_HCI_INTERFACE)
+        for hci in range(0, len(hci_list)): 
+            hci_list[hci] = int(hci_list[hci])
+        config[CONF_HCI_INTERFACE] = hci_list
+    _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
+    if not CONF_DEVICES in config:
+        config[CONF_DEVICES] = []
+    blemonitor = BLEmonitor(config, add_entities)
+    bleupdater = BLEupdater(blemonitor, add_entities)
+    bleupdater.start()
+    _LOGGER.debug("Platform setup finished")
     # Return successful setup
     return True
 
@@ -226,6 +254,7 @@ class MeasuringSensor(RestoreEntity):
         self._unit_of_measurement = ""
         self._device_class = None
         self._device_type = devtype
+        self._device_manufacturer = MANUFACTURER_DICT[devtype]
         self._device_state_attributes = {}
         self._device_state_attributes["sensor type"] = devtype
         self._device_state_attributes["mac address"] = (
@@ -308,6 +337,18 @@ class MeasuringSensor(RestoreEntity):
     def unique_id(self) -> str:
         """Return a unique ID."""
         return self._unique_id
+
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {
+                # Unique identifiers within a specific domain
+                (DOMAIN, self.get_sensorname())
+            },
+            "name": self.get_sensorname(),
+            "model": self._device_type,
+            "manufacturer": self._device_manufacturer,
+        }
 
     @property
     def force_update(self):
