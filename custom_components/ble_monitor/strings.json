@@ -15,13 +15,20 @@
           "active_scan": "Active can",
           "hci_interface": "HCI interface",
           "report_unknown": "Report unknown",
-          "restore_state": "Restore state",
+          "restore_state": "Restore state"
+        }
+      },
+      "add_device": {
+        "title": "Add device",
+        "data": {
+          "mac": "MAC adress",
+          "name": "Name",
+          "temperature_unit": "Temperature unit",
           "encryption_key": "Encryption key"
         }
-      }
+      }  
     },
-    "error": {
-    },
+    "error": {},
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_location%]"
     }
@@ -31,27 +38,33 @@
       "init": {
         "title": "Passive BLE Monitor options",
         "data": {
-            "batt_entities": "Include battery entities",
-            "devices": "Devices",
-            "discovery": "Discovery",
-            "rounding": "Rounding",
-            "decimals": "Decimals",
-            "period": "Period",
-            "log_spikes": "Log spikes",
-            "use_median": "Use median",
-            "active_scan": "Active scan",
-            "hci_interface": "HCI interface",
-            "report_unknown": "Report unknown",
-            "restore_state": "Restore state",
-            "encryption_key": "Encryption key"
-          }
-      }
+          "batt_entities": "Include battery entities",
+          "devices": "Devices",
+          "discovery": "Discovery",
+          "rounding": "Rounding",
+          "decimals": "Decimals",
+          "period": "Period",
+          "log_spikes": "Log spikes",
+          "use_median": "Use median",
+          "active_scan": "Active scan",
+          "hci_interface": "HCI interface",
+          "report_unknown": "Report unknown",
+          "restore_state": "Restore state"
+        }
+      },
+      "add_device": {
+        "title": "Add device",
+        "data": {
+          "mac": "MAC adress",
+          "name": "Name",
+          "temperature_unit": "Temperature unit",
+          "encryption_key": "Encryption key"
+        }
+      }  
     },
-    "error": {
-    },
+    "error": {},
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_location%]"
     }
   }
-
 }

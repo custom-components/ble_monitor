@@ -11,6 +11,8 @@ from homeassistant.const import (
     CONF_MAC,
     CONF_NAME,
     CONF_TEMPERATURE_UNIT,
+    TEMP_CELSIUS,
+    TEMP_FAHRENHEIT,
 )
 
 from .const import (
@@ -41,14 +43,8 @@ from .const import (
     AES128KEY_REGEX,
 )
 
-DEVICE_SCHEMA = vol.Schema(
-    {
-        vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
-        vol.Optional(CONF_NAME): cv.string,
-        vol.Optional(CONF_ENCRYPTION_KEY): cv.matches_regex(AES128KEY_REGEX),
-        vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
-    }
-)
+OPTION_LIST_DEVICE = "--Devices--"
+OPTION_ADD_DEVICE = "Add device..."
 
 DOMAIN_SCHEMA = vol.Schema(
     {
@@ -82,20 +78,62 @@ class BLEMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
 
+    def __init__(self):
+        """Initialize flow instance."""
+        self._devices = []
+        self._sel_device = {}
+
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
         return BLEMonitorOptionsFlow(config_entry)
 
+    async def async_step_add_device(self, user_input=None):
+        errors = {}
+        if user_input is not None:
+            if (user_input.get(CONF_MAC)):
+                self._devices.append(user_input)
+            else:
+                for idx in range(0, len(self._devices)-1):
+                    if self._devices[idx].get(CONF_MAC) == self._sel_device.get(CONF_MAC):
+                        self._devices.pop(idx)
+                        break
+
+            return self._show_user_form(errors)
+
+        DEVICE_SCHEMA = vol.Schema(
+            {
+                vol.Optional(CONF_MAC, default=self._sel_device.get(CONF_MAC) if self._sel_device else ""): cv.string,
+                vol.Optional(CONF_NAME, default=self._sel_device.get(CONF_NAME) if self._sel_device else ""): cv.string,
+                vol.Optional(CONF_ENCRYPTION_KEY, default=self._sel_device.get(CONF_ENCRYPTION_KEY) if self._sel_device else ""): cv.string,
+                vol.Optional(CONF_TEMPERATURE_UNIT, default=self._sel_device.get(CONF_TEMPERATURE_UNIT) if self._sel_device else TEMP_CELSIUS): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
+            }
+        )
+
+        return self.async_show_form(
+            step_id="add_device",
+            data_schema=DEVICE_SCHEMA,
+        )
+
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
         _LOGGER.info("async_step_user")
         errors = {}
         if user_input is not None:
+            if user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
+                self._sel_device = {}
+                return await self.async_step_add_device()
+            for dev in self._devices:
+                if dev.get(CONF_MAC) == user_input[CONF_DEVICES]:
+                    self._sel_device = dev
+                    return await self.async_step_add_device()
+
             title = f"BLE Monitor"
             await self.async_set_unique_id(title)
             self._abort_if_unique_id_configured()
+            user_input[CONF_DEVICES] = self._devices
+
             return self.async_create_entry(title=title, data=user_input)
 
         return self._show_user_form(errors)
@@ -107,8 +145,16 @@ class BLEMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @callback
     def _show_user_form(self, errors=None):
+        option_devices = []
+        option_devices.append(OPTION_LIST_DEVICE)
+        option_devices.append(OPTION_ADD_DEVICE)
+        for device in self._devices:
+            option_devices.append(device.get(CONF_MAC));
+        config_schema = DOMAIN_SCHEMA.extend({
+            vol.Optional(CONF_DEVICES, default=OPTION_LIST_DEVICE): vol.In(option_devices),
+        })
         return self.async_show_form(
-            step_id="user", data_schema=DOMAIN_SCHEMA, errors=errors or {}
+            step_id="user", data_schema=config_schema, errors=errors or {}
         )
 
 class BLEMonitorOptionsFlow(config_entries.OptionsFlow):
