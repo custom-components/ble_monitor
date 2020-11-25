@@ -111,6 +111,7 @@ def setup(hass, config):
     blemonitor.start()
     hass.data[DOMAIN] = blemonitor
     discovery.load_platform(hass, "sensor", DOMAIN, {}, config)
+    discovery.load_platform(hass, "binary_sensor", DOMAIN, {}, config)
     return True
 
 
@@ -119,7 +120,10 @@ class BLEmonitor:
 
     def __init__(self, config):
         """Init."""
-        self.dataqueue = queue.Queue()
+        self.dataqueue = {
+            "binary": queue.Queue(),
+            "measuring": queue.Queue(),
+        }
         self.config = config
         self.dumpthread = None
 
@@ -139,7 +143,8 @@ class BLEmonitor:
 
     def stop(self):
         """Stop HCIdump thread(s)."""
-        self.dataqueue.put(None)
+        self.dataqueue["binary"].put(None)
+        self.dataqueue["measuring"].put(None)
         result = True
         if self.dumpthread is None:
             _LOGGER.debug("BLE monitor stopped")
@@ -221,7 +226,8 @@ class HCIdump(Thread):
 
         Thread.__init__(self)
         _LOGGER.debug("HCIdump thread: Init")
-        self.dataqueue = dataqueue
+        self.dataqueue_bin = dataqueue["binary"]
+        self.dataqueue_meas = dataqueue["measuring"]
         self._event_loop = None
         self._joining = False
         self.evt_cnt = 0
@@ -262,28 +268,37 @@ class HCIdump(Thread):
         for i, mac in enumerate(self.whitelist):
             self.whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
         _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
+        # dataobject dictionary to implement switch-case statement
+        # dataObject id  (converter, binary, measuring)
         self._dataobject_dict = {
-            b'\x0D\x10': obj0d10,
-            b'\x06\x10': obj0610,
-            b'\x04\x10': obj0410,
-            b'\x09\x10': obj0910,
-            b'\x10\x10': obj1010,
-            b'\x0A\x10': obj0a10,
-            b'\x08\x10': obj0810,
-            b'\x12\x10': obj1210,
-            b'\x18\x10': obj1810,
-            b'\x19\x10': obj1910,
-            b'\x13\x10': obj1310,
-            b'\x07\x10': obj0710,
-            b'\x05\x10': obj0510,
+            b'\x0D\x10': (obj0d10, False, True),
+            b'\x06\x10': (obj0610, False, True),
+            b'\x04\x10': (obj0410, False, True),
+            b'\x09\x10': (obj0910, False, True),
+            b'\x10\x10': (obj1010, False, True),
+            b'\x0A\x10': (obj0a10, True, True),
+            b'\x08\x10': (obj0810, False, True),
+            b'\x12\x10': (obj1210, True, False),
+            b'\x18\x10': (obj1810, True, False),
+            b'\x19\x10': (obj1910, True, False),
+            b'\x13\x10': (obj1310, False, True),
+            b'\x07\x10': (obj0710, False, True),
+            b'\x05\x10': (obj0510, True, True),
         }
 
     def process_hci_events(self, data):
         """Parses HCI events."""
         self.evt_cnt += 1
-        msg = self.parse_raw_message(data)
+        msg, binary, measuring = self.parse_raw_message(data)
         if msg:
-            self.dataqueue.put(msg)
+            if binary == measuring:
+                self.dataqueue_bin.put(msg)
+                self.dataqueue_meas.put(msg)
+            else:
+                if binary is True:
+                    self.dataqueue_bin.put(msg)
+                if measuring is True:
+                    self.dataqueue_meas.put(msg)
 
     def run(self):
         """Run HCIdump thread."""
@@ -352,36 +367,36 @@ class HCIdump(Thread):
         # check for Xiaomi service data
         xiaomi_index = data.find(b'\x16\x95\xFE', 15 + 15 if is_ext_packet else 0)
         if xiaomi_index == -1:
-            return None
+            return None, None, None
         # check for no BR/EDR + LE General discoverable mode flags
         advert_start = 29 if is_ext_packet else 14
         adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
         adv_index2 = data.find(b"\x15\x16\x95", advert_start, 3 + advert_start)
         if adv_index == -1 and adv_index2 == -1:
-            return None
+            return None, None, None
         if adv_index2 != -1:
             adv_index = adv_index2
         # check for BTLE msg size
         msg_length = data[2] + 3
         if msg_length != len(data):
-            return None
+            return None, None, None
         # check for MAC presence in message and in service data
         xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
         mac_index = adv_index - 14 if is_ext_packet else adv_index
         source_mac_reversed = data[mac_index - 7:mac_index - 1]
         if xiaomi_mac_reversed != source_mac_reversed:
-            return None
+            return None, None, None
         # check for MAC presence in whitelist, if needed
         if self.discovery is False:
             if xiaomi_mac_reversed not in self.whitelist:
-                return None
+                return None, None, None
         packet_id = data[xiaomi_index + 7]
         try:
             prev_packet = self.lpacket_ids[xiaomi_mac_reversed]
         except KeyError:
-            prev_packet = None
+            prev_packet = None, None, None
         if prev_packet == packet_id:
-            return None
+            return None, None, None
         self.lpacket_ids[xiaomi_mac_reversed] = packet_id
         # extract RSSI byte
         rssi_index = 18 if is_ext_packet else msg_length - 1
@@ -390,7 +405,7 @@ class HCIdump(Thread):
         if rssi > 0:
             rssi = -rssi
         try:
-            sensor_type = XIAOMI_TYPE_DICT[
+            sensor_type, binary_data = XIAOMI_TYPE_DICT[
                 data[xiaomi_index + 5:xiaomi_index + 7]
             ]
         except KeyError:
@@ -401,7 +416,7 @@ class HCIdump(Thread):
                     ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
                     data.hex()
                 )
-            return None
+            return None, None, None
         # frame control bits
         framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
         # check data is present
@@ -412,7 +427,7 @@ class HCIdump(Thread):
                 "type": sensor_type,
                 "packet": packet_id,
                 "data": False,
-            }
+            }, None, None
             # return None
         xdata_length = 0
         xdata_point = 0
@@ -430,11 +445,11 @@ class HCIdump(Thread):
         #     - capability byte offset
         xdata_length += msg_length - xiaomi_index - 15
         if xdata_length < 3:
-            return None
+            return None, None, None
         xdata_point += xiaomi_index + 14
         # check if xiaomi data start and length is valid
         if xdata_length != len(data[xdata_point:-1]):
-            return None
+            return None, None, None
         # check encrypted data flags
         if framectrl & 0x0800:
             # try to find encryption key for current device
@@ -442,7 +457,7 @@ class HCIdump(Thread):
                 key = self.aeskeys[xiaomi_mac_reversed]
             except KeyError:
                 # no encryption key found
-                return None
+                return None, None, None
             nonce = b"".join(
                 [
                     xiaomi_mac_reversed,
@@ -467,13 +482,13 @@ class HCIdump(Thread):
                 _LOGGER.error("nonce: %s", nonce.hex())
                 _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
                 _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
-                return None
+                return None, None, None
             if decrypted_payload is None:
                 _LOGGER.error(
                     "Decryption failed for %s, decrypted payload is None",
                     "".join("{:02X}".format(x) for x in xiaomi_mac_reversed[::-1]),
                 )
-                return None
+                return None, None, None
             # replace cipher with decrypted data
             msg_length -= len(data[xdata_point:msg_length - 1])
             data = b"".join((data[:xdata_point], decrypted_payload, data[-1:]))
@@ -485,6 +500,8 @@ class HCIdump(Thread):
             "packet": packet_id,
             "data": True,
         }
+        binary = False
+        measuring = False
         # loop through xiaomi payload
         # assume that the data may have several values of different types,
         # although I did not notice this behavior with my LYWSDCGQ sensors
@@ -506,13 +523,15 @@ class HCIdump(Thread):
                 break
             xnext_point = xdata_point + 3 + xvalue_length
             xvalue = data[xdata_point + 3:xnext_point]
-            resfunc = self._dataobject_dict.get(xvalue_typecode, None)
+            resfunc, tbinary, tmeasuring = self._dataobject_dict.get(xvalue_typecode, (None, None, None))
             if resfunc:
+                binary = binary or tbinary
+                measuring = measuring or tmeasuring
                 result.update(resfunc(xvalue))
             else:
                 if self.report_unknown:
                     _LOGGER.info(
-                        "UNKNOWN data from DEVICE: %s, MAC: %s, ADV: %s",
+                        "UNKNOWN dataobject from DEVICE: %s, MAC: %s, ADV: %s",
                         sensor_type,
                         ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
                         data.hex()
@@ -520,4 +539,5 @@ class HCIdump(Thread):
             if xnext_point > msg_length - 3:
                 break
             xdata_point = xnext_point
-        return result
+        binary = binary and binary_data
+        return result, binary, measuring

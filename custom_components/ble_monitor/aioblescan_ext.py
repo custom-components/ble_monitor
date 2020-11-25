@@ -600,10 +600,10 @@ class NBytes_List:
         :rtype: NBytes_List
 
     """
-    def __init__(self,name,bytes=2):
+    def __init__(self,name,nbytes=2):
         #Bytes should be one of 2, 4 or 16
         self.name=name
-        self.length=bytes
+        self.length=nbytes
         self.lonbytes = []
 
     def decode(self,data):
@@ -760,6 +760,7 @@ class HCI_Command(Packet):
 
 class RepeatedField(Packet):
     def __init__(self, name, subfield_cls, length_field_cls=UIntByte):
+        super().__init__()
         self.name = name
         self.subfield_cls = subfield_cls
         self.length_field = length_field_cls("count of " + name)
@@ -786,13 +787,13 @@ class HCI_Cmd_Read_Local_Supported_Commands(HCI_Command):
     """
 
     def __init__(self):
-        super(self.__class__, self).__init__(b"\x04",b"\x02")
+        super().__init__(b"\x04",b"\x02")
 
 class HCI_Cmd_LE_Read_Local_Supported_Features(HCI_Command):
     """Class representing a HCI command to read LE features."""
 
     def __init__(self):
-        super(self.__class__, self).__init__(b"\x08",b"\x03")
+        super().__init__(b"\x08",b"\x03")
 
 class HCI_Cmd_LE_Scan_Enable(HCI_Command):
     """Class representing a command HCI command to enable/disable BLE scanning.
@@ -807,7 +808,7 @@ class HCI_Cmd_LE_Scan_Enable(HCI_Command):
     """
 
     def __init__(self,enable=True,filter_dups=True):
-        super(self.__class__, self).__init__(b"\x08",b"\x0c")
+        super().__init__(b"\x08",b"\x0c")
         self.payload.append(Bool("enable",enable))
         self.payload.append(Bool("filter",filter_dups))
 
@@ -840,9 +841,9 @@ class HCI_Cmd_LE_Set_Scan_Params(HCI_Command):
 
     """
 
-    def __init__(self,scan_type=0x0,interval=10, window=750, oaddr_type=0,filter=0):
+    def __init__(self,scan_type=0x0,interval=10, window=750, oaddr_type=0,nfilter=0):
 
-        super(self.__class__, self).__init__(b"\x08",b"\x0b")
+        super().__init__(b"\x08",b"\x0b")
         self.payload.append(EnumByte("scan type",scan_type,
                                      {0: "Passive",
                                       1: "Active"}))
@@ -853,7 +854,7 @@ class HCI_Cmd_LE_Set_Scan_Params(HCI_Command):
                                       1: "Random",
                                       2: "Private IRK or Public",
                                       3: "Private IRK or Random"}))
-        self.payload.append(EnumByte("filter policy",filter,
+        self.payload.append(EnumByte("filter policy",nfilter,
                                      {0: "None",
                                       1: "Sender In White List",
                                       2: "Almost None",
@@ -871,7 +872,7 @@ class HCI_Cmd_LE_Advertise(HCI_Command):
     """
 
     def __init__(self,enable=True):
-        super(self.__class__, self).__init__(b"\x08",b"\x0a")
+        super().__init__(b"\x08",b"\x0a")
         self.payload.append(Bool("enable",enable))
 
 class HCI_Cmd_LE_Set_Advertised_Msg(HCI_Command):
@@ -885,7 +886,7 @@ class HCI_Cmd_LE_Set_Advertised_Msg(HCI_Command):
     """
 
     def __init__(self,msg=EmptyPayload()):
-        super(self.__class__, self).__init__(b"\x08",b"\x08")
+        super().__init__(b"\x08",b"\x08")
         self.payload.append(msg)
 
 class HCI_Cmd_LE_Set_Advertised_Params(HCI_Command):
@@ -929,9 +930,9 @@ class HCI_Cmd_LE_Set_Advertised_Params(HCI_Command):
 
     def __init__(self,interval_min=500, interval_max=750,
                        adv_type=0x3, oaddr_type=0, paddr_type=0,
-                       peer_addr="00:00:00:00:00:00", cmap=0x7, filter=0):
+                       peer_addr="00:00:00:00:00:00", cmap=0x7, nfilter=0):
 
-        super(self.__class__, self).__init__(b"\x08",b"\x06")
+        super().__init__(b"\x08",b"\x06")
         self.payload.append(UShortInt("Adv minimum",int(round(min(10240,max(20,interval_min))/0.625)),endian="little"))
         self.payload.append(UShortInt("Adv maximum",int(round(min(10240,max(20,max(interval_min,interval_max)))/0.625)),endian="little"))
         self.payload.append(EnumByte("adv type",adv_type,
@@ -951,7 +952,7 @@ class HCI_Cmd_LE_Set_Advertised_Params(HCI_Command):
         self.payload.append(MACAddr("peer",mac=peer_addr))
         self.payload.append(BitFieldByte("Channels",cmap,["Channel 37","Channel 38","Channel 39","RFU","RFU","RFU","RFU", "RFU"]))
 
-        self.payload.append(EnumByte("filter policy",filter,
+        self.payload.append(EnumByte("filter policy",nfilter,
                                      {0: "None",
                                       1: "Scan",
                                       2: "Connection",
@@ -977,7 +978,7 @@ class HCI_Cmd_LE_Set_Extended_Scan_Enable(HCI_Command):
     """
 
     def __init__(self,enable=True,filter_dups=1,duration=0,period=0):
-        super(self.__class__, self).__init__(b"\x08",b"\x42")
+        super().__init__(b"\x08",b"\x42")
         self.payload.append(Bool("enable",enable))
         self.payload.append(EnumByte("filter",filter_dups,
                                         {0: "Disable",
@@ -1018,15 +1019,15 @@ class HCI_Cmd_LE_Set_Extended_Scan_Params(HCI_Command):
 
     """
 
-    def __init__(self,oaddr_type=0,filter=0,phys=1,scan_type=[0]*8,interval=[10]*8, window=[750]*8):
+    def __init__(self,oaddr_type=0,nfilter=0,phys=1,scan_type=[0]*8,interval=[10]*8, window=[750]*8):
 
-        super(self.__class__, self).__init__(b"\x08",b"\x41")
+        super().__init__(b"\x08",b"\x41")
         self.payload.append(EnumByte("own addresss type",oaddr_type,
                                      {0: "Public",
                                       1: "Random",
                                       2: "Private IRK or Public",
                                       3: "Private IRK or Random"}))
-        self.payload.append(EnumByte("filter policy",filter,
+        self.payload.append(EnumByte("filter policy",nfilter,
                                      {0: "None",
                                       1: "Sender In White List",
                                       2: "Almost None",
@@ -1054,7 +1055,7 @@ class HCI_Cmd_Reset(HCI_Command):
     """
 
     def __init__(self):
-        super(self.__class__, self).__init__(b"\x03",b"\x03")
+        super().__init__(b"\x03",b"\x03")
 
 
 ####
@@ -1418,6 +1419,7 @@ class BLEScanRequester(asyncio.Protocol):
         self._supported_commands = None
         self._le_features = None
         self._initialized = asyncio.Event()
+        self._uninitialized = True
         self.transport = None
         self.smac = None
         self.sip = None
@@ -1477,20 +1479,20 @@ class BLEScanRequester(asyncio.Protocol):
         return self._send_command_no_wait(command)
 
     def data_received(self, packet):
-        ev=HCI_Event()
-        extra_data=ev.decode(packet)
-        if ev.payload[0].val == b'\x0e':
-            cc=ev.retrieve("Command Completed")[0]
-            cmd=cc.retrieve(OgfOcf)[0]
-            opcode=(ord(cmd.ogf) << 10) | ord(cmd.ocf)
-            resp=cc.retrieve('resp code')[0]
-            if opcode == 0x1002:
-                self._handle_cc_read_local_supported_commands(resp)
-            elif opcode == 0x2003:
-                self._handle_cc_le_read_local_supported_features(resp)
+        if self._uninitialized:
+            ev=HCI_Event()
+            extra_data=ev.decode(packet)
+            if ev.payload[0].val == b'\x0e':
+                cc=ev.retrieve("Command Completed")[0]
+                cmd=cc.retrieve(OgfOcf)[0]
+                opcode=(ord(cmd.ogf) << 10) | ord(cmd.ocf)
+                resp=cc.retrieve('resp code')[0]
+                if opcode == 0x1002:
+                    self._handle_cc_read_local_supported_commands(resp)
+                elif opcode == 0x2003:
+                    self._handle_cc_le_read_local_supported_features(resp)
 
-            return
-
+                return
         #self.process(ev, extra_data)
         self.process(packet)
 
@@ -1510,6 +1512,7 @@ class BLEScanRequester(asyncio.Protocol):
             self._le_features = [0]*8
 
         self._initialized.set()
+        self._uninitialized = False
 
     def default_process(self, data):
         pass

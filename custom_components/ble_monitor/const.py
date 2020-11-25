@@ -39,21 +39,22 @@ CONF_HMIN = 0.0
 CONF_HMAX = 99.9
 
 # Xiaomi sensor types dictionary for adv parser
+#                              binary?
 XIAOMI_TYPE_DICT = {
-    b'\x98\x00': "HHCCJCY01",
-    b'\xAA\x01': "LYWSDCGQ",
-    b'\x5B\x04': "LYWSD02",
-    b'\x47\x03': "CGG1",
-    b'\x5D\x01': "HHCCPOT002",
-    b'\xBC\x03': "GCLS002",
-    b'\x5B\x05': "LYWSD03MMC",
-    b'\x76\x05': "CGD1",
-    b'\xDF\x02': "JQJCY01YM",
-    b'\x0A\x04': "WX08ZM",
-    b'\x87\x03': "MHO-C401",
-    b'\xd3\x06': "MHO-C303",
-    b'\x8B\x09': "MCCGQ02HL",
-    b'\x83\x00': "YM-K1501",
+    b'\x98\x00': ("HHCCJCY01", False),
+    b'\xAA\x01': ("LYWSDCGQ", False),
+    b'\x5B\x04': ("LYWSD02", False),
+    b'\x47\x03': ("CGG1", False),
+    b'\x5D\x01': ("HHCCPOT002", False),
+    b'\xBC\x03': ("GCLS002", False),
+    b'\x5B\x05': ("LYWSD03MMC", False),
+    b'\x76\x05': ("CGD1", False),
+    b'\xDF\x02': ("JQJCY01YM", False),
+    b'\x0A\x04': ("WX08ZM", True),
+    b'\x87\x03': ("MHO-C401", False),
+    b'\xd3\x06': ("MHO-C303", False),
+    b'\x8B\x09': ("MCCGQ02HL", True),
+    b'\x83\x00': ("YM-K1501", True),
 }
 
 
