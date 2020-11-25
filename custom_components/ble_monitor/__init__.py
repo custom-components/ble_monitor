@@ -65,8 +65,7 @@ CND_STRUCT = struct.Struct("<H")
 ILL_STRUCT = struct.Struct("<I")
 FMDH_STRUCT = struct.Struct("<H")
 
-# TO BE ADDED BINARY SENSOR
-PLATFORMS = ["sensor"]
+PLATFORMS = ["binary_sensor", "sensor"]
 
 DEVICE_SCHEMA = vol.Schema(
     {
@@ -89,7 +88,7 @@ async def async_setup(hass, config):
     DOMAIN, context={"source": SOURCE_IMPORT}, data=config[DOMAIN]
     ))
 
-    # NOT SURE ABOUT THIS PART. TEST TOMORROW
+    # NOT SURE ABOUT THIS PART. PROBABLY ALSO IN ASYNC_SETUP_ENTRY. TEST TOMORROW
     blemonitor = BLEmonitor(config[DOMAIN])
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
     blemonitor.start()
