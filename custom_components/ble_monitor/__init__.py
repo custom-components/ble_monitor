@@ -91,7 +91,7 @@ async def async_setup(hass, config):
 
     # NOT SURE ABOUT THIS PART. TEST TOMORROW
     blemonitor = BLEmonitor(config[DOMAIN])
-    hass.bus.listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
+    hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
     blemonitor.start()
     hass.data[DOMAIN] = blemonitor # NOT SURE HOW TO CONVERT THIS ONE
     # discovery.load_platform(hass, "sensor", DOMAIN, {}, config) # REMOVE? WILL BE LOADED IN hass.config_entries.async_forward_entry_setup
@@ -355,8 +355,11 @@ class HCIdump(Thread):
             finally:
                 _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
                 for hci in self._interfaces:
-                    self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
-                    conn[hci].close()
+                    try:
+                        self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
+                        conn[hci].close()
+                    except KeyError as error:
+                        _LOGGER.error("HCIdump thread finishing: Key Error, no device on hci%i", hci)
                 self._event_loop.run_until_complete(asyncio.sleep(0))
             if self._joining is True:
                 break
