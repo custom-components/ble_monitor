@@ -116,6 +116,7 @@ class BLEupdater(Thread):
 
         _LOGGER.debug("Entities updater loop started!")
         sensors_by_mac = {}
+        sensors = []
         batt = {}  # batteries
         rssi = {}
         mibeacon_cnt = 0
@@ -140,7 +141,7 @@ class BLEupdater(Thread):
                 rssi[mac].append(int(data["rssi"]))
                 batt_attr = None
                 sensortype = data["type"]
-                t_i, h_i, m_i, c_i, i_i, f_i, cn_i, _, _, _, b_i = MMTS_DICT[sensortype]
+                t_i, h_i, m_i, c_i, i_i, f_i, cn_i, b_i = MMTS_DICT[sensortype][0]
                 if mac not in sensors_by_mac:
                     sensors = []
                     if t_i != 9:

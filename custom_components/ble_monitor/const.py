@@ -61,24 +61,25 @@ XIAOMI_TYPE_DICT = {
 }
 
 
-# Sensor type indexes dictionary
-# Temperature, Humidity, Moisture, Conductivity, Illuminance, Formaldehyde, Consumable, Switch, Opening, Light, Battery
-# Measurement type T  H  M  C  I  F  Cn Sw O  L  B   9 - no measurement
+# Sensor type indexes dictionary for sensor platform
+# Temperature, Humidity, Moisture, Conductivity, Illuminance, Formaldehyde, Consumable, Battery, Switch, Opening, Light
+#                          sensor               binary
+# Measurement type [T  H  M  C  I  F  Cn B]  [Sw O  L  B]     (start from 0, 9 - no data)
 MMTS_DICT = {
-    'HHCCJCY01' : [0, 9, 1, 2, 3, 9, 9, 9, 9, 9, 9],
-    'GCLS002'   : [0, 9, 1, 2, 3, 9, 9, 9, 9, 9, 9],
-    'HHCCPOT002': [9, 9, 0, 1, 9, 9, 9, 9, 9, 9, 9],
-    'LYWSDCGQ'  : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'LYWSD02'   : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'CGG1'      : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'LYWSD03MMC': [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'CGD1'      : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'JQJCY01YM' : [0, 1, 9, 9, 9, 2, 9, 9, 9, 9, 3],
-    'WX08ZM'    : [9, 9, 9, 9, 9, 9, 0, 1, 9, 9, 2],
-    'MHO-C401'  : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'MHO-C303'  : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'MCCGQ02HL' : [9, 9, 9, 9, 9, 9, 9, 9, 0, 1, 2],
-    'YM-K1501'  : [0, 9, 9, 9, 9, 9, 9, 1, 9, 9, 9],
+    'HHCCJCY01' : [[0, 9, 1, 2, 3, 9, 9, 9], [9, 9, 9, 9]],
+    'GCLS002'   : [[0, 9, 1, 2, 3, 9, 9, 9], [9, 9, 9, 9]],
+    'HHCCPOT002': [[9, 9, 0, 1, 9, 9, 9, 9], [9, 9, 9, 9]],
+    'LYWSDCGQ'  : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'LYWSD02'   : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'CGG1'      : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'LYWSD03MMC': [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'CGD1'      : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'JQJCY01YM' : [[0, 1, 9, 9, 9, 2, 9, 3], [9, 9, 9, 9]],
+    'WX08ZM'    : [[9, 9, 9, 9, 9, 9, 0, 1], [0, 9, 9, 1]],
+    'MHO-C401'  : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'MHO-C303'  : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'MCCGQ02HL' : [[9, 9, 9, 9, 9, 9, 9, 0], [9, 0, 1, 2]],
+    'YM-K1501'  : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9]],
 }
 
 # Sensor manufacturer dictionary
