@@ -318,6 +318,9 @@ class MeasuringSensor(RestoreEntity):
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
         if self._jagged is True:
             self._measurements.append(int(data[self._measurement]))
         else:
@@ -520,6 +523,9 @@ class BatterySensor(MeasuringSensor):
 
     def collect(self, data, batt_attr=None):
         """Battery measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
         self._state = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
         self.pending_update = True
@@ -551,6 +557,9 @@ class ConsumableSensor(MeasuringSensor):
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
         self._state = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
         if batt_attr is not None:
