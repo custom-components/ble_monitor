@@ -202,6 +202,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (Xiaomi Mijia Smart kettle, experimental support, collecting data)
 
+  ![YM-K1501](https://raw.github.com/custom-components/ble_monitor/binary_sensors/pictures/YM-K1501.png)
+
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
 **Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
