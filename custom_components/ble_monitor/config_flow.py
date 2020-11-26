@@ -46,6 +46,16 @@ from .const import (
 OPTION_LIST_DEVICE = "--Devices--"
 OPTION_ADD_DEVICE = "Add device..."
 
+
+DEVICE_SCHEMA = vol.Schema(
+    {
+        vol.Optional(CONF_MAC, default=""): cv.string,
+        vol.Optional(CONF_NAME, default=""): cv.string,
+        vol.Optional(CONF_ENCRYPTION_KEY, default=""): cv.string,
+        vol.Optional(CONF_TEMPERATURE_UNIT, default=TEMP_CELSIUS): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
+    }
+)
+
 DOMAIN_SCHEMA = vol.Schema(
     {
         vol.Optional(
@@ -65,13 +75,14 @@ DOMAIN_SCHEMA = vol.Schema(
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
         vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
-        # vol.Optional(CONF_DEVICES, default=[]): vol.All(
-        #     cv.ensure_list, [DEVICE_SCHEMA]
-        # ),
+        vol.Optional(CONF_DEVICES, default=[]): vol.All(
+            cv.ensure_list, [DEVICE_SCHEMA]
+        ),
     }
 )
 
 _LOGGER = logging.getLogger(__name__)
+
 
 @config_entries.HANDLERS.register(DOMAIN)
 class BLEMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -102,7 +113,7 @@ class BLEMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             return self._show_user_form(errors)
 
-        DEVICE_SCHEMA = vol.Schema(
+        DEVICE_OPTION_SCHEMA = vol.Schema(
             {
                 vol.Optional(CONF_MAC, default=self._sel_device.get(CONF_MAC) if self._sel_device else ""): cv.string,
                 vol.Optional(CONF_NAME, default=self._sel_device.get(CONF_NAME) if self._sel_device else ""): cv.string,
@@ -113,7 +124,7 @@ class BLEMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="add_device",
-            data_schema=DEVICE_SCHEMA,
+            data_schema=DEVICE_OPTION_SCHEMA,
         )
 
     async def async_step_user(self, user_input=None):
