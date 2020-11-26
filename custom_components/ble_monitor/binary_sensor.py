@@ -1,4 +1,4 @@
-"""Passive BLE monitor sensor platform."""
+"""Passive BLE monitor binary sensor platform."""
 from datetime import timedelta
 import logging
 import queue
@@ -22,6 +22,7 @@ from . import (
     CONF_DEVICES,
     CONF_PERIOD,
     CONF_BATT_ENTITIES,
+    CONF_HCI_INTERFACE,
     CONF_RESTORE_STATE,
 )
 from .const import (
