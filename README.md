@@ -138,6 +138,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - YM-K1501
 
   (Xiaomi Mijia Smart kettle, experimental support, collecting data)
+
+  ![YM-K1501](/pictures/YM-K1501.png)
   
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
