@@ -63,6 +63,7 @@ class BLEupdaterBinary(Thread):
 
         _LOGGER.debug("Binary entities updater loop started!")
         sensors_by_mac = {}
+        sensors = []
         batt = {}  # batteries
         mibeacon_cnt = 0
         hpriority = []
@@ -88,7 +89,7 @@ class BLEupdaterBinary(Thread):
                 mac = data["mac"]
                 batt_attr = None
                 sensortype = data["type"]
-                _, _, _, _, _, _, _, sw_i, op_i, l_i, b_i = MMTS_DICT[sensortype]
+                sw_i, op_i, l_i, b_i = MMTS_DICT[sensortype][1]
                 if mac not in sensors_by_mac:
                     sensors = []
                     if sw_i != 9:
@@ -111,6 +112,10 @@ class BLEupdaterBinary(Thread):
                     if "battery" in data:
                         batt[mac] = int(data["battery"])
                         batt_attr = batt[mac]
+                        for entity in sensors:
+                            getattr(entity, "_device_state_attributes")[ATTR_BATTERY_LEVEL] = batt_attr
+                            if entity.ready_for_update is True:
+                                entity.schedule_update_ha_state(False)
                     else:
                         try:
                             batt_attr = batt[mac]
