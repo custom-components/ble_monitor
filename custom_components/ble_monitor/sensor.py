@@ -26,6 +26,7 @@ from . import (
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
+    CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
 )
@@ -72,7 +73,7 @@ async def async_setup_entry(hass, config_entry, add_entities):
     _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
     if not CONF_DEVICES in config:
         config[CONF_DEVICES] = []
-    blemonitor = BLEmonitor(config, add_entities)
+    blemonitor = hass.data[DOMAIN]
     bleupdater = BLEupdater(blemonitor, add_entities)
     bleupdater.start()
     _LOGGER.debug("Platform setup finished")
