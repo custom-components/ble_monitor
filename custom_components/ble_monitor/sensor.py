@@ -15,12 +15,12 @@ from homeassistant.const import (
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
     ATTR_BATTERY_LEVEL,
+    CONF_DEVICES,
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 
-from . import (
-    CONF_DEVICES,
+from .const import (
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -29,8 +29,6 @@ from . import (
     CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
-)
-from .const import (
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
