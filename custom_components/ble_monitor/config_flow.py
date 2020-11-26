@@ -132,7 +132,9 @@ class BLEMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.info("async_step_user")
         errors = {}
         if user_input is not None:
-            if user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
+            if CONF_DEVICES not in user_input:
+                user_input[CONF_DEVICES]= {}
+            elif user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
                 self._sel_device = {}
                 return await self.async_step_add_device()
             for dev in self._devices:
@@ -152,6 +154,28 @@ class BLEMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_import(self, user_input=None):
         """Handle import."""
         _LOGGER.info("async_step_import: %s", user_input)
+
+        if not CONF_ROUNDING in user_input:
+            user_input[CONF_ROUNDING] = DEFAULT_ROUNDING
+        if not CONF_DECIMALS in user_input:
+            user_input[CONF_DECIMALS] = DEFAULT_DECIMALS
+        if not CONF_PERIOD in user_input:
+            user_input[CONF_PERIOD] = DEFAULT_PERIOD
+        if not CONF_LOG_SPIKES in user_input:
+            user_input[CONF_LOG_SPIKES] = DEFAULT_LOG_SPIKES
+        if not CONF_USE_MEDIAN in user_input:
+            user_input[CONF_USE_MEDIAN] = DEFAULT_USE_MEDIAN
+        if not CONF_ACTIVE_SCAN in user_input:
+            user_input[CONF_ACTIVE_SCAN] = DEFAULT_ACTIVE_SCAN
+        if not CONF_BATT_ENTITIES in user_input:
+            user_input[CONF_BATT_ENTITIES] = DEFAULT_BATT_ENTITIES
+        if not CONF_REPORT_UNKNOWN in user_input:
+            user_input[CONF_REPORT_UNKNOWN] = DEFAULT_REPORT_UNKNOWN
+        if not CONF_RESTORE_STATE in user_input:
+            user_input[CONF_RESTORE_STATE] = DEFAULT_RESTORE_STATE
+        if not CONF_DISCOVERY in user_input:
+            user_input[CONF_DISCOVERY] = DEFAULT_DISCOVERY
+
         return await self.async_step_user(user_input)
 
     @callback

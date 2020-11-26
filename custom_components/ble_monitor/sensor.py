@@ -26,14 +26,12 @@ from .const import (
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
-    CONF_HCI_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
-    DEFAULT_HCI_INTERFACE,
     MANUFACTURER_DICT,
     MMTS_DICT,
     DOMAIN,
@@ -57,20 +55,6 @@ async def async_setup_entry(hass, config_entry, add_entities):
     """Set up the measuring sensor entry."""
     _LOGGER.debug("Starting measuring sensor entry startup")
 
-    config = {}
-    for key, value in config_entry.options.items():
-        config[key] = value
-
-    if not config[CONF_HCI_INTERFACE]:
-        config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE,]
-    else:
-        hci_list = config_entry.options.get(CONF_HCI_INTERFACE)
-        for hci in range(0, len(hci_list)): 
-            hci_list[hci] = int(hci_list[hci])
-        config[CONF_HCI_INTERFACE] = hci_list
-    _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
-    if not CONF_DEVICES in config:
-        config[CONF_DEVICES] = []
     blemonitor = hass.data[DOMAIN]
     bleupdater = BLEupdater(blemonitor, add_entities)
     bleupdater.start()

@@ -27,6 +27,7 @@ from .const import (
     CONF_REPORT_UNKNOWN,
     DOMAIN,
     XIAOMI_TYPE_DICT,
+    DEFAULT_HCI_INTERFACE,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -47,37 +48,55 @@ async def async_setup(hass, config):
 
     if not DOMAIN in config:
         return True
-    
+
+    if DOMAIN in hass.data:
+        """" One instance only """
+        return False
+
     _LOGGER.debug("Initializing BLE Monitor integration")
     hass.async_add_job(hass.config_entries.flow.async_init(
-    DOMAIN, context={"source": SOURCE_IMPORT}, data=config[DOMAIN]
+        DOMAIN, context={"source": SOURCE_IMPORT}, data=config[DOMAIN]
     ))
 
-    blemonitor = BLEmonitor(config[DOMAIN])
+    return True
+
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
+    """Set up BLE Monitor from a config entry."""
+    _LOGGER.debug("Initializing BLE Monitor entry")
+
+    if not config_entry.unique_id:
+        hass.config_entries.async_update_entry(config_entry, unique_id=config_entry.title)
+
+    if not config_entry.options:
+        # Move settings to options after initial setup
+        options = config_entry.data
+        data = {}
+        hass.config_entries.async_update_entry(config_entry, data=data, options=options)
+
+    config_entry.add_update_listener(_async_update_listener)
+
+    config = {}
+    for key, value in config_entry.options.items():
+        config[key] = value
+    if not CONF_HCI_INTERFACE in config:
+        config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE,]
+    else:
+        hci_list = config_entry.options.get(CONF_HCI_INTERFACE)
+        for hci in range(0, len(hci_list)): 
+            hci_list[hci] = int(hci_list[hci])
+        config[CONF_HCI_INTERFACE] = hci_list
+    _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
+    if not CONF_DEVICES in config:
+        config[CONF_DEVICES] = []
+
+    blemonitor = BLEmonitor(config)
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
     blemonitor.start()
     hass.data[DOMAIN] = blemonitor
 
-    return True
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Set up BLE Monitor from a config entry."""
-    _LOGGER.debug("Initializing BLE Monitor entry")
-
-    if not entry.unique_id:
-        hass.config_entries.async_update_entry(entry, unique_id=entry.title)
-
-    if not entry.options:
-        # Move settings to options after initial setup
-        options = entry.data
-        data = {}
-        hass.config_entries.async_update_entry(entry, data=data, options=options)
-
-    entry.add_update_listener(_async_update_listener)
-
     for component in PLATFORMS:
         hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(entry, component)
+            hass.config_entries.async_forward_entry_setup(config_entry, component)
         )
 
     return True
