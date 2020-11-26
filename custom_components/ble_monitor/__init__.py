@@ -121,8 +121,8 @@ class BLEmonitor:
     def __init__(self, config):
         """Init."""
         self.dataqueue = {
-            "binary": queue.Queue(),
-            "measuring": queue.Queue(),
+            "binary": queue.SimpleQueue(),
+            "measuring": queue.SimpleQueue(),
         }
         self.config = config
         self.dumpthread = None
