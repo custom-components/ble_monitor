@@ -16,7 +16,6 @@
 
 <!-- /TOC -->
 
-
 ## BREAKING CHANGES IN 0.8.x
 
 This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading from 0.7.x to 0.8.x.
@@ -25,7 +24,7 @@ Our custom component `mitemp_bt` was designed as a so called `sensor platform`, 
 
 So, we decided to make this change and, as it will be a breaking change anyways, we also decided to think about the name of the integration. During time we started to add more and more sensors, not only Xiaomi Mi Temperature sensors, what the name `mitemp_bt` suggests. We decided that `ble_monitor` would be a better name to reflect the capablities of our integration. The full name will become Passive BLE Monitor integration.
 
-Note that your sensor names are most likely also renamed. Look for sensors that start for ble_ (e.g. `ble_temperature_livingroom`). We recommend to use the new [name](#name) option to easily rename and find your sensors. 
+Note that your sensor names are most likely also renamed. Look for sensors that start for ble_ (e.g. `ble_temperature_livingroom`). We recommend to use the new [name](#name) option to easily rename and find your sensors.
 
 In short,  if you have the minimal configuration, you will have to change your configuration.yaml
 
@@ -51,7 +50,6 @@ Of course, all additional parameters can still be set, as explained below. Howev
 
 If you use one of these parameters, make sure you read the following
 [instructions to convert your configuration to the new format.](update_instructions.md)
-
 
 ## INTRODUCTION
 
@@ -127,15 +125,19 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - WX08ZM
 
-  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute. `switch` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. We are looking into the possibility to convert these to real `binary_sensors` in the future. In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor.)
+  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
 
   ![WX08ZM](https://raw.github.com/custom-components/ble_monitor/master/pictures/WX08ZM.jpg)
 
 - MCCGQ02HL
 
-  (Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. Advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option. `opening` and `light` sensor are currently discovered as `sensor` entity and will report their state as `on` or `off`. State changes will be realtime. We are looking into the possibility to convert these to real `binary_sensors` in the future, with the correct state (`open/closed` for opening sensor, `light/dark` for light sensor). In the meantime, you can use a [template binary sensor](https://www.home-assistant.io/integrations/binary_sensor.template/) if you want to let it act as binary sensor. Battery level is only send once in approximately 24 hours.)
+  (Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. Advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Battery level is only send once in approximately 24 hours.)
 
   ![MCCGQ02HL](/pictures/MCCGQ02HL.png)
+
+- YM-K1501
+
+  (Xiaomi Mijia Smart kettle, experimental support, collecting data)
   
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
@@ -166,20 +168,15 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - Alternatively, you can install it manually. Just copy paste the content of the `ble_monitor/custom_components` folder in your `config/custom_components` directory.
      As example, you will get the `sensor.py` file in the following path: `/config/custom_components/ble_monitor/sensor.py`.
 
-**3. Remove build-in mitemp_bt:**
+**3. Add your sensors to the MiHome app if you haven’t already.**
 
-- Remove the standard `mitemp_bt` integration from your configuration, as it will be replaced by this new component. Using them at the same time, might cause issues, especially when you only have one Bluetooth adapter and both components use the same adapter.
+Many Xiaomi ecosystem sensors (maybe all) do not broadcasts BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first.
 
-**4. Add your sensors to the MiHome app if you haven’t already.**
+**4. Add the integration to your configuration.yaml file (see [below](#configuration))**
 
-Many Xiaomi ecosystem sensors (maybe all) do not broadcasts BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first. 
-
-**5. Add the integration to your configuration.yaml file (see [below](#configuration))**
-
-**6. Restart Home Assistant:**
+**5. Restart Home Assistant:**
 
 - A restart is required to load the configuration. After a few minutes, the sensors should be added to your Home Assistant automatically (at least one [period](#period) required).
-
 
 ## CONFIGURATION
 
@@ -202,7 +199,7 @@ ble_monitor:
   hci_interface: 0
   batt_entities: False
   discovery: True
-  restore_state: False 
+  restore_state: False
   report_unknown: False
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
