@@ -11,6 +11,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from homeassistant.const import (
+    CONF_DEVICES,
     ATTR_BATTERY_LEVEL,
     STATE_OFF,
     STATE_ON,
@@ -18,14 +19,11 @@ from homeassistant.const import (
 from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 
-from . import (
-    CONF_DEVICES,
+from .const import (
     CONF_PERIOD,
     CONF_BATT_ENTITIES,
     CONF_HCI_INTERFACE,
     CONF_RESTORE_STATE,
-)
-from .const import (
     DEFAULT_HCI_INTERFACE,
     MANUFACTURER_DICT,
     MMTS_DICT,
@@ -38,9 +36,6 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the binary_sensor platform."""
     _LOGGER.debug("Binary sensor platform setup")
-    #blemonitor = hass.data[DOMAIN]
-    #bleupdater = BLEupdaterBinary(blemonitor, add_entities)
-    #bleupdater.start()
     _LOGGER.debug("Binary sensor platform setup finished")
     # Return successful setup
     return True
