@@ -4,19 +4,14 @@ import logging
 import queue
 import struct
 from threading import Thread
-import voluptuous as vol
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
     CONF_DEVICES,
     CONF_DISCOVERY,
-    CONF_MAC,
-    CONF_NAME,
-    CONF_TEMPERATURE_UNIT,
     EVENT_HOMEASSISTANT_STOP,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import discovery
 
 from Cryptodome.Cipher import AES
@@ -27,32 +22,11 @@ from Cryptodome.Cipher import AES
 from . import aioblescan_ext as aiobs
 
 from .const import (
-    DEFAULT_ROUNDING,
-    DEFAULT_DECIMALS,
-    DEFAULT_PERIOD,
-    DEFAULT_LOG_SPIKES,
-    DEFAULT_USE_MEDIAN,
-    DEFAULT_ACTIVE_SCAN,
-    DEFAULT_HCI_INTERFACE,
-    DEFAULT_BATT_ENTITIES,
-    DEFAULT_REPORT_UNKNOWN,
-    DEFAULT_DISCOVERY,
-    DEFAULT_RESTORE_STATE,
-    CONF_ROUNDING,
-    CONF_DECIMALS,
-    CONF_PERIOD,
-    CONF_LOG_SPIKES,
-    CONF_USE_MEDIAN,
     CONF_ACTIVE_SCAN,
     CONF_HCI_INTERFACE,
-    CONF_BATT_ENTITIES,
     CONF_REPORT_UNKNOWN,
-    CONF_RESTORE_STATE,
-    CONF_ENCRYPTION_KEY,
     DOMAIN,
     XIAOMI_TYPE_DICT,
-    MAC_REGEX,
-    AES128KEY_REGEX,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -66,15 +40,6 @@ ILL_STRUCT = struct.Struct("<I")
 FMDH_STRUCT = struct.Struct("<H")
 
 PLATFORMS = ["binary_sensor", "sensor"]
-
-DEVICE_SCHEMA = vol.Schema(
-    {
-        vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
-        vol.Optional(CONF_NAME): cv.string,
-        vol.Optional(CONF_ENCRYPTION_KEY): cv.matches_regex(AES128KEY_REGEX),
-        vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
-    }
-)
 
 
 async def async_setup(hass, config):
@@ -91,7 +56,7 @@ async def async_setup(hass, config):
     blemonitor = BLEmonitor(config[DOMAIN])
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
     blemonitor.start()
-    hass.data[DOMAIN] = blemonitor # NOT SURE HOW TO CONVERT THIS ONE
+    hass.data[DOMAIN] = blemonitor
 
     return True
 
