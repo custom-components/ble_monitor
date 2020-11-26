@@ -46,18 +46,18 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
-    _LOGGER.debug("Sensor platform setup")
-    blemonitor = hass.data[DOMAIN]
-    bleupdater = BLEupdater(blemonitor, add_entities)
-    bleupdater.start()
-    _LOGGER.debug("Sensor platform setup finished")
+    _LOGGER.debug("Measuring sensor platform setup")
+    #blemonitor = hass.data[DOMAIN]
+    #bleupdater = BLEupdater(blemonitor, add_entities)
+    #bleupdater.start()
+    _LOGGER.debug("Measuring sensor platform setup finished")
     # Return successful setup
     return True
 
 
 async def async_setup_entry(hass, config_entry, add_entities):
-    """Set up the sensor platform."""
-    _LOGGER.debug("Platform startup")
+    """Set up the measuring sensor entry."""
+    _LOGGER.debug("Starting measuring sensor entry startup")
 
     config = {}
     for key, value in config_entry.options.items():
@@ -76,7 +76,7 @@ async def async_setup_entry(hass, config_entry, add_entities):
     blemonitor = hass.data[DOMAIN]
     bleupdater = BLEupdater(blemonitor, add_entities)
     bleupdater.start()
-    _LOGGER.debug("Platform setup finished")
+    _LOGGER.debug("Measuring sensor entry setup finished")
     # Return successful setup
     return True
 
