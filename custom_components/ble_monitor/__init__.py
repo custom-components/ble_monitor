@@ -83,25 +83,21 @@ async def async_setup(hass, config):
     if not DOMAIN in config:
         return True
     
-    _LOGGER.info("Initializing BLE Monitor integration")
+    _LOGGER.debug("Initializing BLE Monitor integration")
     hass.async_add_job(hass.config_entries.flow.async_init(
     DOMAIN, context={"source": SOURCE_IMPORT}, data=config[DOMAIN]
     ))
 
-    # NOT SURE ABOUT THIS PART. PROBABLY ALSO IN ASYNC_SETUP_ENTRY. TEST TOMORROW
     blemonitor = BLEmonitor(config[DOMAIN])
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
     blemonitor.start()
     hass.data[DOMAIN] = blemonitor # NOT SURE HOW TO CONVERT THIS ONE
-    # discovery.load_platform(hass, "sensor", DOMAIN, {}, config) # REMOVE? WILL BE LOADED IN hass.config_entries.async_forward_entry_setup
-    # discovery.load_platform(hass, "binary_sensor", DOMAIN, {}, config) # REMOVE? WILL BE LOADED IN hass.config_entries.async_forward_entry_setup
-    # END NOT SURE ABOUT THIS PART. TEST TOMORROW
 
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up BLE Monitor from a config entry."""
-    _LOGGER.info("Initializing BLE Monitor entry")
+    _LOGGER.debug("Initializing BLE Monitor entry")
 
     if not entry.unique_id:
         hass.config_entries.async_update_entry(entry, unique_id=entry.title)
