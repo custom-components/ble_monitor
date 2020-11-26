@@ -131,8 +131,9 @@ class BLEupdater(Thread):
                         sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype))
                     if self.batt_entities and (b_i != 9):
                         sensors.insert(b_i, BatterySensor(self.config, mac, sensortype))
-                    sensors_by_mac[mac] = sensors
-                    self.add_entities(sensors)
+                    if len(sensors) != 0:
+                        sensors_by_mac[mac] = sensors
+                        self.add_entities(sensors)
                 else:
                     sensors = sensors_by_mac[mac]
 
