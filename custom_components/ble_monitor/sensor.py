@@ -194,18 +194,14 @@ class BLEupdater(Thread):
             # restarting scanner
             self.monitor.restart()
             # for every updated device
-            upd_evt = False
             for mac, elist in sensors_by_mac.items():
                 for entity in elist:
                     if entity.pending_update is True:
                         if entity.ready_for_update is True:
                             entity.rssi_values = rssi[mac].copy()
                             entity.schedule_update_ha_state(True)
-                            upd_evt = True
-                if upd_evt:
-                    rssi[mac].clear()
-                upd_evt = False
-            rssi.clear()
+            for mac in rssi:
+                rssi[mac].clear()
 
             _LOGGER.debug(
                 "%i MiBeacon BLE ADV messages processed for %i measuring device(s).",
