@@ -142,8 +142,9 @@ class BLEupdater(Thread):
                         sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype))
                     if self.batt_entities and (b_i != 9):
                         sensors.insert(b_i, BatterySensor(self.config, mac, sensortype))
-                    sensors_by_mac[mac] = sensors
-                    self.add_entities(sensors)
+                    if len(sensors) != 0:
+                        sensors_by_mac[mac] = sensors
+                        self.add_entities(sensors)
                 else:
                     sensors = sensors_by_mac[mac]
 
@@ -204,18 +205,14 @@ class BLEupdater(Thread):
             # restarting scanner
             self.monitor.restart()
             # for every updated device
-            upd_evt = False
             for mac, elist in sensors_by_mac.items():
                 for entity in elist:
                     if entity.pending_update is True:
                         if entity.ready_for_update is True:
                             entity.rssi_values = rssi[mac].copy()
                             entity.schedule_update_ha_state(True)
-                            upd_evt = True
-                if upd_evt:
-                    rssi[mac].clear()
-                upd_evt = False
-            rssi.clear()
+            for mac in rssi:
+                rssi[mac].clear()
 
             _LOGGER.debug(
                 "%i MiBeacon BLE ADV messages processed for %i measuring device(s).",
@@ -341,6 +338,9 @@ class MeasuringSensor(RestoreEntity):
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
         if self._jagged is True:
             self._measurements.append(int(data[self._measurement]))
         else:
@@ -543,6 +543,9 @@ class BatterySensor(MeasuringSensor):
 
     def collect(self, data, batt_attr=None):
         """Battery measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
         self._state = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
         self.pending_update = True
@@ -574,6 +577,9 @@ class ConsumableSensor(MeasuringSensor):
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
         self._state = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
         if batt_attr is not None:

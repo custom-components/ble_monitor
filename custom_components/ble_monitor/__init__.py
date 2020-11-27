@@ -125,8 +125,8 @@ class BLEmonitor:
     def __init__(self, config):
         """Init."""
         self.dataqueue = {
-            "binary": queue.Queue(),
-            "measuring": queue.Queue(),
+            "binary": queue.SimpleQueue(),
+            "measuring": queue.SimpleQueue(),
         }
         self.config = config
         self.dumpthread = None
@@ -327,7 +327,10 @@ class HCIdump(Thread):
                     conn[hci], btctrl[hci] = self._event_loop.run_until_complete(fac[hci])
                     _LOGGER.debug("HCIdump thread: connected to hci%i", hci)
                     btctrl[hci].process = self.process_hci_events
-                    self._event_loop.run_until_complete(btctrl[hci].send_scan_request(self._active))
+                    try:
+                        self._event_loop.run_until_complete(btctrl[hci].send_scan_request(self._active))
+                    except RuntimeError as error:
+                        _LOGGER.error("HCIdump thread: Runtime error while sending scan request: %s", error)
             _LOGGER.debug("HCIdump thread: start main event_loop")
             try:
                 self._event_loop.run_forever()

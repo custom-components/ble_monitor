@@ -105,7 +105,7 @@ class BLEupdaterBinary(Thread):
                 pass
             if len(hpriority) > 0:
                 for entity in hpriority:
-                    if entity.ready_for_update is True:
+                    if entity.pending_update is True:
                         hpriority.remove(entity)
                         entity.schedule_update_ha_state(True)
             if data:
@@ -122,8 +122,9 @@ class BLEupdaterBinary(Thread):
                         sensors.insert(op_i, OpeningBinarySensor(self.config, mac, sensortype))
                     if l_i != 9:
                         sensors.insert(l_i, LightBinarySensor(self.config, mac, sensortype))
-                    sensors_by_mac[mac] = sensors
-                    self.add_entities(sensors)
+                    if len(sensors) != 0:
+                        sensors_by_mac[mac] = sensors
+                        self.add_entities(sensors)
                 else:
                     sensors = sensors_by_mac[mac]
 
@@ -138,7 +139,7 @@ class BLEupdaterBinary(Thread):
                         batt_attr = batt[mac]
                         for entity in sensors:
                             getattr(entity, "_device_state_attributes")[ATTR_BATTERY_LEVEL] = batt_attr
-                            if entity.ready_for_update is True:
+                            if entity.pending_update is True:
                                 entity.schedule_update_ha_state(False)
                     else:
                         try:
@@ -149,23 +150,23 @@ class BLEupdaterBinary(Thread):
                 if "switch" in data:
                     switch = sensors[sw_i]
                     switch.collect(data, batt_attr)
-                    if switch.ready_for_update is True:
+                    if switch.pending_update is True:
                         switch.schedule_update_ha_state(True)
-                    else:
+                    elif switch.ready_for_update is False and switch.enabled is True:
                         hpriority.append(switch)
                 if "opening" in data:
                     opening = sensors[op_i]
                     opening.collect(data, batt_attr)
-                    if opening.ready_for_update is True:
+                    if opening.pending_update is True:
                         opening.schedule_update_ha_state(True)
-                    else:
+                    elif opening.ready_for_update is False and opening.enabled is True:
                         hpriority.append(opening)
                 if "light" in data:
                     light = sensors[l_i]
                     light.collect(data, batt_attr)
-                    if light.ready_for_update is True:
+                    if light.pending_update is True:
                         light.schedule_update_ha_state(True)
-                    else:
+                    elif light.ready_for_update is False and light.enabled is True:
                         hpriority.append(light)
                 data = None
             ts_now = dt_util.now()
@@ -204,7 +205,6 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         self._device_class = None
         self._newstate = None
         self._measurement = "measurement"
-        self.pending_update = False
 
     async def async_added_to_hass(self):
         """Handle entity which will be added."""
@@ -303,8 +303,15 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
                     break
         return self._mac
 
+    @property
+    def pending_update(self):
+        """Checks if entity is enabled"""
+        return self.enabled and self.ready_for_update
+
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
+        if self.pending_update is False:
+            return
         self._newstate = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["rssi"] = data["rssi"]
