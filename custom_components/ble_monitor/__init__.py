@@ -3,6 +3,8 @@ import asyncio
 import logging
 import queue
 import struct
+import json
+import copy
 from threading import Thread
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
@@ -25,6 +27,8 @@ from .const import (
     CONF_ACTIVE_SCAN,
     CONF_HCI_INTERFACE,
     CONF_REPORT_UNKNOWN,
+    CONF_ENCRYPTION_KEY,
+    CONFIG_IS_FLOW,
     DOMAIN,
     XIAOMI_TYPE_DICT,
     DEFAULT_HCI_INTERFACE,
@@ -42,8 +46,10 @@ FMDH_STRUCT = struct.Struct("<H")
 
 PLATFORMS = ["binary_sensor", "sensor"]
 
+CONFIG_YAML = {}
+UPDATE_UNLISTENER = None
 
-async def async_setup(hass, config):
+async def async_setup(hass: HomeAssistant, config):
     """Set up integration."""
 
     if not DOMAIN in config:
@@ -53,10 +59,17 @@ async def async_setup(hass, config):
         """" One instance only """
         return False
 
+    global CONFIG_YAML
+    CONFIG_YAML = json.loads(json.dumps(config[DOMAIN]))
+
+    _LOGGER.debug("async_setup: %s", CONFIG_YAML)
+
     _LOGGER.debug("Initializing BLE Monitor integration")
-    hass.async_add_job(hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_IMPORT}, data=config[DOMAIN]
-    ))
+    hass.async_add_job(
+        hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": SOURCE_IMPORT}, data=copy.deepcopy(CONFIG_YAML)
+        )
+    )
 
     return True
 
@@ -64,20 +77,45 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Set up BLE Monitor from a config entry."""
     _LOGGER.debug("Initializing BLE Monitor entry")
 
+    global UPDATE_UNLISTENER
+    if UPDATE_UNLISTENER:
+        UPDATE_UNLISTENER()
+
     if not config_entry.unique_id:
         hass.config_entries.async_update_entry(config_entry, unique_id=config_entry.title)
 
-    if not config_entry.options:
-        # Move settings to options after initial setup
-        options = config_entry.data
-        data = {}
-        hass.config_entries.async_update_entry(config_entry, data=data, options=options)
-
-    config_entry.add_update_listener(_async_update_listener)
+    _LOGGER.debug("async_setup_entry: domain %s", CONFIG_YAML)
 
     config = {}
+    for key, value in config_entry.data.items():
+        config[key] = value
+
     for key, value in config_entry.options.items():
         config[key] = value
+
+    if not CONFIG_YAML:
+        config[CONFIG_IS_FLOW] = True
+    else:
+        for key, value in CONFIG_YAML.items():
+            config[key] = value
+        if CONF_HCI_INTERFACE in CONFIG_YAML:
+            hci_list = []
+            if isinstance(CONFIG_YAML[CONF_HCI_INTERFACE], list): 
+                for hci in CONFIG_YAML[CONF_HCI_INTERFACE]: 
+                    hci_list.append(str(hci))
+            else:
+                hci_list.append(str(CONFIG_YAML[CONF_HCI_INTERFACE]))
+            config[CONF_HCI_INTERFACE] = hci_list
+
+    if not CONF_DEVICES in config:
+        config[CONF_DEVICES] = []
+
+    hass.config_entries.async_update_entry(config_entry, data={}, options=config)
+
+    _LOGGER.debug("async_setup_entry: %s", config)
+
+    UPDATE_UNLISTENER = config_entry.add_update_listener(_async_update_listener)
+
     if not CONF_HCI_INTERFACE in config:
         config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE,]
     else:
@@ -86,8 +124,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             hci_list[hci] = int(hci_list[hci])
         config[CONF_HCI_INTERFACE] = hci_list
     _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
-    if not CONF_DEVICES in config:
-        config[CONF_DEVICES] = []
 
     blemonitor = BLEmonitor(config)
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
@@ -103,6 +139,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Unload a config entry."""
+    _LOGGER.debug("async_unload_entry: %s", entry)
+
     unload_ok = all(
         await asyncio.gather(
             *[
@@ -111,6 +149,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
             ]
         )
     )
+    blemonitor: BLEmonitor = hass.data[DOMAIN]
+    if blemonitor:
+        blemonitor.stop()
 
     return unload_ok
 
@@ -251,11 +292,11 @@ class HCIdump(Thread):
         # prepare device:key lists to speedup parser
         if self.config[CONF_DEVICES]:
             for device in self.config[CONF_DEVICES]:
-                if "encryption_key" in device:
+                if CONF_ENCRYPTION_KEY in device and device[CONF_ENCRYPTION_KEY]:
                     p_mac = bytes.fromhex(
                         reverse_mac(device["mac"].replace(":", "")).lower()
                     )
-                    p_key = bytes.fromhex(device["encryption_key"].lower())
+                    p_key = bytes.fromhex(device[CONF_ENCRYPTION_KEY].lower())
                     self.aeskeys[p_mac] = p_key
                 else:
                     continue

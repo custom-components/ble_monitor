@@ -22,9 +22,7 @@ import homeassistant.util.dt as dt_util
 from .const import (
     CONF_PERIOD,
     CONF_BATT_ENTITIES,
-    CONF_HCI_INTERFACE,
     CONF_RESTORE_STATE,
-    DEFAULT_HCI_INTERFACE,
     MANUFACTURER_DICT,
     MMTS_DICT,
     DOMAIN,
@@ -34,10 +32,6 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
-    """Set up the binary_sensor platform."""
-    _LOGGER.debug("Binary sensor platform setup")
-    _LOGGER.debug("Binary sensor platform setup finished")
-    # Return successful setup
     return True
 
 
@@ -45,20 +39,6 @@ async def async_setup_entry(hass, config_entry, add_entities):
     """Set up the binary sensor platform."""
     _LOGGER.debug("Starting binary sensor entry startup")
 
-    config = {}
-    for key, value in config_entry.options.items():
-        config[key] = value
-
-    if not config[CONF_HCI_INTERFACE]:
-        config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE,]
-    else:
-        hci_list = config_entry.options.get(CONF_HCI_INTERFACE)
-        for hci in range(0, len(hci_list)): 
-            hci_list[hci] = int(hci_list[hci])
-        config[CONF_HCI_INTERFACE] = hci_list
-    _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
-    if not CONF_DEVICES in config:
-        config[CONF_DEVICES] = []
     blemonitor = hass.data[DOMAIN]
     bleupdater = BLEupdaterBinary(blemonitor, add_entities)
     bleupdater.start()

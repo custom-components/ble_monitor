@@ -14,6 +14,7 @@ CONF_BATT_ENTITIES = "batt_entities"
 CONF_REPORT_UNKNOWN = "report_unknown"
 CONF_RESTORE_STATE = "restore_state"
 CONF_ENCRYPTION_KEY = "encryption_key"
+CONFIG_IS_FLOW = "is_flow"
 
 
 # Default values for configuration options
