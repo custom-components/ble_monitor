@@ -45,6 +45,7 @@ from .const import (
 
 OPTION_LIST_DEVICE = "--Devices--"
 OPTION_ADD_DEVICE = "Add device..."
+CONF_IS_IMPORTED = "imported"
 
 
 DEVICE_SCHEMA = vol.Schema(
@@ -132,6 +133,8 @@ class BLEMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.info("async_step_user")
         errors = {}
         if user_input is not None:
+            if CONF_IS_IMPORTED not in user_input:
+                user_input[CONF_IS_IMPORTED] = False
             if CONF_DEVICES not in user_input:
                 user_input[CONF_DEVICES]= {}
             elif user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
@@ -175,6 +178,7 @@ class BLEMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             user_input[CONF_RESTORE_STATE] = DEFAULT_RESTORE_STATE
         if not CONF_DISCOVERY in user_input:
             user_input[CONF_DISCOVERY] = DEFAULT_DISCOVERY
+        user_input[CONF_IS_IMPORTED] = True
 
         return await self.async_step_user(user_input)
 
@@ -203,35 +207,44 @@ class BLEMonitorOptionsFlow(config_entries.OptionsFlow):
         """Manage the options."""
         errors = {}
 
+        _LOGGER.info("async_step_init user_input: %s", user_input)
+
         if user_input is not None:
             _LOGGER.info("async_step_init: %s", user_input)
-            return self.async_create_entry(title="", data=user_input)
+            if self.config_entry.options.get(CONF_IS_IMPORTED):
+                return self.async_abort(reason="not_in_use")
+            else:
+                return self.async_create_entry(title="", data=user_input)
 
         _LOGGER.info("async_step_init: %s", self.config_entry.options)
-        options_schema = vol.Schema(
-            {
-                vol.Optional(
-                    CONF_HCI_INTERFACE, default=self.config_entry.options.get(CONF_HCI_INTERFACE, DEFAULT_HCI_INTERFACE)
-                ): cv.multi_select({"0": "0", "1": "1", "2": "2"}),
-                vol.Optional(CONF_DISCOVERY, default=self.config_entry.options.get(CONF_DISCOVERY, DEFAULT_DISCOVERY)): cv.boolean,
-                vol.Optional(CONF_ACTIVE_SCAN, default=self.config_entry.options.get(CONF_ACTIVE_SCAN, DEFAULT_ACTIVE_SCAN)): cv.boolean,
-                vol.Optional(
-                    CONF_REPORT_UNKNOWN, default=self.config_entry.options.get(CONF_REPORT_UNKNOWN, DEFAULT_REPORT_UNKNOWN)
-                ): cv.boolean,
-                vol.Optional(
-                    CONF_BATT_ENTITIES, default=self.config_entry.options.get(CONF_BATT_ENTITIES, DEFAULT_BATT_ENTITIES)
-                ): cv.boolean,
-                vol.Optional(CONF_ROUNDING, default=self.config_entry.options.get(CONF_ROUNDING, DEFAULT_ROUNDING)): cv.boolean,
-                vol.Optional(CONF_DECIMALS, default=self.config_entry.options.get(CONF_DECIMALS, DEFAULT_DECIMALS)): cv.positive_int,
-                vol.Optional(CONF_PERIOD, default=self.config_entry.options.get(CONF_PERIOD, DEFAULT_PERIOD)): cv.positive_int,
-                vol.Optional(CONF_LOG_SPIKES, default=self.config_entry.options.get(CONF_LOG_SPIKES, DEFAULT_LOG_SPIKES)): cv.boolean,
-                vol.Optional(CONF_USE_MEDIAN, default=self.config_entry.options.get(CONF_USE_MEDIAN, DEFAULT_USE_MEDIAN)): cv.boolean,
-                vol.Optional(CONF_RESTORE_STATE, default=self.config_entry.options.get(CONF_RESTORE_STATE, DEFAULT_RESTORE_STATE)): cv.boolean,
-                # vol.Optional(CONF_DEVICES, default=[]): vol.All(
-                #     cv.ensure_list, [DEVICE_SCHEMA]
-                # ),
-            }
-        )
+
+        if self.config_entry.options.get(CONF_IS_IMPORTED):
+            options_schema = vol.Schema({vol.Optional("not_in_use", default=""): str})
+        else:
+            options_schema = vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_HCI_INTERFACE, default=self.config_entry.options.get(CONF_HCI_INTERFACE, DEFAULT_HCI_INTERFACE)
+                    ): cv.multi_select({"0": "0", "1": "1", "2": "2"}),
+                    vol.Optional(CONF_DISCOVERY, default=self.config_entry.options.get(CONF_DISCOVERY, DEFAULT_DISCOVERY)): cv.boolean,
+                    vol.Optional(CONF_ACTIVE_SCAN, default=self.config_entry.options.get(CONF_ACTIVE_SCAN, DEFAULT_ACTIVE_SCAN)): cv.boolean,
+                    vol.Optional(
+                        CONF_REPORT_UNKNOWN, default=self.config_entry.options.get(CONF_REPORT_UNKNOWN, DEFAULT_REPORT_UNKNOWN)
+                    ): cv.boolean,
+                    vol.Optional(
+                        CONF_BATT_ENTITIES, default=self.config_entry.options.get(CONF_BATT_ENTITIES, DEFAULT_BATT_ENTITIES)
+                    ): cv.boolean,
+                    vol.Optional(CONF_ROUNDING, default=self.config_entry.options.get(CONF_ROUNDING, DEFAULT_ROUNDING)): cv.boolean,
+                    vol.Optional(CONF_DECIMALS, default=self.config_entry.options.get(CONF_DECIMALS, DEFAULT_DECIMALS)): cv.positive_int,
+                    vol.Optional(CONF_PERIOD, default=self.config_entry.options.get(CONF_PERIOD, DEFAULT_PERIOD)): cv.positive_int,
+                    vol.Optional(CONF_LOG_SPIKES, default=self.config_entry.options.get(CONF_LOG_SPIKES, DEFAULT_LOG_SPIKES)): cv.boolean,
+                    vol.Optional(CONF_USE_MEDIAN, default=self.config_entry.options.get(CONF_USE_MEDIAN, DEFAULT_USE_MEDIAN)): cv.boolean,
+                    vol.Optional(CONF_RESTORE_STATE, default=self.config_entry.options.get(CONF_RESTORE_STATE, DEFAULT_RESTORE_STATE)): cv.boolean,
+                    # vol.Optional(CONF_DEVICES, default=[]): vol.All(
+                    #     cv.ensure_list, [DEVICE_SCHEMA]
+                    # ),
+                }
+            )
 
         return self.async_show_form(
             step_id="init", data_schema=options_schema, errors=errors

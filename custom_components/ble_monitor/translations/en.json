@@ -49,7 +49,8 @@
           "active_scan": "Active scan",
           "hci_interface": "HCI interface",
           "report_unknown": "Report unknown",
-          "restore_state": "Restore state"
+          "restore_state": "Restore state",
+          "not_in_use": "Not in use with YAML"
         }
       },
       "add_device": {
@@ -62,8 +63,10 @@
         }
       }  
     },
-    "error": {},
+    "error": {
+    },
     "abort": {
+      "not_in_use": "Not in use with YAML",
       "already_configured": "[%key:common::config_flow::abort::already_configured_location%]"
     }
   }
