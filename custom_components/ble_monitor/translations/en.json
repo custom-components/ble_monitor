@@ -3,6 +3,7 @@
     "step": {
       "user": {
         "title": "Passive BLE Monitor configuration",
+        "description": "Setup of your BLE monitor configuration",
         "data": {
           "batt_entities": "Include battery entities",
           "devices": "Devices",
@@ -37,6 +38,7 @@
     "step": {
       "init": {
         "title": "Passive BLE Monitor options",
+        "description": "Adjust BLE monitor options",
         "data": {
           "batt_entities": "Include battery entities",
           "devices": "Devices",
@@ -50,7 +52,7 @@
           "hci_interface": "HCI interface",
           "report_unknown": "Report unknown",
           "restore_state": "Restore state",
-          "not_in_use": "Not in use with YAML"
+          "not_in_use": "YAML is used, change options in YAML"
         }
       },
       "add_device": {
@@ -66,7 +68,7 @@
     "error": {
     },
     "abort": {
-      "not_in_use": "Not in use with YAML",
+      "not_in_use": "You have configured BLE monitor in YAML. Please change your options in YAML",
       "already_configured": "[%key:common::config_flow::abort::already_configured_location%]"
     }
   }
