@@ -165,6 +165,11 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
         """Handle the initial step."""
         _LOGGER.debug("async_step_user: %s", user_input)
         errors = {}
+        if self._async_current_entries():
+            return self.async_abort(reason="single_instance_allowed")
+        if self.hass.data.get(DOMAIN):
+            return self.async_abort(reason="single_instance_allowed")
+
         if user_input is not None:
             if CONF_DEVICES not in user_input:
                 user_input[CONF_DEVICES]= {}

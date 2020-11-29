@@ -31,7 +31,7 @@
     },
     "error": {},
     "abort": {
-      "already_configured": "[%key:common::config_flow::abort::already_configured_location%]"
+      "single_instance_allowed": "Only a single configuration of BLE monitor is allowed."
     }
   },
   "options": {
@@ -68,8 +68,7 @@
     "error": {
     },
     "abort": {
-      "not_in_use": "You have configured BLE monitor in YAML. Please change your options in YAML",
-      "already_configured": "[%key:common::config_flow::abort::already_configured_location%]"
+      "not_in_use": "You have configured BLE monitor in YAML. Please change your options in YAML"
     }
   }
 }
