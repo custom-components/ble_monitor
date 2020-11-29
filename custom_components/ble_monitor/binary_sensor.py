@@ -39,7 +39,7 @@ async def async_setup_entry(hass, config_entry, add_entities):
     """Set up the binary sensor platform."""
     _LOGGER.debug("Starting binary sensor entry startup")
 
-    blemonitor = hass.data[DOMAIN]
+    blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdaterBinary(blemonitor, add_entities)
     bleupdater.start()
     _LOGGER.debug("Binary sensor entry setup finished")

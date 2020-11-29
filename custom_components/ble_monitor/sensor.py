@@ -50,7 +50,7 @@ async def async_setup_entry(hass, config_entry, add_entities):
     """Set up the measuring sensor entry."""
     _LOGGER.debug("Starting measuring sensor entry startup")
 
-    blemonitor = hass.data[DOMAIN]
+    blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdater(blemonitor, add_entities)
     bleupdater.start()
     _LOGGER.debug("Measuring sensor entry setup finished")

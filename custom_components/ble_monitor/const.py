@@ -16,6 +16,7 @@ CONF_RESTORE_STATE = "restore_state"
 CONF_ENCRYPTION_KEY = "encryption_key"
 CONFIG_IS_FLOW = "is_flow"
 
+SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
 
 # Default values for configuration options
 DEFAULT_ROUNDING = True

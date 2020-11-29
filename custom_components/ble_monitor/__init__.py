@@ -1,6 +1,8 @@
 """Passive BLE monitor integration."""
 import asyncio
 import logging
+import voluptuous as vol
+
 import queue
 import struct
 import json
@@ -17,7 +19,10 @@ from homeassistant.const import (
     TEMP_FAHRENHEIT,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import discovery
+from homeassistant.helpers.entity_registry import (
+    async_entries_for_config_entry,
+    async_entries_for_device,
+)
 
 from Cryptodome.Cipher import AES
 
@@ -35,6 +40,7 @@ from .const import (
     DOMAIN,
     XIAOMI_TYPE_DICT,
     DEFAULT_HCI_INTERFACE,
+    SERVICE_CLEANUP_ENTRIES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -52,8 +58,23 @@ PLATFORMS = ["binary_sensor", "sensor"]
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
 
+SERVICE_CLEANUP_ENTRIES_SCHEMA = vol.Schema( {} )
+
 async def async_setup(hass: HomeAssistant, config):
     """Set up integration."""
+
+    async def service_cleanup_entries(service_call):
+        service = service_call.service
+        service_data = service_call.data
+
+        await async_cleanup_entries_service(hass, service_data)
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_CLEANUP_ENTRIES,
+        service_cleanup_entries,
+        schema=SERVICE_CLEANUP_ENTRIES_SCHEMA,
+    )
 
     if not DOMAIN in config:
         return True
@@ -138,7 +159,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     blemonitor = BLEmonitor(config)
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
     blemonitor.start()
-    hass.data[DOMAIN] = blemonitor
+
+    hass.data[DOMAIN] = {}
+    hass.data[DOMAIN]["blemonitor"] = blemonitor
+    hass.data[DOMAIN]["config_entry_id"] = config_entry.entry_id
 
     for component in PLATFORMS:
         hass.async_create_task(
@@ -169,6 +193,46 @@ async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> Non
     """Handle options update."""
     await hass.config_entries.async_reload(entry.entry_id)
     
+async def async_cleanup_entries_service(hass: HomeAssistant, data):
+    """Remove orphaned entries from device and entity registries."""
+    _LOGGER.info("async_cleanup_entries_service")
+
+    entity_registry = await hass.helpers.entity_registry.async_get_registry()
+    device_registry = await hass.helpers.device_registry.async_get_registry()
+    config_entry_id = hass.data[DOMAIN]["config_entry_id"]
+
+    # entity_entries = async_entries_for_config_entry(
+    #     entity_registry, config_entry_id
+    # )
+
+    entities_to_be_removed = []
+    devices_to_be_removed = [
+        entry.id
+        for entry in device_registry.devices.values()
+        if config_entry_id in entry.config_entries
+    ]
+
+    # for entry in entity_entries:
+
+    #     # Don't remove available entities
+    #     if entry.unique_id in gateway.entities[entry.domain]:
+
+    #         # Don't remove devices with available entities
+    #         if entry.device_id in devices_to_be_removed:
+    #             devices_to_be_removed.remove(entry.device_id)
+    #         continue
+    #     # Remove entities that are not available
+    #     entities_to_be_removed.append(entry.entity_id)
+
+    # # Remove unavailable entities
+    # for entity_id in entities_to_be_removed:
+    #     entity_registry.async_remove(entity_id)
+
+    # Remove devices that don't belong to any entity
+    for device_id in devices_to_be_removed:
+        if len(async_entries_for_device(entity_registry, device_id)) == 0:
+            device_registry.async_remove_device(device_id)
+            _LOGGER.info("device %s will be deleted", device_id)
 
 class BLEmonitor:
     """BLE scanner."""
