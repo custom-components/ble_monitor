@@ -10,8 +10,11 @@ from threading import Thread
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
     CONF_DEVICES,
-    CONF_DISCOVERY,
-    EVENT_HOMEASSISTANT_STOP,
+    CONF_DISCOVERY, 
+    CONF_TEMPERATURE_UNIT,
+    EVENT_HOMEASSISTANT_STOP, 
+    TEMP_CELSIUS, 
+    TEMP_FAHRENHEIT,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import discovery
@@ -106,6 +109,13 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             else:
                 hci_list.append(str(CONFIG_YAML[CONF_HCI_INTERFACE]))
             config[CONF_HCI_INTERFACE] = hci_list
+        if CONF_DEVICES in CONFIG_YAML:
+            for device in CONFIG_YAML[CONF_DEVICES]:
+                if CONF_TEMPERATURE_UNIT in device:
+                    if device[CONF_TEMPERATURE_UNIT] == "F":
+                        device[CONF_TEMPERATURE_UNIT] = TEMP_FAHRENHEIT
+                    else:
+                        device[CONF_TEMPERATURE_UNIT] = TEMP_CELSIUS
 
     if not CONF_DEVICES in config:
         config[CONF_DEVICES] = []

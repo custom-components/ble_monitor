@@ -16,6 +16,7 @@ from homeassistant.const import (
     TEMP_FAHRENHEIT,
     ATTR_BATTERY_LEVEL,
     CONF_DEVICES,
+    CONF_TEMPERATURE_UNIT,
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
@@ -83,8 +84,8 @@ class BLEupdater(Thread):
             if config[CONF_DEVICES]:
                 for device in config[CONF_DEVICES]:
                     if fmac in device["mac"].upper():
-                        if "temperature_unit" in device:
-                            if device["temperature_unit"] == TEMP_FAHRENHEIT:
+                        if CONF_TEMPERATURE_UNIT in device:
+                            if device[CONF_TEMPERATURE_UNIT] == TEMP_FAHRENHEIT:
                                 temp_fahrenheit = temp * 9 / 5 + 32
                                 return temp_fahrenheit
                         break
@@ -423,13 +424,13 @@ class TemperatureSensor(MeasuringSensor):
         if self._config[CONF_DEVICES]:
             for device in self._config[CONF_DEVICES]:
                 if fmac in device["mac"].upper():
-                    if "temperature_unit" in device:
+                    if CONF_TEMPERATURE_UNIT in device:
                         _LOGGER.debug(
                             "Temperature sensor with mac address %s is set to receive data in %s",
                             fmac,
-                            device["temperature_unit"],
+                            device[CONF_TEMPERATURE_UNIT],
                         )
-                        return device["temperature_unit"]
+                        return device[CONF_TEMPERATURE_UNIT]
                     break
         _LOGGER.debug(
             "Temperature sensor with mac address %s is set to receive data in °C",
