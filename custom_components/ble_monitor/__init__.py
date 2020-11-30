@@ -183,7 +183,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
             ]
         )
     )
-    blemonitor: BLEmonitor = hass.data[DOMAIN]
+    blemonitor: BLEmonitor = hass.data[DOMAIN]["blemonitor"]
     if blemonitor:
         blemonitor.stop()
 
