@@ -18,6 +18,35 @@ from homeassistant.const import (
     TEMP_CELSIUS, 
     TEMP_FAHRENHEIT,
 )
+from .const import (
+    DEFAULT_ROUNDING,
+    DEFAULT_DECIMALS,
+    DEFAULT_PERIOD,
+    DEFAULT_LOG_SPIKES,
+    DEFAULT_USE_MEDIAN,
+    DEFAULT_ACTIVE_SCAN,
+    DEFAULT_BATT_ENTITIES,
+    DEFAULT_REPORT_UNKNOWN,
+    DEFAULT_DISCOVERY,
+    DEFAULT_RESTORE_STATE,
+    DEFAULT_HCI_INTERFACE,
+    CONF_ROUNDING,
+    CONF_DECIMALS,
+    CONF_PERIOD,
+    CONF_LOG_SPIKES,
+    CONF_USE_MEDIAN,
+    CONF_ACTIVE_SCAN,
+    CONF_HCI_INTERFACE,
+    CONF_BATT_ENTITIES,
+    CONF_REPORT_UNKNOWN,
+    CONF_RESTORE_STATE,
+    CONF_ENCRYPTION_KEY,
+    CONFIG_IS_FLOW,
+    DOMAIN,
+    XIAOMI_TYPE_DICT,
+    SERVICE_CLEANUP_ENTRIES,
+)
+
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_registry import (
     async_entries_for_config_entry,
@@ -30,18 +59,6 @@ from Cryptodome.Cipher import AES
 # until the issue with checking the adapter's capabilities is resolved in the official aioblescan repo
 # see https://github.com/frawau/aioblescan/pull/30, thanks to @vicamo
 from . import aioblescan_ext as aiobs
-
-from .const import (
-    CONF_ACTIVE_SCAN,
-    CONF_HCI_INTERFACE,
-    CONF_REPORT_UNKNOWN,
-    CONF_ENCRYPTION_KEY,
-    CONFIG_IS_FLOW,
-    DOMAIN,
-    XIAOMI_TYPE_DICT,
-    DEFAULT_HCI_INTERFACE,
-    SERVICE_CLEANUP_ENTRIES,
-)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -83,8 +100,33 @@ async def async_setup(hass: HomeAssistant, config):
         """" One instance only """
         return False
 
+    # Save and set default for the YAML config
     global CONFIG_YAML
     CONFIG_YAML = json.loads(json.dumps(config[DOMAIN]))
+
+    if not CONF_ROUNDING in CONFIG_YAML:
+        CONFIG_YAML[CONF_ROUNDING] = DEFAULT_ROUNDING
+    if not CONF_DECIMALS in CONFIG_YAML:
+        CONFIG_YAML[CONF_DECIMALS] = DEFAULT_DECIMALS
+    if not CONF_PERIOD in CONFIG_YAML:
+        CONFIG_YAML[CONF_PERIOD] = DEFAULT_PERIOD
+    if not CONF_LOG_SPIKES in CONFIG_YAML:
+        CONFIG_YAML[CONF_LOG_SPIKES] = DEFAULT_LOG_SPIKES
+    if not CONF_USE_MEDIAN in CONFIG_YAML:
+        CONFIG_YAML[CONF_USE_MEDIAN] = DEFAULT_USE_MEDIAN
+    if not CONF_ACTIVE_SCAN in CONFIG_YAML:
+        CONFIG_YAML[CONF_ACTIVE_SCAN] = DEFAULT_ACTIVE_SCAN
+    if not CONF_BATT_ENTITIES in CONFIG_YAML:
+        CONFIG_YAML[CONF_BATT_ENTITIES] = DEFAULT_BATT_ENTITIES
+    if not CONF_REPORT_UNKNOWN in CONFIG_YAML:
+        CONFIG_YAML[CONF_REPORT_UNKNOWN] = DEFAULT_REPORT_UNKNOWN
+    if not CONF_RESTORE_STATE in CONFIG_YAML:
+        CONFIG_YAML[CONF_RESTORE_STATE] = DEFAULT_RESTORE_STATE
+    if not CONF_DISCOVERY in CONFIG_YAML:
+        CONFIG_YAML[CONF_DISCOVERY] = DEFAULT_DISCOVERY
+    if not CONF_DEVICES in CONFIG_YAML:
+        CONFIG_YAML[CONF_DEVICES] = []
+    CONFIG_YAML[CONFIG_IS_FLOW] = False
 
     _LOGGER.debug("async_setup: %s", CONFIG_YAML)
 
@@ -99,8 +141,9 @@ async def async_setup(hass: HomeAssistant, config):
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Set up BLE Monitor from a config entry."""
-    _LOGGER.debug("Initializing BLE Monitor entry")
+    _LOGGER.info("Initializing BLE Monitor entry")
 
+    # Prevent unload to be triggered each time we update the config entry
     global UPDATE_UNLISTENER
     if UPDATE_UNLISTENER:
         UPDATE_UNLISTENER()
@@ -111,14 +154,17 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     _LOGGER.debug("async_setup_entry: domain %s", CONFIG_YAML)
 
     config = {}
-    for key, value in config_entry.data.items():
-        config[key] = value
-
-    for key, value in config_entry.options.items():
-        config[key] = value
 
     if not CONFIG_YAML:
+        for key, value in config_entry.data.items():
+            config[key] = value
+
+        for key, value in config_entry.options.items():
+            config[key] = value
+        
         config[CONFIG_IS_FLOW] = True
+        if not CONF_DEVICES in config:
+            config[CONF_DEVICES] = []
     else:
         for key, value in CONFIG_YAML.items():
             config[key] = value
@@ -137,9 +183,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                         device[CONF_TEMPERATURE_UNIT] = TEMP_FAHRENHEIT
                     else:
                         device[CONF_TEMPERATURE_UNIT] = TEMP_CELSIUS
-
-    if not CONF_DEVICES in config:
-        config[CONF_DEVICES] = []
 
     hass.config_entries.async_update_entry(config_entry, data={}, options=config)
 
@@ -195,7 +238,7 @@ async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> Non
     
 async def async_cleanup_entries_service(hass: HomeAssistant, data):
     """Remove orphaned entries from device and entity registries."""
-    _LOGGER.info("async_cleanup_entries_service")
+    _LOGGER.debug("async_cleanup_entries_service")
 
     entity_registry = await hass.helpers.entity_registry.async_get_registry()
     device_registry = await hass.helpers.device_registry.async_get_registry()

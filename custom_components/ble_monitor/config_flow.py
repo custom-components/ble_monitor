@@ -193,31 +193,6 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
     async def async_step_import(self, user_input=None):
         """Handle import."""
         _LOGGER.debug("async_step_import: %s", user_input)
-
-        if not CONF_ROUNDING in user_input:
-            user_input[CONF_ROUNDING] = DEFAULT_ROUNDING
-        if not CONF_DECIMALS in user_input:
-            user_input[CONF_DECIMALS] = DEFAULT_DECIMALS
-        if not CONF_PERIOD in user_input:
-            user_input[CONF_PERIOD] = DEFAULT_PERIOD
-        if not CONF_LOG_SPIKES in user_input:
-            user_input[CONF_LOG_SPIKES] = DEFAULT_LOG_SPIKES
-        if not CONF_USE_MEDIAN in user_input:
-            user_input[CONF_USE_MEDIAN] = DEFAULT_USE_MEDIAN
-        if not CONF_ACTIVE_SCAN in user_input:
-            user_input[CONF_ACTIVE_SCAN] = DEFAULT_ACTIVE_SCAN
-        if not CONF_BATT_ENTITIES in user_input:
-            user_input[CONF_BATT_ENTITIES] = DEFAULT_BATT_ENTITIES
-        if not CONF_REPORT_UNKNOWN in user_input:
-            user_input[CONF_REPORT_UNKNOWN] = DEFAULT_REPORT_UNKNOWN
-        if not CONF_RESTORE_STATE in user_input:
-            user_input[CONF_RESTORE_STATE] = DEFAULT_RESTORE_STATE
-        if not CONF_DISCOVERY in user_input:
-            user_input[CONF_DISCOVERY] = DEFAULT_DISCOVERY
-        if not CONF_DEVICES in user_input:
-            user_input[CONF_DEVICES] = []
-        user_input[CONFIG_IS_FLOW] = False
-
         return await self.async_step_user(user_input)
 
 class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
@@ -260,7 +235,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
 
         if user_input is not None:
             _LOGGER.debug("async_step_init (after): %s", user_input)
-            if not self.config_entry.options[CONFIG_IS_FLOW]:
+            if CONFIG_IS_FLOW in self.config_entry.options and not self.config_entry.options[CONFIG_IS_FLOW]:
                 return self.async_abort(reason="not_in_use")
 
             if user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
@@ -276,7 +251,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
 
         _LOGGER.debug("async_step_init (before): %s", self.config_entry.options)
 
-        if not self.config_entry.options[CONFIG_IS_FLOW]:
+        if CONFIG_IS_FLOW in self.config_entry.options and not self.config_entry.options[CONFIG_IS_FLOW]:
             options_schema = vol.Schema({vol.Optional("not_in_use", default=""): str})
             return self.async_show_form(
                 step_id="init", data_schema=options_schema, errors=errors or {}
