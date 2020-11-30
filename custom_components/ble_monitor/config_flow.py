@@ -1,5 +1,6 @@
 """Config flow for BLE Monitor."""
 import logging
+import re
 import voluptuous as vol
 
 from homeassistant.core import callback
@@ -41,6 +42,8 @@ from .const import (
     CONF_ENCRYPTION_KEY,
     CONFIG_IS_FLOW,
     DOMAIN,
+    MAC_REGEX,
+    AES128KEY_REGEX,
 )
 
 OPTION_LIST_DEVICE = "--Devices--"
@@ -90,6 +93,25 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         self._devices = []
         self._sel_device = {}
 
+    def validate_regex(self, value: str, regex: str):
+        """Validate that the value is a string that matches a regex."""
+        compiled = re.compile(regex)
+        if not compiled.match(value):
+            return False
+
+        return True
+
+    def validate_mac(self, value: str, errors: list):
+        if not self.validate_regex(value, MAC_REGEX):
+            errors[CONF_MAC] = "invalid_mac"
+
+    def validate_key(self, value: str, errors: list):
+        if not value or value == "-":
+            return
+
+        if not self.validate_regex(value, AES128KEY_REGEX):
+            errors[CONF_ENCRYPTION_KEY] = "invalid_key"
+
     def _show_main_form(self, errors={}):
         _LOGGER.error("_show_main_form: shouldn't be here")
         pass
@@ -112,19 +134,40 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         errors = {}
         if user_input is not None:
             _LOGGER.debug("async_step_add_device: %s", user_input)
-            if user_input.get(CONF_MAC) and user_input.get(CONF_MAC) != "-":
-                if (not self._sel_device):  # new device
-                    self._devices.append(user_input)
-                else:
-                    for idx in range(0, len(self._devices)):
-                        if self._devices[idx].get(CONF_MAC) == self._sel_device.get(CONF_MAC):
-                            self._devices[idx] = user_input
-                            if self._devices[idx][CONF_NAME] == "-":
-                                self._devices[idx].pop(CONF_NAME, None)
-                            if self._devices[idx][CONF_ENCRYPTION_KEY] == "-":
-                                self._devices[idx].pop(CONF_ENCRYPTION_KEY, None)
-                            self._sel_device = {}  # prevent deletion
-                            break
+            if user_input[CONF_MAC] and user_input[CONF_MAC] != "-":
+                self.validate_mac(user_input[CONF_MAC], errors);
+                self.validate_key(user_input[CONF_ENCRYPTION_KEY], errors);
+
+                if not errors:
+                    if user_input[CONF_ENCRYPTION_KEY] == "-":
+                        user_input[CONF_ENCRYPTION_KEY]= None
+                    if (not self._sel_device):  # new device
+                        self._devices.append(user_input)
+                    else:
+                        for idx in range(0, len(self._devices)):
+                            if self._devices[idx].get(CONF_MAC) == self._sel_device.get(CONF_MAC):
+                                self._devices[idx] = user_input
+                                if self._devices[idx][CONF_NAME] == "-":
+                                    self._devices[idx].pop(CONF_NAME, None)
+                                if self._devices[idx][CONF_ENCRYPTION_KEY] == "-":
+                                    self._devices[idx].pop(CONF_ENCRYPTION_KEY, None)
+                                self._sel_device = {}  # prevent deletion
+                                break
+
+            if  errors:
+                RETRY_DEVICE_OPTION_SCHEMA = vol.Schema(
+                    {
+                        vol.Optional(CONF_MAC, default=user_input[CONF_MAC]): str,
+                        vol.Optional(CONF_NAME, default=user_input[CONF_NAME]): str,
+                        vol.Optional(CONF_ENCRYPTION_KEY, default=user_input[CONF_ENCRYPTION_KEY]): str,
+                        vol.Optional(CONF_TEMPERATURE_UNIT, default=user_input[CONF_TEMPERATURE_UNIT]): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
+                    }
+                )
+                return self.async_show_form(
+                    step_id="add_device",
+                    data_schema=RETRY_DEVICE_OPTION_SCHEMA,
+                    errors=errors,
+                )
 
             if (self._sel_device):
                 for idx in range(0, len(self._devices)):
@@ -146,6 +189,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         return self.async_show_form(
             step_id="add_device",
             data_schema=DEVICE_OPTION_SCHEMA,
+            errors=errors,
         )
 
 class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOMAIN):
