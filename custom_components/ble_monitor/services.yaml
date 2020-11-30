@@ -1,3 +1,3 @@
 cleanup_entries:
   # Description of the service
-  description: "Remove dangling devices."
+  description: Clean up of dangling devices of the BLE Montitor integration.
