@@ -88,6 +88,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class BLEMonitorFlow(data_entry_flow.FlowHandler):
+    """BLEMonitor flow"""
     def __init__(self):
         """Initialize flow instance."""
         self._devices = []
@@ -102,19 +103,20 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         return True
 
     def validate_mac(self, value: str, errors: list):
+        """mac validation"""
         if not self.validate_regex(value, MAC_REGEX):
             errors[CONF_MAC] = "invalid_mac"
 
     def validate_key(self, value: str, errors: list):
+        """key validation"""
         if not value or value == "-":
             return
 
         if not self.validate_regex(value, AES128KEY_REGEX):
             errors[CONF_ENCRYPTION_KEY] = "invalid_key"
 
-    def _show_main_form(self, errors={}):
+    def _show_main_form(self, errors=None):
         _LOGGER.error("_show_main_form: shouldn't be here")
-        pass
 
     @callback
     def _show_user_form(self, step_id=None, schema=None, errors=None):
@@ -122,7 +124,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         option_devices.append(OPTION_LIST_DEVICE)
         option_devices.append(OPTION_ADD_DEVICE)
         for device in self._devices:
-            option_devices.append(device.get(CONF_MAC));
+            option_devices.append(device.get(CONF_MAC))
         config_schema = schema.extend({
             vol.Optional(CONF_DEVICES, default=OPTION_LIST_DEVICE): vol.In(option_devices),
         })
@@ -131,16 +133,17 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         )
 
     async def async_step_add_device(self, user_input=None):
+        """add device step"""
         errors = {}
         if user_input is not None:
             _LOGGER.debug("async_step_add_device: %s", user_input)
             if user_input[CONF_MAC] and user_input[CONF_MAC] != "-":
-                self.validate_mac(user_input[CONF_MAC], errors);
-                self.validate_key(user_input[CONF_ENCRYPTION_KEY], errors);
+                self.validate_mac(user_input[CONF_MAC], errors)
+                self.validate_key(user_input[CONF_ENCRYPTION_KEY], errors)
 
                 if not errors:
                     if user_input[CONF_ENCRYPTION_KEY] == "-":
-                        user_input[CONF_ENCRYPTION_KEY]= None
+                        user_input[CONF_ENCRYPTION_KEY] = None
                     if (not self._sel_device):  # new device
                         self._devices.append(user_input)
                     else:
@@ -154,7 +157,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                                 self._sel_device = {}  # prevent deletion
                                 break
 
-            if  errors:
+            if errors:
                 RETRY_DEVICE_OPTION_SCHEMA = vol.Schema(
                     {
                         vol.Optional(CONF_MAC, default=user_input[CONF_MAC]): str,
@@ -192,7 +195,9 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
             errors=errors,
         )
 
+
 class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOMAIN):
+    """BLEMonitor config flow"""
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
 
@@ -202,8 +207,8 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
         """Get the options flow for this handler."""
         return BLEMonitorOptionsFlow(config_entry)
 
-    def _show_main_form(self, errors={}):
-        return self._show_user_form("user", DOMAIN_SCHEMA, errors)
+    def _show_main_form(self, errors=None):
+        return self._show_user_form("user", DOMAIN_SCHEMA, errors or {})
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
@@ -216,7 +221,7 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
 
         if user_input is not None:
             if CONF_DEVICES not in user_input:
-                user_input[CONF_DEVICES]= {}
+                user_input[CONF_DEVICES] = {}
             elif user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
                 self._sel_device = {}
                 return await self.async_step_add_device()
@@ -225,7 +230,7 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
                     self._sel_device = dev
                     return await self.async_step_add_device()
 
-            title = f"BLE Monitor"
+            title = "BLE Monitor"
             await self.async_set_unique_id(title)
             self._abort_if_unique_id_configured()
             user_input[CONF_DEVICES] = self._devices
@@ -239,15 +244,16 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
         _LOGGER.debug("async_step_import: %s", user_input)
         return await self.async_step_user(user_input)
 
+
 class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
     """Handle BLE Monitor options."""
 
     def __init__(self, config_entry):
         """Initialize options flow."""
-        super(BLEMonitorOptionsFlow, self).__init__()
+        super().__init__()
         self.config_entry = config_entry
 
-    def _show_main_form(self, errors={}):
+    def _show_main_form(self, errors=None):
         options_schema = vol.Schema(
             {
                 vol.Optional(
@@ -269,7 +275,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 vol.Optional(CONF_RESTORE_STATE, default=self.config_entry.options.get(CONF_RESTORE_STATE, DEFAULT_RESTORE_STATE)): cv.boolean,
             }
         )
-        return self._show_user_form("init", options_schema, errors)
+        return self._show_user_form("init", options_schema, errors or {})
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""

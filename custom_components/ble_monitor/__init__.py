@@ -1,23 +1,35 @@
 """Passive BLE monitor integration."""
 import asyncio
 import logging
-import voluptuous as vol
-
 import queue
 import struct
 import json
 import copy
 from threading import Thread
+import voluptuous as vol
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
     CONF_DEVICES,
-    CONF_DISCOVERY, 
+    CONF_DISCOVERY,
     CONF_TEMPERATURE_UNIT,
-    EVENT_HOMEASSISTANT_STOP, 
-    TEMP_CELSIUS, 
+    EVENT_HOMEASSISTANT_STOP,
+    TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
 )
+
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_registry import (
+    async_entries_for_device,
+)
+
+from Cryptodome.Cipher import AES
+
+# It was decided to temporarily include this file in the integration bundle
+# until the issue with checking the adapter's capabilities is resolved in the official aioblescan repo
+# see https://github.com/frawau/aioblescan/pull/30, thanks to @vicamo
+from . import aioblescan_ext as aiobs
+
 from .const import (
     DEFAULT_ROUNDING,
     DEFAULT_DECIMALS,
@@ -47,19 +59,6 @@ from .const import (
     SERVICE_CLEANUP_ENTRIES,
 )
 
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_registry import (
-    async_entries_for_config_entry,
-    async_entries_for_device,
-)
-
-from Cryptodome.Cipher import AES
-
-# It was decided to temporarily include this file in the integration bundle
-# until the issue with checking the adapter's capabilities is resolved in the official aioblescan repo
-# see https://github.com/frawau/aioblescan/pull/30, thanks to @vicamo
-from . import aioblescan_ext as aiobs
-
 _LOGGER = logging.getLogger(__name__)
 
 # Structured objects for data conversions
@@ -75,13 +74,14 @@ PLATFORMS = ["binary_sensor", "sensor"]
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
 
-SERVICE_CLEANUP_ENTRIES_SCHEMA = vol.Schema( {} )
+SERVICE_CLEANUP_ENTRIES_SCHEMA = vol.Schema({})
+
 
 async def async_setup(hass: HomeAssistant, config):
     """Set up integration."""
 
     async def service_cleanup_entries(service_call):
-        service = service_call.service
+        # service = service_call.service
         service_data = service_call.data
 
         await async_cleanup_entries_service(hass, service_data)
@@ -93,38 +93,38 @@ async def async_setup(hass: HomeAssistant, config):
         schema=SERVICE_CLEANUP_ENTRIES_SCHEMA,
     )
 
-    if not DOMAIN in config:
+    if DOMAIN not in config:
         return True
 
     if DOMAIN in hass.data:
-        """" One instance only """
+        # One instance only
         return False
 
     # Save and set default for the YAML config
     global CONFIG_YAML
     CONFIG_YAML = json.loads(json.dumps(config[DOMAIN]))
 
-    if not CONF_ROUNDING in CONFIG_YAML:
+    if CONF_ROUNDING not in CONFIG_YAML:
         CONFIG_YAML[CONF_ROUNDING] = DEFAULT_ROUNDING
-    if not CONF_DECIMALS in CONFIG_YAML:
+    if CONF_DECIMALS not in CONFIG_YAML:
         CONFIG_YAML[CONF_DECIMALS] = DEFAULT_DECIMALS
-    if not CONF_PERIOD in CONFIG_YAML:
+    if CONF_PERIOD not in CONFIG_YAML:
         CONFIG_YAML[CONF_PERIOD] = DEFAULT_PERIOD
-    if not CONF_LOG_SPIKES in CONFIG_YAML:
+    if CONF_LOG_SPIKES not in CONFIG_YAML:
         CONFIG_YAML[CONF_LOG_SPIKES] = DEFAULT_LOG_SPIKES
-    if not CONF_USE_MEDIAN in CONFIG_YAML:
+    if CONF_USE_MEDIAN not in CONFIG_YAML:
         CONFIG_YAML[CONF_USE_MEDIAN] = DEFAULT_USE_MEDIAN
-    if not CONF_ACTIVE_SCAN in CONFIG_YAML:
+    if CONF_ACTIVE_SCAN not in CONFIG_YAML:
         CONFIG_YAML[CONF_ACTIVE_SCAN] = DEFAULT_ACTIVE_SCAN
-    if not CONF_BATT_ENTITIES in CONFIG_YAML:
+    if CONF_BATT_ENTITIES not in CONFIG_YAML:
         CONFIG_YAML[CONF_BATT_ENTITIES] = DEFAULT_BATT_ENTITIES
-    if not CONF_REPORT_UNKNOWN in CONFIG_YAML:
+    if CONF_REPORT_UNKNOWN not in CONFIG_YAML:
         CONFIG_YAML[CONF_REPORT_UNKNOWN] = DEFAULT_REPORT_UNKNOWN
-    if not CONF_RESTORE_STATE in CONFIG_YAML:
+    if CONF_RESTORE_STATE not in CONFIG_YAML:
         CONFIG_YAML[CONF_RESTORE_STATE] = DEFAULT_RESTORE_STATE
-    if not CONF_DISCOVERY in CONFIG_YAML:
+    if CONF_DISCOVERY not in CONFIG_YAML:
         CONFIG_YAML[CONF_DISCOVERY] = DEFAULT_DISCOVERY
-    if not CONF_DEVICES in CONFIG_YAML:
+    if CONF_DEVICES not in CONFIG_YAML:
         CONFIG_YAML[CONF_DEVICES] = []
     CONFIG_YAML[CONFIG_IS_FLOW] = False
 
@@ -138,6 +138,7 @@ async def async_setup(hass: HomeAssistant, config):
     )
 
     return True
+
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Set up BLE Monitor from a config entry."""
@@ -161,17 +162,17 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
         for key, value in config_entry.options.items():
             config[key] = value
-        
+
         config[CONFIG_IS_FLOW] = True
-        if not CONF_DEVICES in config:
+        if CONF_DEVICES not in config:
             config[CONF_DEVICES] = []
     else:
         for key, value in CONFIG_YAML.items():
             config[key] = value
         if CONF_HCI_INTERFACE in CONFIG_YAML:
             hci_list = []
-            if isinstance(CONFIG_YAML[CONF_HCI_INTERFACE], list): 
-                for hci in CONFIG_YAML[CONF_HCI_INTERFACE]: 
+            if isinstance(CONFIG_YAML[CONF_HCI_INTERFACE], list):
+                for hci in CONFIG_YAML[CONF_HCI_INTERFACE]:
                     hci_list.append(str(hci))
             else:
                 hci_list.append(str(CONFIG_YAML[CONF_HCI_INTERFACE]))
@@ -190,12 +191,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     UPDATE_UNLISTENER = config_entry.add_update_listener(_async_update_listener)
 
-    if not CONF_HCI_INTERFACE in config:
-        config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE,]
+    if CONF_HCI_INTERFACE not in config:
+        config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE]
     else:
         hci_list = config_entry.options.get(CONF_HCI_INTERFACE)
-        for hci in range(0, len(hci_list)): 
-            hci_list[hci] = int(hci_list[hci])
+        for i, hci in enumerate(hci_list):
+            hci_list[i] = int(hci)
         config[CONF_HCI_INTERFACE] = hci_list
     _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
 
@@ -213,6 +214,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         )
 
     return True
+
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Unload a config entry."""
@@ -232,10 +234,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     return unload_ok
 
+
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
     await hass.config_entries.async_reload(entry.entry_id)
-    
+
+
 async def async_cleanup_entries_service(hass: HomeAssistant, data):
     """Remove orphaned entries from device and entity registries."""
     _LOGGER.debug("async_cleanup_entries_service")
@@ -248,7 +252,7 @@ async def async_cleanup_entries_service(hass: HomeAssistant, data):
     #     entity_registry, config_entry_id
     # )
 
-    entities_to_be_removed = []
+    # entities_to_be_removed = []
     devices_to_be_removed = [
         entry.id
         for entry in device_registry.devices.values()
@@ -276,6 +280,7 @@ async def async_cleanup_entries_service(hass: HomeAssistant, data):
         if len(async_entries_for_device(entity_registry, device_id)) == 0:
             device_registry.async_remove_device(device_id)
             _LOGGER.debug("device %s will be deleted", device_id)
+
 
 class BLEmonitor:
     """BLE scanner."""
@@ -498,7 +503,7 @@ class HCIdump(Thread):
                     try:
                         self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
                         conn[hci].close()
-                    except KeyError as error:
+                    except KeyError:
                         _LOGGER.error("HCIdump thread finishing: Key Error, no device on hci%i", hci)
                 self._event_loop.run_until_complete(asyncio.sleep(0))
             if self._joining is True:

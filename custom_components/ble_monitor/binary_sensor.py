@@ -32,6 +32,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
+    """setup from setup_entry"""
     return True
 
 
@@ -258,7 +259,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
             "model": self._device_type,
             "manufacturer": self._device_manufacturer,
         }
-    
+
     @property
     def force_update(self):
         """Force update."""
