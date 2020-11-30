@@ -39,40 +39,44 @@ CONF_HMIN = 0.0
 CONF_HMAX = 99.9
 
 # Xiaomi sensor types dictionary for adv parser
+#                              binary?
 XIAOMI_TYPE_DICT = {
-    b'\x98\x00': "HHCCJCY01",
-    b'\xAA\x01': "LYWSDCGQ",
-    b'\x5B\x04': "LYWSD02",
-    b'\x47\x03': "CGG1",
-    b'\x5D\x01': "HHCCPOT002",
-    b'\xBC\x03': "GCLS002",
-    b'\x5B\x05': "LYWSD03MMC",
-    b'\x76\x05': "CGD1",
-    b'\xDF\x02': "JQJCY01YM",
-    b'\x0A\x04': "WX08ZM",
-    b'\x87\x03': "MHO-C401",
-    b'\xd3\x06': "MHO-C303",
-    b'\x8B\x09': "MCCGQ02HL",
+    b'\x98\x00': ("HHCCJCY01", False),
+    b'\xAA\x01': ("LYWSDCGQ", False),
+    b'\x5B\x04': ("LYWSD02", False),
+    b'\x47\x03': ("CGG1", False),
+    b'\x5D\x01': ("HHCCPOT002", False),
+    b'\xBC\x03': ("GCLS002", False),
+    b'\x5B\x05': ("LYWSD03MMC", False),
+    b'\x76\x05': ("CGD1", False),
+    b'\xDF\x02': ("JQJCY01YM", False),
+    b'\x0A\x04': ("WX08ZM", True),
+    b'\x87\x03': ("MHO-C401", False),
+    b'\xd3\x06': ("MHO-C303", False),
+    b'\x8B\x09': ("MCCGQ02HL", True),
+    b'\x83\x00': ("YM-K1501", True),
 }
 
 
-# Sensor type indexes dictionary
-# Temperature, Humidity, Moisture, Conductivity, Illuminance, Formaldehyde, Consumable, Switch, Opening, Light, Battery
-# Measurement type T  H  M  C  I  F  Cn Sw O  L  B   9 - no measurement
+# Sensor type indexes dictionary for sensor platform
+# Temperature, Humidity, Moisture, Conductivity, Illuminance, Formaldehyde, Consumable, Battery, Switch, Opening, Light
+#                          sensor               binary
+# Measurement type [T  H  M  C  I  F  Cn B]  [Sw O  L  B]     (start from 0, 9 - no data)
 MMTS_DICT = {
-    'HHCCJCY01' : [0, 9, 1, 2, 3, 9, 9, 9, 9, 9, 9],
-    'GCLS002'   : [0, 9, 1, 2, 3, 9, 9, 9, 9, 9, 9],
-    'HHCCPOT002': [9, 9, 0, 1, 9, 9, 9, 9, 9, 9, 9],
-    'LYWSDCGQ'  : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'LYWSD02'   : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'CGG1'      : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'LYWSD03MMC': [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'CGD1'      : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'JQJCY01YM' : [0, 1, 9, 9, 9, 2, 9, 9, 9, 9, 3],
-    'WX08ZM'    : [9, 9, 9, 9, 9, 9, 0, 1, 9, 9, 2],
-    'MHO-C401'  : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'MHO-C303'  : [0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 2],
-    'MCCGQ02HL' : [9, 9, 9, 9, 9, 9, 9, 9, 0, 1, 2],
+    'HHCCJCY01' : [[0, 9, 1, 2, 3, 9, 9, 9], [9, 9, 9, 9]],
+    'GCLS002'   : [[0, 9, 1, 2, 3, 9, 9, 9], [9, 9, 9, 9]],
+    'HHCCPOT002': [[9, 9, 0, 1, 9, 9, 9, 9], [9, 9, 9, 9]],
+    'LYWSDCGQ'  : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'LYWSD02'   : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'CGG1'      : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'LYWSD03MMC': [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'CGD1'      : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'JQJCY01YM' : [[0, 1, 9, 9, 9, 2, 9, 3], [9, 9, 9, 9]],
+    'WX08ZM'    : [[9, 9, 9, 9, 9, 9, 0, 1], [0, 9, 9, 1]],
+    'MHO-C401'  : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'MHO-C303'  : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
+    'MCCGQ02HL' : [[9, 9, 9, 9, 9, 9, 9, 0], [9, 0, 1, 2]],
+    'YM-K1501'  : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9]],
 }
 
 # The use of the following dictionaries is lost when changing the sensor naming system
