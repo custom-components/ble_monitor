@@ -141,7 +141,7 @@ async def async_setup(hass: HomeAssistant, config):
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Set up BLE Monitor from a config entry."""
-    _LOGGER.info("Initializing BLE Monitor entry")
+    _LOGGER.debug("Initializing BLE Monitor entry")
 
     # Prevent unload to be triggered each time we update the config entry
     global UPDATE_UNLISTENER
@@ -275,7 +275,7 @@ async def async_cleanup_entries_service(hass: HomeAssistant, data):
     for device_id in devices_to_be_removed:
         if len(async_entries_for_device(entity_registry, device_id)) == 0:
             device_registry.async_remove_device(device_id)
-            _LOGGER.info("device %s will be deleted", device_id)
+            _LOGGER.debug("device %s will be deleted", device_id)
 
 class BLEmonitor:
     """BLE scanner."""
@@ -403,7 +403,7 @@ class HCIdump(Thread):
         self.report_unknown = False
         if self.config[CONF_REPORT_UNKNOWN]:
             self.report_unknown = True
-            _LOGGER.info(
+            _LOGGER.debug(
                 "Attention! Option report_unknown is enabled, be ready for a huge output..."
             )
         # prepare device:key lists to speedup parser
@@ -578,7 +578,7 @@ class HCIdump(Thread):
             ]
         except KeyError:
             if self.report_unknown:
-                _LOGGER.info(
+                _LOGGER.debug(
                     "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
                     rssi,
                     ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
@@ -698,7 +698,7 @@ class HCIdump(Thread):
                 result.update(resfunc(xvalue))
             else:
                 if self.report_unknown:
-                    _LOGGER.info(
+                    _LOGGER.debug(
                         "UNKNOWN dataobject from DEVICE: %s, MAC: %s, ADV: %s",
                         sensor_type,
                         ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
