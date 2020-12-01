@@ -64,6 +64,7 @@ DOMAIN_SCHEMA = vol.Schema(
         vol.Optional(
             CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
         ): cv.multi_select({"0": "0", "1": "1", "2": "2"}),
+        vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
         vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
         vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
         vol.Optional(
@@ -74,7 +75,6 @@ DOMAIN_SCHEMA = vol.Schema(
         ): cv.boolean,
         vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.boolean,
         vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
-        vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
         vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,

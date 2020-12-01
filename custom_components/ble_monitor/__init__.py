@@ -148,7 +148,7 @@ async def async_setup(hass: HomeAssistant, config):
     CONFIG_YAML[CONFIG_IS_FLOW] = False
 
     _LOGGER.debug("Initializing BLE Monitor integration (YAML): %s", CONFIG_YAML)
-    
+
     hass.async_add_job(
         hass.config_entries.flow.async_init(
             DOMAIN, context={"source": SOURCE_IMPORT}, data=copy.deepcopy(CONFIG_YAML)

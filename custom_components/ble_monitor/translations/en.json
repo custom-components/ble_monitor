@@ -5,7 +5,7 @@
         "title": "Passive BLE Monitor configuration",
         "description": "Setup of your BLE monitor configuration",
         "data": {
-          "batt_entities": "Include battery entities",
+          "batt_entities": "Generate battery entities",
           "devices": "Devices",
           "discovery": "Discovery",
           "rounding": "Rounding",
@@ -43,7 +43,7 @@
         "title": "Passive BLE Monitor options",
         "description": "Adjust BLE monitor options",
         "data": {
-          "batt_entities": "Include battery entities",
+          "batt_entities": "Generate battery entities",
           "devices": "Devices",
           "discovery": "Discovery",
           "rounding": "Rounding",
