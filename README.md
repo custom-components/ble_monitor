@@ -16,41 +16,6 @@
 
 <!-- /TOC -->
 
-## BREAKING CHANGES IN 0.8.x
-
-This update needs some explanation and requires configuration changes from you. So please read carefully when upgrading from 0.7.x to 0.8.x.
-
-Our custom component `mitemp_bt` was designed as a so called `sensor platform`, which is in Home Assistant language a `platform` under the `sensor` integration. Home Assistant however has made an architecture decision in [ADR 0007](https://github.com/home-assistant/architecture/blob/413e3cb248cf8dca766c0280997f3b516e23fb6d/adr/0007-integration-config-yaml-structure.md), which basically says that `mitemp_bt` should be a `integration` on its own.
-
-So, we decided to make this change and, as it will be a breaking change anyways, we also decided to think about the name of the integration. During time we started to add more and more sensors, not only Xiaomi Mi Temperature sensors, what the name `mitemp_bt` suggests. We decided that `ble_monitor` would be a better name to reflect the capablities of our integration. The full name will become Passive BLE Monitor integration.
-
-Note that your sensor names are most likely also renamed. Look for sensors that start for ble_ (e.g. `ble_temperature_livingroom`). We recommend to use the new [name](#name) option to easily rename and find your sensors.
-
-In short,  if you have the minimal configuration, you will have to change your configuration.yaml
-
-Old configuration
-
-```yaml
-sensor:
-  - platform: mitemp_bt
-```
-
-New configuration
-
-```yaml
-ble_monitor:
-```
-
-Of course, all additional parameters can still be set, as explained below. However, for the following parameters, the configuration has changed compared to the old situation.
-
-- `sensor_names`
-- `sensor_fahrenheit`
-- `encryptors`
-- `whitelist`
-
-If you use one of these parameters, make sure you read the following
-[instructions to convert your configuration to the new format.](update_instructions.md)
-
 ## INTRODUCTION
 
 This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously). Read more in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean).
@@ -147,15 +112,17 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## HOW TO INSTALL
 
-**1. Grant permissions for Python rootless access to HCI interface (usually only needed for alternative installations of home assistant that only install home assistant core):**
+**1. Grant permissions for Python to have rootless access to the HCI interface**
 
-- to grant:
+This is usually only needed for alternative installations of Home Assistant that only install Home Assistant core.
+
+- to grant access:
 
      ```shell
      sudo setcap 'cap_net_raw,cap_net_admin+eip' `readlink -f \`which python3\``
      ```
 
-- to check:
+- to verify:
 
      ```shell
      sudo getcap `readlink -f \`which python3\``
@@ -163,26 +130,31 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 *In case you get a PermissionError, check the [Frequently Asked Questions (FAQ) page](faq.md).
 
-**2. Install the custom component:**
+**2. Install the custom integration**
 
-- The easiest way is to install it with [HACS](https://hacs.xyz/). First install [HACS](https://hacs.xyz/) if you don't have it yet. After installation you can find this custom component in the HACS store under integrations.
+The easiest way to install the BLE Monitor integration is with [HACS](https://hacs.xyz/). First install [HACS](https://hacs.xyz/) if you don't have it yet. After installation you can find this integration in the HACS store under integrations.
 
-- Alternatively, you can install it manually. Just copy paste the content of the `ble_monitor/custom_components` folder in your `config/custom_components` directory.
-     As example, you will get the `sensor.py` file in the following path: `/config/custom_components/ble_monitor/sensor.py`.
+Alternatively, you can install it manually. Just copy paste the content of the `ble_monitor/custom_components` folder in your `config/custom_components` directory. As example, you will get the `sensor.py` file in the following path: `/config/custom_components/ble_monitor/sensor.py`. The disadvantage of a manual installation is that you won't be notified about updates. 
 
-**3. Add your sensors to the MiHome app if you haven’t already.**
+**3. Add your sensors to the MiHome app if you haven’t already**
 
-Many Xiaomi ecosystem sensors (maybe all) do not broadcasts BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first.
+Many Xiaomi ecosystem sensors (maybe all) do not broadcast BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first.
 
-**4. Add the integration to your configuration.yaml file (see [below](#configuration))**
+**4. Configure the integration**
 
-**5. Restart Home Assistant:**
+There are two ways to configure the integration and your devices (sensors), in the User Interface (UI) or in your YAML configuration file. Choose one method, you can't use both ways at the same time. You are able to switch from one to the other, at any time.
 
-- A restart is required to load the configuration. After a few minutes, the sensors should be added to your Home Assistant automatically (at least one [period](#period) required).
+***4a. Configuration in the User Interface***
 
-## CONFIGURATION
+Make sure you restart Home Assistant after the installation in HACS. After the restart, go to **Configuration** in the side menu in Home Assistant and select **Integrations**. Click on **Add Integrations** in the bottom right corner and search for "Passive BLE Monitor" to install. This will open the configuration menu with the default settings. The options are explained in the [configuration](#Configuration_variables_at_component_level) section below and can also be changed later in the options menu. After a few minutes, the sensors should be added to your Home Assistant automatically (at least one [period](#period) required). Note that changes also require at least one [period](#period) to become visible. 
 
-Add the following to your `configuration.yaml` file.
+  ![Integration setup](https://raw.github.com/custom-components/ble_monitor/master/pictures/integration_setup.png)
+
+***4b. Configuration in YAML***
+
+Add the configuration to your `configuration.yaml` file as explained below. The options are the same as in the UI and are explained in the [configuration](#configuration_in_yaml)) section below. After adding your initial configuration to your YAML file, or applying a configuration change in YAML, a restart is required to load the new configuration. After a few minutes, the sensors should be added to your Home Assistant automatically (at least one [period](#period) required).
+
+An example of `configuration.yaml` with the minimum configuration is:
 
 ```yaml
 ble_monitor:
@@ -192,17 +164,17 @@ An example of `configuration.yaml` with all optional parameters is:
 
 ```yaml
 ble_monitor:
+  hci_interface: 0
+  discovery: True
+  active_scan: False
+  report_unknown: False
+  batt_entities: False
   rounding: True
   decimals: 1
   period: 60
   log_spikes: False
   use_median: False
-  active_scan: False
-  hci_interface: 0
-  batt_entities: False
-  discovery: True
   restore_state: False
-  report_unknown: False
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
       name: 'Livingroom'
@@ -216,7 +188,49 @@ ble_monitor:
 
 Note: The encryption_key parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
 
+## CONFIGURATION
+
 ### Configuration Variables at component level
+
+#### hci_interface
+
+   (positive integer or list of positive integers)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
+
+```yaml
+ble_monitor:
+  hci_interface:
+    - 0
+    - 1
+```
+
+   Default value: 0
+
+#### discovery
+
+   (boolean)(Optional) By default, the component creates entities for all discovered, supported sensors. However, situations may arise where you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or when data from part of your sensors are received using other equipment, and you don't want to see entities you do not need. To resolve this issue, simply add an entry of each MAC-address of the sensors you need under `devices`, by using the `mac` option, and set the `discovery` option to False:
+
+```yaml
+ble_monitor:
+  discovery: False
+  devices:
+    - mac: '58:C1:38:2F:86:6C'
+    - mac: 'C4:FA:64:D1:61:7D'
+```
+
+Data from sensors with other addresses will be ignored. Default value: True
+
+
+#### active_scan
+
+   (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
+
+#### report_unknown
+
+   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log (`logger` component must be enabled). **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+
+#### batt_entities
+
+   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.ble_batt_ <sensor_mac_address>`. Default value: False
 
 #### rounding
 
@@ -244,48 +258,10 @@ Note: The encryption_key parameter is only needed for sensors, for which it is [
   
    *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
 
-#### active_scan
-
-   (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
-
-#### hci_interface
-
-   (positive integer or list of positive integers)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
-
-```yaml
-ble_monitor:
-  hci_interface:
-    - 0
-    - 1
-```
-
-   Default value: 0
-
-#### batt_entities
-
-   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.ble_batt_ <sensor_mac_address>`. Default value: False
-
-#### discovery
-
-   (boolean)(Optional) By default, the component creates entities for all discovered, supported sensors. However, situations may arise where you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or when data from part of your sensors are received using other equipment, and you don't want to see entities you do not need. To resolve this issue, simply add an entry of each MAC-address of the sensors you need under `devices`, by using the `mac` option, and set the `discovery` option to False:
-
-```yaml
-ble_monitor:
-  discovery: False
-  devices:
-    - mac: '58:C1:38:2F:86:6C'
-    - mac: 'C4:FA:64:D1:61:7D'
-```
-
-Data from sensors with other addresses will be ignored. Default value: True
-
 #### restore_state
 
    (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors immediately after a restart of Home Assistant to the state right before the restart. The integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. If you only use measuring sensors like temperature sensors, this option can be safely set to `True`. Default value: False
 
-#### report_unknown
-
-   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log (`logger` component must be enabled). **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
 ### Configuration Variables at device level
 
@@ -303,9 +279,11 @@ ble_monitor:
     - mac: 'C4:3C:4D:6B:4F:F3'
 ```
 
+Deleting a device in the User Interface can be done by typing `-` in the `mac` field.
+
 #### mac
 
-   (string)(Required) The `mac` option is used to identify your sensor device based on its mac-address. This allows you to define other additional options for this specific sensor device and/or to whitelist it with the `discovery` option. You can find the mac-address in the attributes of your sensor (`Developers Tools` --> `States`).
+   (string)(Required) The `mac` option is used to identify your sensor device based on its mac-address. This allows you to define other additional options for this specific sensor device and/or to whitelist it with the `discovery` option. You can find the MAC address in the attributes of your sensor (`Developers Tools` --> `States`).
 
 #### name
 
