@@ -1,13 +1,13 @@
 """Passive BLE monitor integration."""
 import asyncio
+import copy
+from Cryptodome.Cipher import AES
+import json
 import logging
 import queue
 import struct
-import json
-import copy
 from threading import Thread
 import voluptuous as vol
-from homeassistant.helpers import config_validation as cv
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
@@ -20,13 +20,11 @@ from homeassistant.const import (
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
 )
-
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity_registry import (
     async_entries_for_device,
 )
-
-from Cryptodome.Cipher import AES
 
 # It was decided to temporarily include this file in the integration bundle
 # until the issue with checking the adapter's capabilities is resolved in the official aioblescan repo
@@ -149,7 +147,7 @@ async def async_setup(hass: HomeAssistant, config):
     CONFIG_YAML = json.loads(json.dumps(config[DOMAIN]))
     CONFIG_YAML[CONFIG_IS_FLOW] = False
 
-    _LOGGER.info("Initializing BLE Monitor integration (YAML): %s", CONFIG_YAML)
+    _LOGGER.debug("Initializing BLE Monitor integration (YAML): %s", CONFIG_YAML)
     
     hass.async_add_job(
         hass.config_entries.flow.async_init(
@@ -162,7 +160,7 @@ async def async_setup(hass: HomeAssistant, config):
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Set up BLE Monitor from a config entry."""
-    _LOGGER.info("Initializing BLE Monitor entry (config entry): %s", config_entry)
+    _LOGGER.debug("Initializing BLE Monitor entry (config entry): %s", config_entry)
 
     # Prevent unload to be triggered each time we update the config entry
     global UPDATE_UNLISTENER
