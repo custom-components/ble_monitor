@@ -7,11 +7,14 @@ import json
 import copy
 from threading import Thread
 import voluptuous as vol
+from homeassistant.helpers import config_validation as cv
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
     CONF_DEVICES,
     CONF_DISCOVERY,
+    CONF_MAC,
+    CONF_NAME,
     CONF_TEMPERATURE_UNIT,
     EVENT_HOMEASSISTANT_STOP,
     TEMP_CELSIUS,
@@ -55,6 +58,8 @@ from .const import (
     CONF_ENCRYPTION_KEY,
     CONFIG_IS_FLOW,
     DOMAIN,
+    MAC_REGEX,
+    AES128KEY_REGEX,
     XIAOMI_TYPE_DICT,
     SERVICE_CLEANUP_ENTRIES,
 )
@@ -73,6 +78,45 @@ PLATFORMS = ["binary_sensor", "sensor"]
 
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
+
+DEVICE_SCHEMA = vol.Schema(
+    {
+        vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
+        vol.Optional(CONF_NAME): cv.string,
+        vol.Optional(CONF_ENCRYPTION_KEY): cv.matches_regex(AES128KEY_REGEX),
+        vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
+    }
+)
+
+CONFIG_SCHEMA = vol.Schema(
+    {
+        DOMAIN: vol.Schema(
+            {
+                vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.boolean,
+                vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
+                vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
+                vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
+                vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
+                vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
+                vol.Optional(
+                    CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
+                ): vol.All(cv.ensure_list, [cv.positive_int]),
+                vol.Optional(
+                    CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
+                ): cv.boolean,
+                vol.Optional(
+                    CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
+                ): cv.boolean,
+                vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
+                vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
+                vol.Optional(CONF_DEVICES, default=[]): vol.All(
+                    cv.ensure_list, [DEVICE_SCHEMA]
+                ),
+            }
+        )
+    },
+    extra=vol.ALLOW_EXTRA,
+)
 
 SERVICE_CLEANUP_ENTRIES_SCHEMA = vol.Schema({})
 
@@ -103,34 +147,10 @@ async def async_setup(hass: HomeAssistant, config):
     # Save and set default for the YAML config
     global CONFIG_YAML
     CONFIG_YAML = json.loads(json.dumps(config[DOMAIN]))
-
-    if CONF_ROUNDING not in CONFIG_YAML:
-        CONFIG_YAML[CONF_ROUNDING] = DEFAULT_ROUNDING
-    if CONF_DECIMALS not in CONFIG_YAML:
-        CONFIG_YAML[CONF_DECIMALS] = DEFAULT_DECIMALS
-    if CONF_PERIOD not in CONFIG_YAML:
-        CONFIG_YAML[CONF_PERIOD] = DEFAULT_PERIOD
-    if CONF_LOG_SPIKES not in CONFIG_YAML:
-        CONFIG_YAML[CONF_LOG_SPIKES] = DEFAULT_LOG_SPIKES
-    if CONF_USE_MEDIAN not in CONFIG_YAML:
-        CONFIG_YAML[CONF_USE_MEDIAN] = DEFAULT_USE_MEDIAN
-    if CONF_ACTIVE_SCAN not in CONFIG_YAML:
-        CONFIG_YAML[CONF_ACTIVE_SCAN] = DEFAULT_ACTIVE_SCAN
-    if CONF_BATT_ENTITIES not in CONFIG_YAML:
-        CONFIG_YAML[CONF_BATT_ENTITIES] = DEFAULT_BATT_ENTITIES
-    if CONF_REPORT_UNKNOWN not in CONFIG_YAML:
-        CONFIG_YAML[CONF_REPORT_UNKNOWN] = DEFAULT_REPORT_UNKNOWN
-    if CONF_RESTORE_STATE not in CONFIG_YAML:
-        CONFIG_YAML[CONF_RESTORE_STATE] = DEFAULT_RESTORE_STATE
-    if CONF_DISCOVERY not in CONFIG_YAML:
-        CONFIG_YAML[CONF_DISCOVERY] = DEFAULT_DISCOVERY
-    if CONF_DEVICES not in CONFIG_YAML:
-        CONFIG_YAML[CONF_DEVICES] = []
     CONFIG_YAML[CONFIG_IS_FLOW] = False
 
-    _LOGGER.debug("async_setup: %s", CONFIG_YAML)
-
-    _LOGGER.debug("Initializing BLE Monitor integration")
+    _LOGGER.info("Initializing BLE Monitor integration (YAML): %s", CONFIG_YAML)
+    
     hass.async_add_job(
         hass.config_entries.flow.async_init(
             DOMAIN, context={"source": SOURCE_IMPORT}, data=copy.deepcopy(CONFIG_YAML)
@@ -142,7 +162,7 @@ async def async_setup(hass: HomeAssistant, config):
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Set up BLE Monitor from a config entry."""
-    _LOGGER.debug("Initializing BLE Monitor entry")
+    _LOGGER.info("Initializing BLE Monitor entry (config entry): %s", config_entry)
 
     # Prevent unload to be triggered each time we update the config entry
     global UPDATE_UNLISTENER
