@@ -330,7 +330,7 @@ ble_monitor:
 
 ### Deleting devices and sensors
 
-Removing devices can be done by removing the corresponding lines in your `configuration.yaml`. In the UI, you can delete devices by typing `-` in the `MAC address` field. Note that if the [discovery](#discovery) option is set to `True` is will be discovered automatically again. 
+Removing devices can be done by removing the corresponding lines in your `configuration.yaml`. In the UI, you can delete devices by typing `-` in the `MAC address` field. Note that if the [discovery](#discovery) option is set to `True` they will be discovered automatically again. 
 
 Unfortunately, old devices and sensor entities are not entirely deleted by this, they will still be visible, but will be `unavailable` after a restart. The same applies for changing a name of an existing device, the devices and sensor entities with the old name will still remain visible, but with an `unavailable` state after a restart. To completely remove these left overs, follow the following steps.
 
@@ -352,8 +352,9 @@ If your question or issue isn't answered in the FAQ, please open an [issue](http
 
 Credits and big thanks should be given to:
 
+- [@Magalex](https://community.home-assistant.io/u/Magalex) and [@Ernst](https://community.home-assistant.io/u/Ernst) for the component creation, development, and support. 
+- [@koying](https://github.com/koying) for implementing the configuration in the user interface.
 - [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) for the idea and the first code.
-- [@Magalex](https://community.home-assistant.io/u/Magalex) and [@Ernst](https://community.home-assistant.io/u/Ernst) for the component creation, development, and support.
 
 
 ## FORUM
