@@ -15,13 +15,13 @@
 
 # Changes in 0.8.4 [BREAKING CHANGES]
 
-- [BREAKING CHANGE] now the component spawns `binary_sensor` entities, that is, the binary sensor classes now work. After the update, new entities in the `binary_sensor` domain will be created for all your binary sensors.
-- experimental support for YM-K1501 (Xiaomi Mijia Smart Kettle)
-- minor fixes and improvements
+- [BREAKING CHANGE] The component now creates `binary_sensor` entities for MCCQ02HL and WX08ZM sensors, which means that the binary sensor states (e.g. `open/closed`) now work. After the update, new entities starting with `binary_sensor` will be created for all your binary sensors. You can remove the old entities starting with `sensor`, which are no longer used. Also update your lovelace configuration. 
+- Added experimental support for YM-K1501 (Xiaomi Mijia Smart Kettle)
+- Minor fixes and improvements
 
 # Upgrading from 0.7.x [BREAKING CHANGES]
 
-Upgrading from 0.7.x to 0.8.x requires configuration changes. [Follow these instructions.](https://github.com/custom-components/ble_monitor/blob/master/update_instructions.md)
+Upgrading from 0.7.x to 0.8.x requires configuration changes. If you haven't done yet, please read he following [instructions to convert your configuration.](https://github.com/custom-components/ble_monitor/blob/master/update_instructions.md)
 
 {% endif %}
 
