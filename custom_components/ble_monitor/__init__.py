@@ -310,6 +310,8 @@ class BLEmonitor:
             "measuring": queue.SimpleQueue(),
         }
         self.config = config
+        if config[CONF_REPORT_UNKNOWN] is True:
+            _LOGGER.info("Attention! Option report_unknown is enabled, be ready for a huge output...")
         self.dumpthread = None
 
     def shutdown_handler(self, event):
