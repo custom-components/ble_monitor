@@ -8,6 +8,11 @@
 # Changes in 0.9.0 beta
 
 - Added support for configuration in the User Interface of Home Assistant (no YAML needed anymore). Thanks to the great effort of @koying, who made this possible!
+- Do you want to move from YAML to the configuration in the User Interface? Use this procedure to convert your YAML configuration into the User Interface setup
+  1. Update first
+  2. Restart Home Assistant
+  3. Remove your YAML code
+  4. Restart again 
 - Still want to use YAML? No worries, YAML is still supported!
 
 {% endif %}
