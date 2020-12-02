@@ -230,7 +230,7 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
                     self._sel_device = dev
                     return await self.async_step_add_device()
 
-            title = "BLE Monitor"
+            title = "Bluetooth Low Energy Monitor"
             await self.async_set_unique_id(title)
             self._abort_if_unique_id_configured()
             user_input[CONF_DEVICES] = self._devices
