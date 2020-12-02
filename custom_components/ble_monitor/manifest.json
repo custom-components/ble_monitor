@@ -4,8 +4,5 @@
   "documentation": "https://github.com/custom-components/ble_monitor",
   "requirements": ["pycryptodomex>=3.9.7"],
   "dependencies": [],
-  "codeowners": [
-    "@Magalex2x14",
-    "@Ernst79"
-  ]
+  "codeowners": ["@Magalex2x14", "@Ernst79"]
 }
