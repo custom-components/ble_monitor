@@ -124,7 +124,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         option_devices.append(OPTION_LIST_DEVICE)
         option_devices.append(OPTION_ADD_DEVICE)
         for device in self._devices:
-            option_devices.append(device.get(CONF_MAC))
+            option_devices.append(device.get(CONF_NAME))
         config_schema = schema.extend({
             vol.Optional(CONF_DEVICES, default=OPTION_LIST_DEVICE): vol.In(option_devices),
         })
@@ -174,7 +174,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
 
             if (self._sel_device):
                 for idx in range(0, len(self._devices)):
-                    if self._devices[idx].get(CONF_MAC) == self._sel_device.get(CONF_MAC):
+                    if self._devices[idx].get(CONF_NAME) == self._sel_device.get(CONF_NAME):
                         self._devices.pop(idx)
                         break
 
@@ -226,7 +226,7 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
                 self._sel_device = {}
                 return await self.async_step_add_device()
             for dev in self._devices:
-                if dev.get(CONF_MAC) == user_input[CONF_DEVICES]:
+                if dev.get(CONF_NAME) == user_input[CONF_DEVICES]:
                     self._sel_device = dev
                     return await self.async_step_add_device()
 
@@ -292,7 +292,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 self._sel_device = {}
                 return await self.async_step_add_device()
             for dev in self._devices:
-                if dev.get(CONF_MAC) == user_input[CONF_DEVICES]:
+                if dev.get(CONF_NAME) == user_input[CONF_DEVICES]:
                     self._sel_device = dev
                     return await self.async_step_add_device()
 
