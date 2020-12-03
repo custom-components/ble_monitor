@@ -195,13 +195,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             else:
                 hci_list.append(str(CONFIG_YAML[CONF_HCI_INTERFACE]))
             config[CONF_HCI_INTERFACE] = hci_list
-        if CONF_DEVICES in CONFIG_YAML:
-            for device in CONFIG_YAML[CONF_DEVICES]:
-                if CONF_TEMPERATURE_UNIT in device:
-                    if device[CONF_TEMPERATURE_UNIT] == "F":
-                        device[CONF_TEMPERATURE_UNIT] = TEMP_FAHRENHEIT
-                    else:
-                        device[CONF_TEMPERATURE_UNIT] = TEMP_CELSIUS
 
     hass.config_entries.async_update_entry(config_entry, data={}, options=config)
 
