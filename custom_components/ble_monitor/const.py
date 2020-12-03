@@ -60,6 +60,7 @@ XIAOMI_TYPE_DICT = {
     b'\xd3\x06': ("MHO-C303", False),
     b'\x8B\x09': ("MCCGQ02HL", True),
     b'\x83\x00': ("YM-K1501", True),
+    b'\x13\x01': ("V-SK152", True),
 }
 
 
@@ -82,6 +83,7 @@ MMTS_DICT = {
     'MHO-C303'  : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
     'MCCGQ02HL' : [[9, 9, 9, 9, 9, 9, 9, 0], [9, 0, 1, 2]],
     'YM-K1501'  : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9]],
+    'V-SK152'   : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9]],
 }
 
 # Sensor manufacturer dictionary
@@ -100,6 +102,7 @@ MANUFACTURER_DICT = {
     'MHO-C303'  : 'Miaomiaoce',
     'MCCGQ02HL' : 'Xiaomi',
     'YM-K1501'  : 'Xiaomi',
+    'V-SK152'   : 'Viomi',
 }
 
 # The use of the following dictionaries is lost when changing the sensor naming system

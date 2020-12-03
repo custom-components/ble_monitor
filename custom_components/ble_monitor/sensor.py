@@ -161,18 +161,27 @@ class BLEupdater(Thread):
                             batt_attr = None
                 # measuring sensors
                 if "temperature" in data:
-                    if (
-                        temperature_limit(self.config, mac, CONF_TMAX)
-                        >= data["temperature"]
-                        >= temperature_limit(self.config, mac, CONF_TMIN)
-                    ):
-                        sensors[t_i].collect(data, batt_attr)
-                    elif self.log_spikes:
-                        _LOGGER.error(
-                            "Temperature spike: %s (%s)",
-                            data["temperature"],
-                            mac,
-                        )
+                    # dirty hack for kettle temperature data
+                    if sensortype in ('YM-K1501', 'V-SK152'):
+                        entity = sensors[t_i]
+                        entity.collect(data, batt_attr)
+                        if entity.ready_for_update is True:
+                            entity.rssi_values = rssi[mac].copy()
+                            entity.schedule_update_ha_state(True)
+                            rssi[mac].clear()
+                    else:
+                        if (
+                            temperature_limit(self.config, mac, CONF_TMAX)
+                            >= data["temperature"]
+                            >= temperature_limit(self.config, mac, CONF_TMIN)
+                        ):
+                            sensors[t_i].collect(data, batt_attr)
+                        elif self.log_spikes:
+                            _LOGGER.error(
+                                "Temperature spike: %s (%s)",
+                                data["temperature"],
+                                mac,
+                            )
                 if "humidity" in data:
                     if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
                         sensors[h_i].collect(data, batt_attr)
