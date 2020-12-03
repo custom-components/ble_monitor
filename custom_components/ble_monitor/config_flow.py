@@ -53,7 +53,6 @@ OPTION_ADD_DEVICE = "Add device..."
 DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_MAC, default=""): cv.string,
-        vol.Optional(CONF_NAME, default=""): cv.string,
         vol.Optional(CONF_ENCRYPTION_KEY, default=""): cv.string,
         vol.Optional(CONF_TEMPERATURE_UNIT, default=TEMP_CELSIUS): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
     }
@@ -124,7 +123,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         option_devices.append(OPTION_LIST_DEVICE)
         option_devices.append(OPTION_ADD_DEVICE)
         for device in self._devices:
-            option_devices.append(device.get(CONF_NAME))
+            option_devices.append(device.get(CONF_MAC))
         config_schema = schema.extend({
             vol.Optional(CONF_DEVICES, default=OPTION_LIST_DEVICE): vol.In(option_devices),
         })
@@ -150,8 +149,6 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                         for idx in range(0, len(self._devices)):
                             if self._devices[idx].get(CONF_MAC) == self._sel_device.get(CONF_MAC):
                                 self._devices[idx] = user_input
-                                if self._devices[idx][CONF_NAME] == "-":
-                                    self._devices[idx].pop(CONF_NAME, None)
                                 if self._devices[idx][CONF_ENCRYPTION_KEY] == "-":
                                     self._devices[idx].pop(CONF_ENCRYPTION_KEY, None)
                                 self._sel_device = {}  # prevent deletion
@@ -161,7 +158,6 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 RETRY_DEVICE_OPTION_SCHEMA = vol.Schema(
                     {
                         vol.Optional(CONF_MAC, default=user_input[CONF_MAC]): str,
-                        vol.Optional(CONF_NAME, default=user_input[CONF_NAME]): str,
                         vol.Optional(CONF_ENCRYPTION_KEY, default=user_input[CONF_ENCRYPTION_KEY]): str,
                         vol.Optional(CONF_TEMPERATURE_UNIT, default=user_input[CONF_TEMPERATURE_UNIT]): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
                     }
@@ -174,7 +170,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
 
             if (self._sel_device):
                 for idx in range(0, len(self._devices)):
-                    if self._devices[idx].get(CONF_NAME) == self._sel_device.get(CONF_NAME):
+                    if self._devices[idx].get(CONF_MAC) == self._sel_device.get(CONF_MAC):
                         self._devices.pop(idx)
                         break
 
@@ -183,7 +179,6 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         DEVICE_OPTION_SCHEMA = vol.Schema(
             {
                 vol.Optional(CONF_MAC, default=self._sel_device.get(CONF_MAC) if self._sel_device.get(CONF_MAC) else ""): str,
-                vol.Optional(CONF_NAME, default=self._sel_device.get(CONF_NAME) if self._sel_device.get(CONF_NAME) else ""): str,
                 vol.Optional(CONF_ENCRYPTION_KEY, default=self._sel_device.get(CONF_ENCRYPTION_KEY) if self._sel_device.get(CONF_ENCRYPTION_KEY) else ""): str,
                 vol.Optional(CONF_TEMPERATURE_UNIT, default=self._sel_device.get(CONF_TEMPERATURE_UNIT) if self._sel_device.get(CONF_TEMPERATURE_UNIT) else TEMP_CELSIUS): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
             }
@@ -226,7 +221,7 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
                 self._sel_device = {}
                 return await self.async_step_add_device()
             for dev in self._devices:
-                if dev.get(CONF_NAME) == user_input[CONF_DEVICES]:
+                if dev.get(CONF_MAC) == user_input[CONF_DEVICES]:
                     self._sel_device = dev
                     return await self.async_step_add_device()
 
@@ -292,7 +287,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 self._sel_device = {}
                 return await self.async_step_add_device()
             for dev in self._devices:
-                if dev.get(CONF_NAME) == user_input[CONF_DEVICES]:
+                if dev.get(CONF_MAC) == user_input[CONF_DEVICES]:
                     self._sel_device = dev
                     return await self.async_step_add_device()
 
