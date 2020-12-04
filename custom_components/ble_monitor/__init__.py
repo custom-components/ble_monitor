@@ -468,7 +468,7 @@ class HCIdump(Thread):
                     data[xiaomi_index + 7:xiaomi_index + 8]
                 ]
             )
-            encrypted_payload = data[xdata_point:msg_length - 1]
+            encrypted_payload = data[xdata_point:msg_length - int(not is_ext_packet)]
             aad = b"\x11"
             token = encrypted_payload[-4:]
             payload_counter = encrypted_payload[-7:-4]
