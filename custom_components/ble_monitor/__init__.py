@@ -596,7 +596,7 @@ class HCIdump(Thread):
             ]
         except KeyError:
             if self.report_unknown:
-                _LOGGER.debug(
+                _LOGGER.info(
                     "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
                     rssi,
                     ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
@@ -720,7 +720,7 @@ class HCIdump(Thread):
                 result.update(resfunc(xvalue))
             else:
                 if self.report_unknown:
-                    _LOGGER.debug(
+                    _LOGGER.info(
                         "UNKNOWN dataobject from DEVICE: %s, MAC: %s, ADV: %s",
                         sensor_type,
                         ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
