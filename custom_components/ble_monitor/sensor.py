@@ -319,7 +319,7 @@ class MeasuringSensor(RestoreEntity):
         return {
             "identifiers": {
                 # Unique identifiers within a specific domain
-                (DOMAIN, self.get_sensorname())
+                (DOMAIN, self._device_state_attributes["mac address"])
             },
             "name": self.get_sensorname(),
             "model": self._device_type,
