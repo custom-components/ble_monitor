@@ -18,6 +18,10 @@ Upgrading from 0.7.x to 0.8.x requires configuration changes. If you haven't don
 {% endif %}
 {% if installed or pending_update %}
 
+# Changes in 0.8.5 [URGENT FIX]
+
+- Fixed a bug in the parser code that led to unsuccessful decryption of the data contained in the Extended Advertisement packet. This bug affects everyone using some modern adapters with BT5.x support (including Intel NUC platform users)
+
 # Changes in 0.8.4 [BREAKING CHANGES]
 
 - [BREAKING CHANGE] The component now creates `binary_sensor` entities for MCCQ02HL and WX08ZM sensors, which means that the binary sensor states (e.g. `open/closed`) now work. After the update, new entities starting with `binary_sensor` will be created for all your binary sensors. You can remove the old entities starting with `sensor`, which are no longer used. Also update your lovelace configuration. 
