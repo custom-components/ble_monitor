@@ -162,13 +162,14 @@ class BLEupdater(Thread):
                 # measuring sensors
                 if "temperature" in data:
                     # dirty hack for kettle temperature data
-                    if sensortype in ('YM-K1501', 'V-SK152'):
+                    if sensortype in ('YM-K1501', 'YM-K1501EU', 'V-SK152'):
                         entity = sensors[t_i]
                         entity.collect(data, batt_attr)
                         if entity.ready_for_update is True:
                             entity.rssi_values = rssi[mac].copy()
                             entity.schedule_update_ha_state(True)
                             rssi[mac].clear()
+                            entity.pending_update = False
                     else:
                         if (
                             temperature_limit(self.config, mac, CONF_TMAX)

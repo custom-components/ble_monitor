@@ -60,7 +60,7 @@ XIAOMI_TYPE_DICT = {
     b'\xd3\x06': ("MHO-C303", False),
     b'\x8B\x09': ("MCCGQ02HL", True),
     b'\x83\x00': ("YM-K1501", True),
-    b'\x13\x01': ("YM-K1501 EU", True),
+    b'\x13\x01': ("YM-K1501EU", True),
     b'\x5C\x04': ("V-SK152", True),
 }
 
@@ -84,7 +84,7 @@ MMTS_DICT = {
     'MHO-C303'     : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9]],
     'MCCGQ02HL'    : [[9, 9, 9, 9, 9, 9, 9, 0], [9, 0, 1, 2]],
     'YM-K1501'     : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9]],
-    'YM-K1501 EU'  : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9]],
+    'YM-K1501EU'   : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9]],
     'V-SK152'      : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9]],
 }
 
@@ -104,7 +104,7 @@ MANUFACTURER_DICT = {
     'MHO-C303'     : 'Miaomiaoce',
     'MCCGQ02HL'    : 'Xiaomi',
     'YM-K1501'     : 'Xiaomi',
-    'YM-K1501 EU'  : 'Xiaomi',
+    'YM-K1501EU'  : 'Xiaomi',
     'V-SK152'      : 'Viomi',
 }
 
