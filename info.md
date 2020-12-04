@@ -5,6 +5,10 @@
 
 # NB!: This is a Beta version!
 
+# Changes in 0.9.1 beta [URGENT FIX]
+
+- Fixed a bug in the parser code that led to unsuccessful decryption of the data contained in the Extended Advertisement packet. This bug affects everyone using some modern adapters with BT5.x support (including Intel NUC platform users)
+
 # Changes in 0.9.0 beta
 
 - Added support for configuration in the User Interface of Home Assistant (no YAML needed anymore). Thanks to the great effort of @koying, who made this possible!
@@ -12,7 +16,7 @@
   1. Update first
   2. Restart Home Assistant
   3. Remove your YAML code
-  4. Restart again 
+  4. Restart again
 - Still want to use YAML? No worries, YAML is still supported!
 
 {% endif %}
