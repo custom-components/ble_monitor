@@ -656,7 +656,8 @@ class HCIdump(Thread):
                     data[xiaomi_index + 7:xiaomi_index + 8]
                 ]
             )
-            encrypted_payload = data[xdata_point:msg_length - 1]
+            endoffset = msg_length - int(not is_ext_packet)
+            encrypted_payload = data[xdata_point:endoffset]
             aad = b"\x11"
             token = encrypted_payload[-4:]
             payload_counter = encrypted_payload[-7:-4]
@@ -681,8 +682,11 @@ class HCIdump(Thread):
                 )
                 return None, None, None
             # replace cipher with decrypted data
-            msg_length -= len(data[xdata_point:msg_length - 1])
-            data = b"".join((data[:xdata_point], decrypted_payload, data[-1:]))
+            msg_length -= len(encrypted_payload)
+            if is_ext_packet:
+                data = b"".join((data[:xdata_point], decrypted_payload))
+            else:
+                data = b"".join((data[:xdata_point], decrypted_payload, data[-1:]))
             msg_length += len(decrypted_payload)
         result = {
             "rssi": rssi,
