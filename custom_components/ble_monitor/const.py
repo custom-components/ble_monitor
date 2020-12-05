@@ -88,6 +88,8 @@ MMTS_DICT = {
     'V-SK152'      : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9]],
 }
 
+KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
+
 # Sensor manufacturer dictionary
 MANUFACTURER_DICT = {
     'HHCCJCY01'    : 'Xiaomi',

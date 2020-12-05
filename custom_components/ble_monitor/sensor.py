@@ -33,6 +33,7 @@ from .const import (
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
+    KETTLES,
     MANUFACTURER_DICT,
     MMTS_DICT,
     DOMAIN,
@@ -162,7 +163,7 @@ class BLEupdater(Thread):
                 # measuring sensors
                 if "temperature" in data:
                     # dirty hack for kettle temperature data
-                    if sensortype in ('YM-K1501', 'YM-K1501EU', 'V-SK152'):
+                    if sensortype in KETTLES:
                         entity = sensors[t_i]
                         entity.collect(data, batt_attr)
                         if entity.ready_for_update is True:
