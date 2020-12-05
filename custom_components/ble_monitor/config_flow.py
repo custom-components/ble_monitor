@@ -5,7 +5,7 @@ import voluptuous as vol
 
 from homeassistant.core import callback
 from homeassistant import data_entry_flow
-from homeassistant.helpers import device_registry, config_validation as cv
+from homeassistant.helpers import config_validation as cv
 from homeassistant import config_entries
 from homeassistant.const import (
     CONF_DEVICES,
@@ -302,11 +302,5 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
             )
         else:
             self._devices = self.config_entry.options.get(CONF_DEVICES)
-
-            dr = await self.hass.helpers.device_registry.async_get_registry()
-            for dev in device_registry.async_entries_for_config_entry(dr,self.config_entry.entry_id):
-                for k, v in dev.identifiers:
-                    if (k == DOMAIN and not any(d for d in self._devices if d["mac"] == v)):
-                        self._devices.append({"mac": v, "name": dev.name})
 
         return self._show_main_form(errors)
