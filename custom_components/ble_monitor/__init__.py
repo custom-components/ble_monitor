@@ -326,14 +326,17 @@ class HCIdump(Thread):
                     try:
                         self._event_loop.run_until_complete(btctrl[hci].send_scan_request(self._active))
                     except RuntimeError as error:
-                        _LOGGER.error("HCIdump thread: Runtime error while sending scan request: %s", error)
+                        _LOGGER.error("HCIdump thread: Runtime error while sending scan request on hci%i: %s", hci, error)
             _LOGGER.debug("HCIdump thread: start main event_loop")
             try:
                 self._event_loop.run_forever()
             finally:
                 _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
                 for hci in self._interfaces:
-                    self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
+                    try:
+                        self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
+                    except RuntimeError as error:
+                        _LOGGER.error("HCIdump thread: Runtime error while stop scan request on hci%i: %s", hci, error)
                     conn[hci].close()
                 self._event_loop.run_until_complete(asyncio.sleep(0))
             if self._joining is True:
