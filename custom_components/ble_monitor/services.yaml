@@ -1,3 +1,0 @@
-cleanup_entries:
-  # Description of the service
-  description: Clean up of dangling devices of the BLE Montitor integration.

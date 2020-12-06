@@ -1,4 +1,4 @@
-"""Passive BLE monitor binary sensor platform."""
+"""Passive BLE monitor sensor platform."""
 from datetime import timedelta
 import logging
 import queue
@@ -11,7 +11,6 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from homeassistant.const import (
-    CONF_DEVICES,
     ATTR_BATTERY_LEVEL,
     STATE_OFF,
     STATE_ON,
@@ -19,31 +18,27 @@ from homeassistant.const import (
 from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 
-from .const import (
+from . import (
+    CONF_DEVICES,
     CONF_PERIOD,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
-    MANUFACTURER_DICT,
-    MMTS_DICT,
+)
+from .const import (
     DOMAIN,
+    MMTS_DICT,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
-    """setup from setup_entry"""
-    return True
-
-
-async def async_setup_entry(hass, config_entry, add_entities):
-    """Set up the binary sensor platform."""
-    _LOGGER.debug("Starting binary sensor entry startup")
-
-    blemonitor = hass.data[DOMAIN]["blemonitor"]
+def setup_platform(hass, conf, add_entities, discovery_info=None):
+    """Set up the binary_sensor platform."""
+    _LOGGER.debug("Binary sensor platform setup")
+    blemonitor = hass.data[DOMAIN]
     bleupdater = BLEupdaterBinary(blemonitor, add_entities)
     bleupdater.start()
-    _LOGGER.debug("Binary sensor entry setup finished")
+    _LOGGER.debug("Binary sensor platform setup finished")
     # Return successful setup
     return True
 
@@ -177,7 +172,6 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         self._state = None
         self._unique_id = ""
         self._device_type = devtype
-        self._device_manufacturer = MANUFACTURER_DICT[devtype]
         self._device_state_attributes = {}
         self._device_state_attributes["sensor type"] = devtype
         self._device_state_attributes["mac address"] = (
@@ -247,18 +241,6 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
     def device_class(self):
         """Return the device class."""
         return self._device_class
-
-    @property
-    def device_info(self):
-        return {
-            "identifiers": {
-                # Unique identifiers within a specific domain
-                (DOMAIN, self._device_state_attributes["mac address"])
-            },
-            "name": self.get_sensorname(),
-            "model": self._device_type,
-            "manufacturer": self._device_manufacturer,
-        }
 
     @property
     def force_update(self):
