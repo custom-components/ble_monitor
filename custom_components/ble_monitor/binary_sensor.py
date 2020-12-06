@@ -23,6 +23,7 @@ from .const import (
     CONF_PERIOD,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
+    KETTLES,
     MANUFACTURER_DICT,
     MMTS_DICT,
     DOMAIN,
@@ -320,7 +321,7 @@ class PowerBinarySensor(SwitchingSensor):
         """Update sensor state and attribute."""
         self._state = self._newstate
         # dirty hack for kettle extended state
-        if self._device_type in ('YM-K1501', 'V-SK152'):
+        if self._device_type in KETTLES:
             self._device_state_attributes["ext_state"] = self._newstate
 
 
