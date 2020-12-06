@@ -5,6 +5,15 @@
 
 # NB!: This is a Beta version!
 
+# Changes in 0.9.2 beta
+- Removes the `name` option in the device option menu of the integration. In stead you can use the build in function of Home Assistant to rename a device and sensor entities (configuration --> devices --> select your device --> cogwheel in top right corner). The `name` option in YAML remains as it was. 
+- Added support for YM-K1501EU (Xiaomi Mijia Smart Kettle) and V-SK152 (Viomi Smart Kettle)
+- Added `ext_state` attribute for kettles, with the following values: 0 - kettle is idle, 1 - kettle is heating water, 2 - warming function is active with boiling, 3 - warming function is active without boiling
+
+# Changes in 0.9.1 beta
+
+Fixed a bug in the parser code that led to unsuccessful decryption of the data contained in the Extended Advertisement packet. This bug affects everyone using some modern adapters with BT5.x support (including Intel NUC platform users)
+
 # Changes in 0.9.0 beta
 
 - Added support for configuration in the User Interface of Home Assistant (no YAML needed anymore). Thanks to the great effort of @koying, who made this possible!
