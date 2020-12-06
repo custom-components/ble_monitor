@@ -17,8 +17,6 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_TEMPERATURE_UNIT,
     EVENT_HOMEASSISTANT_STOP,
-    TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv

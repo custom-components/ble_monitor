@@ -11,7 +11,7 @@ from homeassistant import config_entries
 from homeassistant.const import (
     CONF_DEVICES,
     CONF_DISCOVERY,
-    CONF_MAC, 
+    CONF_MAC,
     CONF_NAME,
     CONF_TEMPERATURE_UNIT,
     TEMP_CELSIUS,
@@ -119,14 +119,14 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
     def _show_main_form(self, errors=None):
         _LOGGER.error("_show_main_form: shouldn't be here")
 
-    def _create_entry(self, input):
-        _LOGGER.debug("_create_entry: %s", input)
+    def _create_entry(self, uinput):
+        _LOGGER.debug("_create_entry: %s", uinput)
 
-        input[CONF_DEVICES] = []
-        for k, dev in self._devices.items():
+        uinput[CONF_DEVICES] = []
+        for _, dev in self._devices.items():
             if CONF_ENCRYPTION_KEY in dev and (not dev[CONF_ENCRYPTION_KEY] or dev[CONF_ENCRYPTION_KEY] == "-"):
-                del dev[CONF_ENCRYPTION_KEY]                
-            input[CONF_DEVICES].append(dev)
+                del dev[CONF_ENCRYPTION_KEY]
+            uinput[CONF_DEVICES].append(dev)
 
         return self.async_create_entry(title=DOMAIN_TITLE, data=input)
 
@@ -135,7 +135,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         option_devices = {}
         option_devices[OPTION_LIST_DEVICE] = OPTION_LIST_DEVICE
         option_devices[OPTION_ADD_DEVICE] = OPTION_ADD_DEVICE
-        for k, device in self._devices.items():
+        for _, device in self._devices.items():
             name = device.get(CONF_NAME) if device.get(CONF_NAME) else device.get(CONF_MAC).upper()
             option_devices[device.get(CONF_MAC).upper()] = name
         config_schema = schema.extend({
@@ -163,7 +163,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     self._sel_device = {}  # prevent deletion
 
             if errors:
-                RETRY_DEVICE_OPTION_SCHEMA = vol.Schema(
+                retry_device_option_schema = vol.Schema(
                     {
                         vol.Optional(CONF_MAC, default=user_input[CONF_MAC]): str,
                         vol.Optional(CONF_ENCRYPTION_KEY, default=user_input[CONF_ENCRYPTION_KEY]): str,
@@ -172,7 +172,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 )
                 return self.async_show_form(
                     step_id="add_device",
-                    data_schema=RETRY_DEVICE_OPTION_SCHEMA,
+                    data_schema=retry_device_option_schema,
                     errors=errors,
                 )
 
@@ -181,7 +181,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
 
             return self._show_main_form(errors)
 
-        DEVICE_OPTION_SCHEMA = vol.Schema(
+        device_option_schema = vol.Schema(
             {
                 vol.Optional(CONF_MAC, default=self._sel_device.get(CONF_MAC) if self._sel_device.get(CONF_MAC) else ""): str,
                 vol.Optional(CONF_ENCRYPTION_KEY, default=self._sel_device.get(CONF_ENCRYPTION_KEY) if self._sel_device.get(CONF_ENCRYPTION_KEY) else ""): str,
@@ -191,7 +191,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
 
         return self.async_show_form(
             step_id="add_device",
-            data_schema=DEVICE_OPTION_SCHEMA,
+            data_schema=device_option_schema,
             errors=errors,
         )
 
@@ -239,7 +239,7 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
     async def async_step_import(self, user_input=None):
         """Handle import."""
         _LOGGER.debug("async_step_import: %s", user_input)
-        
+
         user_input[CONF_DEVICES] = OPTION_LIST_DEVICE
         return await self.async_step_user(user_input)
 
@@ -303,19 +303,19 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
             return self.async_show_form(
                 step_id="init", data_schema=options_schema, errors=errors or {}
             )
-        else:
-            for d in self.config_entry.options.get(CONF_DEVICES):
-                self._devices[d[CONF_MAC].upper()] = d
 
-            dr = await self.hass.helpers.device_registry.async_get_registry()
-            for dev in device_registry.async_entries_for_config_entry(dr,self.config_entry.entry_id):
-                for k, v in dev.identifiers:
-                    if k != DOMAIN:
-                        continue
-                    name = dev.name_by_user if dev.name_by_user else dev.name
-                    if v in self._devices:
-                        self._devices[v][CONF_NAME] = name
-                    else:
-                        self._devices[v] = {CONF_MAC: v, CONF_NAME: name}
+        for dev in self.config_entry.options.get(CONF_DEVICES):
+            self._devices[dev[CONF_MAC].upper()] = dev
+
+        devreg = await self.hass.helpers.device_registry.async_get_registry()
+        for dev in device_registry.async_entries_for_config_entry(devreg, self.config_entry.entry_id):
+            for iddomain, idmac in dev.identifiers:
+                if iddomain != DOMAIN:
+                    continue
+                name = dev.name_by_user if dev.name_by_user else dev.name
+                if idmac in self._devices:
+                    self._devices[idmac][CONF_NAME] = name
+                else:
+                    self._devices[idmac] = {CONF_MAC: idmac, CONF_NAME: name}
 
         return self._show_main_form(errors)
