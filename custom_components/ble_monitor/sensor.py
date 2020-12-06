@@ -15,13 +15,12 @@ from homeassistant.const import (
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
     ATTR_BATTERY_LEVEL,
-    CONF_DEVICES,
-    CONF_TEMPERATURE_UNIT,
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 
-from .const import (
+from . import (
+    CONF_DEVICES,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -29,31 +28,26 @@ from .const import (
     CONF_USE_MEDIAN,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
+)
+from .const import (
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
-    MANUFACTURER_DICT,
-    MMTS_DICT,
     DOMAIN,
+    MMTS_DICT,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
+def setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
-    return True
-
-
-async def async_setup_entry(hass, config_entry, add_entities):
-    """Set up the measuring sensor entry."""
-    _LOGGER.debug("Starting measuring sensor entry startup")
-
-    blemonitor = hass.data[DOMAIN]["blemonitor"]
+    _LOGGER.debug("Sensor platform setup")
+    blemonitor = hass.data[DOMAIN]
     bleupdater = BLEupdater(blemonitor, add_entities)
     bleupdater.start()
-    _LOGGER.debug("Measuring sensor entry setup finished")
+    _LOGGER.debug("Sensor platform setup finished")
     # Return successful setup
     return True
 
@@ -84,8 +78,8 @@ class BLEupdater(Thread):
             if config[CONF_DEVICES]:
                 for device in config[CONF_DEVICES]:
                     if fmac in device["mac"].upper():
-                        if CONF_TEMPERATURE_UNIT in device:
-                            if device[CONF_TEMPERATURE_UNIT] == TEMP_FAHRENHEIT:
+                        if "temperature_unit" in device:
+                            if device["temperature_unit"] == TEMP_FAHRENHEIT:
                                 temp_fahrenheit = temp * 9 / 5 + 32
                                 return temp_fahrenheit
                         break
@@ -230,7 +224,6 @@ class MeasuringSensor(RestoreEntity):
         self._unit_of_measurement = ""
         self._device_class = None
         self._device_type = devtype
-        self._device_manufacturer = MANUFACTURER_DICT[devtype]
         self._device_state_attributes = {}
         self._device_state_attributes["sensor type"] = devtype
         self._device_state_attributes["mac address"] = (
@@ -313,18 +306,6 @@ class MeasuringSensor(RestoreEntity):
     def unique_id(self) -> str:
         """Return a unique ID."""
         return self._unique_id
-
-    @property
-    def device_info(self):
-        return {
-            "identifiers": {
-                # Unique identifiers within a specific domain
-                (DOMAIN, self._device_state_attributes["mac address"])
-            },
-            "name": self.get_sensorname(),
-            "model": self._device_type,
-            "manufacturer": self._device_manufacturer,
-        }
 
     @property
     def force_update(self):
@@ -424,13 +405,13 @@ class TemperatureSensor(MeasuringSensor):
         if self._config[CONF_DEVICES]:
             for device in self._config[CONF_DEVICES]:
                 if fmac in device["mac"].upper():
-                    if CONF_TEMPERATURE_UNIT in device:
+                    if "temperature_unit" in device:
                         _LOGGER.debug(
                             "Temperature sensor with mac address %s is set to receive data in %s",
                             fmac,
-                            device[CONF_TEMPERATURE_UNIT],
+                            device["temperature_unit"],
                         )
-                        return device[CONF_TEMPERATURE_UNIT]
+                        return device["temperature_unit"]
                     break
         _LOGGER.debug(
             "Temperature sensor with mac address %s is set to receive data in °C",
