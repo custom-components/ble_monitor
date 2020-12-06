@@ -106,7 +106,7 @@ MANUFACTURER_DICT = {
     'MHO-C303'     : 'Miaomiaoce',
     'MCCGQ02HL'    : 'Xiaomi',
     'YM-K1501'     : 'Xiaomi',
-    'YM-K1501EU'  : 'Xiaomi',
+    'YM-K1501EU'   : 'Xiaomi',
     'V-SK152'      : 'Viomi',
 }
 
