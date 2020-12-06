@@ -102,9 +102,16 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - YM-K1501
 
-  (Xiaomi Mijia Smart kettle, experimental support, collecting data)
+  (Xiaomi Mijia Smart kettle, experimental support, collecting data. The switch entity has an extra `ext_state` attribute, with the following values: `0` - kettle is idle, `1` - kettle is heating water, `2` - warming function is active with boiling, `3` - warming function is active without boiling)
+
 
   ![YM-K1501](/pictures/YM-K1501.png)
+
+- V-SK152
+
+  (Viomi Smart Kettle, experimental support, collecting data, `ext_state` attribute as in YM-K1501, data broadcasted every 30 seconds)
+
+  ![V-SK152](/pictures/V-SK152.png)
   
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 

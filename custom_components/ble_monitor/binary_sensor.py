@@ -291,7 +291,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
-        if self.pending_update is False:
+        if self.enabled is False:
             return
         self._newstate = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
@@ -315,6 +315,13 @@ class PowerBinarySensor(SwitchingSensor):
         self._name = "ble switch {}".format(self._sensor_name)
         self._unique_id = "sw_" + self._sensor_name
         self._device_class = DEVICE_CLASS_POWER
+
+    def update(self):
+        """Update sensor state and attribute."""
+        self._state = self._newstate
+        # dirty hack for kettle extended state
+        if self._device_type in ('YM-K1501', 'V-SK152'):
+            self._device_state_attributes["ext_state"] = self._newstate
 
 
 class LightBinarySensor(SwitchingSensor):

@@ -1,12 +1,12 @@
 """Passive BLE monitor integration."""
 import asyncio
 import copy
-from Cryptodome.Cipher import AES
 import json
 import logging
 import queue
 import struct
 from threading import Thread
+from Cryptodome.Cipher import AES
 import voluptuous as vol
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
