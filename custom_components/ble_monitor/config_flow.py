@@ -1,16 +1,18 @@
 """Config flow for BLE Monitor."""
+import copy
 import logging
 import re
 import voluptuous as vol
 
 from homeassistant.core import callback
 from homeassistant import data_entry_flow
-from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import device_registry, config_validation as cv
 from homeassistant import config_entries
 from homeassistant.const import (
     CONF_DEVICES,
     CONF_DISCOVERY,
-    CONF_MAC,
+    CONF_MAC, 
+    CONF_NAME,
     CONF_TEMPERATURE_UNIT,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
@@ -47,6 +49,7 @@ from .const import (
 
 OPTION_LIST_DEVICE = "--Devices--"
 OPTION_ADD_DEVICE = "Add device..."
+DOMAIN_TITLE = "Bluetooth Low Energy Monitor"
 
 
 DEVICE_SCHEMA = vol.Schema(
@@ -89,7 +92,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
     """BLEMonitor flow"""
     def __init__(self):
         """Initialize flow instance."""
-        self._devices = []
+        self._devices = {}
         self._sel_device = {}
 
     def validate_regex(self, value: str, regex: str):
@@ -116,13 +119,25 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
     def _show_main_form(self, errors=None):
         _LOGGER.error("_show_main_form: shouldn't be here")
 
+    def _create_entry(self, input):
+        _LOGGER.debug("_create_entry: %s", input)
+
+        input[CONF_DEVICES] = []
+        for k, dev in self._devices.items():
+            if CONF_ENCRYPTION_KEY in dev and (not dev[CONF_ENCRYPTION_KEY] or dev[CONF_ENCRYPTION_KEY] == "-"):
+                del dev[CONF_ENCRYPTION_KEY]                
+            input[CONF_DEVICES].append(dev)
+
+        return self.async_create_entry(title=DOMAIN_TITLE, data=input)
+
     @callback
     def _show_user_form(self, step_id=None, schema=None, errors=None):
-        option_devices = []
-        option_devices.append(OPTION_LIST_DEVICE)
-        option_devices.append(OPTION_ADD_DEVICE)
-        for device in self._devices:
-            option_devices.append(device.get(CONF_MAC))
+        option_devices = {}
+        option_devices[OPTION_LIST_DEVICE] = OPTION_LIST_DEVICE
+        option_devices[OPTION_ADD_DEVICE] = OPTION_ADD_DEVICE
+        for k, device in self._devices.items():
+            name = device.get(CONF_NAME) if device.get(CONF_NAME) else device.get(CONF_MAC)
+            option_devices[device.get(CONF_MAC)] = name
         config_schema = schema.extend({
             vol.Optional(CONF_DEVICES, default=OPTION_LIST_DEVICE): vol.In(option_devices),
         })
@@ -136,22 +151,16 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         if user_input is not None:
             _LOGGER.debug("async_step_add_device: %s", user_input)
             if user_input[CONF_MAC] and user_input[CONF_MAC] != "-":
-                self.validate_mac(user_input[CONF_MAC], errors)
-                self.validate_key(user_input[CONF_ENCRYPTION_KEY], errors)
+                if self._sel_device and user_input[CONF_MAC] != self._sel_device.get(CONF_MAC):
+                    errors[CONF_MAC] = "cannot_change_mac"
+                    user_input[CONF_MAC] = self._sel_device.get(CONF_MAC)
+                else:
+                    self.validate_mac(user_input[CONF_MAC], errors)
+                    self.validate_key(user_input[CONF_ENCRYPTION_KEY], errors)
 
                 if not errors:
-                    if user_input[CONF_ENCRYPTION_KEY] == "-":
-                        user_input[CONF_ENCRYPTION_KEY] = None
-                    if (not self._sel_device):  # new device
-                        self._devices.append(user_input)
-                    else:
-                        for idx in range(0, len(self._devices)):
-                            if self._devices[idx].get(CONF_MAC) == self._sel_device.get(CONF_MAC):
-                                self._devices[idx] = user_input
-                                if self._devices[idx][CONF_ENCRYPTION_KEY] == "-":
-                                    self._devices[idx].pop(CONF_ENCRYPTION_KEY, None)
-                                self._sel_device = {}  # prevent deletion
-                                break
+                    self._devices[user_input[CONF_MAC]] = copy.deepcopy(user_input)
+                    self._sel_device = {}  # prevent deletion
 
             if errors:
                 RETRY_DEVICE_OPTION_SCHEMA = vol.Schema(
@@ -168,10 +177,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 )
 
             if (self._sel_device):
-                for idx in range(0, len(self._devices)):
-                    if self._devices[idx].get(CONF_MAC) == self._sel_device.get(CONF_MAC):
-                        self._devices.pop(idx)
-                        break
+                del self._devices[self._sel_device.get(CONF_MAC)]
 
             return self._show_main_form(errors)
 
@@ -219,23 +225,22 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
             elif user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
                 self._sel_device = {}
                 return await self.async_step_add_device()
-            for dev in self._devices:
-                if dev.get(CONF_MAC) == user_input[CONF_DEVICES]:
-                    self._sel_device = dev
-                    return await self.async_step_add_device()
+            if user_input[CONF_DEVICES] in self._devices:
+                self._sel_device = self._devices[user_input[CONF_DEVICES]]
+                return await self.async_step_add_device()
 
-            title = "Bluetooth Low Energy Monitor"
-            await self.async_set_unique_id(title)
+            await self.async_set_unique_id(DOMAIN_TITLE)
             self._abort_if_unique_id_configured()
-            user_input[CONF_DEVICES] = self._devices
 
-            return self.async_create_entry(title=title, data=user_input)
+            return self._create_entry(user_input)
 
         return self._show_main_form(errors)
 
     async def async_step_import(self, user_input=None):
         """Handle import."""
         _LOGGER.debug("async_step_import: %s", user_input)
+        
+        user_input[CONF_DEVICES] = OPTION_LIST_DEVICE
         return await self.async_step_user(user_input)
 
 
@@ -285,13 +290,11 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
             if user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
                 self._sel_device = {}
                 return await self.async_step_add_device()
-            for dev in self._devices:
-                if dev.get(CONF_MAC) == user_input[CONF_DEVICES]:
-                    self._sel_device = dev
-                    return await self.async_step_add_device()
+            if user_input[CONF_DEVICES] in self._devices:
+                self._sel_device = self._devices[user_input[CONF_DEVICES]]
+                return await self.async_step_add_device()
 
-            user_input[CONF_DEVICES] = self._devices
-            return self.async_create_entry(title="", data=user_input)
+            return self._create_entry(user_input)
 
         _LOGGER.debug("async_step_init (before): %s", self.config_entry.options)
 
@@ -301,6 +304,18 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 step_id="init", data_schema=options_schema, errors=errors or {}
             )
         else:
-            self._devices = self.config_entry.options.get(CONF_DEVICES)
+            for d in self.config_entry.options.get(CONF_DEVICES):
+                self._devices[d["mac"]] = d
+
+            dr = await self.hass.helpers.device_registry.async_get_registry()
+            for dev in device_registry.async_entries_for_config_entry(dr,self.config_entry.entry_id):
+                for k, v in dev.identifiers:
+                    if k != DOMAIN:
+                        continue
+                    name = dev.name_by_user if dev.name_by_user else dev.name
+                    if v in self._devices:
+                        self._devices[v]["name"] = name
+                    else:
+                        self._devices[v] = {"mac": v, "name": name}
 
         return self._show_main_form(errors)

@@ -30,7 +30,8 @@
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
-      "invalid_key": "Encryption key must be 32 hexadecimal characters."
+      "invalid_key": "Encryption key must be 32 hexadecimal characters.",
+      "cannot_change_mac": "MAC address cannot be changed."
     },
     "abort": {
       "single_instance_allowed": "Only a single configuration of BLE monitor is allowed."
@@ -68,7 +69,8 @@
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
-      "invalid_key": "Encryption key must be 32 hexadecimal characters."
+      "invalid_key": "Encryption key must be 32 hexadecimal characters.",
+      "cannot_change_mac": "MAC address cannot be changed."
     },
     "abort": {
       "not_in_use": "You have configured BLE monitor in YAML. Please change your options in YAML"
