@@ -136,8 +136,8 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         option_devices[OPTION_LIST_DEVICE] = OPTION_LIST_DEVICE
         option_devices[OPTION_ADD_DEVICE] = OPTION_ADD_DEVICE
         for k, device in self._devices.items():
-            name = device.get(CONF_NAME) if device.get(CONF_NAME) else device.get(CONF_MAC)
-            option_devices[device.get(CONF_MAC)] = name
+            name = device.get(CONF_NAME) if device.get(CONF_NAME) else device.get(CONF_MAC).upper()
+            option_devices[device.get(CONF_MAC).upper()] = name
         config_schema = schema.extend({
             vol.Optional(CONF_DEVICES, default=OPTION_LIST_DEVICE): vol.In(option_devices),
         })
@@ -151,7 +151,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         if user_input is not None:
             _LOGGER.debug("async_step_add_device: %s", user_input)
             if user_input[CONF_MAC] and user_input[CONF_MAC] != "-":
-                if self._sel_device and user_input[CONF_MAC] != self._sel_device.get(CONF_MAC):
+                if self._sel_device and user_input[CONF_MAC].upper() != self._sel_device.get(CONF_MAC).upper():
                     errors[CONF_MAC] = "cannot_change_mac"
                     user_input[CONF_MAC] = self._sel_device.get(CONF_MAC)
                 else:
@@ -159,7 +159,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     self.validate_key(user_input[CONF_ENCRYPTION_KEY], errors)
 
                 if not errors:
-                    self._devices[user_input[CONF_MAC]] = copy.deepcopy(user_input)
+                    self._devices[user_input[CONF_MAC].upper()] = copy.deepcopy(user_input)
                     self._sel_device = {}  # prevent deletion
 
             if errors:
@@ -177,7 +177,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 )
 
             if (self._sel_device):
-                del self._devices[self._sel_device.get(CONF_MAC)]
+                del self._devices[self._sel_device.get(CONF_MAC).upper()]
 
             return self._show_main_form(errors)
 
@@ -305,7 +305,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
             )
         else:
             for d in self.config_entry.options.get(CONF_DEVICES):
-                self._devices[d["mac"]] = d
+                self._devices[d[CONF_MAC].upper()] = d
 
             dr = await self.hass.helpers.device_registry.async_get_registry()
             for dev in device_registry.async_entries_for_config_entry(dr,self.config_entry.entry_id):
@@ -314,8 +314,8 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                         continue
                     name = dev.name_by_user if dev.name_by_user else dev.name
                     if v in self._devices:
-                        self._devices[v]["name"] = name
+                        self._devices[v][CONF_NAME] = name
                     else:
-                        self._devices[v] = {"mac": v, "name": name}
+                        self._devices[v] = {CONF_MAC: v, CONF_NAME: name}
 
         return self._show_main_form(errors)
