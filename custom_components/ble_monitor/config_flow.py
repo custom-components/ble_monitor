@@ -258,6 +258,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 vol.Optional(
                     CONF_HCI_INTERFACE, default=self.config_entry.options.get(CONF_HCI_INTERFACE, DEFAULT_HCI_INTERFACE)
                 ): cv.multi_select({"0": "0", "1": "1", "2": "2"}),
+                vol.Optional(CONF_PERIOD, default=self.config_entry.options.get(CONF_PERIOD, DEFAULT_PERIOD)): cv.positive_int,
                 vol.Optional(CONF_DISCOVERY, default=self.config_entry.options.get(CONF_DISCOVERY, DEFAULT_DISCOVERY)): cv.boolean,
                 vol.Optional(CONF_ACTIVE_SCAN, default=self.config_entry.options.get(CONF_ACTIVE_SCAN, DEFAULT_ACTIVE_SCAN)): cv.boolean,
                 vol.Optional(
@@ -268,7 +269,6 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 ): cv.boolean,
                 vol.Optional(CONF_ROUNDING, default=self.config_entry.options.get(CONF_ROUNDING, DEFAULT_ROUNDING)): cv.boolean,
                 vol.Optional(CONF_DECIMALS, default=self.config_entry.options.get(CONF_DECIMALS, DEFAULT_DECIMALS)): cv.positive_int,
-                vol.Optional(CONF_PERIOD, default=self.config_entry.options.get(CONF_PERIOD, DEFAULT_PERIOD)): cv.positive_int,
                 vol.Optional(CONF_LOG_SPIKES, default=self.config_entry.options.get(CONF_LOG_SPIKES, DEFAULT_LOG_SPIKES)): cv.boolean,
                 vol.Optional(CONF_USE_MEDIAN, default=self.config_entry.options.get(CONF_USE_MEDIAN, DEFAULT_USE_MEDIAN)): cv.boolean,
                 vol.Optional(CONF_RESTORE_STATE, default=self.config_entry.options.get(CONF_RESTORE_STATE, DEFAULT_RESTORE_STATE)): cv.boolean,

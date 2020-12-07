@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Passive BLE Monitor configuration",
+        "title": "Passive BLE Monitor",
         "description": "Setup of your BLE monitor configuration",
         "data": {
           "batt_entities": "Generate battery entities",
@@ -40,7 +40,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Passive BLE Monitor options",
+        "title": "Passive BLE Monitor",
         "description": "Adjust BLE monitor options",
         "data": {
           "batt_entities": "Generate battery entities",
