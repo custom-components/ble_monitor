@@ -22,7 +22,7 @@
       "add_device": {
         "title": "Add device",
         "data": {
-          "mac": "MAC adress",
+          "mac": "MAC address",
           "temperature_unit": "Temperature unit",
           "encryption_key": "Encryption key"
         }
@@ -59,9 +59,9 @@
         }
       },
       "add_device": {
-        "title": "Add device",
+        "title": "Configure device",
         "data": {
-          "mac": "MAC adress (set to '-' to delete)",
+          "mac": "MAC address (set to '-' to delete)",
           "temperature_unit": "Temperature unit",
           "encryption_key": "Encryption key (set to '-' to remove)"
         }

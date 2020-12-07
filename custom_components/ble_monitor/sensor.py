@@ -16,7 +16,9 @@ from homeassistant.const import (
     TEMP_FAHRENHEIT,
     ATTR_BATTERY_LEVEL,
     CONF_DEVICES,
+    CONF_NAME,
     CONF_TEMPERATURE_UNIT,
+    CONF_UNIQUE_ID,
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
@@ -397,15 +399,19 @@ class MeasuringSensor(RestoreEntity):
 
     def get_sensorname(self):
         """Set sensor name."""
-        fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
-
+        id_selector = CONF_UNIQUE_ID
+        # if we work with yaml, then we take the name
+        # if not, then we check the unique_id created when switching from yaml
+        if "ids_from_name" in self._config:
+            id_selector = CONF_NAME
         if self._config[CONF_DEVICES]:
+            fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
             for device in self._config[CONF_DEVICES]:
                 if fmac in device["mac"].upper():
-                    if "name" in device:
-                        custom_name = device["name"]
+                    if id_selector in device:
+                        custom_name = device[id_selector]
                         _LOGGER.debug(
-                            "Name of %s sensor with mac adress %s is set to: %s",
+                            "Name of %s sensor with mac address %s is set to: %s",
                             self._measurement,
                             fmac,
                             custom_name,

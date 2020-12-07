@@ -16,6 +16,7 @@ from homeassistant.const import (
     CONF_MAC,
     CONF_NAME,
     CONF_TEMPERATURE_UNIT,
+    CONF_UNIQUE_ID,
     EVENT_HOMEASSISTANT_STOP,
 )
 from homeassistant.core import HomeAssistant
@@ -144,6 +145,7 @@ async def async_setup(hass: HomeAssistant, config):
     global CONFIG_YAML
     CONFIG_YAML = json.loads(json.dumps(config[DOMAIN]))
     CONFIG_YAML[CONFIG_IS_FLOW] = False
+    CONFIG_YAML["ids_from_name"] = True
 
     _LOGGER.debug("Initializing BLE Monitor integration (YAML): %s", CONFIG_YAML)
 
@@ -182,6 +184,15 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         config[CONFIG_IS_FLOW] = True
         if CONF_DEVICES not in config:
             config[CONF_DEVICES] = []
+        else:
+            # device configuration is taken from yaml, but yaml config already removed
+            # save unique IDs (only once)
+            if "ids_from_name" in config:
+                devlist = config[CONF_DEVICES]
+                for dev_idx, dev_conf in enumerate(devlist):
+                    if CONF_NAME in dev_conf:
+                        devlist[dev_idx][CONF_UNIQUE_ID] = dev_conf[CONF_NAME]
+                del config["ids_from_name"]
     else:
         for key, value in CONFIG_YAML.items():
             config[key] = value

@@ -318,4 +318,11 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 else:
                     self._devices[idmac] = {CONF_MAC: idmac, CONF_NAME: name}
 
+        # sort devices by name
+        sorteddev_tuples = sorted(self._devices.items(), key=lambda item: item[1]["name"])
+        self._devices = dict(sorteddev_tuples)
+        self.hass.config_entries.async_update_entry(
+            self.config_entry,
+            unique_id=self.config_entry.entry_id
+        )
         return self._show_main_form(errors)
