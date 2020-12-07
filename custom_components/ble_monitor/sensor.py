@@ -218,7 +218,7 @@ class BLEupdater():
                 continue
             ts_last = ts_now
             # restarting scanner
-            await self.monitor.async_restart()
+            self.monitor.async_restart()
             # for every updated device
             for mac, elist in sensors_by_mac.items():
                 for entity in elist:

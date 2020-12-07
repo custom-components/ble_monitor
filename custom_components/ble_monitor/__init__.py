@@ -3,9 +3,9 @@ import asyncio
 import copy
 import json
 import logging
-import janus
 import struct
 from threading import Thread
+import janus
 from Cryptodome.Cipher import AES
 import voluptuous as vol
 
@@ -358,7 +358,7 @@ class BLEmonitor:
     async def async_restart(self):
         """Restart scanning"""
         if self.dumpthread.is_alive():
-            await self.dumpthread.async_restart()
+            self.dumpthread.async_restart()
         else:
             self.start()
 
@@ -565,7 +565,6 @@ class HCIdump(Thread):
     async def async_restart(self):
         """Restarting scanner async"""
         try:
-            asyncio.set_event_loop(self._event_loop)
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
         except AttributeError as error:
             _LOGGER.debug("%s", error)
