@@ -1,8 +1,8 @@
 """Passive BLE monitor binary sensor platform."""
 from datetime import timedelta
+import asyncio
 import logging
-import queue
-from threading import Thread
+# from threading import Thread
 
 from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_LIGHT,
@@ -45,28 +45,31 @@ async def async_setup_entry(hass, config_entry, add_entities):
 
     blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdaterBinary(blemonitor, add_entities)
-    bleupdater.start()
+    # bleupdater.start()
+    # hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, bleupdater.async_run)
+    hass.loop.create_task(bleupdater.async_run())
     _LOGGER.debug("Binary sensor entry setup finished")
     # Return successful setup
     return True
 
 
-class BLEupdaterBinary(Thread):
+# class BLEupdaterBinary(Thread):
+class BLEupdaterBinary():
     """BLE monitor entities updater."""
 
     def __init__(self, blemonitor, add_entities):
         """Initiate BLE updater."""
-        Thread.__init__(self, daemon=True)
+        # Thread.__init__(self, daemon=True)
         _LOGGER.debug("BLE binary sensors updater initialization")
         self.monitor = blemonitor
-        self.dataqueue = blemonitor.dataqueue["binary"]
+        self.dataqueue = blemonitor.dataqueue["binary"].async_q
         self.config = blemonitor.config
         self.period = self.config[CONF_PERIOD]
         self.batt_entities = self.config[CONF_BATT_ENTITIES]
         self.add_entities = add_entities
         _LOGGER.debug("BLE binary sensors updater initialized")
 
-    def run(self):
+    async def async_run(self):
         """Entities updater loop."""
 
         _LOGGER.debug("Binary entities updater loop started!")
@@ -78,20 +81,24 @@ class BLEupdaterBinary(Thread):
         ts_last = dt_util.now()
         ts_now = ts_last
         data = None
+        await asyncio.sleep(0)
         while True:
             try:
-                advevent = self.dataqueue.get(block=True, timeout=1)
+                # advevent = self.dataqueue.get(block=True, timeout=1)
+                advevent = await asyncio.wait_for(self.dataqueue.get(), 1)
                 if advevent is None:
                     _LOGGER.debug("Entities updater loop stopped")
                     return True
                 data = advevent
-            except queue.Empty:
+                self.dataqueue.task_done()
+            # except queue.Empty:
+            except asyncio.TimeoutError:
                 pass
             if len(hpriority) > 0:
                 for entity in hpriority:
                     if entity.pending_update is True:
                         hpriority.remove(entity)
-                        entity.schedule_update_ha_state(True)
+                        entity.async_schedule_update_ha_state(True)
             if data:
                 mibeacon_cnt += 1
                 mac = data["mac"]
@@ -124,7 +131,7 @@ class BLEupdaterBinary(Thread):
                         for entity in sensors:
                             getattr(entity, "_device_state_attributes")[ATTR_BATTERY_LEVEL] = batt_attr
                             if entity.pending_update is True:
-                                entity.schedule_update_ha_state(False)
+                                entity.async_schedule_update_ha_state(False)
                     else:
                         try:
                             batt_attr = batt[mac]
@@ -135,21 +142,21 @@ class BLEupdaterBinary(Thread):
                     switch = sensors[sw_i]
                     switch.collect(data, batt_attr)
                     if switch.pending_update is True:
-                        switch.schedule_update_ha_state(True)
+                        switch.async_schedule_update_ha_state(True)
                     elif switch.ready_for_update is False and switch.enabled is True:
                         hpriority.append(switch)
                 if "opening" in data:
                     opening = sensors[op_i]
                     opening.collect(data, batt_attr)
                     if opening.pending_update is True:
-                        opening.schedule_update_ha_state(True)
+                        opening.async_schedule_update_ha_state(True)
                     elif opening.ready_for_update is False and opening.enabled is True:
                         hpriority.append(opening)
                 if "light" in data:
                     light = sensors[l_i]
                     light.collect(data, batt_attr)
                     if light.pending_update is True:
-                        light.schedule_update_ha_state(True)
+                        light.async_schedule_update_ha_state(True)
                     elif light.ready_for_update is False and light.enabled is True:
                         hpriority.append(light)
                 data = None
@@ -310,7 +317,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
 
-    def update(self):
+    async def async_update(self):
         """Update sensor state and attribute."""
         self._state = self._newstate
 
@@ -327,7 +334,7 @@ class PowerBinarySensor(SwitchingSensor):
         self._unique_id = "sw_" + self._sensor_name
         self._device_class = DEVICE_CLASS_POWER
 
-    def update(self):
+    async def async_update(self):
         """Update sensor state and attribute."""
         self._state = self._newstate
         # dirty hack for kettle extended state
@@ -361,7 +368,7 @@ class OpeningBinarySensor(SwitchingSensor):
         self._ext_state = None
         self._device_class = DEVICE_CLASS_OPENING
 
-    def update(self):
+    async def async_update(self):
         """Update sensor state and attributes."""
         self._ext_state = self._newstate
         self._state = not bool(self._newstate) if self._ext_state < 2 else bool(self._newstate)

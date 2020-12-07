@@ -3,7 +3,7 @@
   "name": "Passive BLE monitor",
   "config_flow": true,
   "documentation": "https://github.com/custom-components/ble_monitor",
-  "requirements": ["pycryptodomex>=3.9.7"],
+  "requirements": ["pycryptodomex>=3.9.7", "janus>=0.6.1"],
   "dependencies": [],
   "codeowners": [
     "@Magalex2x14",
