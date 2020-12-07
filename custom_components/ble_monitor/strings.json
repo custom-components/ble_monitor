@@ -40,8 +40,8 @@
   "options": {
     "step": {
       "init": {
-        "title": "Passive BLE Monitor",
-        "description": "Adjust BLE monitor options",
+        "title": "Passive BLE Monitor options",
+        "description": "Scanning will be restarted after pressing 'SUBMIT'",
         "data": {
           "batt_entities": "Generate battery entities",
           "devices": "Devices",
