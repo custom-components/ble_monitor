@@ -128,7 +128,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 del dev[CONF_ENCRYPTION_KEY]
             uinput[CONF_DEVICES].append(dev)
 
-        return self.async_create_entry(title=DOMAIN_TITLE, data=input)
+        return self.async_create_entry(title=DOMAIN_TITLE, data=uinput)
 
     @callback
     def _show_user_form(self, step_id=None, schema=None, errors=None):
