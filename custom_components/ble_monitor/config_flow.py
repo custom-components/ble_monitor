@@ -1,5 +1,5 @@
 """Config flow for BLE Monitor."""
-import copy
+# import copy
 import logging
 import re
 import voluptuous as vol
@@ -159,7 +159,8 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     self.validate_key(user_input[CONF_ENCRYPTION_KEY], errors)
 
                 if not errors:
-                    self._devices[user_input[CONF_MAC].upper()] = copy.deepcopy(user_input)
+                    # updating device configuration instead of overwriting
+                    self._devices[user_input[CONF_MAC].upper()].update(user_input)  # copy.deepcopy(user_input)
                     self._sel_device = {}  # prevent deletion
 
             if errors:
