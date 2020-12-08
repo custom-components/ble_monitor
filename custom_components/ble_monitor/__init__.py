@@ -355,13 +355,6 @@ class BLEmonitor:
         else:
             self.start()
 
-    async def async_restart(self):
-        """Restart scanning"""
-        if self.dumpthread.is_alive():
-            self.dumpthread.async_restart()
-        else:
-            self.start()
-
 
 class HCIdump(Thread):
     """Mimic deprecated hcidump tool."""
@@ -557,13 +550,6 @@ class HCIdump(Thread):
 
     def restart(self):
         """Restarting scanner"""
-        try:
-            self._event_loop.call_soon_threadsafe(self._event_loop.stop)
-        except AttributeError as error:
-            _LOGGER.debug("%s", error)
-
-    async def async_restart(self):
-        """Restarting scanner async"""
         try:
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
         except AttributeError as error:
