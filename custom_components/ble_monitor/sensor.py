@@ -275,6 +275,10 @@ class MeasuringSensor(RestoreEntity):
         if not old_state:
             self.ready_for_update = True
             return
+        try:
+            self._unit_of_measurement = old_state.unit_of_measurement
+        except AttributeError:
+            pass
         self._state = old_state.state
         if "median" in old_state.attributes:
             self._device_state_attributes["median"] = old_state.attributes["median"]
