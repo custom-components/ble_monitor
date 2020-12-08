@@ -206,7 +206,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         self._state = None
         if old_state.state == STATE_ON:
             self._state = True
-        elif old_state.state == STATE_ON:
+        elif old_state.state == STATE_OFF:
             self._state = False
         if "ext_state" in old_state.attributes:
             self._device_state_attributes["ext_state"] = old_state.attributes["ext_state"]
