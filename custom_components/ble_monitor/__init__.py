@@ -478,6 +478,8 @@ class HCIdump(Thread):
     def process_hci_events(self, data):
         """Parses HCI events."""
         self.evt_cnt += 1
+        if len(data) < 12:
+            return
         msg, binary, measuring = self.parse_raw_message(data)
         if msg:
             if binary == measuring:
