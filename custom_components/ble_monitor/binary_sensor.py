@@ -8,8 +8,14 @@ from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_LIGHT,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_POWER,
-    BinarySensorEntity,
+    # BinarySensorEntity,
 )
+
+try:
+    from homeassistant.components.binary_sensor import BinarySensorDevice as BinarySensorEntity
+except ImportError:
+    from homeassistant.components.binary_sensor import BinarySensorEntity
+
 from homeassistant.const import (
     CONF_DEVICES,
     CONF_NAME,
