@@ -286,8 +286,10 @@ class MeasuringSensor(RestoreEntity):
             self._device_state_attributes["mean"] = old_state.attributes["mean"]
         if "last median of" in old_state.attributes:
             self._device_state_attributes["last median of"] = old_state.attributes["last median of"]
+            self._state = old_state.attributes["median"]
         if "last mean of" in old_state.attributes:
             self._device_state_attributes["last mean of"] = old_state.attributes["last mean of"]
+            self._state = old_state.attributes["mean"]
         if "rssi" in old_state.attributes:
             self._device_state_attributes["rssi"] = old_state.attributes["rssi"]
         if "last packet id" in old_state.attributes:
