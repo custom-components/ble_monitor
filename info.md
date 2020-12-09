@@ -60,15 +60,24 @@ Upgrading from 0.7.x to 0.8.x requires configuration changes. If you haven't don
 
 <!-- TOC -->
 
-- [Introduction](#introduction)
-- [Supported sensors](#supported-sensors)
-- [How to install](#how-to-install)
-- [Configuration parameters](#configuration-parameters)
+- [INTRODUCTION](#introduction)
+- [SUPPORTED SENSORS](#supported-sensors)
+- [HOW TO INSTALL](#how-to-install)
+  - [1. Grant permissions for Python to have rootless access to the HCI interface](#1-grant-permissions-for-python-to-have-rootless-access-to-the-hci-interface)
+  - [2. Install the custom integration](#2-install-the-custom-integration)
+  - [3. Add your sensors to the MiHome app if you haven’t already](#3-add-your-sensors-to-the-mihome-app-if-you-havent-already)
+  - [4. Configure the integration](#4-configure-the-integration)
+    - [4 a. Configuration in the User Interface](#4-a-configuration-in-the-user-interface)
+    - [4 b. Configuration in YAML](#4-b-configuration-in-yaml)
+- [CONFIGURATION PARAMETERS](#configuration-parameters)
   - [Configuration parameters at component level](#configuration-parameters-at-component-level)
   - [Configuration parameters at device level](#configuration-parameters-at-device-level)
-- [Frequently asked questions](#frequently-asked-questions)
-- [Credits](#credits)
-- [Forum](#forum)
+  - [Configuration in the User Interface](#configuration-in-the-user-interface)
+  - [Configuraton in YAML](#configuraton-in-yaml)
+  - [Deleting devices and sensors](#deleting-devices-and-sensors)
+- [FREQUENTLY ASKED QUESTIONS](#frequently-asked-questions)
+- [CREDITS](#credits)
+- [FORUM](#forum)
 
 <!-- /TOC -->
 
