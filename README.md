@@ -104,7 +104,6 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (Xiaomi Mijia Smart kettle, experimental support, collecting data. The switch entity has an extra `ext_state` attribute, with the following values: `0` - kettle is idle, `1` - kettle is heating water, `2` - warming function is active with boiling, `3` - warming function is active without boiling)
 
-
   ![YM-K1501](/pictures/YM-K1501.png)
 
 - V-SK152
@@ -119,7 +118,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## HOW TO INSTALL
 
-**1. Grant permissions for Python to have rootless access to the HCI interface**
+### 1. Grant permissions for Python to have rootless access to the HCI interface
 
 This is usually only needed for alternative installations of Home Assistant that only install Home Assistant core.
 
@@ -137,27 +136,27 @@ This is usually only needed for alternative installations of Home Assistant that
 
 *In case you get a PermissionError, check the [Frequently Asked Questions (FAQ) page](faq.md).
 
-**2. Install the custom integration**
+### 2. Install the custom integration
 
 The easiest way to install the BLE Monitor integration is with [HACS](https://hacs.xyz/). First install [HACS](https://hacs.xyz/) if you don't have it yet. After installation you can find this integration in the HACS store under integrations.
 
-Alternatively, you can install it manually. Just copy paste the content of the `ble_monitor/custom_components` folder in your `config/custom_components` directory. As example, you will get the `sensor.py` file in the following path: `/config/custom_components/ble_monitor/sensor.py`. The disadvantage of a manual installation is that you won't be notified about updates. 
+Alternatively, you can install it manually. Just copy paste the content of the `ble_monitor/custom_components` folder in your `config/custom_components` directory. As example, you will get the `sensor.py` file in the following path: `/config/custom_components/ble_monitor/sensor.py`. The disadvantage of a manual installation is that you won't be notified about updates.
 
-**3. Add your sensors to the MiHome app if you haven’t already**
+### 3. Add your sensors to the MiHome app if you haven’t already
 
 Many Xiaomi ecosystem sensors (maybe all) do not broadcast BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first.
 
-**4. Configure the integration**
+### 4. Configure the integration
 
 There are two ways to configure the integration and your devices (sensors), in the User Interface (UI) or in your YAML configuration file. Choose one method, you can't use both ways at the same time. You are able to switch from one to the other, at any time.
 
-***4a. Configuration in the User Interface***
+#### 4a. Configuration in the User Interface
 
-Make sure you restart Home Assistant after the installation in HACS. After the restart, go to **Configuration** in the side menu in Home Assistant and select **Integrations**. Click on **Add Integrations** in the bottom right corner and search for **Passive BLE Monitor** to install. This will open the configuration menu with the default settings. The options are explained in the [configuration parameters](#configuration-parameters) section below and can also be changed later in the options menu. After a few minutes, the sensors should be added to your Home Assistant automatically (at least one [period](#period) required). Note that changes also require at least one [period](#period) to become visible. 
+Make sure you restart Home Assistant after the installation in HACS. After the restart, go to **Configuration** in the side menu in Home Assistant and select **Integrations**. Click on **Add Integrations** in the bottom right corner and search for **Passive BLE Monitor** to install. This will open the configuration menu with the default settings. The options are explained in the [configuration parameters](#configuration-parameters) section below and can also be changed later in the options menu. After a few minutes, the sensors should be added to your Home Assistant automatically (at least one [period](#period) required). Note that changes also require at least one [period](#period) to become visible.
 
   ![Integration setup](https://raw.github.com/custom-components/ble_monitor/master/pictures/configuration_screen.png)
 
-***4b. Configuration in YAML***
+#### 4b. Configuration in YAML
 
 Alternatively, you can add the configuration in `configuration.yaml` as explained below. The options are the same as in the UI and are explained in the [configuration parameters](#configuration-parameters) section below. After adding your initial configuration to your YAML file, or applying a configuration change in YAML, a restart is required to load the new configuration. After a few minutes, the sensors should be changed/added to your Home Assistant automatically (at least one [period](#period) required).
 
@@ -226,7 +225,6 @@ ble_monitor:
 
 Data from sensors with other addresses will be ignored. Default value: True
 
-
 #### active_scan
 
    (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
@@ -269,21 +267,19 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors immediately after a restart of Home Assistant to the state right before the restart. The integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. If you only use measuring sensors like temperature sensors, this option can be safely set to `True`. Default value: False
 
-
 ### Configuration parameters at device level
 
 #### devices
 
    (Optional) The devices option is used for setting options at the level of the device and/or if you want to whitelist certain sensors with the `discovery` option. Note that if you use the `devices` option, the `mac` option is also required.
 
-**Configuration in the User Interface**
+### Configuration in the User Interface
 
-   To add a device, open the options menu of the integration and select **Add Device** in the device drop down menu and click on Submit. You can modify existing configured devices in a similar way, by selecting your device in the same drop down menu and clicking on Submit. Both will show the following form. 
+   To add a device, open the options menu of the integration and select **Add Device** in the device drop down menu and click on Submit. You can modify existing configured devices in a similar way, by selecting your device in the same drop down menu and clicking on Submit. Both will show the following form.
 
   ![device setup](https://raw.github.com/custom-components/ble_monitor/master/pictures/device_screen.png)
 
-
-**Configuraton in YAML**
+### Configuraton in YAML
 
    To add a device, add the following to your `configuration.yaml`
 
@@ -297,15 +293,14 @@ ble_monitor:
     - mac: 'C4:3C:4D:6B:4F:F3'
 ```
 
-
 #### mac
 
-   (string)(Required) The `mac` option (`MAC address` in the UI) is used to identify your sensor device based on its mac-address. This allows you to define other additional options for this specific sensor device and/or to whitelist it with the `discovery` option. You can find the MAC address in the attributes of your sensor (`Developers Tools` --> `States`). For deleting devices see the instructions [below](#deleting-devices-and-sensors). 
+   (string)(Required) The `mac` option (`MAC address` in the UI) is used to identify your sensor device based on its mac-address. This allows you to define other additional options for this specific sensor device and/or to whitelist it with the `discovery` option. You can find the MAC address in the attributes of your sensor (`Developers Tools` --> `States`). For deleting devices see the instructions [below](#deleting-devices-and-sensors).
 
 #### name
 
    When using configuration in the User Interface, you can modify the device name by opening your device, via configuration, integrations and clicking on devices on the BLE monitor tile. Select the device you want to change the name of and click on the cogwheel in the topright corner, where you can change the name. You will get a question wether you want to rename the individual sensor entities of this device as well (normally, it is advised to do this).
-   
+
    (string)(Optional)
    When using YAML, you can use the `name` option to link a device name and sensor name to the mac-address of the sensor device. Using this option (or changing a name) will create new sensor entities. The old data won't be transfered to the new sensor. The old sensor entities can be safely deleted afterwards, but this has to be done manually at the moment, see the instructions [below](#deleting-devices-and-sensors). The sensors are named with the following convention: `sensor.ble_sensortype_device_name` (e.g. `sensor.ble_temperature_livingroom`) in stead of the default `ble_sensortype_mac` (e.g. `sensor.ble_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. Default value: Empty
 
@@ -340,18 +335,17 @@ ble_monitor:
 
 ### Deleting devices and sensors
 
-Removing devices can be done by removing the corresponding lines in your `configuration.yaml`. In the UI, you can delete devices by typing `-` in the `MAC address` field. Note that if the [discovery](#discovery) option is set to `True` they will be discovered automatically again. 
+Removing devices can be done by removing the corresponding lines in your `configuration.yaml`. In the UI, you can delete devices by typing `-` in the `MAC address` field. Note that if the [discovery](#discovery) option is set to `True` they will be discovered automatically again.
 
 Unfortunately, old devices and sensor entities are not entirely deleted by this, they will still be visible, but will be `unavailable` after a restart. The same applies for changing a name of an existing device in YAML, the sensor entities with the old name will still remain visible, but with an `unavailable` state after a restart. To completely remove these left overs, follow the following steps.
 
-**1. Remove old entities**
+#### 1. Remove old entities
 
 First, delete the old entities, by going to **configuration**, **integrations** and selecting **devices** in the BLE monitor tile. Select the device with old entities and select each unavailable sensor, to delete it manually. If the delete button isn't visible, you will have to restart Home Assistant to unload the entities. Make sure all old sensor entities are deleted before going to the next step.
 
-**2. Remove old devices**
+#### 2. Remove old devices
 
 If the sensor doesn't have any sensor entities anymore, you can delete the device as well. Unfortunately, Home Assistant doesn't have an delete option to remove the old device. To overcome this problem, we have created a `service` to help you solve this. Go to **developer tools**, **services** and select the `ble_monitor.cleanup_entries` service. Click on **Call service** and the device should be gone. If not, you probably haven't deleted all sensor entities (go to step 1).
-
 
 ## FREQUENTLY ASKED QUESTIONS
 
@@ -362,10 +356,9 @@ If your question or issue isn't answered in the FAQ, please open an [issue](http
 
 Credits and big thanks should be given to:
 
-- [@Magalex](https://community.home-assistant.io/u/Magalex) and [@Ernst](https://community.home-assistant.io/u/Ernst) for the component creation, development, and support. 
+- [@Magalex](https://community.home-assistant.io/u/Magalex) and [@Ernst](https://community.home-assistant.io/u/Ernst) for the component creation, development, and support.
 - [@koying](https://github.com/koying) for implementing the configuration in the user interface.
 - [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) for the idea and the first code.
-
 
 ## FORUM
 
