@@ -3,9 +3,9 @@ import asyncio
 import copy
 import json
 import logging
-import queue
 import struct
 from threading import Thread
+import janus
 from Cryptodome.Cipher import AES
 import voluptuous as vol
 
@@ -308,8 +308,8 @@ class BLEmonitor:
     def __init__(self, config):
         """Init."""
         self.dataqueue = {
-            "binary": queue.SimpleQueue(),
-            "measuring": queue.SimpleQueue(),
+            "binary": janus.Queue(),
+            "measuring": janus.Queue(),
         }
         self.config = config
         if config[CONF_REPORT_UNKNOWN] is True:
@@ -332,8 +332,8 @@ class BLEmonitor:
 
     def stop(self):
         """Stop HCIdump thread(s)."""
-        self.dataqueue["binary"].put(None)
-        self.dataqueue["measuring"].put(None)
+        self.dataqueue["binary"].sync_q.put_nowait(None)
+        self.dataqueue["measuring"].sync_q.put_nowait(None)
         result = True
         if self.dumpthread is None:
             _LOGGER.debug("BLE monitor stopped")
@@ -483,13 +483,13 @@ class HCIdump(Thread):
         msg, binary, measuring = self.parse_raw_message(data)
         if msg:
             if binary == measuring:
-                self.dataqueue_bin.put(msg)
-                self.dataqueue_meas.put(msg)
+                self.dataqueue_bin.sync_q.put_nowait(msg)
+                self.dataqueue_meas.sync_q.put_nowait(msg)
             else:
                 if binary is True:
-                    self.dataqueue_bin.put(msg)
+                    self.dataqueue_bin.sync_q.put_nowait(msg)
                 if measuring is True:
-                    self.dataqueue_meas.put(msg)
+                    self.dataqueue_meas.sync_q.put_nowait(msg)
 
     def run(self):
         """Run HCIdump thread."""
