@@ -38,19 +38,33 @@ Fixed a bug in the parser code that led to unsuccessful decryption of the data c
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.8.5 [URGENT FIX]
+# Changes in 0.9.3
 
-- Fixed a bug in the parser code that led to unsuccessful decryption of the data contained in the Extended Advertisement packet. This bug affects everyone using some modern adapters with BT5.x support (including Intel NUC platform users)
+**Configuration in the UI**
 
-# Changes in 0.8.4 [BREAKING CHANGES]
+This release adds support for configuration of our component in the User Interface of Home Assistant (no YAML needed anymore). Thanks to the great effort of @koying, who made this possible! Use this procedure to convert your YAML configuration and start using the User Interface configuration possibility.
+  1. Update the component
+  2. Restart Home Assistant
+  3. Remove your YAML code
+  4. Restart again
 
-- [BREAKING CHANGE] The component now creates `binary_sensor` entities for MCCQ02HL and WX08ZM sensors, which means that the binary sensor states (e.g. `open/closed`) now work. After the update, new entities starting with `binary_sensor` will be created for all your binary sensors. You can remove the old entities starting with `sensor`, which are no longer used. Also update your lovelace configuration.
-- Added experimental support for YM-K1501 (Xiaomi Mijia Smart Kettle)
-- Minor fixes and improvements
+Now, all options should be configurable via the UI. 
+  
+ **Still want to use YAML? No worries, YAML is still supported!**
+ 
+**Other improvements**
 
-# Upgrading from 0.7.x [BREAKING CHANGES]
+- Added support for YM-K1501EU (Xiaomi Mijia Smart Kettle) and V-SK152 (Viomi Smart Kettle)
+- Improved support for Xiaomi/Viomi smart kettles
+- Added `ext_state` attribute for kettles, with the following values: 0 - kettle is idle, 1 - kettle is heating water, 2 - warming function is active with boiling, 3 - warming function is active without boiling
+- Reduced the latency of binary sensors state updating
 
-Upgrading from 0.7.x to 0.8.x requires configuration changes. If you haven't done yet, please read he following [instructions to convert your configuration.](https://github.com/custom-components/ble_monitor/blob/master/update_instructions.md)
+**Fixed bugs**
+
+- Fixed a bug with the temperature measurement when using the `restore_state` option
+- Fixed a bug with binary sensor state when using the `restore_state` option
+- Returned compatibility with HA releases before 0.115
+
 
 {% endif %}
 
