@@ -1,22 +1,29 @@
 """Passive BLE monitor integration."""
 import asyncio
+import copy
+import json
 import logging
-import queue
 import struct
 from threading import Thread
+import janus
+from Cryptodome.Cipher import AES
 import voluptuous as vol
-from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers import discovery
+
+from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
     CONF_DEVICES,
     CONF_DISCOVERY,
     CONF_MAC,
     CONF_NAME,
     CONF_TEMPERATURE_UNIT,
+    CONF_UNIQUE_ID,
     EVENT_HOMEASSISTANT_STOP,
 )
-
-from Cryptodome.Cipher import AES
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.entity_registry import (
+    async_entries_for_device,
+)
 
 # It was decided to temporarily include this file in the integration bundle
 # until the issue with checking the adapter's capabilities is resolved in the official aioblescan repo
@@ -30,11 +37,11 @@ from .const import (
     DEFAULT_LOG_SPIKES,
     DEFAULT_USE_MEDIAN,
     DEFAULT_ACTIVE_SCAN,
-    DEFAULT_HCI_INTERFACE,
     DEFAULT_BATT_ENTITIES,
     DEFAULT_REPORT_UNKNOWN,
     DEFAULT_DISCOVERY,
     DEFAULT_RESTORE_STATE,
+    DEFAULT_HCI_INTERFACE,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -46,8 +53,12 @@ from .const import (
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
     CONF_ENCRYPTION_KEY,
+    CONFIG_IS_FLOW,
     DOMAIN,
+    MAC_REGEX,
+    AES128KEY_REGEX,
     XIAOMI_TYPE_DICT,
+    SERVICE_CLEANUP_ENTRIES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -60,9 +71,10 @@ CND_STRUCT = struct.Struct("<H")
 ILL_STRUCT = struct.Struct("<I")
 FMDH_STRUCT = struct.Struct("<H")
 
-# regex constants for configuration schema
-MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
-AES128KEY_REGEX = "(?i)^[A-F0-9]{32}$"
+PLATFORMS = ["binary_sensor", "sensor"]
+
+CONFIG_YAML = {}
+UPDATE_UNLISTENER = None
 
 DEVICE_SCHEMA = vol.Schema(
     {
@@ -103,16 +115,191 @@ CONFIG_SCHEMA = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
+SERVICE_CLEANUP_ENTRIES_SCHEMA = vol.Schema({})
 
-def setup(hass, config):
+
+async def async_setup(hass: HomeAssistant, config):
     """Set up integration."""
-    blemonitor = BLEmonitor(config[DOMAIN])
-    hass.bus.listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
-    blemonitor.start()
-    hass.data[DOMAIN] = blemonitor
-    discovery.load_platform(hass, "sensor", DOMAIN, {}, config)
-    discovery.load_platform(hass, "binary_sensor", DOMAIN, {}, config)
+
+    async def service_cleanup_entries(service_call):
+        # service = service_call.service
+        service_data = service_call.data
+
+        await async_cleanup_entries_service(hass, service_data)
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_CLEANUP_ENTRIES,
+        service_cleanup_entries,
+        schema=SERVICE_CLEANUP_ENTRIES_SCHEMA,
+    )
+
+    if DOMAIN not in config:
+        return True
+
+    if DOMAIN in hass.data:
+        # One instance only
+        return False
+
+    # Save and set default for the YAML config
+    global CONFIG_YAML
+    CONFIG_YAML = json.loads(json.dumps(config[DOMAIN]))
+    CONFIG_YAML[CONFIG_IS_FLOW] = False
+    CONFIG_YAML["ids_from_name"] = True
+
+    _LOGGER.debug("Initializing BLE Monitor integration (YAML): %s", CONFIG_YAML)
+
+    hass.async_add_job(
+        hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": SOURCE_IMPORT}, data=copy.deepcopy(CONFIG_YAML)
+        )
+    )
+
     return True
+
+
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
+    """Set up BLE Monitor from a config entry."""
+    _LOGGER.debug("Initializing BLE Monitor entry (config entry): %s", config_entry)
+
+    # Prevent unload to be triggered each time we update the config entry
+    global UPDATE_UNLISTENER
+    if UPDATE_UNLISTENER:
+        UPDATE_UNLISTENER()
+
+    if not config_entry.unique_id:
+        hass.config_entries.async_update_entry(config_entry, unique_id=config_entry.title)
+
+    _LOGGER.debug("async_setup_entry: domain %s", CONFIG_YAML)
+
+    config = {}
+
+    if not CONFIG_YAML:
+        for key, value in config_entry.data.items():
+            config[key] = value
+
+        for key, value in config_entry.options.items():
+            config[key] = value
+
+        config[CONFIG_IS_FLOW] = True
+        if CONF_DEVICES not in config:
+            config[CONF_DEVICES] = []
+        else:
+            # device configuration is taken from yaml, but yaml config already removed
+            # save unique IDs (only once)
+            if "ids_from_name" in config:
+                devlist = config[CONF_DEVICES]
+                for dev_idx, dev_conf in enumerate(devlist):
+                    if CONF_NAME in dev_conf:
+                        devlist[dev_idx][CONF_UNIQUE_ID] = dev_conf[CONF_NAME]
+                del config["ids_from_name"]
+    else:
+        for key, value in CONFIG_YAML.items():
+            config[key] = value
+        if CONF_HCI_INTERFACE in CONFIG_YAML:
+            hci_list = []
+            if isinstance(CONFIG_YAML[CONF_HCI_INTERFACE], list):
+                for hci in CONFIG_YAML[CONF_HCI_INTERFACE]:
+                    hci_list.append(str(hci))
+            else:
+                hci_list.append(str(CONFIG_YAML[CONF_HCI_INTERFACE]))
+            config[CONF_HCI_INTERFACE] = hci_list
+
+    hass.config_entries.async_update_entry(config_entry, data={}, options=config)
+
+    _LOGGER.debug("async_setup_entry: %s", config)
+
+    UPDATE_UNLISTENER = config_entry.add_update_listener(_async_update_listener)
+
+    if CONF_HCI_INTERFACE not in config:
+        config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE]
+    else:
+        hci_list = config_entry.options.get(CONF_HCI_INTERFACE)
+        for i, hci in enumerate(hci_list):
+            hci_list[i] = int(hci)
+        config[CONF_HCI_INTERFACE] = hci_list
+    _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
+
+    blemonitor = BLEmonitor(config)
+    hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
+    blemonitor.start()
+
+    hass.data[DOMAIN] = {}
+    hass.data[DOMAIN]["blemonitor"] = blemonitor
+    hass.data[DOMAIN]["config_entry_id"] = config_entry.entry_id
+
+    for component in PLATFORMS:
+        hass.async_create_task(
+            hass.config_entries.async_forward_entry_setup(config_entry, component)
+        )
+
+    return True
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Unload a config entry."""
+    _LOGGER.debug("async_unload_entry: %s", entry)
+
+    unload_ok = all(
+        await asyncio.gather(
+            *[
+                hass.config_entries.async_forward_entry_unload(entry, component)
+                for component in PLATFORMS
+            ]
+        )
+    )
+    blemonitor: BLEmonitor = hass.data[DOMAIN]["blemonitor"]
+    if blemonitor:
+        blemonitor.stop()
+
+    return unload_ok
+
+
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle options update."""
+    await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def async_cleanup_entries_service(hass: HomeAssistant, data):
+    """Remove orphaned entries from device and entity registries."""
+    _LOGGER.debug("async_cleanup_entries_service")
+
+    entity_registry = await hass.helpers.entity_registry.async_get_registry()
+    device_registry = await hass.helpers.device_registry.async_get_registry()
+    config_entry_id = hass.data[DOMAIN]["config_entry_id"]
+
+    # entity_entries = async_entries_for_config_entry(
+    #     entity_registry, config_entry_id
+    # )
+
+    # entities_to_be_removed = []
+    devices_to_be_removed = [
+        entry.id
+        for entry in device_registry.devices.values()
+        if config_entry_id in entry.config_entries
+    ]
+
+    # for entry in entity_entries:
+
+    #     # Don't remove available entities
+    #     if entry.unique_id in gateway.entities[entry.domain]:
+
+    #         # Don't remove devices with available entities
+    #         if entry.device_id in devices_to_be_removed:
+    #             devices_to_be_removed.remove(entry.device_id)
+    #         continue
+    #     # Remove entities that are not available
+    #     entities_to_be_removed.append(entry.entity_id)
+
+    # # Remove unavailable entities
+    # for entity_id in entities_to_be_removed:
+    #     entity_registry.async_remove(entity_id)
+
+    # Remove devices that don't belong to any entity
+    for device_id in devices_to_be_removed:
+        if len(async_entries_for_device(entity_registry, device_id)) == 0:
+            device_registry.async_remove_device(device_id)
+            _LOGGER.debug("device %s will be deleted", device_id)
 
 
 class BLEmonitor:
@@ -121,10 +308,12 @@ class BLEmonitor:
     def __init__(self, config):
         """Init."""
         self.dataqueue = {
-            "binary": queue.SimpleQueue(),
-            "measuring": queue.SimpleQueue(),
+            "binary": janus.Queue(),
+            "measuring": janus.Queue(),
         }
         self.config = config
+        if config[CONF_REPORT_UNKNOWN] is True:
+            _LOGGER.info("Attention! Option report_unknown is enabled, be ready for a huge output...")
         self.dumpthread = None
 
     def shutdown_handler(self, event):
@@ -143,8 +332,8 @@ class BLEmonitor:
 
     def stop(self):
         """Stop HCIdump thread(s)."""
-        self.dataqueue["binary"].put(None)
-        self.dataqueue["measuring"].put(None)
+        self.dataqueue["binary"].sync_q.put_nowait(None)
+        self.dataqueue["measuring"].sync_q.put_nowait(None)
         result = True
         if self.dumpthread is None:
             _LOGGER.debug("BLE monitor stopped")
@@ -241,17 +430,17 @@ class HCIdump(Thread):
         self.report_unknown = False
         if self.config[CONF_REPORT_UNKNOWN]:
             self.report_unknown = True
-            _LOGGER.info(
+            _LOGGER.debug(
                 "Attention! Option report_unknown is enabled, be ready for a huge output..."
             )
         # prepare device:key lists to speedup parser
         if self.config[CONF_DEVICES]:
             for device in self.config[CONF_DEVICES]:
-                if "encryption_key" in device:
+                if CONF_ENCRYPTION_KEY in device and device[CONF_ENCRYPTION_KEY]:
                     p_mac = bytes.fromhex(
                         reverse_mac(device["mac"].replace(":", "")).lower()
                     )
-                    p_key = bytes.fromhex(device["encryption_key"].lower())
+                    p_key = bytes.fromhex(device[CONF_ENCRYPTION_KEY].lower())
                     self.aeskeys[p_mac] = p_key
                 else:
                     continue
@@ -289,16 +478,18 @@ class HCIdump(Thread):
     def process_hci_events(self, data):
         """Parses HCI events."""
         self.evt_cnt += 1
+        if len(data) < 12:
+            return
         msg, binary, measuring = self.parse_raw_message(data)
         if msg:
             if binary == measuring:
-                self.dataqueue_bin.put(msg)
-                self.dataqueue_meas.put(msg)
+                self.dataqueue_bin.sync_q.put_nowait(msg)
+                self.dataqueue_meas.sync_q.put_nowait(msg)
             else:
                 if binary is True:
-                    self.dataqueue_bin.put(msg)
+                    self.dataqueue_bin.sync_q.put_nowait(msg)
                 if measuring is True:
-                    self.dataqueue_meas.put(msg)
+                    self.dataqueue_meas.sync_q.put_nowait(msg)
 
     def run(self):
         """Run HCIdump thread."""

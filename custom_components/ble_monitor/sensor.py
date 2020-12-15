@@ -1,9 +1,9 @@
 """Passive BLE monitor sensor platform."""
 from datetime import timedelta
+import asyncio
 import logging
-import queue
 import statistics as sts
-from threading import Thread
+# from threading import Thread
 
 from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
@@ -11,16 +11,25 @@ from homeassistant.const import (
     DEVICE_CLASS_ILLUMINANCE,
     DEVICE_CLASS_TEMPERATURE,
     CONDUCTIVITY,
-    PERCENTAGE,
+    # PERCENTAGE,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
     ATTR_BATTERY_LEVEL,
+    CONF_DEVICES,
+    CONF_NAME,
+    CONF_TEMPERATURE_UNIT,
+    CONF_UNIQUE_ID,
 )
+
+try:
+    from homeassistant.const import PERCENTAGE
+except ImportError:
+    from homeassistant.const import UNIT_PERCENTAGE as PERCENTAGE
+
 from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 
-from . import (
-    CONF_DEVICES,
+from .const import (
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -28,39 +37,48 @@ from . import (
     CONF_USE_MEDIAN,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
-)
-from .const import (
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
-    DOMAIN,
+    KETTLES,
+    MANUFACTURER_DICT,
     MMTS_DICT,
+    DOMAIN,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def setup_platform(hass, conf, add_entities, discovery_info=None):
+async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up the sensor platform."""
-    _LOGGER.debug("Sensor platform setup")
-    blemonitor = hass.data[DOMAIN]
+    return True
+
+
+async def async_setup_entry(hass, config_entry, add_entities):
+    """Set up the measuring sensor entry."""
+    _LOGGER.debug("Starting measuring sensor entry startup")
+
+    blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdater(blemonitor, add_entities)
-    bleupdater.start()
-    _LOGGER.debug("Sensor platform setup finished")
+    # bleupdater.start()
+    # hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, bleupdater.async_run)
+    hass.loop.create_task(bleupdater.async_run())
+    _LOGGER.debug("Measuring sensor entry setup finished")
     # Return successful setup
     return True
 
 
-class BLEupdater(Thread):
+# class BLEupdater(Thread):
+class BLEupdater():
     """BLE monitor entities updater."""
 
     def __init__(self, blemonitor, add_entities):
         """Initiate BLE updater."""
-        Thread.__init__(self, daemon=True)
+        # Thread.__init__(self, daemon=True)
         _LOGGER.debug("BLE sensors updater initialization")
         self.monitor = blemonitor
-        self.dataqueue = blemonitor.dataqueue["measuring"]
+        self.dataqueue = blemonitor.dataqueue["measuring"].async_q
         self.config = blemonitor.config
         self.period = self.config[CONF_PERIOD]
         self.log_spikes = self.config[CONF_LOG_SPIKES]
@@ -68,7 +86,7 @@ class BLEupdater(Thread):
         self.add_entities = add_entities
         _LOGGER.debug("BLE sensors updater initialized")
 
-    def run(self):
+    async def async_run(self):
         """Entities updater loop."""
 
         def temperature_limit(config, mac, temp):
@@ -78,8 +96,8 @@ class BLEupdater(Thread):
             if config[CONF_DEVICES]:
                 for device in config[CONF_DEVICES]:
                     if fmac in device["mac"].upper():
-                        if "temperature_unit" in device:
-                            if device["temperature_unit"] == TEMP_FAHRENHEIT:
+                        if CONF_TEMPERATURE_UNIT in device:
+                            if device[CONF_TEMPERATURE_UNIT] == TEMP_FAHRENHEIT:
                                 temp_fahrenheit = temp * 9 / 5 + 32
                                 return temp_fahrenheit
                         break
@@ -94,14 +112,18 @@ class BLEupdater(Thread):
         ts_last = dt_util.now()
         ts_now = ts_last
         data = None
+        await asyncio.sleep(0)
         while True:
             try:
-                advevent = self.dataqueue.get(block=True, timeout=1)
+                # advevent = self.dataqueue.get(block=True, timeout=1)
+                advevent = await asyncio.wait_for(self.dataqueue.get(), 1)
                 if advevent is None:
                     _LOGGER.debug("Entities updater loop stopped")
                     return True
                 data = advevent
-            except queue.Empty:
+                self.dataqueue.task_done()
+            # except queue.Empty:
+            except asyncio.TimeoutError:
                 pass
             if data:
                 mibeacon_cnt += 1
@@ -155,18 +177,28 @@ class BLEupdater(Thread):
                             batt_attr = None
                 # measuring sensors
                 if "temperature" in data:
-                    if (
-                        temperature_limit(self.config, mac, CONF_TMAX)
-                        >= data["temperature"]
-                        >= temperature_limit(self.config, mac, CONF_TMIN)
-                    ):
-                        sensors[t_i].collect(data, batt_attr)
-                    elif self.log_spikes:
-                        _LOGGER.error(
-                            "Temperature spike: %s (%s)",
-                            data["temperature"],
-                            mac,
-                        )
+                    # dirty hack for kettle temperature data
+                    if sensortype in KETTLES:
+                        entity = sensors[t_i]
+                        entity.collect(data, batt_attr)
+                        if entity.ready_for_update is True:
+                            entity.rssi_values = rssi[mac].copy()
+                            entity.async_schedule_update_ha_state(True)
+                            rssi[mac].clear()
+                            entity.pending_update = False
+                    else:
+                        if (
+                            temperature_limit(self.config, mac, CONF_TMAX)
+                            >= data["temperature"]
+                            >= temperature_limit(self.config, mac, CONF_TMIN)
+                        ):
+                            sensors[t_i].collect(data, batt_attr)
+                        elif self.log_spikes:
+                            _LOGGER.error(
+                                "Temperature spike: %s (%s)",
+                                data["temperature"],
+                                mac,
+                            )
                 if "humidity" in data:
                     if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
                         sensors[h_i].collect(data, batt_attr)
@@ -199,7 +231,7 @@ class BLEupdater(Thread):
                     if entity.pending_update is True:
                         if entity.ready_for_update is True:
                             entity.rssi_values = rssi[mac].copy()
-                            entity.schedule_update_ha_state(True)
+                            entity.async_schedule_update_ha_state(True)
             for mac in rssi:
                 rssi[mac].clear()
 
@@ -224,6 +256,7 @@ class MeasuringSensor(RestoreEntity):
         self._unit_of_measurement = ""
         self._device_class = None
         self._device_type = devtype
+        self._device_manufacturer = MANUFACTURER_DICT[devtype]
         self._device_state_attributes = {}
         self._device_state_attributes["sensor type"] = devtype
         self._device_state_attributes["mac address"] = (
@@ -255,6 +288,10 @@ class MeasuringSensor(RestoreEntity):
         if not old_state:
             self.ready_for_update = True
             return
+        try:
+            self._unit_of_measurement = old_state.unit_of_measurement
+        except AttributeError:
+            pass
         self._state = old_state.state
         if "median" in old_state.attributes:
             self._device_state_attributes["median"] = old_state.attributes["median"]
@@ -262,8 +299,10 @@ class MeasuringSensor(RestoreEntity):
             self._device_state_attributes["mean"] = old_state.attributes["mean"]
         if "last median of" in old_state.attributes:
             self._device_state_attributes["last median of"] = old_state.attributes["last median of"]
+            self._state = old_state.attributes["median"]
         if "last mean of" in old_state.attributes:
             self._device_state_attributes["last mean of"] = old_state.attributes["last mean of"]
+            self._state = old_state.attributes["mean"]
         if "rssi" in old_state.attributes:
             self._device_state_attributes["rssi"] = old_state.attributes["rssi"]
         if "last packet id" in old_state.attributes:
@@ -308,6 +347,18 @@ class MeasuringSensor(RestoreEntity):
         return self._unique_id
 
     @property
+    def device_info(self):
+        return {
+            "identifiers": {
+                # Unique identifiers within a specific domain
+                (DOMAIN, self._device_state_attributes["mac address"])
+            },
+            "name": self.get_sensorname(),
+            "model": self._device_type,
+            "manufacturer": self._device_manufacturer,
+        }
+
+    @property
     def force_update(self):
         """Force update."""
         return True
@@ -326,7 +377,7 @@ class MeasuringSensor(RestoreEntity):
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
 
-    def update(self):
+    async def async_update(self):
         """Updates sensor state and attributes."""
         textattr = ""
         rdecimals = self._rdecimals
@@ -367,15 +418,19 @@ class MeasuringSensor(RestoreEntity):
 
     def get_sensorname(self):
         """Set sensor name."""
-        fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
-
+        id_selector = CONF_UNIQUE_ID
+        # if we work with yaml, then we take the name
+        # if not, then we check the unique_id created when switching from yaml
+        if "ids_from_name" in self._config:
+            id_selector = CONF_NAME
         if self._config[CONF_DEVICES]:
+            fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
             for device in self._config[CONF_DEVICES]:
                 if fmac in device["mac"].upper():
-                    if "name" in device:
-                        custom_name = device["name"]
+                    if id_selector in device:
+                        custom_name = device[id_selector]
                         _LOGGER.debug(
-                            "Name of %s sensor with mac adress %s is set to: %s",
+                            "Name of %s sensor with mac address %s is set to: %s",
                             self._measurement,
                             fmac,
                             custom_name,
@@ -405,13 +460,13 @@ class TemperatureSensor(MeasuringSensor):
         if self._config[CONF_DEVICES]:
             for device in self._config[CONF_DEVICES]:
                 if fmac in device["mac"].upper():
-                    if "temperature_unit" in device:
+                    if CONF_TEMPERATURE_UNIT in device:
                         _LOGGER.debug(
                             "Temperature sensor with mac address %s is set to receive data in %s",
                             fmac,
-                            device["temperature_unit"],
+                            device[CONF_TEMPERATURE_UNIT],
                         )
-                        return device["temperature_unit"]
+                        return device[CONF_TEMPERATURE_UNIT]
                     break
         _LOGGER.debug(
             "Temperature sensor with mac address %s is set to receive data in °C",
@@ -526,7 +581,7 @@ class BatterySensor(MeasuringSensor):
         self._device_state_attributes["last packet id"] = data["packet"]
         self.pending_update = True
 
-    def update(self):
+    async def async_update(self):
         """Update sensor state and attributes."""
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self.rssi_values.clear()
@@ -562,7 +617,7 @@ class ConsumableSensor(MeasuringSensor):
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
 
-    def update(self):
+    async def async_update(self):
         """Update."""
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self.rssi_values.clear()

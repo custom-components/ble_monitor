@@ -1,0 +1,79 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Passive BLE Monitor",
+        "description": "Setup of your BLE monitor configuration",
+        "data": {
+          "batt_entities": "Generate battery entities",
+          "devices": "Devices",
+          "discovery": "Discovery",
+          "rounding": "Rounding",
+          "decimals": "Decimals",
+          "period": "Period",
+          "log_spikes": "Log spikes",
+          "use_median": "Use median",
+          "active_scan": "Active can",
+          "hci_interface": "HCI interface",
+          "report_unknown": "Report unknown",
+          "restore_state": "Restore state"
+        }
+      },
+      "add_device": {
+        "title": "Add device",
+        "data": {
+          "mac": "MAC address",
+          "temperature_unit": "Temperature unit",
+          "encryption_key": "Encryption key"
+        }
+      }  
+    },
+    "error": {
+      "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_key": "Encryption key must be 32 hexadecimal characters.",
+      "cannot_change_mac": "MAC address cannot be changed."
+    },
+    "abort": {
+      "single_instance_allowed": "Only a single configuration of BLE monitor is allowed."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Passive BLE Monitor options",
+        "description": "Scanning will be restarted after pressing 'SUBMIT'",
+        "data": {
+          "batt_entities": "Generate battery entities",
+          "devices": "Devices",
+          "discovery": "Discovery",
+          "rounding": "Rounding",
+          "decimals": "Decimals",
+          "period": "Period",
+          "log_spikes": "Log spikes",
+          "use_median": "Use median",
+          "active_scan": "Active scan",
+          "hci_interface": "HCI interface",
+          "report_unknown": "Report unknown",
+          "restore_state": "Restore state",
+          "not_in_use": "YAML is used, change options in YAML"
+        }
+      },
+      "add_device": {
+        "title": "Configure device",
+        "data": {
+          "mac": "MAC address (set to '-' to delete)",
+          "temperature_unit": "Temperature unit",
+          "encryption_key": "Encryption key (set to '-' to remove)"
+        }
+      }  
+    },
+    "error": {
+      "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_key": "Encryption key must be 32 hexadecimal characters.",
+      "cannot_change_mac": "MAC address cannot be changed."
+    },
+    "abort": {
+      "not_in_use": "You have configured BLE monitor in YAML. Please change your options in YAML"
+    }
+  }
+}
