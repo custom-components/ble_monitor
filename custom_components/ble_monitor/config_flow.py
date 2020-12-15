@@ -160,7 +160,10 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
 
                 if not errors:
                     # updating device configuration instead of overwriting
-                    self._devices[user_input[CONF_MAC].upper()].update(copy.deepcopy(user_input))  # copy.deepcopy(user_input)
+                    try:
+                        self._devices[user_input["mac"].upper()].update(copy.deepcopy(user_input))  # copy.deepcopy(user_input)
+                    except KeyError:
+                        self._devices.update({user_input["mac"].upper(): copy.deepcopy(user_input)})
                     self._sel_device = {}  # prevent deletion
 
             if errors:
