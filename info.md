@@ -15,26 +15,6 @@
 - Reduced the latency of binary sensors state updating
 - Improved support for Xiaomi/Viomi smart kettles
 
-# Changes in 0.9.2 beta
-
-- Removes the `name` option in the device option menu of the integration. In stead you can use the build in function of Home Assistant to rename a device and sensor entities (configuration --> devices --> select your device --> cogwheel in top right corner). The `name` option in YAML remains as it was.
-- Added support for YM-K1501EU (Xiaomi Mijia Smart Kettle) and V-SK152 (Viomi Smart Kettle)
-- Added `ext_state` attribute for kettles, with the following values: 0 - kettle is idle, 1 - kettle is heating water, 2 - warming function is active with boiling, 3 - warming function is active without boiling
-
-# Changes in 0.9.1 beta
-
-Fixed a bug in the parser code that led to unsuccessful decryption of the data contained in the Extended Advertisement packet. This bug affects everyone using some modern adapters with BT5.x support (including Intel NUC platform users)
-
-# Changes in 0.9.0 beta
-
-- Added support for configuration in the User Interface of Home Assistant (no YAML needed anymore). Thanks to the great effort of @koying, who made this possible!
-- Do you want to move from YAML to the configuration in the User Interface? Use this procedure to convert your YAML configuration into the User Interface setup
-  1. Update first
-  2. Restart Home Assistant
-  3. Remove your YAML code
-  4. Restart again
-- Still want to use YAML? No worries, YAML is still supported!
-
 {% endif %}
 {% if installed or pending_update %}
 
@@ -43,15 +23,16 @@ Fixed a bug in the parser code that led to unsuccessful decryption of the data c
 **Configuration in the UI**
 
 This release adds support for configuration of our component in the User Interface of Home Assistant (no YAML needed anymore). Thanks to the great effort of @koying, who made this possible! Use this procedure to convert your YAML configuration and start using the User Interface configuration possibility.
+
   1. Update the component
   2. Restart Home Assistant
   3. Remove your YAML code
   4. Restart again
 
-Now, all options should be configurable via the UI. 
-  
+Now, all options should be configurable via the UI.
+
  **Still want to use YAML? No worries, YAML is still supported!**
- 
+
 **Other improvements**
 
 - Added support for YM-K1501EU (Xiaomi Mijia Smart Kettle) and V-SK152 (Viomi Smart Kettle)
