@@ -11,7 +11,6 @@ from homeassistant.const import (
     DEVICE_CLASS_ILLUMINANCE,
     DEVICE_CLASS_TEMPERATURE,
     CONDUCTIVITY,
-    # PERCENTAGE,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
     ATTR_BATTERY_LEVEL,
@@ -37,6 +36,7 @@ from .const import (
     CONF_USE_MEDIAN,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
+    CONF_SENSOR_DECIMALS,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -61,21 +61,17 @@ async def async_setup_entry(hass, config_entry, add_entities):
 
     blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdater(blemonitor, add_entities)
-    # bleupdater.start()
-    # hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, bleupdater.async_run)
     hass.loop.create_task(bleupdater.async_run())
     _LOGGER.debug("Measuring sensor entry setup finished")
     # Return successful setup
     return True
 
 
-# class BLEupdater(Thread):
 class BLEupdater():
     """BLE monitor entities updater."""
 
     def __init__(self, blemonitor, add_entities):
         """Initiate BLE updater."""
-        # Thread.__init__(self, daemon=True)
         _LOGGER.debug("BLE sensors updater initialization")
         self.monitor = blemonitor
         self.dataqueue = blemonitor.dataqueue["measuring"].async_q
@@ -115,14 +111,12 @@ class BLEupdater():
         await asyncio.sleep(0)
         while True:
             try:
-                # advevent = self.dataqueue.get(block=True, timeout=1)
                 advevent = await asyncio.wait_for(self.dataqueue.get(), 1)
                 if advevent is None:
                     _LOGGER.debug("Entities updater loop stopped")
                     return True
                 data = advevent
                 self.dataqueue.task_done()
-            # except queue.Empty:
             except asyncio.TimeoutError:
                 pass
             if data:
@@ -251,6 +245,7 @@ class MeasuringSensor(RestoreEntity):
         self.ready_for_update = False
         self._config = config
         self._mac = mac
+        self._fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
         self._name = ""
         self._state = None
         self._unit_of_measurement = ""
@@ -259,15 +254,13 @@ class MeasuringSensor(RestoreEntity):
         self._device_manufacturer = MANUFACTURER_DICT[devtype]
         self._device_state_attributes = {}
         self._device_state_attributes["sensor type"] = devtype
-        self._device_state_attributes["mac address"] = (
-            ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
-        )
+        self._device_state_attributes["mac address"] = self._fmac
         self._unique_id = ""
         self._measurement = "measurement"
         self._measurements = []
         self.rssi_values = []
         self.pending_update = False
-        self._rdecimals = config[CONF_DECIMALS]
+        self._rdecimals = self.get_device_decimals()
         self._jagged = False
         self._fmdh_dec = 0
         self._rounding = config[CONF_ROUNDING]
@@ -353,7 +346,7 @@ class MeasuringSensor(RestoreEntity):
                 # Unique identifiers within a specific domain
                 (DOMAIN, self._device_state_attributes["mac address"])
             },
-            "name": self.get_sensorname(),
+            "name": self.get_device_name(),
             "model": self._device_type,
             "manufacturer": self._device_manufacturer,
         }
@@ -416,7 +409,7 @@ class MeasuringSensor(RestoreEntity):
             _LOGGER.error("Sensor %s (%s) update error: %s", self._name, self._device_type, self._err)
         self.pending_update = False
 
-    def get_sensorname(self):
+    def get_device_name(self):
         """Set sensor name."""
         id_selector = CONF_UNIQUE_ID
         # if we work with yaml, then we take the name
@@ -424,20 +417,37 @@ class MeasuringSensor(RestoreEntity):
         if "ids_from_name" in self._config:
             id_selector = CONF_NAME
         if self._config[CONF_DEVICES]:
-            fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
             for device in self._config[CONF_DEVICES]:
-                if fmac in device["mac"].upper():
+                if self._fmac in device["mac"].upper():
                     if id_selector in device:
                         custom_name = device[id_selector]
                         _LOGGER.debug(
                             "Name of %s sensor with mac address %s is set to: %s",
                             self._measurement,
-                            fmac,
+                            self._fmac,
                             custom_name,
                         )
                         return custom_name
                     break
         return self._mac
+
+    def get_device_decimals(self):
+        """Set number of decimals"""
+        # initial set decimals to integration setting
+        dev_rdecimals = self._config[CONF_DECIMALS]
+        # overrule decimals with device setting if available
+        if self._config[CONF_DEVICES]:
+            for device in self._config[CONF_DEVICES]:
+                if self._fmac in device["mac"].upper():
+                    if CONF_SENSOR_DECIMALS in device:
+                        try:
+                            # check that device decimals setting is an integer
+                            device[CONF_SENSOR_DECIMALS] + 1
+                            dev_rdecimals = device[CONF_SENSOR_DECIMALS]
+                        except TypeError:
+                            dev_rdecimals = self._config[CONF_DECIMALS]
+        _LOGGER.debug("Number of decimals for sensor with mac address %s is %s", self._fmac, dev_rdecimals)
+        return dev_rdecimals
 
 
 class TemperatureSensor(MeasuringSensor):
@@ -447,30 +457,28 @@ class TemperatureSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "temperature"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble temperature {}".format(self._sensor_name)
-        self._unique_id = "t_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble temperature {}".format(self._device_name)
+        self._unique_id = "t_" + self._device_name
         self._unit_of_measurement = self.get_temperature_unit()
         self._device_class = DEVICE_CLASS_TEMPERATURE
 
     def get_temperature_unit(self):
         """Set temperature unit to °C or °F."""
-        fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
-
         if self._config[CONF_DEVICES]:
             for device in self._config[CONF_DEVICES]:
-                if fmac in device["mac"].upper():
+                if self._fmac in device["mac"].upper():
                     if CONF_TEMPERATURE_UNIT in device:
                         _LOGGER.debug(
                             "Temperature sensor with mac address %s is set to receive data in %s",
-                            fmac,
+                            self._fmac,
                             device[CONF_TEMPERATURE_UNIT],
                         )
                         return device[CONF_TEMPERATURE_UNIT]
                     break
         _LOGGER.debug(
             "Temperature sensor with mac address %s is set to receive data in °C",
-            fmac,
+            self._fmac,
         )
         return TEMP_CELSIUS
 
@@ -482,9 +490,9 @@ class HumiditySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "humidity"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble humidity {}".format(self._sensor_name)
-        self._unique_id = "h_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble humidity {}".format(self._device_name)
+        self._unique_id = "h_" + self._device_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
         # LYWSD03MMC / MHO-C401 "jagged" humidity workaround
@@ -499,9 +507,9 @@ class MoistureSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "moisture"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble moisture {}".format(self._sensor_name)
-        self._unique_id = "m_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble moisture {}".format(self._device_name)
+        self._unique_id = "m_" + self._device_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
 
@@ -513,9 +521,9 @@ class ConductivitySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "conductivity"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble conductivity {}".format(self._sensor_name)
-        self._unique_id = "c_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble conductivity {}".format(self._device_name)
+        self._unique_id = "c_" + self._device_name
         self._unit_of_measurement = CONDUCTIVITY
         self._device_class = None
 
@@ -532,9 +540,9 @@ class IlluminanceSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "illuminance"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble illuminance {}".format(self._sensor_name)
-        self._unique_id = "l_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble illuminance {}".format(self._device_name)
+        self._unique_id = "l_" + self._device_name
         self._unit_of_measurement = "lx"
         self._device_class = DEVICE_CLASS_ILLUMINANCE
 
@@ -546,9 +554,9 @@ class FormaldehydeSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "formaldehyde"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble formaldehyde {}".format(self._sensor_name)
-        self._unique_id = "f_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble formaldehyde {}".format(self._device_name)
+        self._unique_id = "f_" + self._device_name
         self._unit_of_measurement = "mg/m³"
         self._device_class = None
         self._fmdh_dec = 3
@@ -566,9 +574,9 @@ class BatterySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "battery"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble battery {}".format(self._sensor_name)
-        self._unique_id = "batt_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble battery {}".format(self._device_name)
+        self._unique_id = "batt_" + self._device_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_BATTERY
 
@@ -595,9 +603,9 @@ class ConsumableSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "consumable"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble consumable {}".format(self._sensor_name)
-        self._unique_id = "cn_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble consumable {}".format(self._device_name)
+        self._unique_id = "cn_" + self._device_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = None
 
