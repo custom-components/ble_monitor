@@ -39,7 +39,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
 - CGG1
 
-  (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute. There are two versions, with encryption and without encryption. We expect that you can check which version you have by looking at the back of the sensor. The ones with encryption have a `qingping` logo at the back (left picture), while the ones without encryption don't have any logo (right picture). 
+  (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute. There are two versions, with encryption and without encryption. We expect that you can check which version you have by looking at the back of the sensor. The ones with encryption have a `qingping` logo at the back (left picture), while the ones without encryption don't have any logo (right picture))
 
   ![CGG1](/pictures/CGG1-back.png)
 
