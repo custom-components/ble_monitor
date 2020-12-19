@@ -528,6 +528,8 @@ class HCIdump(Thread):
                         self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
                     except RuntimeError as error:
                         _LOGGER.error("HCIdump thread: Runtime error while stop scan request on hci%i: %s", hci, error)
+                    except KeyError as error:
+                        _LOGGER.error("HCIdump thread: Key error while stop scan request on hci%i: %s", hci, error)
                     conn[hci].close()
                 self._event_loop.run_until_complete(asyncio.sleep(0))
             if self._joining is True:
