@@ -19,6 +19,7 @@
   - [My sensor isn't showing the battery level](#my-sensor-isnt-showing-the-battery-level)
 - [TIPS AND TRICKS](#tips-and-tricks)
   - [How to know exactly if the reception of data from my sensors has stopped?](#how-to-know-exactly-if-the-reception-of-data-from-my-sensors-has-stopped)
+  - [How can I add a sensor in lovelace that shows the RSSI signal strength?](#how-can-I-add-a-sensor-in-lovelace-that-shows-the-RSSI-signal-strength)
 - [DEBUG](#debug)
 - [FORUM](#forum)
 <!-- /TOC -->
@@ -200,6 +201,46 @@ Battery level is not broadcasted by all sensors. Check the list of [supported se
 
 When the reception of data from sensors is stopped for some reason (hardware failure, errors at the system level, and so on), it may take an unacceptably long time before we notice this fact.
 [Here is](https://github.com/custom-components/ble_monitor/issues/65#issuecomment-615911228) a discussion of a solution to solve this problem using a template binary sensor, which can be used in automation to send notifications, for example.
+
+### How can I add a sensor in lovelace that shows the RSSI signal strength?
+
+There are several ways to do this. If you want to show it in an entity card, you can add it in lovelace directly. Select Rssi as the attribute to display. 
+
+![RSSI in entity card](/pictures/RSSI_in_entity_card.png)
+
+If you want to use the entities card (with multple sensors), just add a sensor entity from which you want to display the RSSI to the entities card and click on the pencil. First change the icon and name and click on `view code editor` at the bottom (note that there are two `view code editor` buttons, use the one at the bottom). Change the code to the following format.
+
+```
+type: entities
+entities:
+  - entity: sensor.ble_temperature_livingroom
+    type: attribute
+    attribute: rssi
+    icon: 'hass:antenna'
+    name: RSSI
+    suffix: dB
+```
+
+A third option is more advanced and will create a new sensor based on a template sensor. If you e.g. want to use graphs, you will need to create a template sensor. Add the following to your YAML configuration and modify `livingroom` to represent your own sensor.
+
+```
+sensor:
+  - platform: template
+    sensors:
+      ble_rssi_livingroom:
+        friendly_name: "RSSI BLE sensor Livingroom"
+        device_class: signal_strength
+        unit_of_measurement: dB
+        value_template: >-
+          {% set sensors = [state_attr('sensor.ble_temperature_livingroom','rssi')|float, state_attr('sensor.ble_humidity_livingroom','rssi')|float, state_attr('sensor.ble_battery_livingroom','rssi')|float] %}
+          {% if sensors | sum == 0 %}
+            -99 
+          {% else %}
+            {{ ((sensors | sum) / (sensors | select('lt',0) | list | length)) | round | int }} 
+          {% endif %}
+```
+
+After a restart, a new sensor `sensor.ble_rssi_livingroom` will be created, which you can use where you want.
 
 ## DEBUG
 
