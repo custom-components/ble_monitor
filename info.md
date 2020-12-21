@@ -5,15 +5,10 @@
 
 # NB!: This is a Beta version
 
-# Changes in 0.9.3 beta
+# Changes in 0.9.4 beta
 
-- Fixed a bug that created duplicate sensor entities (note that this will happen once again when updating from 0.9.x-beta to 0.9.3 beta, sorry about that. It should not happen when updating from 0.8.5 (stable))
-- Fixed a bug that renamed devices and entities after moving from YAML to UI configuration and opening the device configuration
-- Fixed a bug with the temperature measurement when using the `restore_state` option
-- Fixed a bug with binary sensor state when using the `restore_state` option
-- Returned compatibility with HA releases before 0.115
-- Reduced the latency of binary sensors state updating
-- Improved support for Xiaomi/Viomi smart kettles
+- Added support for CGG1 with encryption. Some CGG1 sensors seem to transmit encrypted bluetooth advertisements. This release adds support for these sensors, but you will need to add your `encryption_key` to your configuration.
+- Fix in error handling with multiple hci interfaces. 
 
 {% endif %}
 {% if installed or pending_update %}
@@ -62,8 +57,8 @@ Now, all options should be configurable via the UI.
   - [2. Install the custom integration](#2-install-the-custom-integration)
   - [3. Add your sensors to the MiHome app if you haven’t already](#3-add-your-sensors-to-the-mihome-app-if-you-havent-already)
   - [4. Configure the integration](#4-configure-the-integration)
-    - [4 a. Configuration in the User Interface](#4-a-configuration-in-the-user-interface)
-    - [4 b. Configuration in YAML](#4-b-configuration-in-yaml)
+    - [4a. Configuration in the User Interface](#4a-configuration-in-the-user-interface)
+    - [4b. Configuration in YAML](#4b-configuration-in-yaml)
 - [CONFIGURATION PARAMETERS](#configuration-parameters)
   - [Configuration parameters at component level](#configuration-parameters-at-component-level)
   - [Configuration parameters at device level](#configuration-parameters-at-device-level)
