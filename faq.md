@@ -150,10 +150,12 @@ There are several ways:
   
 2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595874419).
 
-3. ~~Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms) while adding a sensor to the application ("pairing"). If the sensor has already been added before, then you can first delete it and add it again~~: Unfortunately, the steps described below do not work anymore, since Xiaomi has enabled additional encryption of API requests, and therefore the procedure for intercepting traffic has become much more complicated. There are no instructions yet, so try to get by with the first two methods. If you have no choice, then create a separate issue, in which I will tell you what to do step by step, and we will use this issue as a guide for others.
+3. Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms). 
 
-      - iOS: Two known working options
-        - [using Charles proxy, paid $7-10](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595327131),
+    Unfortunately, Xiaomi has enabled additional encryption of API requests recently, and therefore the procedure for intercepting traffic has become much more complicated. Most of the instructions below won't work anymore, as they are written at the time before encryption was enabled, but we are currently (successfully) looking into the [Charles proxy method](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122) to deal with this encryption. If you are successfull with this or one of the other methods, please open an issue and share the steps you took with us. 
+
+      - iOS:
+        - [using Charles proxy, paid $7-10](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595327131). For more detailed instructions, check [these instructions](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122).
         - [using Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex). For more detailed instructions, check [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex) or [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex).
       - Android:
         - using Packet Capture.
