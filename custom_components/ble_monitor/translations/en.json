@@ -9,7 +9,7 @@
           "devices": "Devices",
           "discovery": "Discovery",
           "rounding": "Rounding",
-          "decimals": "Decimals",
+          "decimals": "Number of decimals",
           "period": "Period",
           "log_spikes": "Log spikes",
           "use_median": "Use median",
@@ -23,8 +23,9 @@
         "title": "Add device",
         "data": {
           "mac": "MAC address",
-          "temperature_unit": "Temperature unit",
-          "encryption_key": "Encryption key"
+          "encryption_key": "Encryption key",
+          "decimals": "Number of decimals (rounding must be enabled)",
+          "temperature_unit": "Temperature unit"
         }
       }  
     },
@@ -47,7 +48,7 @@
           "devices": "Devices",
           "discovery": "Discovery",
           "rounding": "Rounding",
-          "decimals": "Decimals",
+          "decimals": "Number of decimals",
           "period": "Period",
           "log_spikes": "Log spikes",
           "use_median": "Use median",
@@ -62,8 +63,9 @@
         "title": "Configure device",
         "data": {
           "mac": "MAC address (set to '-' to delete)",
-          "temperature_unit": "Temperature unit",
-          "encryption_key": "Encryption key (set to '-' to remove)"
+          "encryption_key": "Encryption key (set to '-' to remove)",
+          "decimals": "Number of decimals (rounding must be enabled)",
+          "temperature_unit": "Temperature unit"
         }
       }  
     },

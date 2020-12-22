@@ -2,13 +2,11 @@
 from datetime import timedelta
 import asyncio
 import logging
-# from threading import Thread
 
 from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_LIGHT,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_POWER,
-    # BinarySensorEntity,
 )
 
 try:
@@ -51,21 +49,17 @@ async def async_setup_entry(hass, config_entry, add_entities):
 
     blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdaterBinary(blemonitor, add_entities)
-    # bleupdater.start()
-    # hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, bleupdater.async_run)
     hass.loop.create_task(bleupdater.async_run())
     _LOGGER.debug("Binary sensor entry setup finished")
     # Return successful setup
     return True
 
 
-# class BLEupdaterBinary(Thread):
 class BLEupdaterBinary():
     """BLE monitor entities updater."""
 
     def __init__(self, blemonitor, add_entities):
         """Initiate BLE updater."""
-        # Thread.__init__(self, daemon=True)
         _LOGGER.debug("BLE binary sensors updater initialization")
         self.monitor = blemonitor
         self.dataqueue = blemonitor.dataqueue["binary"].async_q
@@ -90,14 +84,12 @@ class BLEupdaterBinary():
         await asyncio.sleep(0)
         while True:
             try:
-                # advevent = self.dataqueue.get(block=True, timeout=1)
                 advevent = await asyncio.wait_for(self.dataqueue.get(), 1)
                 if advevent is None:
                     _LOGGER.debug("Entities updater loop stopped")
                     return True
                 data = advevent
                 self.dataqueue.task_done()
-            # except queue.Empty:
             except asyncio.TimeoutError:
                 pass
             if len(hpriority) > 0:
@@ -185,7 +177,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
     def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
         self.ready_for_update = False
-        self._sensor_name = ""
+        self._device_name = ""
         self._mac = mac
         self._config = config
         self._restore_state = config[CONF_RESTORE_STATE]
@@ -275,7 +267,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
                 # Unique identifiers within a specific domain
                 (DOMAIN, self._device_state_attributes["mac address"])
             },
-            "name": self.get_sensorname(),
+            "name": self.get_device_name(),
             "model": self._device_type,
             "manufacturer": self._device_manufacturer,
         }
@@ -285,7 +277,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         """Force update."""
         return True
 
-    def get_sensorname(self):
+    def get_device_name(self):
         """Set sensor name."""
         id_selector = CONF_UNIQUE_ID
         # if we work with yaml, then we take the name
@@ -335,9 +327,9 @@ class PowerBinarySensor(SwitchingSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "switch"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble switch {}".format(self._sensor_name)
-        self._unique_id = "sw_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble switch {}".format(self._device_name)
+        self._unique_id = "sw_" + self._device_name
         self._device_class = DEVICE_CLASS_POWER
 
     async def async_update(self):
@@ -355,9 +347,9 @@ class LightBinarySensor(SwitchingSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "light"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble light {}".format(self._sensor_name)
-        self._unique_id = "lt_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble light {}".format(self._device_name)
+        self._unique_id = "lt_" + self._device_name
         self._device_class = DEVICE_CLASS_LIGHT
 
 
@@ -368,9 +360,9 @@ class OpeningBinarySensor(SwitchingSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "opening"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble opening {}".format(self._sensor_name)
-        self._unique_id = "op_" + self._sensor_name
+        self._device_name = self.get_device_name()
+        self._name = "ble opening {}".format(self._device_name)
+        self._unique_id = "op_" + self._device_name
         self._ext_state = None
         self._device_class = DEVICE_CLASS_OPENING
 

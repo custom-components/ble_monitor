@@ -26,8 +26,9 @@ from homeassistant.helpers.entity_registry import (
 )
 
 # It was decided to temporarily include this file in the integration bundle
-# until the issue with checking the adapter's capabilities is resolved in the official aioblescan repo
-# see https://github.com/frawau/aioblescan/pull/30, thanks to @vicamo
+# until the issue with checking the adapter's capabilities is resolved in
+# the official aioblescan repo see https://github.com/frawau/aioblescan/pull/30
+# thanks to @vicamo
 from . import aioblescan_ext as aiobs
 
 from .const import (
@@ -42,6 +43,7 @@ from .const import (
     DEFAULT_DISCOVERY,
     DEFAULT_RESTORE_STATE,
     DEFAULT_HCI_INTERFACE,
+    DEFAULT_SENSOR_DECIMALS,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -53,6 +55,7 @@ from .const import (
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
     CONF_ENCRYPTION_KEY,
+    CONF_SENSOR_DECIMALS,
     CONFIG_IS_FLOW,
     DOMAIN,
     MAC_REGEX,
@@ -82,6 +85,9 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_NAME): cv.string,
         vol.Optional(CONF_ENCRYPTION_KEY): cv.matches_regex(AES128KEY_REGEX),
         vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
+        vol.Optional(
+            CONF_SENSOR_DECIMALS, default=DEFAULT_SENSOR_DECIMALS
+        ): vol.In([DEFAULT_SENSOR_DECIMALS, 0, 1, 2, 3, 4]),
     }
 )
 

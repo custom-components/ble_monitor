@@ -14,6 +14,7 @@ CONF_BATT_ENTITIES = "batt_entities"
 CONF_REPORT_UNKNOWN = "report_unknown"
 CONF_RESTORE_STATE = "restore_state"
 CONF_ENCRYPTION_KEY = "encryption_key"
+CONF_SENSOR_DECIMALS = "decimals"
 CONFIG_IS_FLOW = "is_flow"
 
 SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
@@ -30,6 +31,7 @@ DEFAULT_BATT_ENTITIES = False
 DEFAULT_REPORT_UNKNOWN = False
 DEFAULT_DISCOVERY = True
 DEFAULT_RESTORE_STATE = False
+DEFAULT_SENSOR_DECIMALS = "default"
 
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
