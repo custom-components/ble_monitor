@@ -8,6 +8,7 @@
   - [I get a PermissionError in Home Assistant after the installation](#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade)
   - [How do I find the number of the HCI interface?](#how-do-i-find-the-number-of-the-hci-interface)
   - [How can I create a battery sensor?](#how-can-i-create-a-battery-sensor)
+  - [I get AttributeError: module 'socket' has no attribute 'AF_BLUETOOTH' in Home Assistant after the installation or python upgrade](#i-get-attributeerror-module-socket-has-no-attribute-af_bluetooth-in-home-assistant-after-the-installation-or-python-upgrade)
 - [RECEPTION ISSUES](#reception-issues)
   - [My sensor doesn't receive any readings from my sensors anymore or only occasionally](#my-sensor-doesnt-receive-any-readings-from-my-sensors-anymore-or-only-occasionally)
   - [How to increase coverage](#how-to-increase-coverage)
@@ -85,6 +86,71 @@ The command will return the HCI interface number and mac address.
 Devices:
         hci0    B8:27:EB:77:75:50
 ```
+
+### I get AttributeError: module 'socket' has no attribute 'AF_BLUETOOTH' in Home Assistant after the installation or python upgrade
+
+This means that Python is built/installed without support for Bluetooth. You will have to rebuild Python 3 with `bluetooth.h`. When using a virtual environment (venv), you can do this with the following instructions. Please make a backup first!!!, as you will have to delete the venv with Home Assistant and reinstall it in a new venv. You might need to modify commands for your own situation. 
+
+1. Install BT library with:
+
+``` 
+sudo apt-get install bluetooth libbluetooth-dev
+sudo pip3 install pybluez
+```
+
+2. Rebuild Python:
+
+```
+cd Python-3.8.6/
+./configure
+make
+sudo make install
+```
+
+3. Disable systemctl and reboot:
+
+```
+sudo systemctl disable home-assistant@homeassistant
+sudo reboot
+```
+
+4. Removed old venv and save Home Assistant configuration:
+
+```
+cd /srv/homeassistant
+sudo rm * -R
+cd ..
+sudo chown homeassistant:homeassistant homeassistant
+cd /home/homeassistant
+sudo mv .homeassistant/ .homeassistant_backup
+sudo su -s /bin/bash homeassistant
+```
+
+5. Create a new venv and install HomeAssistant again:
+
+```
+cd /srv/homeassistant
+python3.8 -m venv .
+source bin/activate
+pip3 install homeassistant
+hass -v
+```
+
+6. When you see `INFO (MainThread) [homeassistant.core] Starting Home Assistant` in log use CTRL+C to break and restore your Home Assistant configuration:
+
+```
+deactivate 
+exit
+cd /home/homeassistant
+sudo rm .homeassistant/ -R
+sudo mv .homeassistant_backup/ .homeassistant
+sudo chmod -R 0777 /home/homeassistant/
+sudo systemctl enable home-assistant@homeassistant
+sudo reboot
+```
+
+7. Wait a long time before all plugins are installed in Home Assistant
+
 
 ### How can I create a battery sensor?
 
