@@ -4,7 +4,30 @@ With the `report_unknown` option, you can collect information about new devices 
 
 `2020-12-23 17:42:12 INFO (Thread-3) [custom_components.ble_monitor] BLE ADV from UNKNOWN: RSSI: -53, MAC: 4C65A8DDB89B, ADV: 043e25020100009bb8dda8654c19020106151695fe5020aa01fe9bb8dda8654c0d1004b2007502cb`
 
-When sorting this data, you can find the following pattern. 
+Another option is to use the following command. 
+
+`btmon --write hcitrace.snoop | tee hcitrace.txt`
+
+It will display all bluetooth messages, the following is an example of a MiFlora sensor. 
+
+```
+> HCI Event: LE Meta Event (0x3e) plen 41                   #74 [hci0] 7.164348
+      LE Advertising Report (0x02)
+        Num reports: 1
+        Event type: Connectable undirected - ADV_IND (0x00)
+        Address type: Public (0x00)
+        Address: C4:7C:8D:6B:4F:F3 (OUI C4-7C-8D)
+        Data length: 29
+        Flags: 0x06
+          LE General Discoverable Mode
+          BR/EDR Not Supported
+        16-bit Service UUIDs (partial): 1 entry
+          Xiaomi Inc. (0xfe95)
+        Service Data (UUID 0xfe95): 71209800b2f34f6b8d7cc40d0710035a0000
+        RSSI: -40 dBm (0xd8)
+```
+
+In the example below, we will use the data from the `report_unknown` option. When sorting this data, you can find the following pattern for the LYWSDCGQ sensor. The `Service Data` in the HCI Event above corresponds to the part from `Frame ctrl` till the `payload` (without `RSSI`). 
 
 ```
 -----------------------------------------------------------------------------------------------------------------------------------------------
