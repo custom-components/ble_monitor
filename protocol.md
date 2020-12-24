@@ -8,23 +8,21 @@ Another option is to use the following command.
 
 `btmon --write hcitrace.snoop | tee hcitrace.txt`
 
-It will display all bluetooth messages, the following is an example of a MiFlora sensor. 
+It will display all bluetooth messages, search for the ones that have an `UUID 0xfe95`. 
 
 ```
-> HCI Event: LE Meta Event (0x3e) plen 41                   #74 [hci0] 7.164348
+> HCI Event: LE Meta Event (0x3e) plen 37                 #292 [hci0] 10.578272
       LE Advertising Report (0x02)
         Num reports: 1
         Event type: Connectable undirected - ADV_IND (0x00)
         Address type: Public (0x00)
-        Address: C4:7C:8D:6B:4F:F3 (OUI C4-7C-8D)
-        Data length: 29
+        Address: 4C:65:A8:DD:B8:9B (OUI 4C-65-A8)
+        Data length: 25
         Flags: 0x06
           LE General Discoverable Mode
           BR/EDR Not Supported
-        16-bit Service UUIDs (partial): 1 entry
-          Xiaomi Inc. (0xfe95)
-        Service Data (UUID 0xfe95): 71209800b2f34f6b8d7cc40d0710035a0000
-        RSSI: -40 dBm (0xd8)
+        Service Data (UUID 0xfe95): 5020aa010c9bb8dda8654c0d1004b2004302
+        RSSI: -68 dBm (0xbc)
 ```
 
 In the example below, we will use the data from the `report_unknown` option. When sorting this data, you can find the following pattern for the LYWSDCGQ sensor. The `Service Data` in the HCI Event above corresponds to the part from `Frame ctrl` till the `payload` (without `RSSI`). 
