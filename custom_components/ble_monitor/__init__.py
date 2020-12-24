@@ -93,29 +93,32 @@ DEVICE_SCHEMA = vol.Schema(
 
 CONFIG_SCHEMA = vol.Schema(
     {
-        DOMAIN: vol.Schema(
-            {
-                vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.boolean,
-                vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
-                vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
-                vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
-                vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
-                vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
-                vol.Optional(
-                    CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
-                ): vol.All(cv.ensure_list, [cv.positive_int]),
-                vol.Optional(
-                    CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
-                ): cv.boolean,
-                vol.Optional(
-                    CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
-                ): cv.boolean,
-                vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
-                vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
-                vol.Optional(CONF_DEVICES, default=[]): vol.All(
-                    cv.ensure_list, [DEVICE_SCHEMA]
-                ),
-            }
+        DOMAIN: vol.All(
+            cv.deprecated(CONF_ROUNDING),
+            vol.Schema(
+                {
+                    vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.positive_int,
+                    vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
+                    vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
+                    vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
+                    vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
+                    vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
+                    vol.Optional(
+                        CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
+                    ): vol.All(cv.ensure_list, [cv.positive_int]),
+                    vol.Optional(
+                        CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
+                    ): cv.boolean,
+                    vol.Optional(
+                        CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
+                    ): cv.boolean,
+                    vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
+                    vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
+                    vol.Optional(CONF_DEVICES, default=[]): vol.All(
+                        cv.ensure_list, [DEVICE_SCHEMA]
+                    ),
+                }
+            )
         )
     },
     extra=vol.ALLOW_EXTRA,
@@ -534,7 +537,12 @@ class HCIdump(Thread):
                         self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
                     except RuntimeError as error:
                         _LOGGER.error("HCIdump thread: Runtime error while stop scan request on hci%i: %s", hci, error)
-                    conn[hci].close()
+                    except KeyError:
+                        _LOGGER.debug("HCIdump thread: Key error while stop scan request on hci%i", hci)
+                    try:
+                        conn[hci].close()
+                    except KeyError:
+                        _LOGGER.debug("HCIdump thread: Key error while closing connection on hci%i", hci)
                 self._event_loop.run_until_complete(asyncio.sleep(0))
             if self._joining is True:
                 break

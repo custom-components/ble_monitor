@@ -29,7 +29,6 @@ from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 
 from .const import (
-    CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
@@ -263,7 +262,6 @@ class MeasuringSensor(RestoreEntity):
         self._rdecimals = self.get_device_decimals()
         self._jagged = False
         self._fmdh_dec = 0
-        self._rounding = config[CONF_ROUNDING]
         self._use_median = config[CONF_USE_MEDIAN]
         self._restore_state = config[CONF_RESTORE_STATE]
         self._err = None
@@ -379,12 +377,8 @@ class MeasuringSensor(RestoreEntity):
             rdecimals = self._fmdh_dec
         try:
             measurements = self._measurements
-            if self._rounding:
-                state_median = round(sts.median(measurements), rdecimals)
-                state_mean = round(sts.mean(measurements), rdecimals)
-            else:
-                state_median = sts.median(measurements)
-                state_mean = sts.mean(measurements)
+            state_median = round(sts.median(measurements), rdecimals)
+            state_mean = round(sts.mean(measurements), rdecimals)
             if self._use_median:
                 textattr = "last median of"
                 self._state = state_median

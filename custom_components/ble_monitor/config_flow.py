@@ -19,7 +19,6 @@ from homeassistant.const import (
 )
 
 from .const import (
-    DEFAULT_ROUNDING,
     DEFAULT_DECIMALS,
     DEFAULT_PERIOD,
     DEFAULT_LOG_SPIKES,
@@ -31,7 +30,6 @@ from .const import (
     DEFAULT_DISCOVERY,
     DEFAULT_RESTORE_STATE,
     DEFAULT_SENSOR_DECIMALS,
-    CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
@@ -77,7 +75,6 @@ DOMAIN_SCHEMA = vol.Schema(
         vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
         vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): cv.boolean,
         vol.Optional(CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES): cv.boolean,
-        vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.boolean,
         vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
@@ -333,12 +330,6 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     CONF_BATT_ENTITIES,
                     default=self.config_entry.options.get(
                         CONF_BATT_ENTITIES, DEFAULT_BATT_ENTITIES
-                    ),
-                ): cv.boolean,
-                vol.Optional(
-                    CONF_ROUNDING,
-                    default=self.config_entry.options.get(
-                        CONF_ROUNDING, DEFAULT_ROUNDING
                     ),
                 ): cv.boolean,
                 vol.Optional(
