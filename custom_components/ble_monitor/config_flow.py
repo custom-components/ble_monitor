@@ -29,7 +29,8 @@ from .const import (
     DEFAULT_REPORT_UNKNOWN,
     DEFAULT_DISCOVERY,
     DEFAULT_RESTORE_STATE,
-    DEFAULT_SENSOR_DECIMALS,
+    DEFAULT_DEVICE_DECIMALS,
+    DEFAULT_DEVICE_RESTORE_STATE,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
@@ -40,7 +41,8 @@ from .const import (
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
     CONF_ENCRYPTION_KEY,
-    CONF_SENSOR_DECIMALS,
+    CONF_DEVICE_DECIMALS,
+    CONF_DEVICE_RESTORE_STATE,
     CONFIG_IS_FLOW,
     DOMAIN,
     MAC_REGEX,
@@ -59,9 +61,13 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_TEMPERATURE_UNIT, default=TEMP_CELSIUS): vol.In(
             [TEMP_CELSIUS, TEMP_FAHRENHEIT]
         ),
-        vol.Optional(CONF_SENSOR_DECIMALS, default=DEFAULT_SENSOR_DECIMALS): vol.In(
-            [DEFAULT_SENSOR_DECIMALS, 0, 1, 2, 3]
+        vol.Optional(CONF_DEVICE_DECIMALS, default=DEFAULT_DEVICE_DECIMALS): vol.In(
+            [DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]
         ),
+        vol.Optional(
+            CONF_DEVICE_RESTORE_STATE, default=DEFAULT_DEVICE_RESTORE_STATE): vol.In(
+            [DEFAULT_DEVICE_RESTORE_STATE, True, False]
+        )
     }
 )
 
@@ -192,9 +198,13 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                             default=user_input[CONF_TEMPERATURE_UNIT],
                         ): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
                         vol.Optional(
-                            CONF_SENSOR_DECIMALS,
-                            default=user_input[CONF_SENSOR_DECIMALS],
-                        ): vol.In([DEFAULT_SENSOR_DECIMALS, 0, 1, 2, 3]),
+                            CONF_DEVICE_DECIMALS,
+                            default=user_input[CONF_DEVICE_DECIMALS],
+                        ): vol.In([DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]),
+                        vol.Optional(
+                            CONF_DEVICE_RESTORE_STATE,
+                            default=user_input[CONF_DEVICE_RESTORE_STATE],
+                        ): vol.In([DEFAULT_DEVICE_RESTORE_STATE, True, False]),
                     }
                 )
                 return self.async_show_form(
@@ -226,11 +236,17 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     else TEMP_CELSIUS,
                 ): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
                 vol.Optional(
-                    CONF_SENSOR_DECIMALS,
-                    default=self._sel_device.get(CONF_SENSOR_DECIMALS)
-                    if self._sel_device.get(CONF_SENSOR_DECIMALS)
-                    else DEFAULT_SENSOR_DECIMALS,
-                ): vol.In([DEFAULT_SENSOR_DECIMALS, 0, 1, 2, 3]),
+                    CONF_DEVICE_DECIMALS,
+                    default=self._sel_device.get(CONF_DEVICE_DECIMALS)
+                    if self._sel_device.get(CONF_DEVICE_DECIMALS)
+                    else DEFAULT_DEVICE_DECIMALS,
+                ): vol.In([DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]),
+                vol.Optional(
+                    CONF_DEVICE_RESTORE_STATE,
+                    default=self._sel_device.get(CONF_DEVICE_RESTORE_STATE)
+                    if isinstance(self._sel_device.get(CONF_DEVICE_RESTORE_STATE), bool)
+                    else DEFAULT_DEVICE_RESTORE_STATE,
+                ): vol.In([DEFAULT_DEVICE_RESTORE_STATE, True, False]),
             }
         )
 

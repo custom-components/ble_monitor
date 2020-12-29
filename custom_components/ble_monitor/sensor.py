@@ -3,7 +3,6 @@ from datetime import timedelta
 import asyncio
 import logging
 import statistics as sts
-# from threading import Thread
 
 from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
@@ -35,7 +34,8 @@ from .const import (
     CONF_USE_MEDIAN,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
-    CONF_SENSOR_DECIMALS,
+    CONF_DEVICE_DECIMALS,
+    CONF_DEVICE_RESTORE_STATE,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
@@ -248,22 +248,24 @@ class MeasuringSensor(RestoreEntity):
         self._name = ""
         self._state = None
         self._unit_of_measurement = ""
+        self._device_settings = self.get_device_settings()
+        self._device_name = self._device_settings["name"]
         self._device_class = None
         self._device_type = devtype
         self._device_manufacturer = MANUFACTURER_DICT[devtype]
         self._device_state_attributes = {}
         self._device_state_attributes["sensor type"] = devtype
         self._device_state_attributes["mac address"] = self._fmac
-        self._unique_id = ""
         self._measurement = "measurement"
         self._measurements = []
+        self._unique_id = ""
         self.rssi_values = []
         self.pending_update = False
-        self._rdecimals = self.get_device_decimals()
+        self._rdecimals = self._device_settings["decimals"]
         self._jagged = False
         self._fmdh_dec = 0
         self._use_median = config[CONF_USE_MEDIAN]
-        self._restore_state = config[CONF_RESTORE_STATE]
+        self._restore_state = self._device_settings["restore state"]
         self._err = None
 
     async def async_added_to_hass(self):
@@ -344,7 +346,7 @@ class MeasuringSensor(RestoreEntity):
                 # Unique identifiers within a specific domain
                 (DOMAIN, self._device_state_attributes["mac address"])
             },
-            "name": self.get_device_name(),
+            "name": self._device_name,
             "model": self._device_type,
             "manufacturer": self._device_manufacturer,
         }
@@ -403,45 +405,60 @@ class MeasuringSensor(RestoreEntity):
             _LOGGER.error("Sensor %s (%s) update error: %s", self._name, self._device_type, self._err)
         self.pending_update = False
 
-    def get_device_name(self):
-        """Set sensor name."""
+    def get_device_settings(self):
+        """Set device settings"""
+        device_settings = {}
+
+        # initial setup of device settings equal to integration settings
+        dev_name = self._mac
+        dev_temperature_unit = TEMP_CELSIUS
+        dev_decimals = self._config[CONF_DECIMALS]
+        dev_restore_state = self._config[CONF_RESTORE_STATE]
+
+        # in UI mode device name is equal to mac (but can be overwritten in UI)
+        # in YAML mode device name is taken from config
+        # when changing from YAML mode to UI mode, we keep using the unique_id as device name from YAML
         id_selector = CONF_UNIQUE_ID
-        # if we work with yaml, then we take the name
-        # if not, then we check the unique_id created when switching from yaml
         if "ids_from_name" in self._config:
             id_selector = CONF_NAME
+
+        # overrule settings with device setting if available
         if self._config[CONF_DEVICES]:
             for device in self._config[CONF_DEVICES]:
                 if self._fmac in device["mac"].upper():
                     if id_selector in device:
-                        custom_name = device[id_selector]
+                        # get device name (from YAML config)
+                        dev_name = device[id_selector]
                         _LOGGER.debug(
-                            "Name of %s sensor with mac address %s is set to: %s",
-                            self._measurement,
+                            "Name of sensor with mac address %s is set to: %s (device name changes in UI won't be displayed)",
                             self._fmac,
-                            custom_name,
+                            dev_name,
                         )
-                        return custom_name
-                    break
-        return self._mac
-
-    def get_device_decimals(self):
-        """Set number of decimals"""
-        # initial set decimals to integration setting
-        dev_rdecimals = self._config[CONF_DECIMALS]
-        # overrule decimals with device setting if available
-        if self._config[CONF_DEVICES]:
-            for device in self._config[CONF_DEVICES]:
-                if self._fmac in device["mac"].upper():
-                    if CONF_SENSOR_DECIMALS in device:
-                        try:
-                            # check that device decimals setting is an integer
-                            device[CONF_SENSOR_DECIMALS] + 1
-                            dev_rdecimals = device[CONF_SENSOR_DECIMALS]
-                        except TypeError:
-                            dev_rdecimals = self._config[CONF_DECIMALS]
-        _LOGGER.debug("Number of decimals for sensor with mac address %s is %s", self._fmac, dev_rdecimals)
-        return dev_rdecimals
+                    if CONF_TEMPERATURE_UNIT in device:
+                        dev_temperature_unit = device[CONF_TEMPERATURE_UNIT]
+                    if CONF_DEVICE_DECIMALS in device:
+                        if isinstance(device[CONF_DEVICE_DECIMALS], int):
+                            dev_decimals = device[CONF_DEVICE_DECIMALS]
+                        else:
+                            dev_decimals = self._config[CONF_DECIMALS]
+                    if CONF_DEVICE_RESTORE_STATE in device:
+                        if isinstance(device[CONF_DEVICE_RESTORE_STATE], bool):
+                            dev_restore_state = device[CONF_DEVICE_RESTORE_STATE]
+                        else:
+                            dev_restore_state = self._config[CONF_RESTORE_STATE]
+        device_settings = {
+            "name": dev_name,
+            "temperature unit": dev_temperature_unit,
+            "decimals": dev_decimals,
+            "restore state": dev_restore_state
+        }
+        _LOGGER.debug(
+            "Sensor device with mac address %s will be rounding measurements in %s decimals. Restore state is set to: %s",
+            self._fmac,
+            device_settings["decimals"],
+            device_settings["restore state"]
+        )
+        return device_settings
 
 
 class TemperatureSensor(MeasuringSensor):
@@ -451,30 +468,15 @@ class TemperatureSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "temperature"
-        self._device_name = self.get_device_name()
         self._name = "ble temperature {}".format(self._device_name)
         self._unique_id = "t_" + self._device_name
-        self._unit_of_measurement = self.get_temperature_unit()
+        self._unit_of_measurement = self._device_settings["temperature unit"]
         self._device_class = DEVICE_CLASS_TEMPERATURE
-
-    def get_temperature_unit(self):
-        """Set temperature unit to °C or °F."""
-        if self._config[CONF_DEVICES]:
-            for device in self._config[CONF_DEVICES]:
-                if self._fmac in device["mac"].upper():
-                    if CONF_TEMPERATURE_UNIT in device:
-                        _LOGGER.debug(
-                            "Temperature sensor with mac address %s is set to receive data in %s",
-                            self._fmac,
-                            device[CONF_TEMPERATURE_UNIT],
-                        )
-                        return device[CONF_TEMPERATURE_UNIT]
-                    break
         _LOGGER.debug(
-            "Temperature sensor with mac address %s is set to receive data in °C",
+            "Temperature sensor with mac address %s is set to receive data in %s",
             self._fmac,
+            self._unit_of_measurement,
         )
-        return TEMP_CELSIUS
 
 
 class HumiditySensor(MeasuringSensor):
@@ -484,7 +486,6 @@ class HumiditySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "humidity"
-        self._device_name = self.get_device_name()
         self._name = "ble humidity {}".format(self._device_name)
         self._unique_id = "h_" + self._device_name
         self._unit_of_measurement = PERCENTAGE
@@ -501,7 +502,6 @@ class MoistureSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "moisture"
-        self._device_name = self.get_device_name()
         self._name = "ble moisture {}".format(self._device_name)
         self._unique_id = "m_" + self._device_name
         self._unit_of_measurement = PERCENTAGE
@@ -515,7 +515,6 @@ class ConductivitySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "conductivity"
-        self._device_name = self.get_device_name()
         self._name = "ble conductivity {}".format(self._device_name)
         self._unique_id = "c_" + self._device_name
         self._unit_of_measurement = CONDUCTIVITY
@@ -534,7 +533,6 @@ class IlluminanceSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "illuminance"
-        self._device_name = self.get_device_name()
         self._name = "ble illuminance {}".format(self._device_name)
         self._unique_id = "l_" + self._device_name
         self._unit_of_measurement = "lx"
@@ -548,7 +546,6 @@ class FormaldehydeSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "formaldehyde"
-        self._device_name = self.get_device_name()
         self._name = "ble formaldehyde {}".format(self._device_name)
         self._unique_id = "f_" + self._device_name
         self._unit_of_measurement = "mg/m³"
@@ -568,7 +565,6 @@ class BatterySensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "battery"
-        self._device_name = self.get_device_name()
         self._name = "ble battery {}".format(self._device_name)
         self._unique_id = "batt_" + self._device_name
         self._unit_of_measurement = PERCENTAGE
@@ -597,7 +593,6 @@ class ConsumableSensor(MeasuringSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "consumable"
-        self._device_name = self.get_device_name()
         self._name = "ble consumable {}".format(self._device_name)
         self._unique_id = "cn_" + self._device_name
         self._unit_of_measurement = PERCENTAGE

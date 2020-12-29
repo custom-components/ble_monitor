@@ -43,7 +43,8 @@ from .const import (
     DEFAULT_DISCOVERY,
     DEFAULT_RESTORE_STATE,
     DEFAULT_HCI_INTERFACE,
-    DEFAULT_SENSOR_DECIMALS,
+    DEFAULT_DEVICE_DECIMALS,
+    DEFAULT_DEVICE_RESTORE_STATE,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -55,7 +56,8 @@ from .const import (
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
     CONF_ENCRYPTION_KEY,
-    CONF_SENSOR_DECIMALS,
+    CONF_DEVICE_DECIMALS,
+    CONF_DEVICE_RESTORE_STATE,
     CONFIG_IS_FLOW,
     DOMAIN,
     MAC_REGEX,
@@ -86,8 +88,11 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_ENCRYPTION_KEY): cv.matches_regex(AES128KEY_REGEX),
         vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
         vol.Optional(
-            CONF_SENSOR_DECIMALS, default=DEFAULT_SENSOR_DECIMALS
-        ): vol.In([DEFAULT_SENSOR_DECIMALS, 0, 1, 2, 3, 4]),
+            CONF_DEVICE_DECIMALS, default=DEFAULT_DEVICE_DECIMALS
+        ): vol.In([DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3, 4]),
+        vol.Optional(
+            CONF_DEVICE_RESTORE_STATE, default=DEFAULT_DEVICE_RESTORE_STATE
+        ): vol.In([DEFAULT_DEVICE_RESTORE_STATE, True, False]),
     }
 )
 
