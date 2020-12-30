@@ -25,25 +25,25 @@ It will display all bluetooth messages, search for the ones that have an `UUID 0
         RSSI: -68 dBm (0xbc)
 ```
 
-In the example below, we will use the data from the `report_unknown` option. When sorting this data, you can find the following pattern for the LYWSDCGQ sensor. The `Service Data` in the HCI Event above corresponds to the part from `Frame ctrl` till the `payload` (without `RSSI`). 
+In the example below, we will use the data from the `report_unknown` option. When sorting this data, you can find the following pattern for the LYWSDCGQ sensor. The `Service Data` in the HCI Event above corresponds to the part from `Frame ctrl` till the `payload` (without `RSSI`). More info on the Mi Beacon protocol can be found [here](https://cdn.cnbj0.fds.api.mi-img.com/miio.files/commonfile_pdf_f119c8464d43526b48fb453f19f30192.pdf), although most is in Chinese. 
 
 ```
------------------------------------------------------------------------------------------------------------------------------------------------
-      Len             --------MAC-------   Len         Len  AD  Xiaomi Frame Device  Frame ------MAC--------   -----PAYLOAD-------------  RSSI
-                                                           type  UUID   ctrl  type    cnt                      Type  Len Temp   Hum   Batt
------------------------------------------------------------------------------------------------------------------------------------------------
-04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19 02 01 06 15   16  95 fe  50 20  aa 01   fe   9b b8 dd a8 65 4c   0d 10 04  b2 00  75 02      cb
-04 3e 23 02 01 00 00   9b b8 dd a8 65 4c   17 02 01 06 13   16  95 fe  50 20  aa 01   ff   9b b8 dd a8 65 4c   04 10 02  b1 00             d0
-04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19 02 01 06 15   16  95 fe  50 20  aa 01   00   9b b8 dd a8 65 4c   0d 10 04  b3 00  74 02      d0
-04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19 02 01 06 15   16  95 fe  50 20  aa 01   01   9b b8 dd a8 65 4c   0d 10 04  b2 00  74 02      c9
-04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19 02 01 06 15   16  95 fe  50 20  aa 01   02   9b b8 dd a8 65 4c   0d 10 04  b3 00  74 02      c9
-04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19 02 01 06 15   16  95 fe  50 20  aa 01   03   9b b8 dd a8 65 4c   0d 10 04  b2 00  74 02      c8
-04 3e 23 02 01 00 00   9b b8 dd a8 65 4c   17 02 01 06 13   16  95 fe  50 20  aa 01   04   9b b8 dd a8 65 4c   06 10 02         74 02      cb
-04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19 02 01 06 15   16  95 fe  50 20  aa 01   05   9b b8 dd a8 65 4c   0d 10 04  b2 00  74 02      cb
-04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19 02 01 06 15   16  95 fe  50 20  aa 01   06   9b b8 dd a8 65 4c   0d 10 04  b3 00  74 02      c9
-04 3e 23 02 01 00 00   9b b8 dd a8 65 4c   17 02 01 06 13   16  95 fe  50 20  aa 01   07   9b b8 dd a8 65 4c   04 10 02  b2 00             c9
-04 3e 22 02 01 00 00   9b b8 dd a8 65 4c   16 02 01 06 12   16  95 fe  50 20  aa 01   08   9b b8 dd a8 65 4c   0a 10 01               48   cb
------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
+      Len             --------MAC-------   Len Len Type Val Len  AD  Xiaomi Frame Product Frame ------MAC--------   -----PAYLOAD-------------  RSSI
+                                                   flag         type  UUID   ctrl   ID    cnt                      Type  Len Temp   Hum   Batt
+---------------------------------------------------------------------------------------------------------------------------------------------------
+04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19  02   01  06  15   16  95 fe  50 20  aa 01   fe   9b b8 dd a8 65 4c   0d 10 04  b2 00  75 02      cb
+04 3e 23 02 01 00 00   9b b8 dd a8 65 4c   17  02   01  06  13   16  95 fe  50 20  aa 01   ff   9b b8 dd a8 65 4c   04 10 02  b1 00             d0
+04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19  02   01  06  15   16  95 fe  50 20  aa 01   00   9b b8 dd a8 65 4c   0d 10 04  b3 00  74 02      d0
+04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19  02   01  06  15   16  95 fe  50 20  aa 01   01   9b b8 dd a8 65 4c   0d 10 04  b2 00  74 02      c9
+04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19  02   01  06  15   16  95 fe  50 20  aa 01   02   9b b8 dd a8 65 4c   0d 10 04  b3 00  74 02      c9
+04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19  02   01  06  15   16  95 fe  50 20  aa 01   03   9b b8 dd a8 65 4c   0d 10 04  b2 00  74 02      c8
+04 3e 23 02 01 00 00   9b b8 dd a8 65 4c   17  02   01  06  13   16  95 fe  50 20  aa 01   04   9b b8 dd a8 65 4c   06 10 02         74 02      cb
+04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19  02   01  06  15   16  95 fe  50 20  aa 01   05   9b b8 dd a8 65 4c   0d 10 04  b2 00  74 02      cb
+04 3e 25 02 01 00 00   9b b8 dd a8 65 4c   19  02   01  06  15   16  95 fe  50 20  aa 01   06   9b b8 dd a8 65 4c   0d 10 04  b3 00  74 02      c9
+04 3e 23 02 01 00 00   9b b8 dd a8 65 4c   17  02   01  06  13   16  95 fe  50 20  aa 01   07   9b b8 dd a8 65 4c   04 10 02  b2 00             c9
+04 3e 22 02 01 00 00   9b b8 dd a8 65 4c   16  02   01  06  12   16  95 fe  50 20  aa 01   08   9b b8 dd a8 65 4c   0a 10 01               48   cb
+---------------------------------------------------------------------------------------------------------------------------------------------------
 ```
 
 ## Converting hex to decimals
@@ -57,27 +57,27 @@ Next step is to convert some of the hex numbers to decimals. The following param
 - RSSI
 
 ```
------------------------------------------------------------------------------------------------------------------------------------------------
-      Len             --------MAC-------   Len         Len  AD  Xiaomi Frame Device  Frame ------MAC--------   -----PAYLOAD-------------  RSSI
-                                                           type  UUID   ctrl  type    cnt                      Type  Len Temp   Hum   Batt
------------------------------------------------------------------------------------------------------------------------------------------------
-04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25 02 01 06 21   16  95 fe  50 20  aa 01   254  9b b8 dd a8 65 4c   0d 10  4  178    629       -53
-04 3e 35 02 01 00 00   9b b8 dd a8 65 4c   23 02 01 06 19   16  95 fe  50 20  aa 01   255  9b b8 dd a8 65 4c   04 10  2  177              -48
-04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25 02 01 06 21   16  95 fe  50 20  aa 01     0  9b b8 dd a8 65 4c   0d 10  4  179    628       -48
-04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25 02 01 06 21   16  95 fe  50 20  aa 01     1  9b b8 dd a8 65 4c   0d 10  4  178    628       -55
-04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25 02 01 06 21   16  95 fe  50 20  aa 01     2  9b b8 dd a8 65 4c   0d 10  4  179    628       -55
-04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25 02 01 06 21   16  95 fe  50 20  aa 01     3  9b b8 dd a8 65 4c   0d 10  4  179    628       -56
-04 3e 35 02 01 00 00   9b b8 dd a8 65 4c   23 02 01 06 19   16  95 fe  50 20  aa 01     4  9b b8 dd a8 65 4c   06 10  2         628       -53
-04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25 02 01 06 21   16  95 fe  50 20  aa 01     5  9b b8 dd a8 65 4c   0d 10  4  178    628       -53
-04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25 02 01 06 21   16  95 fe  50 20  aa 01     6  9b b8 dd a8 65 4c   0d 10  4  179    628       -55
-04 3e 35 02 01 00 00   9b b8 dd a8 65 4c   23 02 01 06 19   16  95 fe  50 20  aa 01     7  9b b8 dd a8 65 4c   04 10  2  178              -55
-04 3e 34 02 01 00 00   9b b8 dd a8 65 4c   22 02 01 06 18   16  95 fe  50 20  aa 01     8  9b b8 dd a8 65 4c   0a 10  1              72   -53
------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
+      Len             --------MAC-------   Len Len Type Val Len  AD  Xiaomi Frame Product Frame ------MAC--------   -----PAYLOAD-------------  RSSI
+                                                   flag         type  UUID   ctrl   ID    cnt                      Type  Len Temp   Hum   Batt
+---------------------------------------------------------------------------------------------------------------------------------------------------
+04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25   2   01  06  21   16  95 fe  50 20  aa 01   254  9b b8 dd a8 65 4c   0d 10  4  178    629       -53
+04 3e 35 02 01 00 00   9b b8 dd a8 65 4c   23   2   01  06  19   16  95 fe  50 20  aa 01   255  9b b8 dd a8 65 4c   04 10  2  177              -48
+04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25   2   01  06  21   16  95 fe  50 20  aa 01     0  9b b8 dd a8 65 4c   0d 10  4  179    628       -48
+04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25   2   01  06  21   16  95 fe  50 20  aa 01     1  9b b8 dd a8 65 4c   0d 10  4  178    628       -55
+04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25   2   01  06  21   16  95 fe  50 20  aa 01     2  9b b8 dd a8 65 4c   0d 10  4  179    628       -55
+04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25   2   01  06  21   16  95 fe  50 20  aa 01     3  9b b8 dd a8 65 4c   0d 10  4  179    628       -56
+04 3e 35 02 01 00 00   9b b8 dd a8 65 4c   23   2   01  06  19   16  95 fe  50 20  aa 01     4  9b b8 dd a8 65 4c   06 10  2         628       -53
+04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25   2   01  06  21   16  95 fe  50 20  aa 01     5  9b b8 dd a8 65 4c   0d 10  4  178    628       -53
+04 3e 37 02 01 00 00   9b b8 dd a8 65 4c   25   2   01  06  21   16  95 fe  50 20  aa 01     6  9b b8 dd a8 65 4c   0d 10  4  179    628       -55
+04 3e 35 02 01 00 00   9b b8 dd a8 65 4c   23   2   01  06  19   16  95 fe  50 20  aa 01     7  9b b8 dd a8 65 4c   04 10  2  178              -55
+04 3e 34 02 01 00 00   9b b8 dd a8 65 4c   22   2   01  06  18   16  95 fe  50 20  aa 01     8  9b b8 dd a8 65 4c   0a 10  1              72   -53
+---------------------------------------------------------------------------------------------------------------------------------------------------
 ```
 
 ## Explanation of the data
 
-- Len = Length of data packet (given at 4 positions, length is from that position till the end of the message)
+- Len = Length of data packet (given at 5 positions)
 - MAC = MAC address in reversed order (per 2 characters)
 - AD type + Xiaomi UUID = Indicator for the Xiaomi MiBeacon protocol, has to be `16 95 fe`
 - Device type = Indicator for the device type, as used in `const.py`
