@@ -30,6 +30,7 @@ from .const import (
     DEFAULT_DISCOVERY,
     DEFAULT_RESTORE_STATE,
     DEFAULT_DEVICE_DECIMALS,
+    DEFAULT_DEVICE_USE_MEDIAN,
     DEFAULT_DEVICE_RESTORE_STATE,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -42,6 +43,7 @@ from .const import (
     CONF_RESTORE_STATE,
     CONF_ENCRYPTION_KEY,
     CONF_DEVICE_DECIMALS,
+    CONF_DEVICE_USE_MEDIAN,
     CONF_DEVICE_RESTORE_STATE,
     CONFIG_IS_FLOW,
     DOMAIN,
@@ -63,6 +65,10 @@ DEVICE_SCHEMA = vol.Schema(
         ),
         vol.Optional(CONF_DEVICE_DECIMALS, default=DEFAULT_DEVICE_DECIMALS): vol.In(
             [DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]
+        ),
+        vol.Optional(
+            CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN): vol.In(
+            [DEFAULT_DEVICE_USE_MEDIAN, True, False]
         ),
         vol.Optional(
             CONF_DEVICE_RESTORE_STATE, default=DEFAULT_DEVICE_RESTORE_STATE): vol.In(
@@ -95,7 +101,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class BLEMonitorFlow(data_entry_flow.FlowHandler):
-    """BLEMonitor flow"""
+    """BLEMonitor flow."""
 
     def __init__(self):
         """Initialize flow instance."""
@@ -110,12 +116,12 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         return True
 
     def validate_mac(self, value: str, errors: list):
-        """mac validation"""
+        """Mac validation."""
         if not self.validate_regex(value, MAC_REGEX):
             errors[CONF_MAC] = "invalid_mac"
 
     def validate_key(self, value: str, errors: list):
-        """key validation"""
+        """Key validation."""
         if not value or value == "-":
             return
         if not self.validate_regex(value, AES128KEY_REGEX):
@@ -160,7 +166,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         )
 
     async def async_step_add_device(self, user_input=None):
-        """add device step"""
+        """Add device step."""
         errors = {}
         if user_input is not None:
             _LOGGER.debug("async_step_add_device: %s", user_input)
@@ -202,6 +208,10 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                             default=user_input[CONF_DEVICE_DECIMALS],
                         ): vol.In([DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]),
                         vol.Optional(
+                            CONF_DEVICE_USE_MEDIAN,
+                            default=user_input[CONF_DEVICE_USE_MEDIAN],
+                        ): vol.In([DEFAULT_DEVICE_USE_MEDIAN, True, False]),
+                        vol.Optional(
                             CONF_DEVICE_RESTORE_STATE,
                             default=user_input[CONF_DEVICE_RESTORE_STATE],
                         ): vol.In([DEFAULT_DEVICE_RESTORE_STATE, True, False]),
@@ -242,6 +252,12 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     else DEFAULT_DEVICE_DECIMALS,
                 ): vol.In([DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]),
                 vol.Optional(
+                    CONF_DEVICE_USE_MEDIAN,
+                    default=self._sel_device.get(CONF_DEVICE_USE_MEDIAN)
+                    if isinstance(self._sel_device.get(CONF_DEVICE_USE_MEDIAN), bool)
+                    else DEFAULT_DEVICE_USE_MEDIAN,
+                ): vol.In([DEFAULT_DEVICE_USE_MEDIAN, True, False]),
+                vol.Optional(
                     CONF_DEVICE_RESTORE_STATE,
                     default=self._sel_device.get(CONF_DEVICE_RESTORE_STATE)
                     if isinstance(self._sel_device.get(CONF_DEVICE_RESTORE_STATE), bool)
@@ -258,7 +274,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
 
 
 class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOMAIN):
-    """BLEMonitor config flow"""
+    """BLEMonitor config flow."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH

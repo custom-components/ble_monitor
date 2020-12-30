@@ -40,7 +40,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
-    """setup from setup_entry"""
+    """Set up from setup_entry."""
     return True
 
 
@@ -72,7 +72,6 @@ class BLEupdaterBinary():
 
     async def async_run(self):
         """Entities updater loop."""
-
         _LOGGER.debug("Binary entities updater loop started!")
         sensors_by_mac = {}
         sensors = []
@@ -263,6 +262,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
 
     @property
     def device_info(self):
+        """Return the device info."""
         return {
             "identifiers": {
                 # Unique identifiers within a specific domain
@@ -279,7 +279,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         return True
 
     def get_device_settings(self):
-        """Set device settings"""
+        """Set device settings."""
         device_settings = {}
 
         # initial setup of device settings equal to integration settings
@@ -301,7 +301,8 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
                         # get name (only applicable in YAML mode or after switching from YAML to UI)
                         dev_name = device[id_selector]
                         _LOGGER.debug(
-                            "Name of sensor with mac address %s is set to: %s (device name changes in UI won't be displayed)",
+                            "Name of binary sensor with mac address %s is set to: %s "
+                            "(device name changes in UI won't be displayed in the log)",
                             self._fmac,
                             dev_name,
                         )
@@ -323,7 +324,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
 
     @property
     def pending_update(self):
-        """Checks if entity is enabled"""
+        """Check if entity is enabled."""
         return self.enabled and self.ready_for_update
 
     def collect(self, data, batt_attr=None):

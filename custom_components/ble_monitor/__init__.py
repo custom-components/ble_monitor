@@ -44,6 +44,7 @@ from .const import (
     DEFAULT_RESTORE_STATE,
     DEFAULT_HCI_INTERFACE,
     DEFAULT_DEVICE_DECIMALS,
+    DEFAULT_DEVICE_USE_MEDIAN,
     DEFAULT_DEVICE_RESTORE_STATE,
     CONF_ROUNDING,
     CONF_DECIMALS,
@@ -57,6 +58,7 @@ from .const import (
     CONF_RESTORE_STATE,
     CONF_ENCRYPTION_KEY,
     CONF_DEVICE_DECIMALS,
+    CONF_DEVICE_USE_MEDIAN,
     CONF_DEVICE_RESTORE_STATE,
     CONFIG_IS_FLOW,
     DOMAIN,
@@ -90,6 +92,9 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(
             CONF_DEVICE_DECIMALS, default=DEFAULT_DEVICE_DECIMALS
         ): vol.In([DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3, 4]),
+        vol.Optional(
+            CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN
+        ): vol.In([DEFAULT_DEVICE_USE_MEDIAN, True, False]),
         vol.Optional(
             CONF_DEVICE_RESTORE_STATE, default=DEFAULT_DEVICE_RESTORE_STATE
         ): vol.In([DEFAULT_DEVICE_RESTORE_STATE, True, False]),

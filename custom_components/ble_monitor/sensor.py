@@ -35,6 +35,7 @@ from .const import (
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
     CONF_DEVICE_DECIMALS,
+    CONF_DEVICE_USE_MEDIAN,
     CONF_DEVICE_RESTORE_STATE,
     CONF_TMIN,
     CONF_TMAX,
@@ -264,7 +265,7 @@ class MeasuringSensor(RestoreEntity):
         self._rdecimals = self._device_settings["decimals"]
         self._jagged = False
         self._fmdh_dec = 0
-        self._use_median = config[CONF_USE_MEDIAN]
+        self._use_median = self._device_settings["use median"]
         self._restore_state = self._device_settings["restore state"]
         self._err = None
 
@@ -341,6 +342,7 @@ class MeasuringSensor(RestoreEntity):
 
     @property
     def device_info(self):
+        """Return device info."""
         return {
             "identifiers": {
                 # Unique identifiers within a specific domain
@@ -371,7 +373,7 @@ class MeasuringSensor(RestoreEntity):
         self.pending_update = True
 
     async def async_update(self):
-        """Updates sensor state and attributes."""
+        """Update sensor state and attributes."""
         textattr = ""
         rdecimals = self._rdecimals
         # formaldehyde decimals workaround
@@ -406,13 +408,14 @@ class MeasuringSensor(RestoreEntity):
         self.pending_update = False
 
     def get_device_settings(self):
-        """Set device settings"""
+        """Set device settings."""
         device_settings = {}
 
         # initial setup of device settings equal to integration settings
         dev_name = self._mac
         dev_temperature_unit = TEMP_CELSIUS
         dev_decimals = self._config[CONF_DECIMALS]
+        dev_use_median = self._config[CONF_USE_MEDIAN]
         dev_restore_state = self._config[CONF_RESTORE_STATE]
 
         # in UI mode device name is equal to mac (but can be overwritten in UI)
@@ -430,7 +433,8 @@ class MeasuringSensor(RestoreEntity):
                         # get device name (from YAML config)
                         dev_name = device[id_selector]
                         _LOGGER.debug(
-                            "Name of sensor with mac address %s is set to: %s (device name changes in UI won't be displayed)",
+                            "Name of sensor with mac address %s is set to: %s "
+                            "(device name changes in UI won't be displayed in the log)",
                             self._fmac,
                             dev_name,
                         )
@@ -441,6 +445,11 @@ class MeasuringSensor(RestoreEntity):
                             dev_decimals = device[CONF_DEVICE_DECIMALS]
                         else:
                             dev_decimals = self._config[CONF_DECIMALS]
+                    if CONF_DEVICE_USE_MEDIAN in device:
+                        if isinstance(device[CONF_DEVICE_USE_MEDIAN], bool):
+                            dev_use_median = device[CONF_DEVICE_USE_MEDIAN]
+                        else:
+                            dev_use_median = self._config[CONF_USE_MEDIAN]
                     if CONF_DEVICE_RESTORE_STATE in device:
                         if isinstance(device[CONF_DEVICE_RESTORE_STATE], bool):
                             dev_restore_state = device[CONF_DEVICE_RESTORE_STATE]
@@ -450,12 +459,16 @@ class MeasuringSensor(RestoreEntity):
             "name": dev_name,
             "temperature unit": dev_temperature_unit,
             "decimals": dev_decimals,
+            "use median": dev_use_median,
             "restore state": dev_restore_state
         }
         _LOGGER.debug(
-            "Sensor device with mac address %s will be rounding measurements in %s decimals. Restore state is set to: %s",
+            "Sensor device with mac address %s will be rounding measurements in %s decimals. "
+            "Use Median is set to: %s. "
+            "Restore state is set to: %s",
             self._fmac,
             device_settings["decimals"],
+            device_settings["use median"],
             device_settings["restore state"]
         )
         return device_settings
