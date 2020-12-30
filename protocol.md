@@ -80,7 +80,7 @@ Next step is to convert some of the hex numbers to decimals. The following param
 - Len = Length of data packet (given at 5 positions)
 - MAC = MAC address in reversed order (per 2 characters)
 - AD type + Xiaomi UUID = Indicator for the Xiaomi MiBeacon protocol, has to be `16 95 fe`
-- Device type = Indicator for the device type, as used in `const.py`
+- Product ID = Indicator for the device type, as used in `const.py`
 - Frame cnt = Index number of the message
 - Type = Type of measurement
   - 0d 10 = temperature + humidity
