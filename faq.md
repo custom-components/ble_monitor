@@ -204,15 +204,17 @@ There are several ways to increase coverage:
 
 ### My sensor's BLE advertisements are encrypted, how can I get the key?
 
-There are several ways:
+The BLE messages from some sensors are encrypted. To decrypt these messages, you need to configure the encryption key. The encryption key (also called bind key) is only visible at the moment it is created, e.g. when adding the sensor to the MiHome app. There are several ways to get the encryption key:
 
-1. LYWSD03MMC only: using TelinkFlasher, see also the instructions [here](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/407)
+1. LYWSD03MMC sensors only: using TelinkFlasher, see also the instructions [here](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/407). 
 
     - Keep the sensor close to the mobile phone (android only) or Windows computer.
     - Make sure that the bluetooth is enabled.
     - Using your browser, navigate to [this page](https://atc1441.github.io/TelinkFlasher.html).
     - Now, click the [Connect] button and wait until it shows "Connected." See the Log section at the bottom.
     - Once connected, click the [Do Activation] button and wait until the "Mi Bind Key" shows the information.
+
+    Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore. If you want to use MiHome and our custom component at the same time, you wil have to use one of the other options.
   
 2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595874419).
 
