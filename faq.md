@@ -230,7 +230,7 @@ The BLE messages from some sensors are encrypted. To decrypt these messages, you
     - During setup of the app, give access to the local device storage.
     - The app will create a folder `/devicestorage/vevs/`. Add a folder `logs` in this folder (`/devicestorage/vevs/logs/`).
     - Add the sensor device to the MiHome app.
-    - After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac.
+    - After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod. 
 
 
 3. Intercepting the MiHome application traffic
