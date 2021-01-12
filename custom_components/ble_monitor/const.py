@@ -51,6 +51,7 @@ XIAOMI_TYPE_DICT = {
     b'\x48\x0B': ("CGG1-ENCRYPTED", False),
     b'\x5B\x04': ("LYWSD02", False),
     b'\x5B\x05': ("LYWSD03MMC", False),
+    b'\x1A\x18': ("LYWSD03MMC-ATC", False),
     b'\x76\x05': ("CGD1", False),
     b'\xd3\x06': ("MHO-C303", False),
     b'\x87\x03': ("MHO-C401", False),
@@ -68,28 +69,31 @@ XIAOMI_TYPE_DICT = {
 
 
 # Sensor type indexes dictionary for sensor platform
-# Temperature, Humidity, Moisture, Conductivity, Illuminance, Formaldehyde, Consumable, Battery, Switch, Opening, Light, Moisture, Battery
+# Sensor:         Temperature, Humidity, Moisture, Conductivity, Illuminance,
+#                 Formaldehyde, Consumable, Voltage, Battery
+# Binary_sensor:  Switch, Opening, Light, Moisture, Battery
 #                            sensor               binary
-# Measurement type      [T  H  M  C  I  F  Cn B]  [Sw O  L  M  B]     (start from 0, 9 - no data)
+# Measurement type      [T  H  M  C  I  F  Cn V  B]  [Sw O  L  M  B]     (start from 0, 9 - no data)
 MMTS_DICT = {
-    'LYWSDCGQ'       : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'CGG1'           : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'CGG1-ENCRYPTED' : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'LYWSD02'        : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'LYWSD03MMC'     : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'CGD1'           : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'MHO-C401'       : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'MHO-C303'       : [[0, 1, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'JQJCY01YM'      : [[0, 1, 9, 9, 9, 2, 9, 3], [9, 9, 9, 9, 9]],
-    'HHCCJCY01'      : [[0, 9, 1, 2, 3, 9, 9, 9], [9, 9, 9, 9, 9]],
-    'GCLS002'        : [[0, 9, 1, 2, 3, 9, 9, 9], [9, 9, 9, 9, 9]],
-    'HHCCPOT002'     : [[9, 9, 0, 1, 9, 9, 9, 9], [9, 9, 9, 9, 9]],
-    'WX08ZM'         : [[9, 9, 9, 9, 9, 9, 0, 1], [0, 9, 9, 9, 1]],
-    'MCCGQ02HL'      : [[9, 9, 9, 9, 9, 9, 9, 0], [9, 0, 1, 9, 2]],
-    'YM-K1501'       : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
-    'YM-K1501EU'     : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
-    'V-SK152'        : [[0, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
-    'SJWS01LM'       : [[9, 9, 9, 9, 9, 9, 9, 0], [9, 9, 9, 0, 1]],
+    'LYWSDCGQ'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
+    'CGG1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
+    'CGG1-ENCRYPTED' : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
+    'LYWSD02'        : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
+    'LYWSD03MMC'     : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
+    'LYWSD03MMC-ATC' : [[0, 1, 9, 9, 9, 9, 9, 2, 3], [9, 9, 9, 9, 9]],
+    'CGD1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
+    'MHO-C401'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
+    'MHO-C303'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
+    'JQJCY01YM'      : [[0, 1, 9, 9, 9, 2, 9, 9, 3], [9, 9, 9, 9, 9]],
+    'HHCCJCY01'      : [[0, 9, 1, 2, 3, 9, 9, 9, 9], [9, 9, 9, 9, 9]],
+    'GCLS002'        : [[0, 9, 1, 2, 3, 9, 9, 9, 9], [9, 9, 9, 9, 9]],
+    'HHCCPOT002'     : [[9, 9, 0, 1, 9, 9, 9, 9, 9], [9, 9, 9, 9, 9]],
+    'WX08ZM'         : [[9, 9, 9, 9, 9, 9, 0, 9, 1], [0, 9, 9, 9, 1]],
+    'MCCGQ02HL'      : [[9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 0, 1, 9, 2]],
+    'YM-K1501'       : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
+    'YM-K1501EU'     : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
+    'V-SK152'        : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
+    'SJWS01LM'       : [[9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 9, 9, 0, 1]],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -101,6 +105,7 @@ MANUFACTURER_DICT = {
     'CGG1-ENCRYPTED' : 'Qingping',
     'LYWSD02'        : 'Xiaomi',
     'LYWSD03MMC'     : 'Xiaomi',
+    'LYWSD03MMC-ATC' : 'Xiaomi',
     'CGD1'           : 'ClearGrass',
     'MHO-C401'       : 'Miaomiaoce',
     'MHO-C303'       : 'Miaomiaoce',

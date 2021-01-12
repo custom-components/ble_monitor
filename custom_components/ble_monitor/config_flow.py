@@ -89,7 +89,8 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class BLEMonitorFlow(data_entry_flow.FlowHandler):
-    """BLEMonitor flow"""
+    """BLEMonitor flow."""
+
     def __init__(self):
         """Initialize flow instance."""
         self._devices = {}
@@ -104,12 +105,12 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         return True
 
     def validate_mac(self, value: str, errors: list):
-        """mac validation"""
+        """Mac validation."""
         if not self.validate_regex(value, MAC_REGEX):
             errors[CONF_MAC] = "invalid_mac"
 
     def validate_key(self, value: str, errors: list):
-        """key validation"""
+        """Key validation."""
         if not value or value == "-":
             return
 
@@ -146,7 +147,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         )
 
     async def async_step_add_device(self, user_input=None):
-        """add device step"""
+        """Add device step."""
         errors = {}
         if user_input is not None:
             _LOGGER.debug("async_step_add_device: %s", user_input)
@@ -201,7 +202,8 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
 
 
 class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOMAIN):
-    """BLEMonitor config flow"""
+    """BLEMonitor config flow."""
+
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
 

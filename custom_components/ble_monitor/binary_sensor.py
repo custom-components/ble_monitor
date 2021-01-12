@@ -2,14 +2,12 @@
 from datetime import timedelta
 import asyncio
 import logging
-# from threading import Thread
 
 from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_LIGHT,
     DEVICE_CLASS_MOISTURE,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_POWER,
-    # BinarySensorEntity,
 )
 
 try:
@@ -42,7 +40,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
-    """setup from setup_entry"""
+    """Set up from setup_entry."""
     return True
 
 
@@ -52,8 +50,6 @@ async def async_setup_entry(hass, config_entry, add_entities):
 
     blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdaterBinary(blemonitor, add_entities)
-    # bleupdater.start()
-    # hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, bleupdater.async_run)
     hass.loop.create_task(bleupdater.async_run())
     _LOGGER.debug("Binary sensor entry setup finished")
     # Return successful setup
@@ -66,7 +62,6 @@ class BLEupdaterBinary():
 
     def __init__(self, blemonitor, add_entities):
         """Initiate BLE updater."""
-        # Thread.__init__(self, daemon=True)
         _LOGGER.debug("BLE binary sensors updater initialization")
         self.monitor = blemonitor
         self.dataqueue = blemonitor.dataqueue["binary"].async_q
@@ -78,7 +73,6 @@ class BLEupdaterBinary():
 
     async def async_run(self):
         """Entities updater loop."""
-
         _LOGGER.debug("Binary entities updater loop started!")
         sensors_by_mac = {}
         sensors = []
@@ -91,14 +85,12 @@ class BLEupdaterBinary():
         await asyncio.sleep(0)
         while True:
             try:
-                # advevent = self.dataqueue.get(block=True, timeout=1)
                 advevent = await asyncio.wait_for(self.dataqueue.get(), 1)
                 if advevent is None:
                     _LOGGER.debug("Entities updater loop stopped")
                     return True
                 data = advevent
                 self.dataqueue.task_done()
-            # except queue.Empty:
             except asyncio.TimeoutError:
                 pass
             if len(hpriority) > 0:
@@ -280,6 +272,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
 
     @property
     def device_info(self):
+        """Return device info."""
         return {
             "identifiers": {
                 # Unique identifiers within a specific domain
@@ -320,7 +313,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
 
     @property
     def pending_update(self):
-        """Checks if entity is enabled"""
+        """Check if entity is enabled."""
         return self.enabled and self.ready_for_update
 
     def collect(self, data, batt_attr=None):
