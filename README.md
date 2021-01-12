@@ -124,6 +124,12 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   (Viomi Smart Kettle, experimental support, collecting data, `ext_state` attribute as in YM-K1501, data broadcasted every 30 seconds)
 
   ![V-SK152](/pictures/V-SK152.png)
+
+- SJWS01LM
+
+  (Xiaomi Smart Water Leak Sensor. Broadcasts moisture state (wet/dry), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
+
+  ![SJWS01LM](/pictures/SJWS01LM.png)
   
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 

@@ -5,10 +5,9 @@
 
 # NB!: This is a Beta version
 
-# Changes in 0.9.4 beta
+# Changes in 0.9.5 beta
 
-- Added support for CGG1 with encryption. Some CGG1 sensors seem to transmit encrypted bluetooth advertisements. This release adds support for these sensors, but you will need to add your encryption_key to your configuration.
-- Fix in error handling with multiple hci interfaces.
+- Added support for Xiaomi Smart Water Leak Sensor (SJWS01LM). Note that this sensor requires an encryption key. 
 
 {% endif %}
 {% if installed or pending_update %}
@@ -146,6 +145,12 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   (Viomi Smart Kettle, experimental support, collecting data, `ext_state` attribute as in YM-K1501, data broadcasted every 30 seconds)
 
   ![V-SK152](https://raw.github.com/custom-components/ble_monitor/master/pictures/V-SK152.png)
+
+- SJWS01LM
+
+  (Xiaomi Smart Water Leak Sensor. Broadcasts moisture state (wet/dry), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
+
+  ![SJWS01LM](https://github.com/custom-components/ble_monitor/blob/SJWS01LM/pictures/SJWS01LM.png)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 

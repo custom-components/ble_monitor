@@ -391,6 +391,9 @@ class HCIdump(Thread):
         def obj1210(xobj):
             return {"switch": xobj[0]}
 
+        def obj1410(xobj):
+            return {"moisture": xobj[0]}
+
         def obj1810(xobj):
             return {"light": xobj[0]}
 
@@ -468,6 +471,7 @@ class HCIdump(Thread):
             b'\x0A\x10': (obj0a10, True, True),
             b'\x08\x10': (obj0810, False, True),
             b'\x12\x10': (obj1210, True, False),
+            b'\x14\x10': (obj1410, True, False),
             b'\x18\x10': (obj1810, True, False),
             b'\x19\x10': (obj1910, True, False),
             b'\x13\x10': (obj1310, False, True),
