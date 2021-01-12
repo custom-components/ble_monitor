@@ -12,10 +12,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.9.4
+# Changes in 0.9.5
 
-- Added support for CGG1 with encryption. Some CGG1 sensors seem to transmit encrypted bluetooth advertisements. This release adds support for these sensors, but you will need to add your encryption_key to your configuration.
-- Fix in error handling with multiple hci interfaces.
+- Added support for Xiaomi Smart Water Leak Sensor (SJWS01LM). Note that this sensor requires an encryption key. 
 
 {% endif %}
 
