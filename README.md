@@ -47,6 +47,12 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   ![CGG1](/pictures/CGG1.png)
 
+- CGDK2
+
+  (round body, E-Ink, broadcasts temperature, humidity and battery level, about 10 readings per minute, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
+
+  ![CGDK2](/pictures/CGDK2.png)
+
 - LYWSD02
 
   (rectangular body, E-Ink, broadcasts temperature, humidity and battery level (battery level is available for firmware version 1.1.2_00085 and later), about 20 readings per minute)
