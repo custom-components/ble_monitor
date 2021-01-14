@@ -12,9 +12,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.9.5
+# Changes in 0.9.6
 
-- Added support for Xiaomi Smart Water Leak Sensor (SJWS01LM). Note that this sensor requires an encryption key. 
+- Added support for Cleargrass Qingping Temperature Humidity sensor (CGDK2). Note that this sensor requires an encryption key. 
 
 {% endif %}
 
@@ -63,7 +63,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   ![CGG1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGG1-back.png)
 
-  For sensors with encryption, you will need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option))
+  For sensors with encryption, you will need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
   ![CGG1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGG1.png)
 
@@ -71,7 +71,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (round body, E-Ink, broadcasts temperature, humidity and battery level, about 10 readings per minute, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
-  ![CGDK2](https://github.com/custom-components/ble_monitor/blob/CGDK2/pictures/CGDK2.png)
+  ![CGDK2](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGDK2.png)
 
 - LYWSD02
 
