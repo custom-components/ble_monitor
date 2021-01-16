@@ -226,9 +226,9 @@ The BLE messages from some sensors are encrypted. To decrypt these messages, you
     Get the key with the customized [MiHome mod](https://www.kapiba.ru/2017/11/mi-home.html) with the following steps.
 
     - You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
-    - [Download](https://www.kapiba.ru/2017/11/mi-home.html) MiHome mod and install the MiHome mod apk on your android phone. Use google translate to translate the website, as the website is only available in Russian. At the bottom, you will find the download link to the latest version. MiHome mod is basically just MiHome with some translatons from chinese to English and Russian, but also with the possibility to save the encryption key.
+    - Create a folder `/devicestorage/vevs/logs`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app. 
+- [Download](https://www.kapiba.ru/2017/11/mi-home.html) MiHome mod and install the MiHome mod apk on your android phone. Use google translate to translate the website, as the website is only available in Russian. At the bottom, you will find the download link to the latest version. MiHome mod is basically just MiHome with some translatons from chinese to English and Russian, but also with the possibility to save the encryption key.
     - During setup of the app, give access to the local device storage.
-    - The app will create a folder `/devicestorage/vevs/`. Add a folder `logs` in this folder (`/devicestorage/vevs/logs/`).
     - Add the sensor device to the MiHome app.
     - After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod. 
 
