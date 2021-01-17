@@ -5,6 +5,7 @@ import logging
 
 from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_LIGHT,
+    DEVICE_CLASS_MOISTURE,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_POWER,
 )
@@ -102,7 +103,7 @@ class BLEupdaterBinary():
                 mac = data["mac"]
                 batt_attr = None
                 sensortype = data["type"]
-                sw_i, op_i, l_i, b_i = MMTS_DICT[sensortype][1]
+                sw_i, op_i, l_i, mo_i, b_i = MMTS_DICT[sensortype][1]
                 if mac not in sensors_by_mac:
                     sensors = []
                     if sw_i != 9:
@@ -111,6 +112,8 @@ class BLEupdaterBinary():
                         sensors.insert(op_i, OpeningBinarySensor(self.config, mac, sensortype))
                     if l_i != 9:
                         sensors.insert(l_i, LightBinarySensor(self.config, mac, sensortype))
+                    if mo_i != 9:
+                        sensors.insert(mo_i, MoistureBinarySensor(self.config, mac, sensortype))
                     if len(sensors) != 0:
                         sensors_by_mac[mac] = sensors
                         self.add_entities(sensors)
@@ -157,6 +160,13 @@ class BLEupdaterBinary():
                         light.async_schedule_update_ha_state(True)
                     elif light.ready_for_update is False and light.enabled is True:
                         hpriority.append(light)
+                if "moisture" in data:
+                    moisture = sensors[mo_i]
+                    moisture.collect(data, batt_attr)
+                    if moisture.pending_update is True:
+                        moisture.async_schedule_update_ha_state(True)
+                    elif moisture.ready_for_update is False and moisture.enabled is True:
+                        hpriority.append(moisture)
                 data = None
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
@@ -390,3 +400,16 @@ class OpeningBinarySensor(SwitchingSensor):
         self._ext_state = self._newstate
         self._state = not bool(self._newstate) if self._ext_state < 2 else bool(self._newstate)
         self._device_state_attributes["ext_state"] = self._ext_state
+
+
+class MoistureBinarySensor(SwitchingSensor):
+    """Representation of a Sensor."""
+
+    def __init__(self, config, mac, devtype):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype)
+        self._measurement = "moisture"
+        self._sensor_name = self.get_sensorname()
+        self._name = "ble moisture {}".format(self._sensor_name)
+        self._unique_id = "mo_" + self._sensor_name
+        self._device_class = DEVICE_CLASS_MOISTURE

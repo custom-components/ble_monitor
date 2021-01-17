@@ -8,6 +8,7 @@
   - [I get a PermissionError in Home Assistant after the installation](#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade)
   - [How do I find the number of the HCI interface?](#how-do-i-find-the-number-of-the-hci-interface)
   - [How can I create a battery sensor?](#how-can-i-create-a-battery-sensor)
+  - [I get AttributeError: module 'socket' has no attribute 'AF_BLUETOOTH' in Home Assistant after the installation or python upgrade](#i-get-attributeerror-module-socket-has-no-attribute-af_bluetooth-in-home-assistant-after-the-installation-or-python-upgrade)
 - [RECEPTION ISSUES](#reception-issues)
   - [My sensor doesn't receive any readings from my sensors anymore or only occasionally](#my-sensor-doesnt-receive-any-readings-from-my-sensors-anymore-or-only-occasionally)
   - [How to increase coverage](#how-to-increase-coverage)
@@ -86,6 +87,71 @@ Devices:
         hci0    B8:27:EB:77:75:50
 ```
 
+### I get AttributeError: module 'socket' has no attribute 'AF_BLUETOOTH' in Home Assistant after the installation or python upgrade
+
+This means that Python is built/installed without support for Bluetooth. You will have to rebuild Python 3 with `bluetooth.h`. When using a virtual environment (venv), you can do this with the following instructions. Please make a backup first!!!, as you will have to delete the venv with Home Assistant and reinstall it in a new venv. You might need to modify commands for your own situation. 
+
+1. Install BT library with:
+
+``` 
+sudo apt-get install bluetooth libbluetooth-dev
+sudo pip3 install pybluez
+```
+
+2. Rebuild Python:
+
+```
+cd Python-3.8.6/
+./configure
+make
+sudo make install
+```
+
+3. Disable systemctl and reboot:
+
+```
+sudo systemctl disable home-assistant@homeassistant
+sudo reboot
+```
+
+4. Removed old venv and save Home Assistant configuration:
+
+```
+cd /srv/homeassistant
+sudo rm * -R
+cd ..
+sudo chown homeassistant:homeassistant homeassistant
+cd /home/homeassistant
+sudo mv .homeassistant/ .homeassistant_backup
+sudo su -s /bin/bash homeassistant
+```
+
+5. Create a new venv and install HomeAssistant again:
+
+```
+cd /srv/homeassistant
+python3.8 -m venv .
+source bin/activate
+pip3 install homeassistant
+hass -v
+```
+
+6. When you see `INFO (MainThread) [homeassistant.core] Starting Home Assistant` in log use CTRL+C to break and restore your Home Assistant configuration:
+
+```
+deactivate 
+exit
+cd /home/homeassistant
+sudo rm .homeassistant/ -R
+sudo mv .homeassistant_backup/ .homeassistant
+sudo chmod -R 0777 /home/homeassistant/
+sudo systemctl enable home-assistant@homeassistant
+sudo reboot
+```
+
+7. Wait a long time before all plugins are installed in Home Assistant
+
+
 ### How can I create a battery sensor?
 
 You can set option `batt_entities` to `True` - the battery sensor entity will be created automatically for each device reporting battery status.
@@ -138,19 +204,38 @@ There are several ways to increase coverage:
 
 ### My sensor's BLE advertisements are encrypted, how can I get the key?
 
-There are several ways:
+The BLE messages from some sensors are encrypted. To decrypt these messages, you need to configure the encryption key. The encryption key (also called bind key) is only visible at the moment it is created, e.g. when adding the sensor to the MiHome app. There are several ways to get the encryption key:
 
-1. LYWSD03MMC only: using TelinkFlasher, see also the instructions [here](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/407)
+1. TelinkFlasher (LYWSD03MMC sensors only)
+
+    Get the encryption key with the online tool on the [TelinkFlasher website](https://atc1441.github.io/TelinkFlasher.html).
+
+    ![Telink Flasher](/pictures/Telink_flasher_website.png)
 
     - Keep the sensor close to the mobile phone (android only) or Windows computer.
     - Make sure that the bluetooth is enabled.
     - Using your browser, navigate to [this page](https://atc1441.github.io/TelinkFlasher.html).
-    - Now, click the [Connect] button and wait until it shows "Connected." See the Log section at the bottom.
-    - Once connected, click the [Do Activation] button and wait until the "Mi Bind Key" shows the information.
-  
-2. Android only. Get the key with the customized [MiHome mod](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595874419).
+    - Now, click the [Connect] button (1) and wait until it shows "Connected." See the Log section at the bottom.
+    - Once connected, click the [Do Activation] button (2) and wait until the "Mi Bind Key" (3) shows the information.
 
-3. Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms). 
+    Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore. If you want to use MiHome and our custom component at the same time, you wil have to use one of the other options.
+    
+  
+2. MiHome mod (Android only) 
+
+    Get the key with the customized [MiHome mod](https://www.kapiba.ru/2017/11/mi-home.html) with the following steps.
+
+    - You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
+    - Create a folder `/devicestorage/vevs/logs`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app. 
+- [Download](https://www.kapiba.ru/2017/11/mi-home.html) MiHome mod and install the MiHome mod apk on your android phone. Use google translate to translate the website, as the website is only available in Russian. At the bottom, you will find the download link to the latest version. MiHome mod is basically just MiHome with some translatons from chinese to English and Russian, but also with the possibility to save the encryption key.
+    - During setup of the app, give access to the local device storage.
+    - Add the sensor device to the MiHome app.
+    - After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod. 
+
+
+3. Intercepting the MiHome application traffic
+
+    Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms). 
 
     Unfortunately, Xiaomi has enabled additional encryption of API requests recently, and therefore the procedure for intercepting traffic has become much more complicated. Most of the instructions below won't work anymore, as they are written at the time before encryption was enabled, but we are currently (successfully) looking into the [Charles proxy method](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122) to deal with this encryption. If you are successfull with this or one of the other methods, please open an issue and share the steps you took with us. 
 

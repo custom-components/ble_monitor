@@ -5,47 +5,16 @@
 
 # NB!: This is a Beta version
 
-# Changes in 0.9.3 beta
+# Changes in 0.9.6 beta
 
-- Fixed a bug that created duplicate sensor entities (note that this will happen once again when updating from 0.9.x-beta to 0.9.3 beta, sorry about that. It should not happen when updating from 0.8.5 (stable))
-- Fixed a bug that renamed devices and entities after moving from YAML to UI configuration and opening the device configuration
-- Fixed a bug with the temperature measurement when using the `restore_state` option
-- Fixed a bug with binary sensor state when using the `restore_state` option
-- Returned compatibility with HA releases before 0.115
-- Reduced the latency of binary sensors state updating
-- Improved support for Xiaomi/Viomi smart kettles
+- Added support for Cleargrass Qingping Temperature Humidity sensor (CGDK2). Note that this sensor requires an encryption key. 
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.9.3
+# Changes in 0.9.6
 
-**Configuration in the UI**
-
-This release adds support for configuration of our component in the User Interface of Home Assistant (no YAML needed anymore). Thanks to the great effort of @koying, who made this possible! Use this procedure to convert your YAML configuration and start using the User Interface configuration possibility.
-
-  1. Update the component
-  2. Restart Home Assistant
-  3. Remove your YAML code
-  4. Restart again
-
-Now, all options should be configurable via the UI.
-
- **Still want to use YAML? No worries, YAML is still supported!**
-
-**Other improvements**
-
-- Added support for YM-K1501EU (Xiaomi Mijia Smart Kettle) and V-SK152 (Viomi Smart Kettle)
-- Improved support for Xiaomi/Viomi smart kettles
-- Added `ext_state` attribute for kettles, with the following values: 0 - kettle is idle, 1 - kettle is heating water, 2 - warming function is active with boiling, 3 - warming function is active without boiling
-- Reduced the latency of binary sensors state updating
-
-**Fixed bugs**
-
-- Fixed a bug with the temperature measurement when using the `restore_state` option
-- Fixed a bug with binary sensor state when using the `restore_state` option
-- Returned compatibility with HA releases before 0.115
-
+- Added support for Cleargrass Qingping Temperature Humidity sensor (CGDK2). Note that this sensor requires an encryption key. 
 
 {% endif %}
 
@@ -90,9 +59,19 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
 - CGG1
 
-  (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
+  (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute. There are two versions, with encryption and without encryption. We expect that you can check which version you have by looking at the back of the sensor. The ones with encryption have a `qingping` logo at the back (left picture), while the ones without encryption don't have any logo (right picture)) 
+
+  ![CGG1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGG1-back.png)
+
+  For sensors with encryption, you will need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
   ![CGG1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGG1.png)
+
+- CGDK2
+
+  (round body, E-Ink, broadcasts temperature, humidity and battery level, about 10 readings per minute, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
+
+  ![CGDK2](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGDK2.png)
 
 - LYWSD02
 
@@ -171,6 +150,12 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   (Viomi Smart Kettle, experimental support, collecting data, `ext_state` attribute as in YM-K1501, data broadcasted every 30 seconds)
 
   ![V-SK152](https://raw.github.com/custom-components/ble_monitor/master/pictures/V-SK152.png)
+
+- SJWS01LM
+
+  (Xiaomi Smart Water Leak Sensor. Broadcasts moisture state (wet/dry), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
+
+  ![SJWS01LM](https://github.com/custom-components/ble_monitor/blob/SJWS01LM/pictures/SJWS01LM.png)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
