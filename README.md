@@ -27,7 +27,7 @@
 
 ## INTRODUCTION
 
-This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously). Read more in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean).
+This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant and has the benifit of supporting much more sensors than the build in component. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously). Read more in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean).
 
 ## SUPPORTED SENSORS
 
@@ -55,7 +55,9 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
 - LYWSD03MMC
 
-  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour. Supports both sensors with original firmware as well as custom firmware as explained [here](https://github.com/atc1441/ATC_MiThermometer) (make sure you set advertising type to mi-like). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware))
+  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour (original firmware). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware).
+  
+  `ble_monitor` also supports custom ATC firmware (both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer)). Both custom firmwares broadcast temperature, humidity, battery voltage and battery level in percent. The last firmware is able to send advertisements in multimple formats at the same time. It's however advised to use the advertisement type `custom` to get the best accuracy. Reloading the integration is needed to receive the voltage sensor after switching the firmware)   
   
   ![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)
 
