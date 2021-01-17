@@ -49,9 +49,9 @@ XIAOMI_TYPE_DICT = {
     b'\xAA\x01': ("LYWSDCGQ", False),
     b'\x47\x03': ("CGG1", False),
     b'\x48\x0B': ("CGG1-ENCRYPTED", False),
+    b'\x6F\x06': ("CGDK2", False),
     b'\x5B\x04': ("LYWSD02", False),
     b'\x5B\x05': ("LYWSD03MMC", False),
-    b'\x1A\x18': ("LYWSD03MMC-ATC", False),
     b'\x76\x05': ("CGD1", False),
     b'\xd3\x06': ("MHO-C303", False),
     b'\x87\x03': ("MHO-C401", False),
@@ -67,6 +67,9 @@ XIAOMI_TYPE_DICT = {
     b'\x63\x08': ("SJWS01LM", True),
 }
 
+ATC_TYPE_DICT = {
+    b'\x1A\x18': ("LYWSD03MMC", False),
+}
 
 # Sensor type indexes dictionary for sensor platform
 # Sensor:         Temperature, Humidity, Moisture, Conductivity, Illuminance,
@@ -78,9 +81,9 @@ MMTS_DICT = {
     'LYWSDCGQ'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
     'CGG1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
     'CGG1-ENCRYPTED' : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
+    'CGDK2'          : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
     'LYWSD02'        : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'LYWSD03MMC'     : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'LYWSD03MMC-ATC' : [[0, 1, 9, 9, 9, 9, 9, 2, 3], [9, 9, 9, 9, 9]],
+    'LYWSD03MMC'     : [[0, 1, 9, 9, 9, 9, 9, 2, 3], [9, 9, 9, 9, 9]],
     'CGD1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
     'MHO-C401'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
     'MHO-C303'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
@@ -103,9 +106,9 @@ MANUFACTURER_DICT = {
     'LYWSDCGQ'       : 'Xiaomi',
     'CGG1'           : 'Qingping',
     'CGG1-ENCRYPTED' : 'Qingping',
+    'CGDK2'          : 'Qingping',
     'LYWSD02'        : 'Xiaomi',
     'LYWSD03MMC'     : 'Xiaomi',
-    'LYWSD03MMC-ATC' : 'Xiaomi',
     'CGD1'           : 'ClearGrass',
     'MHO-C401'       : 'Miaomiaoce',
     'MHO-C303'       : 'Miaomiaoce',

@@ -26,8 +26,9 @@ from homeassistant.helpers.entity_registry import (
 )
 
 # It was decided to temporarily include this file in the integration bundle
-# until the issue with checking the adapter's capabilities is resolved in the official aioblescan repo
-# see https://github.com/frawau/aioblescan/pull/30, thanks to @vicamo
+# until the issue with checking the adapter's capabilities is resolved in
+# the official aioblescan repo see https://github.com/frawau/aioblescan/pull/30,
+# thanks to @vicamo
 from . import aioblescan_ext as aiobs
 
 from .const import (
@@ -57,6 +58,7 @@ from .const import (
     DOMAIN,
     MAC_REGEX,
     AES128KEY_REGEX,
+    ATC_TYPE_DICT,
     XIAOMI_TYPE_DICT,
     SERVICE_CLEANUP_ENTRIES,
 )
@@ -393,11 +395,11 @@ class HCIdump(Thread):
 
         def objATC_short(xobj):
             (temp, humi, batt, volt) = THBV_STRUCT.unpack(xobj)
-            return {"temperature": temp / 10, "humidity": humi, "battery": batt, "voltage": volt/1000}
+            return {"temperature": temp / 10, "humidity": humi, "voltage": volt / 1000, "battery": batt}
 
         def objATC_long(xobj):
             (temp, humi, volt, batt) = THVB_STRUCT.unpack(xobj)
-            return {"temperature": temp / 100, "humidity": humi/100, "voltage": volt/1000, "battery": batt}
+            return {"temperature": temp / 100, "humidity": humi / 100, "voltage": volt / 1000, "battery": batt}
 
         def reverse_mac(rmac):
             """Change LE order to BE."""
@@ -786,7 +788,7 @@ class HCIdump(Thread):
             if rssi > 0:
                 rssi = -rssi
             try:
-                sensor_type, binary_data = XIAOMI_TYPE_DICT[
+                sensor_type, binary_data = ATC_TYPE_DICT[
                     data[atc_index + 1:atc_index + 3]
                 ]
             except KeyError:

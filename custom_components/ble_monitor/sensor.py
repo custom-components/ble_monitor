@@ -3,7 +3,6 @@ from datetime import timedelta
 import asyncio
 import logging
 import statistics as sts
-# from threading import Thread
 
 from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
@@ -74,7 +73,6 @@ class BLEupdater():
 
     def __init__(self, blemonitor, add_entities):
         """Initiate BLE updater."""
-        # Thread.__init__(self, daemon=True)
         _LOGGER.debug("BLE sensors updater initialization")
         self.monitor = blemonitor
         self.dataqueue = blemonitor.dataqueue["measuring"].async_q
@@ -108,6 +106,7 @@ class BLEupdater():
         batt = {}  # batteries
         rssi = {}
         mibeacon_cnt = 0
+        new_sensor_message = False
         ts_last = dt_util.now()
         ts_now = ts_last
         data = None
@@ -148,8 +147,12 @@ class BLEupdater():
                         sensors.insert(f_i, FormaldehydeSensor(self.config, mac, sensortype))
                     if cn_i != 9:
                         sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype))
-                    if v_i != 9:
-                        sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype))
+                    if (v_i != 9) and "voltage" in data:
+                        # only add voltage sensor if available in data
+                        try:
+                            sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype))
+                        except IndexError:
+                            pass
                     if self.batt_entities and (b_i != 9):
                         sensors.insert(b_i, BatterySensor(self.config, mac, sensortype))
                     if len(sensors) != 0:
@@ -218,7 +221,17 @@ class BLEupdater():
                 if "consumable" in data:
                     sensors[cn_i].collect(data, batt_attr)
                 if "voltage" in data:
-                    sensors[v_i].collect(data, batt_attr)
+                    try:
+                        sensors[v_i].collect(data, batt_attr)
+                    except IndexError:
+                        if new_sensor_message is False:
+                            _LOGGER.error(
+                                "New voltage sensor found with MAC address %s. "
+                                "Manually reload ble_monitor in the integration "
+                                "menu to add voltage sensor ", mac
+                            )
+                            new_sensor_message = True
+                        pass
                 data = None
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
