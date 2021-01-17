@@ -225,10 +225,11 @@ class BLEupdater():
                         sensors[v_i].collect(data, batt_attr)
                     except IndexError:
                         if new_sensor_message is False:
-                            _LOGGER.error(
+                            _LOGGER.warning(
                                 "New voltage sensor found with MAC address %s. "
                                 "Manually reload ble_monitor in the integration "
-                                "menu to add voltage sensor ", mac
+                                "menu to add voltage sensor and make sure you "
+                                "use only one advertisement type (not all)", mac
                             )
                             new_sensor_message = True
                         pass
