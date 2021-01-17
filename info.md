@@ -63,7 +63,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   ![CGG1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGG1-back.png)
 
-  For sensors with encryption, you will need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option))
+  For sensors with encryption, you will need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
   ![CGG1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGG1.png)
 
@@ -83,7 +83,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour (original firmware). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware).
   
-  `ble_monitor` also supports custom ATC firmware (both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer). Both custom firmwares broadcast temperature, humidity, battery voltage and battery level in percent. The last firmware is able to send advertisements in multimple formats at the same time. It's however advised to use the advertisement type `custom` to get the best accuracy. Reloading the integration is needed to receive the voltage sensor after switching the firmware)
+  `ble_monitor` also supports custom ATC firmware (both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent. The last firmware is able to send advertisements in multiple formats at the same time. It's however advised to use the advertisement type `custom` to get the best accuracy. Reloading the integration is needed to receive the voltage sensor after switching the firmware)
   
   ![LYWSD03MMC](https://raw.github.com/custom-components/ble_monitor/master/pictures/LYWSD03MMC.jpg)
 
