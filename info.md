@@ -7,7 +7,7 @@
 
 # Changes in 0.9.7 beta
 
-- Added support for the ATC advertisment type for LYWSD03MMC sensors from both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer). Both custom firmwares broadcast temperature, humidity, battery voltage and battery level in percent. The last firmware is able to send advertisements in multimple formats at the same time. It's however advised to use the advertisement type `custom` to get the best accuracy. Reloading the integration is needed to receive the voltage sensor after switching the firmware)
+- Added support for the ATC advertisement type for LYWSD03MMC sensors from both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent. The last firmware is able to send advertisements in multimple formats at the same time. It's however advised to use the advertisement type `custom` to get the best accuracy. Reloading the integration is needed to receive the voltage sensor after switching the firmware)
 
 {% endif %}
 {% if installed or pending_update %}
