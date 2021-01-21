@@ -3,17 +3,17 @@ from datetime import timedelta
 import asyncio
 import logging
 import statistics as sts
-# from threading import Thread
 
 from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_ILLUMINANCE,
     DEVICE_CLASS_TEMPERATURE,
+    DEVICE_CLASS_VOLTAGE,
     CONDUCTIVITY,
-    # PERCENTAGE,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
+    VOLT,
     ATTR_BATTERY_LEVEL,
     CONF_DEVICES,
     CONF_NAME,
@@ -61,8 +61,6 @@ async def async_setup_entry(hass, config_entry, add_entities):
 
     blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdater(blemonitor, add_entities)
-    # bleupdater.start()
-    # hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, bleupdater.async_run)
     hass.loop.create_task(bleupdater.async_run())
     _LOGGER.debug("Measuring sensor entry setup finished")
     # Return successful setup
@@ -75,7 +73,6 @@ class BLEupdater():
 
     def __init__(self, blemonitor, add_entities):
         """Initiate BLE updater."""
-        # Thread.__init__(self, daemon=True)
         _LOGGER.debug("BLE sensors updater initialization")
         self.monitor = blemonitor
         self.dataqueue = blemonitor.dataqueue["measuring"].async_q
@@ -109,20 +106,19 @@ class BLEupdater():
         batt = {}  # batteries
         rssi = {}
         mibeacon_cnt = 0
+        new_sensor_message = False
         ts_last = dt_util.now()
         ts_now = ts_last
         data = None
         await asyncio.sleep(0)
         while True:
             try:
-                # advevent = self.dataqueue.get(block=True, timeout=1)
                 advevent = await asyncio.wait_for(self.dataqueue.get(), 1)
                 if advevent is None:
                     _LOGGER.debug("Entities updater loop stopped")
                     return True
                 data = advevent
                 self.dataqueue.task_done()
-            # except queue.Empty:
             except asyncio.TimeoutError:
                 pass
             if data:
@@ -134,7 +130,7 @@ class BLEupdater():
                 rssi[mac].append(int(data["rssi"]))
                 batt_attr = None
                 sensortype = data["type"]
-                t_i, h_i, m_i, c_i, i_i, f_i, cn_i, b_i = MMTS_DICT[sensortype][0]
+                t_i, h_i, m_i, c_i, i_i, f_i, cn_i, v_i, b_i = MMTS_DICT[sensortype][0]
                 if mac not in sensors_by_mac:
                     sensors = []
                     if t_i != 9:
@@ -151,6 +147,12 @@ class BLEupdater():
                         sensors.insert(f_i, FormaldehydeSensor(self.config, mac, sensortype))
                     if cn_i != 9:
                         sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype))
+                    if (v_i != 9) and "voltage" in data:
+                        # only add voltage sensor if available in data
+                        try:
+                            sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype))
+                        except IndexError:
+                            pass
                     if self.batt_entities and (b_i != 9):
                         sensors.insert(b_i, BatterySensor(self.config, mac, sensortype))
                     if len(sensors) != 0:
@@ -218,6 +220,19 @@ class BLEupdater():
                     sensors[f_i].collect(data, batt_attr)
                 if "consumable" in data:
                     sensors[cn_i].collect(data, batt_attr)
+                if "voltage" in data:
+                    try:
+                        sensors[v_i].collect(data, batt_attr)
+                    except IndexError:
+                        if new_sensor_message is False:
+                            _LOGGER.warning(
+                                "New voltage sensor found with MAC address %s. "
+                                "Manually reload ble_monitor in the integration "
+                                "menu to add voltage sensor and make sure you "
+                                "use only one advertisement type (not all)", mac
+                            )
+                            new_sensor_message = True
+                        pass
                 data = None
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
@@ -348,6 +363,7 @@ class MeasuringSensor(RestoreEntity):
 
     @property
     def device_info(self):
+        """Return device info."""
         return {
             "identifiers": {
                 # Unique identifiers within a specific domain
@@ -378,7 +394,7 @@ class MeasuringSensor(RestoreEntity):
         self.pending_update = True
 
     async def async_update(self):
-        """Updates sensor state and attributes."""
+        """Update sensor state and attributes."""
         textattr = ""
         rdecimals = self._rdecimals
         # formaldehyde decimals workaround
@@ -557,6 +573,20 @@ class FormaldehydeSensor(MeasuringSensor):
     def icon(self):
         """Return the icon of the sensor."""
         return "mdi:chemical-weapon"
+
+
+class VoltageSensor(MeasuringSensor):
+    """Representation of a Sensor."""
+
+    def __init__(self, config, mac, devtype):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype)
+        self._measurement = "voltage"
+        self._sensor_name = self.get_sensorname()
+        self._name = "ble voltage {}".format(self._sensor_name)
+        self._unique_id = "v_" + self._sensor_name
+        self._unit_of_measurement = VOLT
+        self._device_class = DEVICE_CLASS_VOLTAGE
 
 
 class BatterySensor(MeasuringSensor):
