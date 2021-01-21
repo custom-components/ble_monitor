@@ -16,9 +16,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.9.6
+# Changes in 0.9.8
 
-- Added support for Cleargrass Qingping Temperature Humidity sensor (CGDK2). Note that this sensor requires an encryption key. 
+- Added support for the ATC advertisement type for LYWSD03MMC sensors from both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent. For the `pvvx` firmware, it is advised to change the setting `advertisement type` from `all` to `custom`. Sending multiple advertisment types at the same time might cause the voltage sensor from not showing up, depending on which advertisement comes first. The advertisement type `custom` will also result in a higher accuracy. Reloading the integration is needed to receive the voltage sensor after switching the firmware.
 
 {% endif %}
 
