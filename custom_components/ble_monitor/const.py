@@ -65,6 +65,7 @@ XIAOMI_TYPE_DICT = {
     b'\x13\x01': ("YM-K1501EU", True),
     b'\x5C\x04': ("V-SK152", True),
     b'\x63\x08': ("SJWS01LM", True),
+    b'\xf6\x07': ("MJYD02YL", True),
 }
 
 ATC_TYPE_DICT = {
@@ -75,8 +76,8 @@ ATC_TYPE_DICT = {
 # Sensor:         Temperature, Humidity, Moisture, Conductivity, Illuminance,
 #                 Formaldehyde, Consumable, Voltage, Battery
 # Binary_sensor:  Switch, Opening, Light, Moisture, Battery
-#                            sensor               binary
-# Measurement type      [T  H  M  C  I  F  Cn V  B]  [Sw O  L  M  B]     (start from 0, 9 - no data)
+#                            sensor                       binary
+# Measurement type      [T  H  M  C  I  F  Cn V  B]  [Sw Op L  Mo B]     (start from 0, 9 - no data)
 MMTS_DICT = {
     'LYWSDCGQ'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
     'CGG1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
@@ -97,6 +98,7 @@ MMTS_DICT = {
     'YM-K1501EU'     : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
     'V-SK152'        : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
     'SJWS01LM'       : [[9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 9, 9, 0, 1]],
+    'MJYD02YL'       : [[9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 9, 0, 9, 1]],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -122,6 +124,7 @@ MANUFACTURER_DICT = {
     'YM-K1501EU'     : 'Xiaomi',
     'V-SK152'        : 'Viomi',
     'SJWS01LM'       : 'Xiaomi',
+    'MJYD02YL'       : 'Xiaomi',
 }
 
 # The use of the following dictionaries is lost when changing the sensor naming system

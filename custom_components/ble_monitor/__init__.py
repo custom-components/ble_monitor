@@ -345,17 +345,23 @@ class HCIdump(Thread):
     def __init__(self, config, dataqueue):
         """Initiate HCIdump thread."""
 
-        def obj0d10(xobj):
-            (temp, humi) = TH_STRUCT.unpack(xobj)
-            return {"temperature": temp / 10, "humidity": humi / 10}
+        def obj0410(xobj):
+            (temp,) = T_STRUCT.unpack(xobj)
+            return {"temperature": temp / 10}
+
+        def obj0510(xobj):
+            return {"switch": xobj[0], "temperature": xobj[1]}
 
         def obj0610(xobj):
             (humi,) = H_STRUCT.unpack(xobj)
             return {"humidity": humi / 10}
 
-        def obj0410(xobj):
-            (temp,) = T_STRUCT.unpack(xobj)
-            return {"temperature": temp / 10}
+        def obj0710(xobj):
+            (illum,) = ILL_STRUCT.unpack(xobj + b'\x00')
+            return {"illuminance": illum, "light": 1 if illum == 100 else 0}
+
+        def obj0810(xobj):
+            return {"moisture": xobj[0]}
 
         def obj0910(xobj):
             (cond,) = CND_STRUCT.unpack(xobj)
@@ -365,14 +371,11 @@ class HCIdump(Thread):
             (fmdh,) = FMDH_STRUCT.unpack(xobj)
             return {"formaldehyde": fmdh / 100}
 
-        def obj0a10(xobj):
-            return {"battery": xobj[0]}
-
-        def obj0810(xobj):
-            return {"moisture": xobj[0]}
-
         def obj1210(xobj):
             return {"switch": xobj[0]}
+
+        def obj1310(xobj):
+            return {"consumable": xobj[0]}
 
         def obj1410(xobj):
             return {"moisture": xobj[0]}
@@ -383,15 +386,16 @@ class HCIdump(Thread):
         def obj1910(xobj):
             return {"opening": xobj[0]}
 
-        def obj1310(xobj):
-            return {"consumable": xobj[0]}
+        def obj0a10(xobj):
+            return {"battery": xobj[0]}
 
-        def obj0710(xobj):
+        def obj0d10(xobj):
+            (temp, humi) = TH_STRUCT.unpack(xobj)
+            return {"temperature": temp / 10, "humidity": humi / 10}
+
+        def obj0f00(xobj):
             (illum,) = ILL_STRUCT.unpack(xobj + b'\x00')
-            return {"illuminance": illum}
-
-        def obj0510(xobj):
-            return {"switch": xobj[0], "temperature": xobj[1]}
+            return {"illuminance": illum, "light": 1 if illum == 100 else 0}
 
         def objATC_short(xobj):
             (temp, humi, batt, volt) = THBV_STRUCT.unpack(xobj)
@@ -454,20 +458,21 @@ class HCIdump(Thread):
         # dataobject dictionary to implement switch-case statement
         # dataObject id  (converter, binary, measuring)
         self._dataobject_dict = {
-            b'\x0D\x10': (obj0d10, False, True),
-            b'\x06\x10': (obj0610, False, True),
             b'\x04\x10': (obj0410, False, True),
+            b'\x05\x10': (obj0510, True, True),
+            b'\x06\x10': (obj0610, False, True),
+            b'\x07\x10': (obj0710, True, True),
+            b'\x08\x10': (obj0810, False, True),
             b'\x09\x10': (obj0910, False, True),
             b'\x10\x10': (obj1010, False, True),
-            b'\x0A\x10': (obj0a10, True, True),
-            b'\x08\x10': (obj0810, False, True),
             b'\x12\x10': (obj1210, True, False),
+            b'\x13\x10': (obj1310, False, True),
             b'\x14\x10': (obj1410, True, False),
             b'\x18\x10': (obj1810, True, False),
             b'\x19\x10': (obj1910, True, False),
-            b'\x13\x10': (obj1310, False, True),
-            b'\x07\x10': (obj0710, False, True),
-            b'\x05\x10': (obj0510, True, True),
+            b'\x0A\x10': (obj0a10, True, True),
+            b'\x0D\x10': (obj0d10, False, True),
+            b'\x0F\x00': (obj0f00, True, True),
             b'\x10\x16': (objATC_short, False, True),
             b'\x12\x16': (objATC_long, False, True),
         }
@@ -647,7 +652,7 @@ class HCIdump(Thread):
             #     -3+1 bytes sensor type
             #     -1 byte packet_id
             #     -6 bytes MAC
-            #     - capability byte offset
+            #     -capability byte offset
             xdata_length += msg_length - xiaomi_index - 15
             if xdata_length < 3:
                 return None, None, None
