@@ -37,10 +37,12 @@ from .const import (
     CONF_USE_MEDIAN,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
+    CONF_DEVICE_RESET_TIMER,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
+    DEFAULT_DEVICE_RESET_TIMER,
     KETTLES,
     MANUFACTURER_DICT,
     MMTS_DICT,
@@ -293,6 +295,7 @@ class MeasuringSensor(RestoreEntity):
         self._rounding = config[CONF_ROUNDING]
         self._use_median = config[CONF_USE_MEDIAN]
         self._restore_state = config[CONF_RESTORE_STATE]
+        self._reset_timer = self._device_settings["reset timer"]
         self._err = None
 
     async def async_added_to_hass(self):
@@ -443,6 +446,8 @@ class MeasuringSensor(RestoreEntity):
 
         # initial setup of device settings equal to integration settings
         dev_name = self._mac
+        dev_reset_timer = DEFAULT_DEVICE_RESET_TIMER
+
         # in UI mode device name is equal to mac (but can be overwritten in UI)
         # in YAML mode device name is taken from config
         # when changing from YAML mode to UI mode, we keep using the unique_id as device name from YAML
@@ -457,14 +462,19 @@ class MeasuringSensor(RestoreEntity):
                     if id_selector in device:
                         # get device name (from YAML config)
                         dev_name = device[id_selector]
+                    if CONF_DEVICE_RESET_TIMER in device:
+                        dev_reset_timer = device[CONF_DEVICE_RESET_TIMER]
         device_settings = {
             "name": dev_name,
+            "reset timer": dev_reset_timer
         }
         _LOGGER.debug(
             "Sensor device with mac address %s has the following settings. "
-            "Name: %s. ",
+            "Name: %s. "
+            "Reset Timer: %s",
             self._fmac,
-            device_settings["name"]
+            device_settings["name"],
+            device_settings["reset timer"],
         )
         return device_settings
 
