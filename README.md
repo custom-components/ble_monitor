@@ -141,7 +141,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MJYD02YL
 
-  (Xiaomi Motion Activated Night Light. Broadcasts light (light/no light), motion (not implemented yet [1]) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. 
+  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (not implemented yet [1]) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the interval is significantly shorter (multiple broadcasts per minute). Battery is broadcasted once every 5 minutes. 
   
   [1] The motion sensor isn't working in current implementation, due to an issue with the advertisement format. Will be implemented in a future release.)
 
