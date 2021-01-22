@@ -5,13 +5,13 @@
 
 # NB!: This is a Beta version
 
-# Changes in 0.9.8-beta
+# Changes in 0.9.9-beta
 
-- Fix for IndexError when using battery sensors for LYWSD03MMC
-
-# Changes in 0.9.7-beta
-
-- Added support for the ATC advertisement type for LYWSD03MMC sensors from both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent. For the `pvvx` firmware, it is advised to change the setting `advertisement type` from `all` to `custom`. Sending multiple advertisment types at the same time might cause the voltage sensor from not showing up, depending on which advertisement comes first. The advertisement type `custom` will also result in a higher accuracy. Reloading the integration is needed to receive the voltage sensor after switching the firmware.
+- Added partial support for MJYD02YLXiaomi Motion Activated Night Light sensor. 
+  
+  This first implementation adds only light state (light/no light) and battery state. Motion sensor is not supported yet, due to an issue with the advertisement format. We hope to implement motion sensor support in the near future. 
+  
+  Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
 
 {% endif %}
 {% if installed or pending_update %}
@@ -161,7 +161,15 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (Xiaomi Smart Water Leak Sensor. Broadcasts moisture state (wet/dry), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
-  ![SJWS01LM](https://github.com/custom-components/ble_monitor/blob/SJWS01LM/pictures/SJWS01LM.png)
+  ![SJWS01LM](https://github.com/custom-components/ble_monitor/blob/master/pictures/SJWS01LM.png)
+
+- MJYD02YL
+
+  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (not implemented yet [1]) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the interval is significantly shorter (multiple broadcasts per minute). Battery is broadcasted once every 5 minutes. 
+  
+  [1] The motion sensor isn't working in current implementation, due to an issue with the advertisement format. Will be implemented in a future release.)
+
+  ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/MJYD02YL-beta-0.9.9/pictures/MJYD02YL.jpg)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
