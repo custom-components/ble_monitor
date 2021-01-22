@@ -278,6 +278,30 @@ logger:
 - Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.
 - Wait for a response from the developers.
 
+The BLE advertisements, which are collected with the above procedure, can also be collected with `hcidump` with the following command (leave it running for a couple of minutes). 
+
+```shell
+sudo hcidump --raw hci > dump.txt
+```
+
+In case you get `Disable scan failed: Input/output error`, reset hciconfig with one of the following
+
+```shell
+sudo hciconfig hci0 down
+sudo hciconfig hci0 up
+```
+
+or
+
+```shell
+sudo hciconfig hci0 reset
+```
+
+And than run the first command again. 
+
+Attach the created `dump.txt` to a new [issue](https://github.com/custom-components/ble_monitor/issues) as described above.
+
+
 ### My sensor isn't showing the battery level
 
 Battery level is not broadcasted by all sensors. Check the list of [supported sensors](https://github.com/custom-components/ble_monitor/blob/master/README.md#supported-sensors) to see if your sensor supports battery level. LYWSD02 sensors need to be updated to firmware 1.1.2_00085 or above to the show battery level.
@@ -348,6 +372,7 @@ btmon --write hcitrace.snoop | tee hcitrace.txt
 ```
 
 You can write to the hcitrace.snoop and hcitrace.txt files the moment the problem occurs and attach this files to your issue.
+
 
 ## FORUM
 
