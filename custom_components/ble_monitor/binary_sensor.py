@@ -56,7 +56,6 @@ async def async_setup_entry(hass, config_entry, add_entities):
     return True
 
 
-# class BLEupdaterBinary(Thread):
 class BLEupdaterBinary():
     """BLE monitor entities updater."""
 
@@ -187,23 +186,23 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
     def __init__(self, config, mac, devtype):
         """Initialize the sensor."""
         self.ready_for_update = False
-        self._sensor_name = ""
-        self._mac = mac
         self._config = config
-        self._restore_state = config[CONF_RESTORE_STATE]
+        self._mac = mac
+        self._fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
         self._name = ""
         self._state = None
-        self._unique_id = ""
+        self._device_settings = self.get_device_settings()
+        self._device_name = self._device_settings["name"]
+        self._device_class = None
         self._device_type = devtype
         self._device_manufacturer = MANUFACTURER_DICT[devtype]
         self._device_state_attributes = {}
         self._device_state_attributes["sensor type"] = devtype
-        self._device_state_attributes["mac address"] = (
-            ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
-        )
-        self._device_class = None
-        self._newstate = None
+        self._device_state_attributes["mac address"] = self._fmac
+        self._unique_id = ""
         self._measurement = "measurement"
+        self._restore_state = config[CONF_RESTORE_STATE]
+        self._newstate = None
 
     async def async_added_to_hass(self):
         """Handle entity which will be added."""
@@ -214,7 +213,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
             self.ready_for_update = True
             return
         old_state = await self.async_get_last_state()
-        _LOGGER.debug(old_state)
+        _LOGGER.debug("Restored state: %s", old_state)
         if not old_state:
             self.ready_for_update = True
             return
@@ -278,7 +277,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
                 # Unique identifiers within a specific domain
                 (DOMAIN, self._device_state_attributes["mac address"])
             },
-            "name": self.get_sensorname(),
+            "name": self._device_name,
             "model": self._device_type,
             "manufacturer": self._device_manufacturer,
         }
@@ -288,28 +287,37 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         """Force update."""
         return True
 
-    def get_sensorname(self):
-        """Set sensor name."""
+    def get_device_settings(self):
+        """Set device settings."""
+        device_settings = {}
+
+        # initial setup of device settings equal to integration settings
+        dev_name = self._mac
+
+        # in UI mode device name is equal to mac (but can be overwritten in UI)
+        # in YAML mode device name is taken from config
+        # when changing from YAML mode to UI mode, we keep using the unique_id as device name from YAML
         id_selector = CONF_UNIQUE_ID
-        # if we work with yaml, then we take the name
-        # if not, then we check the unique_id created when switching from yaml
         if "ids_from_name" in self._config:
             id_selector = CONF_NAME
+
+        # overrule settings with device setting if available
         if self._config[CONF_DEVICES]:
-            fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
             for device in self._config[CONF_DEVICES]:
-                if fmac in device["mac"].upper():
+                if self._fmac in device["mac"].upper():
                     if id_selector in device:
-                        custom_name = device[id_selector]
-                        _LOGGER.debug(
-                            "Name of %s sensor with mac address %s is set to: %s",
-                            self._measurement,
-                            fmac,
-                            custom_name,
-                        )
-                        return custom_name
-                    break
-        return self._mac
+                        # get device name (from YAML config)
+                        dev_name = device[id_selector]
+        device_settings = {
+            "name": dev_name
+        }
+        _LOGGER.debug(
+            "Binary sensor device with mac address %s has the following settings. "
+            "Name: %s. ",
+            self._fmac,
+            device_settings["name"]
+        )
+        return device_settings
 
     @property
     def pending_update(self):
@@ -338,9 +346,8 @@ class PowerBinarySensor(SwitchingSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "switch"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble switch {}".format(self._sensor_name)
-        self._unique_id = "sw_" + self._sensor_name
+        self._name = "ble switch {}".format(self._device_name)
+        self._unique_id = "sw_" + self._device_name
         self._device_class = DEVICE_CLASS_POWER
 
     async def async_update(self):
@@ -358,9 +365,8 @@ class LightBinarySensor(SwitchingSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "light"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble light {}".format(self._sensor_name)
-        self._unique_id = "lt_" + self._sensor_name
+        self._name = "ble light {}".format(self._device_name)
+        self._unique_id = "lt_" + self._device_name
         self._device_class = DEVICE_CLASS_LIGHT
 
 
@@ -371,9 +377,8 @@ class OpeningBinarySensor(SwitchingSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "opening"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble opening {}".format(self._sensor_name)
-        self._unique_id = "op_" + self._sensor_name
+        self._name = "ble opening {}".format(self._device_name)
+        self._unique_id = "op_" + self._device_name
         self._ext_state = None
         self._device_class = DEVICE_CLASS_OPENING
 
@@ -391,7 +396,6 @@ class MoistureBinarySensor(SwitchingSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype)
         self._measurement = "moisture"
-        self._sensor_name = self.get_sensorname()
-        self._name = "ble moisture {}".format(self._sensor_name)
-        self._unique_id = "mo_" + self._sensor_name
+        self._name = "ble moisture {}".format(self._device_name)
+        self._unique_id = "mo_" + self._device_name
         self._device_class = DEVICE_CLASS_MOISTURE
