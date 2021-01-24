@@ -16,9 +16,13 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.9.8
+# Changes in 0.9.9
 
-- Added support for the ATC advertisement type for LYWSD03MMC sensors from both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent. For the `pvvx` firmware, it is advised to change the setting `advertisement type` from `all` to `custom`. Sending multiple advertisment types at the same time might cause the voltage sensor from not showing up, depending on which advertisement comes first. The advertisement type `custom` will also result in a higher accuracy. Reloading the integration is needed to receive the voltage sensor after switching the firmware.
+- Added partial support for MJYD02YLXiaomi Motion Activated Night Light sensor. 
+  
+  This first implementation adds only light state (light/no light) and battery state. Motion sensor is not supported yet, due to an issue with the advertisement format. We hope to implement motion sensor support in the near future. 
+  
+  Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
 
 {% endif %}
 
@@ -165,11 +169,11 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MJYD02YL
 
-  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (not implemented yet [1]) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the interval is significantly shorter (multiple broadcasts per minute). Battery is broadcasted once every 5 minutes. 
+  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected [1]) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is only broadcasted when motion is detected, in the current implementation `ble_monitor` can't receive advertisements that report `no motion` [1]. You therefore need to set the `reset_timer` option, to define when `no motion` is assumed. Battery is broadcasted once every 5 minutes. 
   
-  [1] The motion sensor isn't working in current implementation, due to an issue with the advertisement format. Will be implemented in a future release.)
+  [1] The sensor does broadcast additional advertisements with `no motion`, but there is currently an issue with the format. We will implement receiving these advertisements in a future release.)
 
-  ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/MJYD02YL-beta-0.9.9/pictures/MJYD02YL.jpg)
+  ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/master/pictures/MJYD02YL.jpg)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
@@ -249,6 +253,7 @@ ble_monitor:
       name: 'Bedroom'
       temperature_unit: F
     - mac: 'B4:7C:8D:6D:4C:D3'
+      reset_timer: 120
 ```
 
 Note: The encryption_key parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
@@ -370,6 +375,17 @@ ble_monitor:
       name: 'Livingroom'
 ```
 
+#### encryption_key
+
+   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1, MCCGQ02HL and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      encryption_key: '217C568CF5D22808DA20181502D84C1B'
+```
+
 #### temperature_unit
 
    (C or F)(Optional) Most sensors are sending temperature measurements in Celsius (C), which is the default assumption for `ble_monitor`. However, some sensors, like the `LYWSD03MMC` sensor with custom firmware will start sending temperature measurements in Fahrenheit (F) after changing the display from Celsius to Fahrenheit. This means that you will have to tell `ble_monitor` that it should expect Fahrenheit measurements for these specific sensors. Default value: C
@@ -381,15 +397,15 @@ ble_monitor:
       temperature_unit: F
 ```
 
-#### encryption_key
+#### reset_timer
 
-   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1, MCCGQ02HL and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `no motion`. After each `motion detected` advertisement, the timer starts counting down again. Don't set the time too small, otherwise the motion sensor will constantly turn from `motion detected` to `no motion` and back. Setting is to `0` will turn the timer off. This means that when motion is detected, it will stay on forever, unless the sensor itself sends a `no motion` message. Note that `no motion` advertisements of the `MJYD02YL` sensor are currently not received, therefore set it to something higher than 0. Default value: 120 
 
 ```yaml
 ble_monitor:
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
-      encryption_key: '217C568CF5D22808DA20181502D84C1B'
+      reset_timer: 120
 ```
 
 ### Deleting devices and sensors
