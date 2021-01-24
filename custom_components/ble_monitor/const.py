@@ -31,7 +31,7 @@ DEFAULT_BATT_ENTITIES = False
 DEFAULT_REPORT_UNKNOWN = False
 DEFAULT_DISCOVERY = True
 DEFAULT_RESTORE_STATE = False
-DEFAULT_DEVICE_RESET_TIMER = 0
+DEFAULT_DEVICE_RESET_TIMER = 120
 
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
