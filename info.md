@@ -19,8 +19,8 @@
 # Changes in 0.9.9
 
 - Added partial support for MJYD02YLXiaomi Motion Activated Night Light sensor. 
-  
-  This first implementation adds only light state (light/no light) and battery state. Motion sensor is not supported yet, due to an issue with the advertisement format. We hope to implement motion sensor support in the near future. 
+
+  This first implementation adds only light state (light/no light) and battery state. Motion sensor is not supported yet, due to an issue with the advertisement format. We hope to implement motion sensor support in the near future.  
   
   Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
 
