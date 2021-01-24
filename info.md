@@ -16,9 +16,13 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.9.8
+# Changes in 0.9.9
 
-- Added support for the ATC advertisement type for LYWSD03MMC sensors from both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent. For the `pvvx` firmware, it is advised to change the setting `advertisement type` from `all` to `custom`. Sending multiple advertisment types at the same time might cause the voltage sensor from not showing up, depending on which advertisement comes first. The advertisement type `custom` will also result in a higher accuracy. Reloading the integration is needed to receive the voltage sensor after switching the firmware.
+- Added partial support for MJYD02YLXiaomi Motion Activated Night Light sensor. 
+
+  This first implementation adds only light state (light/no light) and battery state. Motion sensor is not supported yet, due to an issue with the advertisement format. We hope to implement motion sensor support in the near future.  
+  
+  Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
 
 {% endif %}
 
@@ -169,7 +173,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
   [1] The motion sensor isn't working in current implementation, due to an issue with the advertisement format. Will be implemented in a future release.)
 
-  ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/MJYD02YL-beta-0.9.9/pictures/MJYD02YL.jpg)
+  ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/master/pictures/MJYD02YL.jpg)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
