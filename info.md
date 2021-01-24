@@ -5,11 +5,11 @@
 
 # NB!: This is a Beta version
 
-# Changes in 0.9.9-beta
+# Changes in 0.9.10-beta
 
-- Added partial support for MJYD02YLXiaomi Motion Activated Night Light sensor. 
+- Added support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor. 
   
-  This first implementation adds only light state (light/no light) and battery state. Motion sensor is not supported yet, due to an issue with the advertisement format. We hope to implement motion sensor support in the near future. 
+  This second implementation adds support for the motion sensor of MJYD02YL compared to version 0.9.9. This sensor broadcasts two type of advertisements for motion detection. Only one is implemented for now. We are looking into support for the other advertisements in a future release. Note that it only sends `motion detected`, not `no motion`. This means that you need to set a `reset_timer` to tell the sensor when it can assume that there is no motion anymore. 
   
   Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
 
