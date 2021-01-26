@@ -445,7 +445,7 @@ class MotionBinarySensor(SwitchingSensor):
         self._state = self._newstate
         # start reset count down if reset timer is set and motion is detected
         if self._reset_timer > 0:
-            if self._state is True:
+            if self._state == 1:
                 self._start_timer = dt_util.now()
                 _LOGGER.debug(
                     "Motion detection reset timer is set to: %i seconds, starting at %s",
