@@ -784,6 +784,9 @@ class HCIdump(Thread):
             if xvalue_typecode == b'\x0F\x00':
                 _LOGGER.debug("0F 00 advertisement. result is: %s", result)
 
+            if xvalue_typecode == b'\x07\x10':
+                _LOGGER.debug("07 10 advertisement. result is: %s", result)
+
             return result, binary, measuring
 
         if atc_index != -1:
