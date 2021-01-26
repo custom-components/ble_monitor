@@ -76,6 +76,7 @@ ILL_STRUCT = struct.Struct("<I")
 FMDH_STRUCT = struct.Struct("<H")
 THBV_STRUCT = struct.Struct(">hBBH")
 THVB_STRUCT = struct.Struct("<hHHB")
+M_STRUCT = struct.Struct("<L")
 
 PLATFORMS = ["binary_sensor", "sensor"]
 
@@ -383,6 +384,10 @@ class HCIdump(Thread):
         def obj1410(xobj):
             return {"moisture": xobj[0]}
 
+        def obj1710(xobj):
+            (motion,) = M_STRUCT.unpack(xobj)
+            return {"motion": 1 if motion == 0 else 0}
+
         def obj1810(xobj):
             return {"light": xobj[0]}
 
@@ -471,6 +476,7 @@ class HCIdump(Thread):
             b'\x12\x10': (obj1210, True, False),
             b'\x13\x10': (obj1310, False, True),
             b'\x14\x10': (obj1410, True, False),
+            b'\x17\x10': (obj1710, True, False),
             b'\x18\x10': (obj1810, True, False),
             b'\x19\x10': (obj1910, True, False),
             b'\x0A\x10': (obj0a10, True, True),
@@ -593,12 +599,27 @@ class HCIdump(Thread):
             msg_length = data[2] + 3
             if msg_length != len(data):
                 return None, None, None
+            # extract device type
+            device_type = data[xiaomi_index + 5:xiaomi_index + 7]
+            # extract frame control bits
+            framectrl_data = data[xiaomi_index + 3:xiaomi_index + 5]
+            framectrl, = struct.unpack('>H', framectrl_data)
+            # flag advertisements without mac address in service data
+            # MJYD02YL (F6 07) has no mac address in the motion (48 59) advertisements
+            if device_type == b'\xF6\x07' and framectrl_data == b'\x48\x59':
+                mac_in_service_data = False
+            else:
+                mac_in_service_data = True
             # check for MAC presence in message and in service data
-            xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
             mac_index = adv_index - 14 if is_ext_packet else adv_index
-            source_mac_reversed = data[mac_index - 7:mac_index - 1]
-            if xiaomi_mac_reversed != source_mac_reversed:
-                return None, None, None
+            if mac_in_service_data == True:
+                xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
+                source_mac_reversed = data[mac_index - 7:mac_index - 1]
+                if xiaomi_mac_reversed != source_mac_reversed:
+                    return None, None, None
+            else:
+                # for sensors without mac in service data, use the first mac in advertisment
+                xiaomi_mac_reversed = data[mac_index - 7:mac_index - 1]
             # check for MAC presence in whitelist, if needed
             if self.discovery is False:
                 if xiaomi_mac_reversed not in self.whitelist:
@@ -618,9 +639,7 @@ class HCIdump(Thread):
             if rssi > 0:
                 rssi = -rssi
             try:
-                sensor_type, binary_data = XIAOMI_TYPE_DICT[
-                    data[xiaomi_index + 5:xiaomi_index + 7]
-                ]
+                sensor_type, binary_data = XIAOMI_TYPE_DICT[device_type]
             except KeyError:
                 if self.report_unknown:
                     _LOGGER.info(
@@ -630,8 +649,6 @@ class HCIdump(Thread):
                         data.hex()
                     )
                 return None, None, None
-            # frame control bits
-            framectrl, = struct.unpack('>H', data[xiaomi_index + 3:xiaomi_index + 5])
             # check data is present
             if not (framectrl & 0x4000):
                 return {
@@ -648,13 +665,17 @@ class HCIdump(Thread):
             if framectrl & 0x2000:
                 xdata_length = -1
                 xdata_point = 1
+            # check for messages without mac address in service data
+            if mac_in_service_data == False:
+                xdata_length = +6
+                xdata_point = -6
             # xiaomi data length = message length
             #     -all bytes before XiaomiUUID
             #     -3 bytes Xiaomi UUID + ADtype
             #     -1 byte rssi
             #     -3+1 bytes sensor type
             #     -1 byte packet_id
-            #     -6 bytes MAC
+            #     -6 bytes MAC (if present)
             #     -capability byte offset
             xdata_length += msg_length - xiaomi_index - 15
             if xdata_length < 3:
@@ -674,7 +695,7 @@ class HCIdump(Thread):
                 nonce = b"".join(
                     [
                         xiaomi_mac_reversed,
-                        data[xiaomi_index + 5:xiaomi_index + 7],
+                        device_type,
                         data[xiaomi_index + 7:xiaomi_index + 8]
                     ]
                 )
@@ -757,6 +778,12 @@ class HCIdump(Thread):
                     break
                 xdata_point = xnext_point
             binary = binary and binary_data
+            if xvalue_typecode == b'\x17\x10':
+                _LOGGER.debug("17 10 advertisement. result is: %s", result)
+
+            if xvalue_typecode == b'\x0F\x00':
+                _LOGGER.debug("0F 00 advertisement. result is: %s", result)
+
             return result, binary, measuring
 
         if atc_index != -1:
