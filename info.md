@@ -5,12 +5,13 @@
 
 # NB!: This is a Beta version
 
-# Changes in 0.9.10-beta
+# Changes in 0.9.11-beta
 
-- Added support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor. 
-  
-  This second implementation adds support for the motion sensor of MJYD02YL compared to version 0.9.9. This sensor broadcasts two type of advertisements for motion detection. Only one is implemented for now. We are looking into support for the other advertisements in a future release. Note that it only sends `motion detected`, not `no motion`. This means that you need to set a `reset_timer` to tell the sensor when it can assume that there is no motion anymore. 
-  
+- Added an option to disable Jagged humidity measurements of LYWSD03MMC and MHO-C401 (@jan-be)
+- Added support for Bluetooth 5 advertisements (extended format) for sensors with ATC firmware
+- Improved support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor (thanks for the support of @andrewjswan and @skynetua).
+
+  This third implementation adds improved support for the motion sensor of MJYD02YL compared to version 0.9.10. We have now implemented all advertisement types the sensor sends.    
   Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
 
 {% endif %}
@@ -169,9 +170,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MJYD02YL
 
-  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected [1]) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is only broadcasted when motion is detected, in the current implementation `ble_monitor` can't receive advertisements that report `no motion` [1]. You therefore need to set the `reset_timer` option, to define when `no motion` is assumed. Battery is broadcasted once every 5 minutes. 
-  
-  [1] The sensor does broadcast additional advertisements with `no motion`, but there is currently an issue with the format. We will implement receiving these advertisements in a future release.)
+  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected/clear) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the `reset_timer` option to have a additional `motion clear`, but keep in mind that in the current implementation, messages of the sensor can overrule the `reset_timer`. Battery is broadcasted once every 5 minutes.
 
   ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/master/pictures/MJYD02YL.jpg)
 
