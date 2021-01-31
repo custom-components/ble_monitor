@@ -34,6 +34,7 @@ from . import aioblescan_ext as aiobs
 from .const import (
     DEFAULT_ROUNDING,
     DEFAULT_DECIMALS,
+    DEFAULT_JAGGED,
     DEFAULT_PERIOD,
     DEFAULT_LOG_SPIKES,
     DEFAULT_USE_MEDIAN,
@@ -45,6 +46,7 @@ from .const import (
     DEFAULT_HCI_INTERFACE,
     CONF_ROUNDING,
     CONF_DECIMALS,
+    CONF_JAGGED,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
@@ -95,6 +97,7 @@ CONFIG_SCHEMA = vol.Schema(
             {
                 vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.boolean,
                 vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
+                vol.Optional(CONF_JAGGED, default=DEFAULT_JAGGED): cv.boolean,
                 vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
                 vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
                 vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
