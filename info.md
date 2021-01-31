@@ -5,12 +5,13 @@
 
 # NB!: This is a Beta version
 
-# Changes in 0.9.10-beta
+# Changes in 0.9.11-beta
 
-- Added support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor. 
-  
-  This second implementation adds support for the motion sensor of MJYD02YL compared to version 0.9.9. This sensor broadcasts two type of advertisements for motion detection. Only one is implemented for now. We are looking into support for the other advertisements in a future release. Note that it only sends `motion detected`, not `no motion`. This means that you need to set a `reset_timer` to tell the sensor when it can assume that there is no motion anymore. 
-  
+- Added an option to disable Jagged humidity measurements of LYWSD03MMC and MHO-C401 (@jan-be)
+- Added support for Bluetooth 5 advertisements (extended format) for sensors with ATC firmware
+- Improved support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor (thanks for the support of @andrewjswan and @skynetua).
+
+  This third implementation adds improved support for the motion sensor of MJYD02YL compared to version 0.9.10. We have now implemented all advertisement types the sensor sends.    
   Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
 
 {% endif %}
