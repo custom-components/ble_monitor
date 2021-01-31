@@ -235,8 +235,8 @@ class BLEupdater():
                         if new_sensor_message is False:
                             _LOGGER.warning(
                                 "New voltage sensor found with MAC address %s. "
-                                "Manually reload ble_monitor in the integration "
-                                "menu to add voltage sensor and make sure you "
+                                "Enable battery entities and reload ble_monitor "
+                                "to add voltage sensor and make sure you "
                                 "use only one advertisement type (not all)", mac
                             )
                             new_sensor_message = True
