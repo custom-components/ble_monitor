@@ -275,6 +275,10 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    (boolean)(Optional) Enable/disable rounding of the average of all measurements taken within the number seconds specified with 'period'. This option is designed to disable rounding and thus keep the full average accuracy. When disabled, the `decimals` option is ignored. Default value: True
 
+#### jagged
+
+   (boolean)(Optional) This option is only applicable to LYWSD03MMC and MHO-C401 and will convert each individual received humidity measurement to an integer. The sensor sometimes sends measurements with decimals, while it's accuracy should be a measurement without any decimals (with default firmware). This option will remove these small fluctuations in the received data. Default value: True
+
 #### decimals
 
    (positive integer)(Optional) Number of decimal places to round (will be ignored if rounding is disabled). Default value: 1
