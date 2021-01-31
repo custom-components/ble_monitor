@@ -7,7 +7,7 @@
 
 # Changes in 0.9.11-beta
 
-- Added an option to disable Jagged humidity measurements of LYWSD03MMC and MHO-C401 (@jan-be)
+- Remove jagged humidity measurements for sensors with ATC firmware
 - Added support for Bluetooth 5 advertisements (extended format) for sensors with ATC firmware
 - Improved support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor (thanks for the support of @andrewjswan and @skynetua).
 
@@ -92,7 +92,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour (original firmware). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware).
  
-  `ble_monitor` also supports custom ATC firmware (both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer)). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent (note that both battery sensors are only visible as sensor with `batt_entities: True`). Reloading the integration is needed to receive the voltage sensor after switching the firmware. For the `pvvx` firmware, it is advised to change the `advertisement type` from `all` to `custom`. Sending multiple advertisment types at the same time might cause the voltage sensor from not showing up, depending on which advertisement comes first. The advertisement type `custom` will also result in a higher accuracy. It is also advised to change the `jagged` option to `False`   
+  `ble_monitor` also supports custom ATC firmware (both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer)). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent (note that both battery sensors are only visible as sensor with `batt_entities: True`). Reloading the integration is needed to receive the voltage sensor after switching the firmware. For the `pvvx` firmware, it is advised to change the `advertisement type` from `all` to `custom`. Sending multiple advertisment types at the same time might cause the voltage sensor from not showing up, depending on which advertisement comes first. The advertisement type `custom` will also result in a higher accuracy.   
   
   ![LYWSD03MMC](https://raw.github.com/custom-components/ble_monitor/master/pictures/LYWSD03MMC.jpg)
 
@@ -239,7 +239,6 @@ ble_monitor:
   batt_entities: False
   rounding: True
   decimals: 1
-  jagged: True
   period: 60
   log_spikes: False
   use_median: False
@@ -308,10 +307,6 @@ Data from sensors with other addresses will be ignored. Default value: True
 #### decimals
 
    (positive integer)(Optional) Number of decimal places to round (will be ignored if rounding is disabled). Default value: 1
-
-#### jagged
-
-   (boolean)(Optional) This option is only applicable to LYWSD03MMC and MHO-C401 and will convert each individual received humidity measurement to an integer. The sensor sometimes sends measurements with decimals, while it's accuracy should be a measurement without any decimals (with default firmware). This option will remove these small fluctuations in the received data. Default value: True
 
 #### period
 
