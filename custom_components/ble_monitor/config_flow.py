@@ -21,6 +21,7 @@ from homeassistant.const import (
 from .const import (
     DEFAULT_ROUNDING,
     DEFAULT_DECIMALS,
+    DEFAULT_JAGGED,
     DEFAULT_PERIOD,
     DEFAULT_LOG_SPIKES,
     DEFAULT_USE_MEDIAN,
@@ -33,6 +34,7 @@ from .const import (
     DEFAULT_DEVICE_RESET_TIMER,
     CONF_ROUNDING,
     CONF_DECIMALS,
+    CONF_JAGGED,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
@@ -79,6 +81,7 @@ DOMAIN_SCHEMA = vol.Schema(
         ): cv.boolean,
         vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.boolean,
         vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
+        vol.Optional(CONF_JAGGED, default=DEFAULT_JAGGED): cv.boolean,
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
         vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
@@ -195,7 +198,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 vol.Optional(CONF_MAC, default=self._sel_device.get(CONF_MAC) if self._sel_device.get(CONF_MAC) else ""): str,
                 vol.Optional(CONF_ENCRYPTION_KEY, default=self._sel_device.get(CONF_ENCRYPTION_KEY) if self._sel_device.get(CONF_ENCRYPTION_KEY) else ""): str,
                 vol.Optional(CONF_TEMPERATURE_UNIT, default=self._sel_device.get(CONF_TEMPERATURE_UNIT) if self._sel_device.get(CONF_TEMPERATURE_UNIT) else TEMP_CELSIUS): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
-                vol.Optional(CONF_DEVICE_RESET_TIMER, default=self._sel_device.get(CONF_DEVICE_RESET_TIMER) if self._sel_device.get(CONF_DEVICE_RESET_TIMER) else DEFAULT_DEVICE_RESET_TIMER): cv.positive_int,                
+                vol.Optional(CONF_DEVICE_RESET_TIMER, default=self._sel_device.get(CONF_DEVICE_RESET_TIMER) if self._sel_device.get(CONF_DEVICE_RESET_TIMER) else DEFAULT_DEVICE_RESET_TIMER): cv.positive_int,
             }
         )
 
@@ -280,6 +283,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 ): cv.boolean,
                 vol.Optional(CONF_ROUNDING, default=self.config_entry.options.get(CONF_ROUNDING, DEFAULT_ROUNDING)): cv.boolean,
                 vol.Optional(CONF_DECIMALS, default=self.config_entry.options.get(CONF_DECIMALS, DEFAULT_DECIMALS)): cv.positive_int,
+                vol.Optional(CONF_JAGGED, default=self.config_entry.options.get(CONF_JAGGED, DEFAULT_JAGGED)): cv.boolean,
                 vol.Optional(CONF_LOG_SPIKES, default=self.config_entry.options.get(CONF_LOG_SPIKES, DEFAULT_LOG_SPIKES)): cv.boolean,
                 vol.Optional(CONF_USE_MEDIAN, default=self.config_entry.options.get(CONF_USE_MEDIAN, DEFAULT_USE_MEDIAN)): cv.boolean,
                 vol.Optional(CONF_RESTORE_STATE, default=self.config_entry.options.get(CONF_RESTORE_STATE, DEFAULT_RESTORE_STATE)): cv.boolean,

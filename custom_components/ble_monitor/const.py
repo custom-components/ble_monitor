@@ -5,6 +5,7 @@ DOMAIN = "ble_monitor"
 # Configuration options
 CONF_ROUNDING = "rounding"
 CONF_DECIMALS = "decimals"
+CONF_JAGGED = "jagged"
 CONF_PERIOD = "period"
 CONF_LOG_SPIKES = "log_spikes"
 CONF_USE_MEDIAN = "use_median"
@@ -22,6 +23,7 @@ SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
 # Default values for configuration options
 DEFAULT_ROUNDING = True
 DEFAULT_DECIMALS = 1
+DEFAULT_JAGGED = True
 DEFAULT_PERIOD = 60
 DEFAULT_LOG_SPIKES = False
 DEFAULT_USE_MEDIAN = False
@@ -67,7 +69,7 @@ XIAOMI_TYPE_DICT = {
     b'\x13\x01': ("YM-K1501EU", True),
     b'\x5C\x04': ("V-SK152", True),
     b'\x63\x08': ("SJWS01LM", True),
-    b'\xf6\x07': ("MJYD02YL", True),
+    b'\xF6\x07': ("MJYD02YL", True),
 }
 
 ATC_TYPE_DICT = {

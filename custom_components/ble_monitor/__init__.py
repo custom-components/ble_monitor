@@ -34,6 +34,7 @@ from . import aioblescan_ext as aiobs
 from .const import (
     DEFAULT_ROUNDING,
     DEFAULT_DECIMALS,
+    DEFAULT_JAGGED,
     DEFAULT_PERIOD,
     DEFAULT_LOG_SPIKES,
     DEFAULT_USE_MEDIAN,
@@ -46,6 +47,7 @@ from .const import (
     DEFAULT_DEVICE_RESET_TIMER,
     CONF_ROUNDING,
     CONF_DECIMALS,
+    CONF_JAGGED,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
@@ -73,6 +75,7 @@ H_STRUCT = struct.Struct("<H")
 T_STRUCT = struct.Struct("<h")
 CND_STRUCT = struct.Struct("<H")
 ILL_STRUCT = struct.Struct("<I")
+LIGHT_STRUCT = struct.Struct("<I")
 FMDH_STRUCT = struct.Struct("<H")
 THBV_STRUCT = struct.Struct(">hBBH")
 THVB_STRUCT = struct.Struct("<hHHB")
@@ -99,6 +102,7 @@ CONFIG_SCHEMA = vol.Schema(
             {
                 vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.boolean,
                 vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
+                vol.Optional(CONF_JAGGED, default=DEFAULT_JAGGED): cv.boolean,
                 vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
                 vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
                 vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
@@ -402,8 +406,8 @@ class HCIdump(Thread):
             return {"temperature": temp / 10, "humidity": humi / 10}
 
         def obj0f00(xobj):
-            (illum,) = ILL_STRUCT.unpack(xobj + b'\x00')
-            return {"illuminance": illum, "motion": 1, "light": 1 if illum == 100 else 0}
+            (light,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
+            return {"motion": 1, "motion timer": 1, "light": 1 if light == 100 else 0}
 
         def objATC_short(xobj):
             (temp, humi, batt, volt) = THBV_STRUCT.unpack(xobj)
@@ -481,7 +485,7 @@ class HCIdump(Thread):
             b'\x19\x10': (obj1910, True, False),
             b'\x0A\x10': (obj0a10, True, True),
             b'\x0D\x10': (obj0d10, False, True),
-            b'\x0F\x00': (obj0f00, True, True),
+            b'\x0F\x00': (obj0f00, True, False),
             b'\x10\x16': (objATC_short, False, True),
             b'\x12\x16': (objATC_long, False, True),
         }
@@ -579,13 +583,14 @@ class HCIdump(Thread):
         is_ext_packet = True if data[3] == 0x0d else False
         # check for Xiaomi or ATC service data
         xiaomi_index = data.find(b'\x16\x95\xFE', 15 + 15 if is_ext_packet else 0)
-        atc_index = data.find(b'\x16\x1A\x18', 15)
+        atc_index = data.find(b'\x16\x1A\x18', 15 + 15 if is_ext_packet else 0)
 
         if xiaomi_index == -1 and atc_index == -1:
             return None, None, None
 
         if xiaomi_index != -1:
             # parse BLE message in Xiaomi MiBeacon format
+            firmware = "Xiaomi (MiBeacon)"
 
             # check for no BR/EDR + LE General discoverable mode flags
             advert_start = 29 if is_ext_packet else 14
@@ -612,7 +617,7 @@ class HCIdump(Thread):
                 mac_in_service_data = True
             # check for MAC presence in message and in service data
             mac_index = adv_index - 14 if is_ext_packet else adv_index
-            if mac_in_service_data == True:
+            if mac_in_service_data is True:
                 xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
                 source_mac_reversed = data[mac_index - 7:mac_index - 1]
                 if xiaomi_mac_reversed != source_mac_reversed:
@@ -656,6 +661,7 @@ class HCIdump(Thread):
                     "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
                     "type": sensor_type,
                     "packet": packet_id,
+                    "firmware": firmware,
                     "data": False,
                 }, None, None
                 # return None
@@ -666,7 +672,7 @@ class HCIdump(Thread):
                 xdata_length = -1
                 xdata_point = 1
             # check for messages without mac address in service data
-            if mac_in_service_data == False:
+            if mac_in_service_data is False:
                 xdata_length = +6
                 xdata_point = -6
             # xiaomi data length = message length
@@ -736,6 +742,7 @@ class HCIdump(Thread):
                 "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
                 "type": sensor_type,
                 "packet": packet_id,
+                "firmware": firmware,
                 "data": True,
             }
             binary = False
@@ -778,33 +785,30 @@ class HCIdump(Thread):
                     break
                 xdata_point = xnext_point
             binary = binary and binary_data
-            if xvalue_typecode == b'\x17\x10':
-                _LOGGER.debug("17 10 advertisement. result is: %s", result)
-
-            if xvalue_typecode == b'\x0F\x00':
-                _LOGGER.debug("0F 00 advertisement. result is: %s", result)
-
-            if xvalue_typecode == b'\x07\x10':
-                _LOGGER.debug("07 10 advertisement. result is: %s", result)
-
             return result, binary, measuring
 
         if atc_index != -1:
             # parse BLE message in ATC format
 
+            # Check for the atc1441 or custom format
+            is_custom_adv = True if data[atc_index - 1] == 18 else False
+            if is_custom_adv:
+                firmware = "ATC (custom)"
+            else:
+                firmware = "ATC firmware (ATC1441)"
+
             # check for BTLE msg size
             msg_length = data[2] + 3
-            is_ext_packet = True if data[2] == 0x1f else False
             if msg_length != len(data):
                 return None, None, None
             # check for MAC presence in message and in service data
-            if is_ext_packet is True:
+            if is_custom_adv is True:
                 atc_mac_reversed = data[atc_index + 3:atc_index + 9]
                 atc_mac = atc_mac_reversed[::-1]
             else:
                 atc_mac = data[atc_index + 3:atc_index + 9]
-            mac_index = atc_index - 1
-            source_mac_reversed = data[mac_index - 7:mac_index - 1]
+            mac_index = atc_index - (22 if is_ext_packet else 8)
+            source_mac_reversed = data[mac_index:mac_index + 6]
             source_mac = source_mac_reversed[::-1]
             if atc_mac != source_mac:
                 return None, None, None
@@ -812,7 +816,7 @@ class HCIdump(Thread):
             if self.discovery is False:
                 if atc_mac not in self.whitelist:
                     return None, None, None
-            packet_id = data[atc_index + 16 if is_ext_packet else atc_index + 15]
+            packet_id = data[atc_index + 16 if is_custom_adv else atc_index + 15]
             try:
                 prev_packet = self.lpacket_ids[atc_index]
             except KeyError:
@@ -821,14 +825,14 @@ class HCIdump(Thread):
                 return None, None, None
             self.lpacket_ids[atc_index] = packet_id
             # extract RSSI byte
-            (rssi,) = struct.unpack("<b", data[msg_length - 1:msg_length])
+            rssi_index = 18 if is_ext_packet else msg_length - 1
+            (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
             # strange positive RSSI workaround
             if rssi > 0:
                 rssi = -rssi
+            device_type = data[atc_index + 1:atc_index + 3]
             try:
-                sensor_type, binary_data = ATC_TYPE_DICT[
-                    data[atc_index + 1:atc_index + 3]
-                ]
+                sensor_type, binary_data = ATC_TYPE_DICT[device_type]
             except KeyError:
                 if self.report_unknown:
                     _LOGGER.info(
@@ -839,25 +843,26 @@ class HCIdump(Thread):
                     )
                 return None, None, None
 
-            # ATC data length = message length = 6
-            #     -all bytes before ATC UUID
-            #     -3 bytes ATC UUID + ADtype
-            #     -6 bytes MAC
-            #     -1 Frame packet counter
-            #     -1 byte flags (extended packet only)
-            #     -1 RSSI
-            xdata_length = msg_length - atc_index - (12 if is_ext_packet else 11)
+            # ATC data length = message length
+            # -all bytes before ATC UUID
+            # -3 bytes ATC UUID + ADtype
+            # -6 bytes MAC
+            # -1 Frame packet counter
+            # -1 byte flags (custom adv only)
+            # -1 RSSI (normal, not extended packet only)
+            xdata_length = msg_length - atc_index - (11 if is_custom_adv else 10) - (0 if is_ext_packet else 1)
             if xdata_length < 6:
                 return None, None, None
             xdata_point = atc_index + 9
             # check if atc data start and length is valid
-            if xdata_length != len(data[xdata_point:(-3 if is_ext_packet else -2)]):
+            if xdata_length != len(data[xdata_point:(-3 if (is_custom_adv and not is_ext_packet) else -2)]):
                 return None, None, None
             result = {
                 "rssi": rssi,
                 "mac": ''.join('{:02X}'.format(x) for x in atc_mac[:]),
                 "type": sensor_type,
                 "packet": packet_id,
+                "firmware": firmware,
                 "data": True,
             }
             binary = False
