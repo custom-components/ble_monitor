@@ -5,7 +5,6 @@ DOMAIN = "ble_monitor"
 # Configuration options
 CONF_ROUNDING = "rounding"
 CONF_DECIMALS = "decimals"
-CONF_JAGGED = "jagged"
 CONF_PERIOD = "period"
 CONF_LOG_SPIKES = "log_spikes"
 CONF_USE_MEDIAN = "use_median"
@@ -23,7 +22,6 @@ SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
 # Default values for configuration options
 DEFAULT_ROUNDING = True
 DEFAULT_DECIMALS = 1
-DEFAULT_JAGGED = True
 DEFAULT_PERIOD = 60
 DEFAULT_LOG_SPIKES = False
 DEFAULT_USE_MEDIAN = False

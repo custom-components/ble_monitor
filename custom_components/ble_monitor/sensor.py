@@ -32,7 +32,6 @@ import homeassistant.util.dt as dt_util
 from .const import (
     CONF_ROUNDING,
     CONF_DECIMALS,
-    CONF_JAGGED,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
@@ -533,7 +532,8 @@ class HumiditySensor(MeasuringSensor):
         self._device_class = DEVICE_CLASS_HUMIDITY
         # LYWSD03MMC / MHO-C401 "jagged" humidity workaround
         if devtype in ('LYWSD03MMC', 'MHO-C401'):
-            self._jagged = config[CONF_JAGGED]
+            if self._device_firmware == "Xiaomi (MiBeacon)":
+                self._jagged = True
 
 
 class MoistureSensor(MeasuringSensor):
