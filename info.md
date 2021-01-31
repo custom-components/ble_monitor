@@ -169,9 +169,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MJYD02YL
 
-  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected [1]) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is only broadcasted when motion is detected, in the current implementation `ble_monitor` can't receive advertisements that report `no motion` [1]. You therefore need to set the `reset_timer` option, to define when `no motion` is assumed. Battery is broadcasted once every 5 minutes. 
-  
-  [1] The sensor does broadcast additional advertisements with `no motion`, but there is currently an issue with the format. We will implement receiving these advertisements in a future release.)
+  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected/clear) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the `reset_timer` option to have a additional `motion clear`, but keep in mind that in the current implementation, messages of the sensor can overrule the `reset_timer`. Battery is broadcasted once every 5 minutes.
 
   ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/master/pictures/MJYD02YL.jpg)
 
