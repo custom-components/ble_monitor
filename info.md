@@ -239,6 +239,7 @@ ble_monitor:
   batt_entities: False
   rounding: True
   decimals: 1
+  jagged: True
   period: 60
   log_spikes: False
   use_median: False
@@ -307,6 +308,10 @@ Data from sensors with other addresses will be ignored. Default value: True
 #### decimals
 
    (positive integer)(Optional) Number of decimal places to round (will be ignored if rounding is disabled). Default value: 1
+
+#### jagged
+
+   (boolean)(Optional) This option is only applicable to LYWSD03MMC and MHO-C401 and will convert each individual received humidity measurement to an integer. The sensor sometimes sends measurements with decimals, while it's accuracy should be a measurement without any decimals (with default firmware). This option will remove these small fluctuations in the received data. Default value: True
 
 #### period
 
