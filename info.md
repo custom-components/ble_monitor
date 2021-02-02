@@ -5,14 +5,11 @@
 
 # NB!: This is a Beta version
 
-# Changes in 0.9.11-beta
+# Changes in 1.0.0-beta
 
-- Remove jagged humidity measurements for sensors with ATC firmware
-- Added support for Bluetooth 5 advertisements (extended format) for sensors with ATC firmware
-- Improved support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor (thanks for the support of @andrewjswan and @skynetua).
+It's time to move to 1.0.0! We were running out of numbers, so it was about time to move on and start with the magic number 1.0.0 (ok, still beta). 
 
-  This third implementation adds improved support for the motion sensor of MJYD02YL compared to version 0.9.10. We have now implemented all advertisement types the sensor sends.    
-  Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
+To celebrate, we have added more settings that can be set/overrulled for individual devices. `decimals`, `use_median` and `restore_state` can now be set at device level. We have removed the `rounding` option, as it wasn't adding much. The same can be achieved by using a large number of decimals.  
 
 {% endif %}
 {% if installed or pending_update %}
