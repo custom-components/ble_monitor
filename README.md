@@ -370,7 +370,7 @@ ble_monitor:
 
 #### reset_timer
 
-   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `no motion`. After each `motion detected` advertisement, the timer starts counting down again. Don't set the time too small, otherwise the motion sensor will constantly turn from `motion detected` to `no motion` and back. Setting is to `0` will turn the timer off. This means that when motion is detected, it will stay on forever, unless the sensor itself sends a `no motion` message. Note that `no motion` advertisements of the `MJYD02YL` sensor are currently not received, therefore set it to something higher than 0. Default value: 30 
+   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `motion clear`. After each `motion detected` advertisement, the timer starts counting down again. Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`. Default value: 30
 
 ```yaml
 ble_monitor:
