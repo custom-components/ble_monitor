@@ -220,7 +220,7 @@ There are two ways to configure the integration and your devices (sensors), in t
 
 Make sure you restart Home Assistant after the installation in HACS. After the restart, go to **Configuration** in the side menu in Home Assistant and select **Integrations**. Click on **Add Integrations** in the bottom right corner and search for **Passive BLE Monitor** to install. This will open the configuration menu with the default settings. The options are explained in the [configuration parameters](#configuration-parameters) section below and can also be changed later in the options menu. After a few seconds, the sensors should be added to your Home Assistant automatically. Note that the actual measurements require at least one [period](#period) to become visible.
 
-  ![Integration setup](https://raw.github.com/custom-components/ble_monitor/master/pictures/configuration_screen.png)
+  ![Integration setup](https://raw.github.com/custom-components/ble_monitor/more-device-settings/pictures/configuration_screen.png)
 
 #### 4b. Configuration in YAML
 
@@ -346,7 +346,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    To add a device, open the options menu of the integration and select **Add Device** in the device drop down menu and click on Submit. You can modify existing configured devices in a similar way, by selecting your device in the same drop down menu and clicking on Submit. Both will show the following form.
 
-  ![device setup](https://raw.github.com/custom-components/ble_monitor/master/pictures/device_screen.png)
+  ![device setup](https://raw.github.com/custom-components/ble_monitor/more-device-settings/pictures/device_screen.png)
 
 ### Configuraton in YAML
 
