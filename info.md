@@ -172,7 +172,9 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MJYD02YL
 
-  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected/clear) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the `reset_timer` option to have a additional `motion clear`, but keep in mind that in the current implementation, messages of the sensor can overrule the `reset_timer`. Battery is broadcasted once every 5 minutes.
+  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected/clear) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. 
+  
+  Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option to have a additional `motion clear`, but keep in mind that in the current implementation, messages of the sensor can overrule the [reset_timer](#reset_timer). Battery is broadcasted once every 5 minutes.
 
   ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/master/pictures/MJYD02YL.jpg)
 
@@ -208,7 +210,7 @@ Alternatively, you can install it manually. Just copy paste the content of the `
 
 ### 3. Add your sensors to the MiHome app if you haven’t already
 
-Many Xiaomi ecosystem sensors (maybe all) do not broadcast BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first.
+Many Xiaomi ecosystem sensors (maybe all) do not broadcast BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first. Some sensors also support alternative firmware, which doesn't need to be paired to MiHome.
 
 ### 4. Configure the integration
 
@@ -216,7 +218,7 @@ There are two ways to configure the integration and your devices (sensors), in t
 
 #### 4a. Configuration in the User Interface
 
-Make sure you restart Home Assistant after the installation in HACS. After the restart, go to **Configuration** in the side menu in Home Assistant and select **Integrations**. Click on **Add Integrations** in the bottom right corner and search for **Passive BLE Monitor** to install. This will open the configuration menu with the default settings. The options are explained in the [configuration parameters](#configuration-parameters) section below and can also be changed later in the options menu. After a few minutes, the sensors should be added to your Home Assistant automatically (at least one [period](#period) required). Note that changes also require at least one [period](#period) to become visible.
+Make sure you restart Home Assistant after the installation in HACS. After the restart, go to **Configuration** in the side menu in Home Assistant and select **Integrations**. Click on **Add Integrations** in the bottom right corner and search for **Passive BLE Monitor** to install. This will open the configuration menu with the default settings. The options are explained in the [configuration parameters](#configuration-parameters) section below and can also be changed later in the options menu. After a few seconds, the sensors should be added to your Home Assistant automatically. Note that the actual measurements require at least one [period](#period) to become visible.
 
   ![Integration setup](https://raw.github.com/custom-components/ble_monitor/master/pictures/configuration_screen.png)
 
@@ -239,7 +241,6 @@ ble_monitor:
   active_scan: False
   report_unknown: False
   batt_entities: False
-  rounding: True
   decimals: 1
   period: 60
   log_spikes: False
@@ -250,6 +251,9 @@ ble_monitor:
       name: 'Livingroom'
       encryption_key: '217C568CF5D22808DA20181502D84C1B'
       temperature_unit: C
+      decimals: 2
+      use_median: False
+      restore_state: default
     - mac: 'C4:3C:4D:6B:4F:F3'
       name: 'Bedroom'
       temperature_unit: F
@@ -302,13 +306,13 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.ble_battery_ <sensor_mac_address>`. Default value: False
 
-#### rounding
+#### rounding [DEPRECATED]
 
-   (boolean)(Optional) Enable/disable rounding of the average of all measurements taken within the number seconds specified with 'period'. This option is designed to disable rounding and thus keep the full average accuracy. When disabled, the `decimals` option is ignored. Default value: True
+   (boolean)(Optional) This option has been deprecated from `ble_monitor` 1.0.0. Enable/disable rounding of the average of all measurements taken within the number seconds specified with 'period'. This option is designed to disable rounding and thus keep the full average accuracy. When disabled, the `decimals` option is ignored. Default value: True
 
 #### decimals
 
-   (positive integer)(Optional) Number of decimal places to round (will be ignored if rounding is disabled). Default value: 1
+   (positive integer)(Optional) Number of decimal places to round. This setting can be overruled with for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: 1
 
 #### period
 
@@ -324,13 +328,13 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### use_median
 
-   (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the mean values in any case are present as the sensor state attributes. Default value: False
+   (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the mean values in any case are present as the sensor state attributes. This setting can be overruled with for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
   
    *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
 
 #### restore_state
 
-   (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors immediately after a restart of Home Assistant to the state right before the restart. The integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. If you only use measuring sensors like temperature sensors, this option can be safely set to `True`. Default value: False
+   (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors immediately after a restart of Home Assistant to the state right before the restart. The integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. If you only use measuring sensors like temperature sensors, this option can be safely set to `True`. It is also possible to overrule this setting for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
 
 ### Configuration parameters at device level
 
@@ -355,6 +359,9 @@ ble_monitor:
       name: 'Livingroom'
       encryption_key: '217C568CF5D22808DA20181502D84C1B'
       temperature_unit: C
+      decimals: 2
+      use_median: False
+      restore_state: default
     - mac: 'C4:3C:4D:6B:4F:F3'
       reset_timer: 30
 ```
@@ -367,8 +374,7 @@ ble_monitor:
 
    When using configuration in the User Interface, you can modify the device name by opening your device, via configuration, integrations and clicking on devices on the BLE monitor tile. Select the device you want to change the name of and click on the cogwheel in the topright corner, where you can change the name. You will get a question wether you want to rename the individual sensor entities of this device as well (normally, it is advised to do this).
 
-   (string)(Optional)
-   When using YAML, you can use the `name` option to link a device name and sensor name to the mac-address of the sensor device. Using this option (or changing a name) will create new sensor entities. The old data won't be transfered to the new sensor. The old sensor entities can be safely deleted afterwards, but this has to be done manually at the moment, see the instructions [below](#deleting-devices-and-sensors). The sensors are named with the following convention: `sensor.ble_sensortype_device_name` (e.g. `sensor.ble_temperature_livingroom`) in stead of the default `ble_sensortype_mac` (e.g. `sensor.ble_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. Default value: Empty
+   (string)(Optional) When using YAML, you can use the `name` option to link a device name and sensor name to the mac-address of the sensor device. Using this option (or changing a name) will create new sensor entities. The old data won't be transfered to the new sensor. The old sensor entities can be safely deleted afterwards, but this has to be done manually at the moment, see the instructions [below](#deleting-devices-and-sensors). The sensors are named with the following convention: `sensor.ble_sensortype_device_name` (e.g. `sensor.ble_temperature_livingroom`) in stead of the default `ble_sensortype_mac` (e.g. `sensor.ble_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. Default value: Empty
 
 ```yaml
 ble_monitor:
@@ -399,9 +405,48 @@ ble_monitor:
       temperature_unit: F
 ```
 
+#### decimals (device level)
+
+   (positive integer or `default`)(Optional) Number of decimal places to round. Overrules the setting at integration level. Default value: default (which means: use setting at integration level)
+
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      decimals: 2
+    - mac: 'A4:C1:38:2F:86:6B'
+      decimals: default
+```
+
+#### use_median (device level)
+
+   (boolean or `default`)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Overrules the setting at integration level. Please note that both the median and the mean values in any case are present as the sensor state attributes. Default value: default (which means: use setting at integration level)
+
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      use_median: True
+    - mac: 'A4:C1:38:2F:86:6B'
+      use_median: default
+```
+
+#### restore_state (device level)
+
+   (boolean or `default`)(Optional) This option will, when set to `True`, restore the state of the sensors immediately after a restart of Home Assistant to the state right before the restart. Overrules the setting at integration level. See for a more detailed explanation the setting at integration level. Default value: default (which means: use setting at integration level)
+
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      restore_state: True
+    - mac: 'A4:C1:38:2F:86:6B'
+      restore_state: default
+```
+
 #### reset_timer
 
-   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `motion clear`. After each `motion detected` advertisement, the timer starts counting down again. Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`. Default value: 30 
+   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `motion clear`. After each `motion detected` advertisement, the timer starts counting down again. Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`. Default value: 30
 
 ```yaml
 ble_monitor:
