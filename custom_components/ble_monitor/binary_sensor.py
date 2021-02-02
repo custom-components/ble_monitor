@@ -32,6 +32,7 @@ from .const import (
     CONF_PERIOD,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
+    CONF_DEVICE_RESTORE_STATE,
     CONF_DEVICE_RESET_TIMER,
     DEFAULT_DEVICE_RESET_TIMER,
     KETTLES,
@@ -216,7 +217,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         self._device_state_attributes["mac address"] = self._fmac
         self._unique_id = ""
         self._measurement = "measurement"
-        self._restore_state = config[CONF_RESTORE_STATE]
+        self._restore_state = self._device_settings["restore state"]
         self._reset_timer = self._device_settings["reset timer"]
         self._newstate = None
 
@@ -312,6 +313,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
 
         # initial setup of device settings equal to integration settings
         dev_name = self._mac
+        dev_restore_state = self._config[CONF_RESTORE_STATE]
         dev_reset_timer = DEFAULT_DEVICE_RESET_TIMER
 
         # in UI mode device name is equal to mac (but can be overwritten in UI)
@@ -328,18 +330,26 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
                     if id_selector in device:
                         # get device name (from YAML config)
                         dev_name = device[id_selector]
+                    if CONF_DEVICE_RESTORE_STATE in device:
+                        if isinstance(device[CONF_DEVICE_RESTORE_STATE], bool):
+                            dev_restore_state = device[CONF_DEVICE_RESTORE_STATE]
+                        else:
+                            dev_restore_state = self._config[CONF_RESTORE_STATE]
                     if CONF_DEVICE_RESET_TIMER in device:
                         dev_reset_timer = device[CONF_DEVICE_RESET_TIMER]
         device_settings = {
             "name": dev_name,
+            "restore state": dev_restore_state,
             "reset timer": dev_reset_timer
         }
         _LOGGER.debug(
             "Binary sensor device with mac address %s has the following settings. "
             "Name: %s. "
+            "Restore state: %s. "
             "Reset Timer: %s",
             self._fmac,
             device_settings["name"],
+            device_settings["restore state"],
             device_settings["reset timer"],
         )
         return device_settings

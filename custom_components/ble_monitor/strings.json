@@ -8,8 +8,7 @@
           "batt_entities": "Generate battery entities",
           "devices": "Devices",
           "discovery": "Discovery",
-          "rounding": "Rounding",
-          "decimals": "Decimals",
+          "decimals": "Number of decimals",
           "period": "Period",
           "log_spikes": "Log spikes",
           "use_median": "Use median",
@@ -23,8 +22,11 @@
         "title": "Add device",
         "data": {
           "mac": "MAC address",
-          "temperature_unit": "Temperature unit",
           "encryption_key": "Encryption key",
+          "temperature_unit": "Temperature unit",
+          "decimals": "Number of decimals",
+          "use_median": "Use median",
+          "restore_state": "Restore state",
           "reset_timer": "Motion sensor reset timer (in seconds, 0 = use sensor messages only)"
         }
       }  
@@ -47,8 +49,7 @@
           "batt_entities": "Generate battery entities",
           "devices": "Devices",
           "discovery": "Discovery",
-          "rounding": "Rounding",
-          "decimals": "Decimals",
+          "decimals": "Number of decimals",
           "period": "Period",
           "log_spikes": "Log spikes",
           "use_median": "Use median",
@@ -63,8 +64,11 @@
         "title": "Configure device",
         "data": {
           "mac": "MAC address (set to '-' to delete)",
-          "temperature_unit": "Temperature unit",
           "encryption_key": "Encryption key (set to '-' to remove)",
+          "temperature_unit": "Temperature unit",
+          "decimals": "Number of decimals",
+          "use_median": "Use median",
+          "restore_state": "Restore state",
           "reset_timer": "Motion sensor reset timer (in seconds, 0 = use sensor messages only)"
         }
       }  

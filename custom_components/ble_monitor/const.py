@@ -1,6 +1,7 @@
 """Constants for the Passive BLE monitor integration."""
 
 DOMAIN = "ble_monitor"
+PLATFORMS = ["binary_sensor", "sensor"]
 
 # Configuration options
 CONF_ROUNDING = "rounding"
@@ -14,6 +15,9 @@ CONF_BATT_ENTITIES = "batt_entities"
 CONF_REPORT_UNKNOWN = "report_unknown"
 CONF_RESTORE_STATE = "restore_state"
 CONF_ENCRYPTION_KEY = "encryption_key"
+CONF_DEVICE_DECIMALS = "decimals"
+CONF_DEVICE_USE_MEDIAN = "use_median"
+CONF_DEVICE_RESTORE_STATE = "restore_state"
 CONF_DEVICE_RESET_TIMER = "reset_timer"
 CONFIG_IS_FLOW = "is_flow"
 
@@ -31,6 +35,9 @@ DEFAULT_BATT_ENTITIES = False
 DEFAULT_REPORT_UNKNOWN = False
 DEFAULT_DISCOVERY = True
 DEFAULT_RESTORE_STATE = False
+DEFAULT_DEVICE_DECIMALS = "default"
+DEFAULT_DEVICE_USE_MEDIAN = "default"
+DEFAULT_DEVICE_RESTORE_STATE = "default"
 DEFAULT_DEVICE_RESET_TIMER = 30
 
 # regex constants for configuration schema

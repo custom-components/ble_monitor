@@ -43,6 +43,9 @@ from .const import (
     DEFAULT_DISCOVERY,
     DEFAULT_RESTORE_STATE,
     DEFAULT_HCI_INTERFACE,
+    DEFAULT_DEVICE_DECIMALS,
+    DEFAULT_DEVICE_USE_MEDIAN,
+    DEFAULT_DEVICE_RESTORE_STATE,
     DEFAULT_DEVICE_RESET_TIMER,
     CONF_ROUNDING,
     CONF_DECIMALS,
@@ -55,9 +58,13 @@ from .const import (
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
     CONF_ENCRYPTION_KEY,
+    CONF_DEVICE_DECIMALS,
+    CONF_DEVICE_USE_MEDIAN,
+    CONF_DEVICE_RESTORE_STATE,
     CONF_DEVICE_RESET_TIMER,
     CONFIG_IS_FLOW,
     DOMAIN,
+    PLATFORMS,
     MAC_REGEX,
     AES128KEY_REGEX,
     ATC_TYPE_DICT,
@@ -79,8 +86,6 @@ THBV_STRUCT = struct.Struct(">hBBH")
 THVB_STRUCT = struct.Struct("<hHHB")
 M_STRUCT = struct.Struct("<L")
 
-PLATFORMS = ["binary_sensor", "sensor"]
-
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
 
@@ -90,35 +95,49 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_NAME): cv.string,
         vol.Optional(CONF_ENCRYPTION_KEY): cv.matches_regex(AES128KEY_REGEX),
         vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
-        vol.Optional(CONF_DEVICE_RESET_TIMER, default=DEFAULT_DEVICE_RESET_TIMER): cv.positive_int,
+        vol.Optional(
+            CONF_DEVICE_DECIMALS, default=DEFAULT_DEVICE_DECIMALS
+        ): vol.In([DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3, 4]),
+        vol.Optional(
+            CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN
+        ): vol.In([DEFAULT_DEVICE_USE_MEDIAN, True, False]),
+        vol.Optional(
+            CONF_DEVICE_RESTORE_STATE, default=DEFAULT_DEVICE_RESTORE_STATE
+        ): vol.In([DEFAULT_DEVICE_RESTORE_STATE, True, False]),
+        vol.Optional(
+            CONF_DEVICE_RESET_TIMER, default=DEFAULT_DEVICE_RESET_TIMER
+        ): cv.positive_int,
     }
 )
 
 CONFIG_SCHEMA = vol.Schema(
     {
-        DOMAIN: vol.Schema(
-            {
-                vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.boolean,
-                vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
-                vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
-                vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
-                vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
-                vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
-                vol.Optional(
-                    CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
-                ): vol.All(cv.ensure_list, [cv.positive_int]),
-                vol.Optional(
-                    CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
-                ): cv.boolean,
-                vol.Optional(
-                    CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
-                ): cv.boolean,
-                vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
-                vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
-                vol.Optional(CONF_DEVICES, default=[]): vol.All(
-                    cv.ensure_list, [DEVICE_SCHEMA]
-                ),
-            }
+        DOMAIN: vol.All(
+            cv.deprecated(CONF_ROUNDING),
+            vol.Schema(
+                {
+                    vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.positive_int,
+                    vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
+                    vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
+                    vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
+                    vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
+                    vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
+                    vol.Optional(
+                        CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
+                    ): vol.All(cv.ensure_list, [cv.positive_int]),
+                    vol.Optional(
+                        CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
+                    ): cv.boolean,
+                    vol.Optional(
+                        CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
+                    ): cv.boolean,
+                    vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
+                    vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
+                    vol.Optional(CONF_DEVICES, default=[]): vol.All(
+                        cv.ensure_list, [DEVICE_SCHEMA]
+                    ),
+                }
+            )
         )
     },
     extra=vol.ALLOW_EXTRA,
@@ -131,7 +150,6 @@ async def async_setup(hass: HomeAssistant, config):
     """Set up integration."""
 
     async def service_cleanup_entries(service_call):
-        # service = service_call.service
         service_data = service_call.data
 
         await async_cleanup_entries_service(hass, service_data)
@@ -529,7 +547,9 @@ class HCIdump(Thread):
                     try:
                         self._event_loop.run_until_complete(btctrl[hci].send_scan_request(self._active))
                     except RuntimeError as error:
-                        _LOGGER.error("HCIdump thread: Runtime error while sending scan request on hci%i: %s", hci, error)
+                        _LOGGER.error(
+                            "HCIdump thread: Runtime error while sending scan request on hci%i: %s", hci, error
+                        )
             _LOGGER.debug("HCIdump thread: start main event_loop")
             try:
                 self._event_loop.run_forever()

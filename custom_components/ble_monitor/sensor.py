@@ -30,13 +30,15 @@ from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 
 from .const import (
-    CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
+    CONF_DEVICE_DECIMALS,
+    CONF_DEVICE_USE_MEDIAN,
+    CONF_DEVICE_RESTORE_STATE,
     CONF_DEVICE_RESET_TIMER,
     CONF_TMIN,
     CONF_TMAX,
@@ -60,7 +62,6 @@ async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
 async def async_setup_entry(hass, config_entry, add_entities):
     """Set up the measuring sensor entry."""
     _LOGGER.debug("Starting measuring sensor entry startup")
-
     blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdater(blemonitor, add_entities)
     hass.loop.create_task(bleupdater.async_run())
@@ -193,9 +194,9 @@ class BLEupdater():
                             entity.pending_update = False
                     else:
                         if (
-                            temperature_limit(self.config, mac, CONF_TMAX)
-                            >= data["temperature"]
-                            >= temperature_limit(self.config, mac, CONF_TMIN)
+                            temperature_limit(
+                                self.config, mac, CONF_TMAX
+                            ) >= data["temperature"] >= temperature_limit(self.config, mac, CONF_TMIN)
                         ):
                             sensors[t_i].collect(data, batt_attr)
                         elif self.log_spikes:
@@ -291,12 +292,11 @@ class MeasuringSensor(RestoreEntity):
         self._measurements = []
         self.rssi_values = []
         self.pending_update = False
-        self._rdecimals = config[CONF_DECIMALS]
+        self._rdecimals = self._device_settings["decimals"]
         self._jagged = False
         self._fmdh_dec = 0
-        self._rounding = config[CONF_ROUNDING]
-        self._use_median = config[CONF_USE_MEDIAN]
-        self._restore_state = config[CONF_RESTORE_STATE]
+        self._use_median = self._device_settings["use median"]
+        self._restore_state = self._device_settings["restore state"]
         self._reset_timer = self._device_settings["reset timer"]
         self._err = None
 
@@ -416,12 +416,8 @@ class MeasuringSensor(RestoreEntity):
             rdecimals = self._fmdh_dec
         try:
             measurements = self._measurements
-            if self._rounding:
-                state_median = round(sts.median(measurements), rdecimals)
-                state_mean = round(sts.mean(measurements), rdecimals)
-            else:
-                state_median = sts.median(measurements)
-                state_mean = sts.mean(measurements)
+            state_median = round(sts.median(measurements), rdecimals)
+            state_mean = round(sts.mean(measurements), rdecimals)
             if self._use_median:
                 textattr = "last median of"
                 self._state = state_median
@@ -452,6 +448,10 @@ class MeasuringSensor(RestoreEntity):
 
         # initial setup of device settings equal to integration settings
         dev_name = self._mac
+        dev_temperature_unit = TEMP_CELSIUS
+        dev_decimals = self._config[CONF_DECIMALS]
+        dev_use_median = self._config[CONF_USE_MEDIAN]
+        dev_restore_state = self._config[CONF_RESTORE_STATE]
         dev_reset_timer = DEFAULT_DEVICE_RESET_TIMER
 
         # in UI mode device name is equal to mac (but can be overwritten in UI)
@@ -468,18 +468,47 @@ class MeasuringSensor(RestoreEntity):
                     if id_selector in device:
                         # get device name (from YAML config)
                         dev_name = device[id_selector]
+                    if CONF_TEMPERATURE_UNIT in device:
+                        dev_temperature_unit = device[CONF_TEMPERATURE_UNIT]
+                    if CONF_DEVICE_DECIMALS in device:
+                        if isinstance(device[CONF_DEVICE_DECIMALS], int):
+                            dev_decimals = device[CONF_DEVICE_DECIMALS]
+                        else:
+                            dev_decimals = self._config[CONF_DECIMALS]
+                    if CONF_DEVICE_USE_MEDIAN in device:
+                        if isinstance(device[CONF_DEVICE_USE_MEDIAN], bool):
+                            dev_use_median = device[CONF_DEVICE_USE_MEDIAN]
+                        else:
+                            dev_use_median = self._config[CONF_USE_MEDIAN]
+                    if CONF_DEVICE_RESTORE_STATE in device:
+                        if isinstance(device[CONF_DEVICE_RESTORE_STATE], bool):
+                            dev_restore_state = device[CONF_DEVICE_RESTORE_STATE]
+                        else:
+                            dev_restore_state = self._config[CONF_RESTORE_STATE]
                     if CONF_DEVICE_RESET_TIMER in device:
                         dev_reset_timer = device[CONF_DEVICE_RESET_TIMER]
         device_settings = {
             "name": dev_name,
+            "temperature unit": dev_temperature_unit,
+            "decimals": dev_decimals,
+            "use median": dev_use_median,
+            "restore state": dev_restore_state,
             "reset timer": dev_reset_timer
         }
         _LOGGER.debug(
             "Sensor device with mac address %s has the following settings. "
             "Name: %s. "
-            "Reset Timer: %s",
+            "Temperature unit: %s. "
+            "Decimals: %s. "
+            "Use Median: %s. "
+            "Restore state: %s. "
+            "Reset Timer: %s.",
             self._fmac,
             device_settings["name"],
+            device_settings["temperature unit"],
+            device_settings["decimals"],
+            device_settings["use median"],
+            device_settings["restore state"],
             device_settings["reset timer"],
         )
         return device_settings
@@ -494,29 +523,8 @@ class TemperatureSensor(MeasuringSensor):
         self._measurement = "temperature"
         self._name = "ble temperature {}".format(self._device_name)
         self._unique_id = "t_" + self._device_name
-        self._unit_of_measurement = self.get_temperature_unit()
+        self._unit_of_measurement = self._device_settings["temperature unit"]
         self._device_class = DEVICE_CLASS_TEMPERATURE
-
-    def get_temperature_unit(self):
-        """Set temperature unit to °C or °F."""
-        fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
-
-        if self._config[CONF_DEVICES]:
-            for device in self._config[CONF_DEVICES]:
-                if fmac in device["mac"].upper():
-                    if CONF_TEMPERATURE_UNIT in device:
-                        _LOGGER.debug(
-                            "Temperature sensor with mac address %s is set to receive data in %s",
-                            fmac,
-                            device[CONF_TEMPERATURE_UNIT],
-                        )
-                        return device[CONF_TEMPERATURE_UNIT]
-                    break
-        _LOGGER.debug(
-            "Temperature sensor with mac address %s is set to receive data in °C",
-            fmac,
-        )
-        return TEMP_CELSIUS
 
 
 class HumiditySensor(MeasuringSensor):
