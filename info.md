@@ -17,11 +17,13 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.9.9
+# Changes in 0.9.11
 
-- Added partial support for MJYD02YLXiaomi Motion Activated Night Light sensor. 
+- Remove jagged humidity measurements for sensors with ATC firmware
+- Added support for Bluetooth 5 advertisements (extended format) for sensors with ATC firmware
+- Improved support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor (thanks for the support of @andrewjswan and @skynetua).
 
-  This first implementation adds only light state (light/no light) and battery state. Motion sensor is not supported yet, due to an issue with the advertisement format. We hope to implement motion sensor support in the near future.  
+  This release adds support for the motion sensor MJYD02YL. You can use the `reset_timer` to define after how long the sensor should report `motion clear` (default is 30 seconds). Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`.
   
   Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
 
@@ -252,7 +254,7 @@ ble_monitor:
       name: 'Bedroom'
       temperature_unit: F
     - mac: 'B4:7C:8D:6D:4C:D3'
-      reset_timer: 120
+      reset_timer: 30
 ```
 
 Note: The encryption_key parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
@@ -354,6 +356,7 @@ ble_monitor:
       encryption_key: '217C568CF5D22808DA20181502D84C1B'
       temperature_unit: C
     - mac: 'C4:3C:4D:6B:4F:F3'
+      reset_timer: 30
 ```
 
 #### mac
@@ -398,13 +401,13 @@ ble_monitor:
 
 #### reset_timer
 
-   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `no motion`. After each `motion detected` advertisement, the timer starts counting down again. Don't set the time too small, otherwise the motion sensor will constantly turn from `motion detected` to `no motion` and back. Setting is to `0` will turn the timer off. This means that when motion is detected, it will stay on forever, unless the sensor itself sends a `no motion` message. Note that `no motion` advertisements of the `MJYD02YL` sensor are currently not received, therefore set it to something higher than 0. Default value: 120 
+   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `motion clear`. After each `motion detected` advertisement, the timer starts counting down again. Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`. Default value: 30 
 
 ```yaml
 ble_monitor:
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
-      reset_timer: 120
+      reset_timer: 30
 ```
 
 ### Deleting devices and sensors
