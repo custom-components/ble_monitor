@@ -30,6 +30,7 @@ from .const import (
     DEFAULT_REPORT_UNKNOWN,
     DEFAULT_DISCOVERY,
     DEFAULT_RESTORE_STATE,
+    DEFAULT_DEVICE_RESET_TIMER,
     CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
@@ -41,6 +42,7 @@ from .const import (
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
     CONF_ENCRYPTION_KEY,
+    CONF_DEVICE_RESET_TIMER,
     CONFIG_IS_FLOW,
     DOMAIN,
     MAC_REGEX,
@@ -57,6 +59,7 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_MAC, default=""): cv.string,
         vol.Optional(CONF_ENCRYPTION_KEY, default=""): cv.string,
         vol.Optional(CONF_TEMPERATURE_UNIT, default=TEMP_CELSIUS): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
+        vol.Optional(CONF_DEVICE_RESET_TIMER, default=DEFAULT_DEVICE_RESET_TIMER): cv.positive_int,
     }
 )
 
@@ -173,6 +176,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                         vol.Optional(CONF_MAC, default=user_input[CONF_MAC]): str,
                         vol.Optional(CONF_ENCRYPTION_KEY, default=user_input[CONF_ENCRYPTION_KEY]): str,
                         vol.Optional(CONF_TEMPERATURE_UNIT, default=user_input[CONF_TEMPERATURE_UNIT]): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
+                        vol.Optional(CONF_DEVICE_RESET_TIMER, default=user_input[CONF_DEVICE_RESET_TIMER]): cv.positive_int,
                     }
                 )
                 return self.async_show_form(
@@ -191,6 +195,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 vol.Optional(CONF_MAC, default=self._sel_device.get(CONF_MAC) if self._sel_device.get(CONF_MAC) else ""): str,
                 vol.Optional(CONF_ENCRYPTION_KEY, default=self._sel_device.get(CONF_ENCRYPTION_KEY) if self._sel_device.get(CONF_ENCRYPTION_KEY) else ""): str,
                 vol.Optional(CONF_TEMPERATURE_UNIT, default=self._sel_device.get(CONF_TEMPERATURE_UNIT) if self._sel_device.get(CONF_TEMPERATURE_UNIT) else TEMP_CELSIUS): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
+                vol.Optional(CONF_DEVICE_RESET_TIMER, default=self._sel_device.get(CONF_DEVICE_RESET_TIMER) if self._sel_device.get(CONF_DEVICE_RESET_TIMER) else DEFAULT_DEVICE_RESET_TIMER): cv.positive_int,
             }
         )
 

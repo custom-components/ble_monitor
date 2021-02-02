@@ -37,10 +37,12 @@ from .const import (
     CONF_USE_MEDIAN,
     CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
+    CONF_DEVICE_RESET_TIMER,
     CONF_TMIN,
     CONF_TMAX,
     CONF_HMIN,
     CONF_HMAX,
+    DEFAULT_DEVICE_RESET_TIMER,
     KETTLES,
     MANUFACTURER_DICT,
     MMTS_DICT,
@@ -130,31 +132,32 @@ class BLEupdater():
                 rssi[mac].append(int(data["rssi"]))
                 batt_attr = None
                 sensortype = data["type"]
+                firmware = data["firmware"]
                 t_i, h_i, m_i, c_i, i_i, f_i, cn_i, v_i, b_i = MMTS_DICT[sensortype][0]
                 if mac not in sensors_by_mac:
                     sensors = []
                     if t_i != 9:
-                        sensors.insert(t_i, TemperatureSensor(self.config, mac, sensortype))
+                        sensors.insert(t_i, TemperatureSensor(self.config, mac, sensortype, firmware))
                     if h_i != 9:
-                        sensors.insert(h_i, HumiditySensor(self.config, mac, sensortype))
+                        sensors.insert(h_i, HumiditySensor(self.config, mac, sensortype, firmware))
                     if m_i != 9:
-                        sensors.insert(m_i, MoistureSensor(self.config, mac, sensortype))
+                        sensors.insert(m_i, MoistureSensor(self.config, mac, sensortype, firmware))
                     if c_i != 9:
-                        sensors.insert(c_i, ConductivitySensor(self.config, mac, sensortype))
+                        sensors.insert(c_i, ConductivitySensor(self.config, mac, sensortype, firmware))
                     if i_i != 9:
-                        sensors.insert(i_i, IlluminanceSensor(self.config, mac, sensortype))
+                        sensors.insert(i_i, IlluminanceSensor(self.config, mac, sensortype, firmware))
                     if f_i != 9:
-                        sensors.insert(f_i, FormaldehydeSensor(self.config, mac, sensortype))
+                        sensors.insert(f_i, FormaldehydeSensor(self.config, mac, sensortype, firmware))
                     if cn_i != 9:
-                        sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype))
+                        sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype, firmware))
                     if (v_i != 9) and "voltage" in data:
                         # only add voltage sensor if available in data
                         try:
-                            sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype))
+                            sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
                         except IndexError:
                             pass
                     if self.batt_entities and (b_i != 9):
-                        sensors.insert(b_i, BatterySensor(self.config, mac, sensortype))
+                        sensors.insert(b_i, BatterySensor(self.config, mac, sensortype, firmware))
                     if len(sensors) != 0:
                         sensors_by_mac[mac] = sensors
                         self.add_entities(sensors)
@@ -231,8 +234,8 @@ class BLEupdater():
                         if new_sensor_message is False:
                             _LOGGER.warning(
                                 "New voltage sensor found with MAC address %s. "
-                                "Manually reload ble_monitor in the integration "
-                                "menu to add voltage sensor and make sure you "
+                                "Enable battery entities and reload ble_monitor "
+                                "to add voltage sensor and make sure you "
                                 "use only one advertisement type (not all)", mac
                             )
                             new_sensor_message = True
@@ -265,7 +268,7 @@ class BLEupdater():
 class MeasuringSensor(RestoreEntity):
     """Base class for measuring sensor entity."""
 
-    def __init__(self, config, mac, devtype):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
         self.ready_for_update = False
         self._config = config
@@ -278,6 +281,7 @@ class MeasuringSensor(RestoreEntity):
         self._device_name = self._device_settings["name"]
         self._device_class = None
         self._device_type = devtype
+        self._device_firmware = firmware
         self._device_manufacturer = MANUFACTURER_DICT[devtype]
         self._device_state_attributes = {}
         self._device_state_attributes["sensor type"] = devtype
@@ -293,6 +297,7 @@ class MeasuringSensor(RestoreEntity):
         self._rounding = config[CONF_ROUNDING]
         self._use_median = config[CONF_USE_MEDIAN]
         self._restore_state = config[CONF_RESTORE_STATE]
+        self._reset_timer = self._device_settings["reset timer"]
         self._err = None
 
     async def async_added_to_hass(self):
@@ -325,6 +330,8 @@ class MeasuringSensor(RestoreEntity):
             self._state = old_state.attributes["mean"]
         if "rssi" in old_state.attributes:
             self._device_state_attributes["rssi"] = old_state.attributes["rssi"]
+        if "firmware" in old_state.attributes:
+            self._device_state_attributes["firmware"] = old_state.attributes["firmware"]
         if "last packet id" in old_state.attributes:
             self._device_state_attributes["last packet id"] = old_state.attributes["last packet id"]
         if ATTR_BATTERY_LEVEL in old_state.attributes:
@@ -376,6 +383,7 @@ class MeasuringSensor(RestoreEntity):
             },
             "name": self._device_name,
             "model": self._device_type,
+            "sw_version": self._device_firmware,
             "manufacturer": self._device_manufacturer,
         }
 
@@ -394,6 +402,7 @@ class MeasuringSensor(RestoreEntity):
         else:
             self._measurements.append(data[self._measurement])
         self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
@@ -443,6 +452,8 @@ class MeasuringSensor(RestoreEntity):
 
         # initial setup of device settings equal to integration settings
         dev_name = self._mac
+        dev_reset_timer = DEFAULT_DEVICE_RESET_TIMER
+
         # in UI mode device name is equal to mac (but can be overwritten in UI)
         # in YAML mode device name is taken from config
         # when changing from YAML mode to UI mode, we keep using the unique_id as device name from YAML
@@ -457,14 +468,19 @@ class MeasuringSensor(RestoreEntity):
                     if id_selector in device:
                         # get device name (from YAML config)
                         dev_name = device[id_selector]
+                    if CONF_DEVICE_RESET_TIMER in device:
+                        dev_reset_timer = device[CONF_DEVICE_RESET_TIMER]
         device_settings = {
             "name": dev_name,
+            "reset timer": dev_reset_timer
         }
         _LOGGER.debug(
             "Sensor device with mac address %s has the following settings. "
-            "Name: %s. ",
+            "Name: %s. "
+            "Reset Timer: %s",
             self._fmac,
-            device_settings["name"]
+            device_settings["name"],
+            device_settings["reset timer"],
         )
         return device_settings
 
@@ -472,9 +488,9 @@ class MeasuringSensor(RestoreEntity):
 class TemperatureSensor(MeasuringSensor):
     """Representation of a sensor."""
 
-    def __init__(self, config, mac, devtype):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
-        super().__init__(config, mac, devtype)
+        super().__init__(config, mac, devtype, firmware)
         self._measurement = "temperature"
         self._name = "ble temperature {}".format(self._device_name)
         self._unique_id = "t_" + self._device_name
@@ -506,9 +522,9 @@ class TemperatureSensor(MeasuringSensor):
 class HumiditySensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac, devtype):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
-        super().__init__(config, mac, devtype)
+        super().__init__(config, mac, devtype, firmware)
         self._measurement = "humidity"
         self._name = "ble humidity {}".format(self._device_name)
         self._unique_id = "h_" + self._device_name
@@ -516,15 +532,16 @@ class HumiditySensor(MeasuringSensor):
         self._device_class = DEVICE_CLASS_HUMIDITY
         # LYWSD03MMC / MHO-C401 "jagged" humidity workaround
         if devtype in ('LYWSD03MMC', 'MHO-C401'):
-            self._jagged = True
+            if self._device_firmware == "Xiaomi (MiBeacon)":
+                self._jagged = True
 
 
 class MoistureSensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac, devtype):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
-        super().__init__(config, mac, devtype)
+        super().__init__(config, mac, devtype, firmware)
         self._measurement = "moisture"
         self._name = "ble moisture {}".format(self._device_name)
         self._unique_id = "m_" + self._device_name
@@ -535,9 +552,9 @@ class MoistureSensor(MeasuringSensor):
 class ConductivitySensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac, devtype):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
-        super().__init__(config, mac, devtype)
+        super().__init__(config, mac, devtype, firmware)
         self._measurement = "conductivity"
         self._name = "ble conductivity {}".format(self._device_name)
         self._unique_id = "c_" + self._device_name
@@ -553,9 +570,9 @@ class ConductivitySensor(MeasuringSensor):
 class IlluminanceSensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac, devtype):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
-        super().__init__(config, mac, devtype)
+        super().__init__(config, mac, devtype, firmware)
         self._measurement = "illuminance"
         self._name = "ble illuminance {}".format(self._device_name)
         self._unique_id = "l_" + self._device_name
@@ -566,9 +583,9 @@ class IlluminanceSensor(MeasuringSensor):
 class FormaldehydeSensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac, devtype):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
-        super().__init__(config, mac, devtype)
+        super().__init__(config, mac, devtype, firmware)
         self._measurement = "formaldehyde"
         self._name = "ble formaldehyde {}".format(self._device_name)
         self._unique_id = "f_" + self._device_name
@@ -585,9 +602,9 @@ class FormaldehydeSensor(MeasuringSensor):
 class VoltageSensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac, devtype):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
-        super().__init__(config, mac, devtype)
+        super().__init__(config, mac, devtype, firmware)
         self._measurement = "voltage"
         self._name = "ble voltage {}".format(self._device_name)
         self._unique_id = "v_" + self._device_name
@@ -598,9 +615,9 @@ class VoltageSensor(MeasuringSensor):
 class BatterySensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac, devtype):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
-        super().__init__(config, mac, devtype)
+        super().__init__(config, mac, devtype, firmware)
         self._measurement = "battery"
         self._name = "ble battery {}".format(self._device_name)
         self._unique_id = "batt_" + self._device_name
@@ -614,6 +631,7 @@ class BatterySensor(MeasuringSensor):
             return
         self._state = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
         self.pending_update = True
 
     async def async_update(self):
@@ -626,9 +644,9 @@ class BatterySensor(MeasuringSensor):
 class ConsumableSensor(MeasuringSensor):
     """Representation of a Sensor."""
 
-    def __init__(self, config, mac, devtype):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
-        super().__init__(config, mac, devtype)
+        super().__init__(config, mac, devtype, firmware)
         self._measurement = "consumable"
         self._name = "ble consumable {}".format(self._device_name)
         self._unique_id = "cn_" + self._device_name
@@ -647,6 +665,7 @@ class ConsumableSensor(MeasuringSensor):
             return
         self._state = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True

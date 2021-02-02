@@ -14,6 +14,7 @@ CONF_BATT_ENTITIES = "batt_entities"
 CONF_REPORT_UNKNOWN = "report_unknown"
 CONF_RESTORE_STATE = "restore_state"
 CONF_ENCRYPTION_KEY = "encryption_key"
+CONF_DEVICE_RESET_TIMER = "reset_timer"
 CONFIG_IS_FLOW = "is_flow"
 
 SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
@@ -30,6 +31,7 @@ DEFAULT_BATT_ENTITIES = False
 DEFAULT_REPORT_UNKNOWN = False
 DEFAULT_DISCOVERY = True
 DEFAULT_RESTORE_STATE = False
+DEFAULT_DEVICE_RESET_TIMER = 30
 
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
@@ -65,7 +67,7 @@ XIAOMI_TYPE_DICT = {
     b'\x13\x01': ("YM-K1501EU", True),
     b'\x5C\x04': ("V-SK152", True),
     b'\x63\x08': ("SJWS01LM", True),
-    b'\xf6\x07': ("MJYD02YL", True),
+    b'\xF6\x07': ("MJYD02YL", True),
 }
 
 ATC_TYPE_DICT = {
@@ -75,30 +77,30 @@ ATC_TYPE_DICT = {
 # Sensor type indexes dictionary for sensor platform
 # Sensor:         Temperature, Humidity, Moisture, Conductivity, Illuminance,
 #                 Formaldehyde, Consumable, Voltage, Battery
-# Binary_sensor:  Switch, Opening, Light, Moisture, Battery
+# Binary_sensor:  Switch, Opening, Light, Moisture, Motion, Battery
 #                            sensor                       binary
-# Measurement type      [T  H  M  C  I  F  Cn V  B]  [Sw Op L  Mo B]     (start from 0, 9 - no data)
+# Measurement type      [T  H  M  C  I  F  Cn V  B]  [Sw Op L  Mo Mn B]     (start from 0, 9 - no data)
 MMTS_DICT = {
-    'LYWSDCGQ'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'CGG1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'CGG1-ENCRYPTED' : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'CGDK2'          : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'LYWSD02'        : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'LYWSD03MMC'     : [[0, 1, 9, 9, 9, 9, 9, 3, 2], [9, 9, 9, 9, 9]],
-    'CGD1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'MHO-C401'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'MHO-C303'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9]],
-    'JQJCY01YM'      : [[0, 1, 9, 9, 9, 2, 9, 9, 3], [9, 9, 9, 9, 9]],
-    'HHCCJCY01'      : [[0, 9, 1, 2, 3, 9, 9, 9, 9], [9, 9, 9, 9, 9]],
-    'GCLS002'        : [[0, 9, 1, 2, 3, 9, 9, 9, 9], [9, 9, 9, 9, 9]],
-    'HHCCPOT002'     : [[9, 9, 0, 1, 9, 9, 9, 9, 9], [9, 9, 9, 9, 9]],
-    'WX08ZM'         : [[9, 9, 9, 9, 9, 9, 0, 9, 1], [0, 9, 9, 9, 1]],
-    'MCCGQ02HL'      : [[9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 0, 1, 9, 2]],
-    'YM-K1501'       : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
-    'YM-K1501EU'     : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
-    'V-SK152'        : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9]],
-    'SJWS01LM'       : [[9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 9, 9, 0, 1]],
-    'MJYD02YL'       : [[9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 9, 0, 9, 1]],
+    'LYWSDCGQ'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9]],
+    'CGG1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9]],
+    'CGG1-ENCRYPTED' : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9]],
+    'CGDK2'          : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9]],
+    'LYWSD02'        : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9]],
+    'LYWSD03MMC'     : [[0, 1, 9, 9, 9, 9, 9, 3, 2], [9, 9, 9, 9, 9, 9]],
+    'CGD1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9]],
+    'MHO-C401'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9]],
+    'MHO-C303'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9]],
+    'JQJCY01YM'      : [[0, 1, 9, 9, 9, 2, 9, 9, 3], [9, 9, 9, 9, 9, 9]],
+    'HHCCJCY01'      : [[0, 9, 1, 2, 3, 9, 9, 9, 9], [9, 9, 9, 9, 9, 9]],
+    'GCLS002'        : [[0, 9, 1, 2, 3, 9, 9, 9, 9], [9, 9, 9, 9, 9, 9]],
+    'HHCCPOT002'     : [[9, 9, 0, 1, 9, 9, 9, 9, 9], [9, 9, 9, 9, 9, 9]],
+    'WX08ZM'         : [[9, 9, 9, 9, 9, 9, 0, 9, 1], [0, 9, 9, 9, 9, 1]],
+    'MCCGQ02HL'      : [[9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 0, 1, 9, 9, 2]],
+    'YM-K1501'       : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9, 9]],
+    'YM-K1501EU'     : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9, 9]],
+    'V-SK152'        : [[0, 9, 9, 9, 9, 9, 9, 9, 9], [0, 9, 9, 9, 9, 9]],
+    'SJWS01LM'       : [[9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 9, 9, 0, 9, 1]],
+    'MJYD02YL'       : [[9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 9, 0, 9, 1, 2]],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')

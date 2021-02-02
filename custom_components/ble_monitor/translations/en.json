@@ -24,7 +24,8 @@
         "data": {
           "mac": "MAC address",
           "temperature_unit": "Temperature unit",
-          "encryption_key": "Encryption key"
+          "encryption_key": "Encryption key",
+          "reset_timer": "Motion sensor reset timer (in seconds, 0 = use sensor messages only)"
         }
       }  
     },
@@ -63,7 +64,8 @@
         "data": {
           "mac": "MAC address (set to '-' to delete)",
           "temperature_unit": "Temperature unit",
-          "encryption_key": "Encryption key (set to '-' to remove)"
+          "encryption_key": "Encryption key (set to '-' to remove)",
+          "reset_timer": "Motion sensor reset timer (in seconds, 0 = use sensor messages only)"
         }
       }  
     },

@@ -5,22 +5,25 @@
 
 # NB!: This is a Beta version
 
-# Changes in 0.9.9-beta
+# Changes in 0.9.11-beta
 
-- Added partial support for MJYD02YLXiaomi Motion Activated Night Light sensor. 
-  
-  This first implementation adds only light state (light/no light) and battery state. Motion sensor is not supported yet, due to an issue with the advertisement format. We hope to implement motion sensor support in the near future. 
-  
+- Remove jagged humidity measurements for sensors with ATC firmware
+- Added support for Bluetooth 5 advertisements (extended format) for sensors with ATC firmware
+- Improved support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor (thanks for the support of @andrewjswan and @skynetua).
+
+  This third implementation adds improved support for the motion sensor of MJYD02YL compared to version 0.9.10. We have now implemented all advertisement types the sensor sends.    
   Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.9.9
+# Changes in 0.9.11
 
-- Added partial support for MJYD02YLXiaomi Motion Activated Night Light sensor. 
+- Remove jagged humidity measurements for sensors with ATC firmware
+- Added support for Bluetooth 5 advertisements (extended format) for sensors with ATC firmware
+- Improved support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor (thanks for the support of @andrewjswan and @skynetua).
 
-  This first implementation adds only light state (light/no light) and battery state. Motion sensor is not supported yet, due to an issue with the advertisement format. We hope to implement motion sensor support in the near future.  
+  This release adds support for the motion sensor MJYD02YL. You can use the `reset_timer` to define after how long the sensor should report `motion clear` (default is 30 seconds). Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`.
   
   Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
 
@@ -90,8 +93,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 - LYWSD03MMC
 
   (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour (original firmware). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware).
-  
-  `ble_monitor` also supports custom ATC firmware (both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer)). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent (note that both battery sensors are only visible as sensor with `batt_entities: True`). For the `pvvx` firmware, it is advised to change the `advertisement type` from `all` to `custom`. Sending multiple advertisment types at the same time might cause the voltage sensor from not showing up, depending on which advertisement comes first. The advertisement type `custom` will also result in a higher accuracy. Reloading the integration is needed to receive the voltage sensor after switching the firmware)   
+ 
+  `ble_monitor` also supports custom ATC firmware (both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer)). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent (note that both battery sensors are only visible as sensor with `batt_entities: True`). Reloading the integration is needed to receive the voltage sensor after switching the firmware. For the `pvvx` firmware, it is advised to change the `advertisement type` from `all` to `custom`. Sending multiple advertisment types at the same time might cause the voltage sensor from not showing up, depending on which advertisement comes first. The advertisement type `custom` will also result in a higher accuracy.   
   
   ![LYWSD03MMC](https://raw.github.com/custom-components/ble_monitor/master/pictures/LYWSD03MMC.jpg)
 
@@ -169,9 +172,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MJYD02YL
 
-  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (not implemented yet [1]) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the interval is significantly shorter (multiple broadcasts per minute). Battery is broadcasted once every 5 minutes. 
-  
-  [1] The motion sensor isn't working in current implementation, due to an issue with the advertisement format. Will be implemented in a future release.)
+  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected/clear) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the `reset_timer` option to have a additional `motion clear`, but keep in mind that in the current implementation, messages of the sensor can overrule the `reset_timer`. Battery is broadcasted once every 5 minutes.
 
   ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/master/pictures/MJYD02YL.jpg)
 
@@ -253,6 +254,7 @@ ble_monitor:
       name: 'Bedroom'
       temperature_unit: F
     - mac: 'B4:7C:8D:6D:4C:D3'
+      reset_timer: 30
 ```
 
 Note: The encryption_key parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
@@ -354,6 +356,7 @@ ble_monitor:
       encryption_key: '217C568CF5D22808DA20181502D84C1B'
       temperature_unit: C
     - mac: 'C4:3C:4D:6B:4F:F3'
+      reset_timer: 30
 ```
 
 #### mac
@@ -374,6 +377,17 @@ ble_monitor:
       name: 'Livingroom'
 ```
 
+#### encryption_key
+
+   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1, MCCGQ02HL and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      encryption_key: '217C568CF5D22808DA20181502D84C1B'
+```
+
 #### temperature_unit
 
    (C or F)(Optional) Most sensors are sending temperature measurements in Celsius (C), which is the default assumption for `ble_monitor`. However, some sensors, like the `LYWSD03MMC` sensor with custom firmware will start sending temperature measurements in Fahrenheit (F) after changing the display from Celsius to Fahrenheit. This means that you will have to tell `ble_monitor` that it should expect Fahrenheit measurements for these specific sensors. Default value: C
@@ -385,15 +399,15 @@ ble_monitor:
       temperature_unit: F
 ```
 
-#### encryption_key
+#### reset_timer
 
-   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1, MCCGQ02HL and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `motion clear`. After each `motion detected` advertisement, the timer starts counting down again. Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`. Default value: 30 
 
 ```yaml
 ble_monitor:
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
-      encryption_key: '217C568CF5D22808DA20181502D84C1B'
+      reset_timer: 30
 ```
 
 ### Deleting devices and sensors
