@@ -223,7 +223,7 @@ ble_monitor:
       name: 'Bedroom'
       temperature_unit: F
     - mac: 'B4:7C:8D:6D:4C:D3'
-      reset_timer: 120
+      reset_timer: 30
 ```
 
 Note: The encryption_key parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
@@ -325,6 +325,7 @@ ble_monitor:
       encryption_key: '217C568CF5D22808DA20181502D84C1B'
       temperature_unit: C
     - mac: 'C4:3C:4D:6B:4F:F3'
+      reset_timer: 30
 ```
 
 #### mac
@@ -369,13 +370,13 @@ ble_monitor:
 
 #### reset_timer
 
-   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `no motion`. After each `motion detected` advertisement, the timer starts counting down again. Don't set the time too small, otherwise the motion sensor will constantly turn from `motion detected` to `no motion` and back. Setting is to `0` will turn the timer off. This means that when motion is detected, it will stay on forever, unless the sensor itself sends a `no motion` message. Note that `no motion` advertisements of the `MJYD02YL` sensor are currently not received, therefore set it to something higher than 0. Default value: 120 
+   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `no motion`. After each `motion detected` advertisement, the timer starts counting down again. Don't set the time too small, otherwise the motion sensor will constantly turn from `motion detected` to `no motion` and back. Setting is to `0` will turn the timer off. This means that when motion is detected, it will stay on forever, unless the sensor itself sends a `no motion` message. Note that `no motion` advertisements of the `MJYD02YL` sensor are currently not received, therefore set it to something higher than 0. Default value: 30 
 
 ```yaml
 ble_monitor:
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
-      reset_timer: 120
+      reset_timer: 30
 ```
 
 ### Deleting devices and sensors
