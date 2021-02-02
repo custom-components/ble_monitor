@@ -31,7 +31,7 @@ DEFAULT_BATT_ENTITIES = False
 DEFAULT_REPORT_UNKNOWN = False
 DEFAULT_DISCOVERY = True
 DEFAULT_RESTORE_STATE = False
-DEFAULT_DEVICE_RESET_TIMER = 120
+DEFAULT_DEVICE_RESET_TIMER = 30
 
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
@@ -79,7 +79,7 @@ ATC_TYPE_DICT = {
 #                 Formaldehyde, Consumable, Voltage, Battery
 # Binary_sensor:  Switch, Opening, Light, Moisture, Motion, Battery
 #                            sensor                       binary
-# Measurement type      [T  H  M  C  I  F  Cn V  B]  [Sw O  L  Mo Mn B]     (start from 0, 9 - no data)
+# Measurement type      [T  H  M  C  I  F  Cn V  B]  [Sw Op L  Mo Mn B]     (start from 0, 9 - no data)
 MMTS_DICT = {
     'LYWSDCGQ'       : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9]],
     'CGG1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9]],
