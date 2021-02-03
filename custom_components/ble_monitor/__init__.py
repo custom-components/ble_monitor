@@ -831,7 +831,7 @@ class HCIdump(Thread):
                 return None, None, None
             # check for MAC presence in whitelist, if needed
             if self.discovery is False:
-                if atc_mac not in self.whitelist:
+                if source_mac_reversed not in self.whitelist:
                     return None, None, None
             packet_id = data[atc_index + 16 if is_custom_adv else atc_index + 15]
             try:
