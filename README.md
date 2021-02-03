@@ -69,9 +69,15 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - CGD1
 
-  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
+  (Qingping Cleargrass CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet). The sensor sends BLE advertisements in Xiaomi MiBeacon format and Qingping format. Qingping advertisements are not encrypted. Xiaomi MiBeacon advertisements are encrypted, if you want to receive both advertisements, you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
   ![CGD1](/pictures/CGD1.jpg)
+
+- CGP1W
+
+  (Qingping Cleargrass indoor weather station with Atmospheric pressure measurement, broadcasts temperature, humidity, air pressure and and battery level (we do not have accurate periodicity information yet))
+
+  ![CGP1W](/pictures/CGP1W.jpg)
 
 - MHO-C303
 
