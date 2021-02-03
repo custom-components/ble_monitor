@@ -68,6 +68,7 @@ from .const import (
     MAC_REGEX,
     AES128KEY_REGEX,
     ATC_TYPE_DICT,
+    QINGPING_TYPE_DICT,
     XIAOMI_TYPE_DICT,
     SERVICE_CLEANUP_ENTRIES,
 )
@@ -85,6 +86,7 @@ FMDH_STRUCT = struct.Struct("<H")
 THBV_STRUCT = struct.Struct(">hBBH")
 THVB_STRUCT = struct.Struct("<hHHB")
 M_STRUCT = struct.Struct("<L")
+P_STRUCT = struct.Struct("<H")
 
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
@@ -424,6 +426,17 @@ class HCIdump(Thread):
             (light,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
             return {"motion": 1, "motion timer": 1, "light": 1 if light == 100 else 0}
 
+        def obj0104(xobj):
+            (temp, humi) = TH_STRUCT.unpack(xobj)
+            return {"temperature": temp / 10, "humidity": humi / 10}
+
+        def obj0201(xobj):
+            return {"battery": xobj[0]}
+
+        def obj0702(xobj):
+            (pres,) = P_STRUCT.unpack(xobj)
+            return {"pressure": pres / 10}
+
         def objATC_short(xobj):
             (temp, humi, batt, volt) = THBV_STRUCT.unpack(xobj)
             return {"temperature": temp / 10, "humidity": humi, "voltage": volt / 1000, "battery": batt}
@@ -501,6 +514,9 @@ class HCIdump(Thread):
             b'\x0A\x10': (obj0a10, True, True),
             b'\x0D\x10': (obj0d10, False, True),
             b'\x0F\x00': (obj0f00, True, False),
+            b'\x01\x04': (obj0104, False, True),
+            b'\x02\x01': (obj0201, False, True),
+            b'\x07\x02': (obj0702, False, True),
             b'\x10\x16': (objATC_short, False, True),
             b'\x12\x16': (objATC_long, False, True),
         }
@@ -598,11 +614,12 @@ class HCIdump(Thread):
         """Parse the raw data."""
         # check if packet is Extended scan result
         is_ext_packet = True if data[3] == 0x0d else False
-        # check for Xiaomi or ATC service data
+        # check for service data (Xiaomi, qingping or ATC)
         xiaomi_index = data.find(b'\x16\x95\xFE', 15 + 15 if is_ext_packet else 0)
+        qingping_index = data.find(b'\x16\xCD\xFD', 15 + 15 if is_ext_packet else 0)
         atc_index = data.find(b'\x16\x1A\x18', 15 + 15 if is_ext_packet else 0)
 
-        if xiaomi_index == -1 and atc_index == -1:
+        if xiaomi_index == -1 and atc_index == -1 and qingping_index == -1:
             return None, None, None
 
         if xiaomi_index != -1:
@@ -804,6 +821,118 @@ class HCIdump(Thread):
             binary = binary and binary_data
             return result, binary, measuring
 
+        if qingping_index != -1:
+            # parse BLE message in Qingping format
+            firmware = "Qingping"
+
+            # check for no BR/EDR + LE General discoverable mode flags
+            advert_start = 29 if is_ext_packet else 14
+            adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
+            if adv_index == -1:
+                return None, None, None
+            # check for BTLE msg size
+            msg_length = data[2] + 3
+            if msg_length != len(data):
+                return None, None, None
+            # extract device type
+            device_type = data[qingping_index + 3:qingping_index + 5]
+
+            # check for MAC presence in message and in service data
+            mac_index = adv_index - 14 if is_ext_packet else adv_index
+            qingping_mac_reversed = data[qingping_index + 5:qingping_index + 11]
+            source_mac_reversed = data[mac_index - 7:mac_index - 1]
+            if qingping_mac_reversed != source_mac_reversed:
+                return None, None, None
+
+            # check for MAC presence in whitelist, if needed
+            if self.discovery is False:
+                if qingping_mac_reversed not in self.whitelist:
+                    return None, None, None
+            packet_id = "no packed id"
+
+            # extract RSSI byte
+            rssi_index = 18 if is_ext_packet else msg_length - 1
+            (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
+            # strange positive RSSI workaround
+            if rssi > 0:
+                rssi = -rssi
+            try:
+                sensor_type, binary_data = QINGPING_TYPE_DICT[device_type]
+            except KeyError:
+                if self.report_unknown:
+                    _LOGGER.info(
+                        "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
+                        rssi,
+                        ''.join('{:02X}'.format(x) for x in qingping_mac_reversed[::-1]),
+                        data.hex()
+                    )
+                return None, None, None
+
+            xdata_length = 0
+            xdata_point = 0
+
+            # qingping data length = message length
+            #     -all bytes before Qingping UUID
+            #     -3 bytes Qingping UUID + ADtype
+            #     -1 byte rssi
+            #     -2 bytes sensor type
+            #     -6 bytes MAC
+            xdata_length += msg_length - qingping_index - 12
+            if xdata_length < 3:
+                return None, None, None
+            xdata_point += qingping_index + 11
+            # check if qingping data start and length is valid
+            if xdata_length != len(data[xdata_point:-1]):
+                return None, None, None
+            result = {
+                "rssi": rssi,
+                "mac": ''.join('{:02X}'.format(x) for x in qingping_mac_reversed[::-1]),
+                "type": sensor_type,
+                "packet": packet_id,
+                "firmware": firmware,
+                "data": True,
+            }
+            binary = False
+            measuring = False
+            # loop through qingping payload
+            # assume that the data may have several values of different types
+            while True:
+                xvalue_typecode = data[xdata_point:xdata_point + 2]
+                try:
+                    xvalue_length = data[xdata_point + 1]
+                except ValueError as error:
+                    _LOGGER.error("xvalue_length conv. error: %s", error)
+                    _LOGGER.error("xdata_point: %s", xdata_point)
+                    _LOGGER.error("data: %s", data.hex())
+                    result = {}
+                    break
+                except IndexError as error:
+                    _LOGGER.error("Wrong xdata_point: %s", error)
+                    _LOGGER.error("xdata_point: %s", xdata_point)
+                    _LOGGER.error("data: %s", data.hex())
+                    result = {}
+                    break
+                xnext_point = xdata_point + 2 + xvalue_length
+                xvalue = data[xdata_point + 2:xnext_point]
+                resfunc, tbinary, tmeasuring = self._dataobject_dict.get(xvalue_typecode, (None, None, None))
+                if resfunc:
+                    binary = binary or tbinary
+                    measuring = measuring or tmeasuring
+                    result.update(resfunc(xvalue))
+                else:
+                    if self.report_unknown:
+                        _LOGGER.info(
+                            "UNKNOWN dataobject from DEVICE: %s, MAC: %s, ADV: %s",
+                            sensor_type,
+                            ''.join('{:02X}'.format(x) for x in qingping_mac_reversed[::-1]),
+                            data.hex()
+                        )
+                if xnext_point > msg_length - 3:
+                    break
+                xdata_point = xnext_point
+            binary = binary and binary_data
+            return result, binary, measuring
+
         if atc_index != -1:
             # parse BLE message in ATC format
 
@@ -831,7 +960,7 @@ class HCIdump(Thread):
                 return None, None, None
             # check for MAC presence in whitelist, if needed
             if self.discovery is False:
-                if atc_mac not in self.whitelist:
+                if source_mac_reversed not in self.whitelist:
                     return None, None, None
             packet_id = data[atc_index + 16 if is_custom_adv else atc_index + 15]
             try:

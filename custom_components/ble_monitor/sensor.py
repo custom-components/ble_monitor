@@ -8,9 +8,11 @@ from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_ILLUMINANCE,
+    DEVICE_CLASS_PRESSURE,
     DEVICE_CLASS_TEMPERATURE,
     DEVICE_CLASS_VOLTAGE,
     CONDUCTIVITY,
+    PRESSURE_HPA,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
     VOLT,
@@ -134,7 +136,7 @@ class BLEupdater():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                t_i, h_i, m_i, c_i, i_i, f_i, cn_i, v_i, b_i = MMTS_DICT[sensortype][0]
+                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, v_i, b_i = MMTS_DICT[sensortype][0]
                 if mac not in sensors_by_mac:
                     sensors = []
                     if t_i != 9:
@@ -143,6 +145,8 @@ class BLEupdater():
                         sensors.insert(h_i, HumiditySensor(self.config, mac, sensortype, firmware))
                     if m_i != 9:
                         sensors.insert(m_i, MoistureSensor(self.config, mac, sensortype, firmware))
+                    if p_i != 9:
+                        sensors.insert(p_i, PressureSensor(self.config, mac, sensortype, firmware))
                     if c_i != 9:
                         sensors.insert(c_i, ConductivitySensor(self.config, mac, sensortype, firmware))
                     if i_i != 9:
@@ -216,13 +220,15 @@ class BLEupdater():
                         )
                 if "conductivity" in data:
                     sensors[c_i].collect(data, batt_attr)
+                if "pressure" in data:
+                    sensors[p_i].collect(data, batt_attr)
                 if "moisture" in data:
                     sensors[m_i].collect(data, batt_attr)
                 if "illuminance" in data:
                     try:
                         sensors[i_i].collect(data, batt_attr)
                     except IndexError:
-                        # pass for dummy sensor of MJYD02YL
+                        # pass for dummy illuminance sensor of MJYD02YL
                         pass
                 if "formaldehyde" in data:
                     sensors[f_i].collect(data, batt_attr)
@@ -555,6 +561,19 @@ class MoistureSensor(MeasuringSensor):
         self._unique_id = "m_" + self._device_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
+
+
+class PressureSensor(MeasuringSensor):
+    """Representation of a Sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "pressure"
+        self._name = "ble pressure {}".format(self._device_name)
+        self._unique_id = "p_" + self._device_name
+        self._unit_of_measurement = PRESSURE_HPA
+        self._device_class = DEVICE_CLASS_PRESSURE
 
 
 class ConductivitySensor(MeasuringSensor):
