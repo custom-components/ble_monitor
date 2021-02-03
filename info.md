@@ -17,7 +17,7 @@ In this release, the CGD1 alarm clock and CGP1W weather station are added (the f
 
 It's time to move to 1.0.0! We were running out of numbers, so it was about time to move on and start with the magic number 1.0.0. 
 
-To celebrate, we have added more settings that can be set/overrulled for individual devices. `decimals`, `use_median` and `restore_state` can now be set at device level. We have removed the `rounding` option, as it wasn't adding much. The same can be achieved by using a large number of decimals.
+To celebrate, we have added more settings that can be set/overruled for individual devices. `decimals`, `use_median` and `restore_state` can now be set at device level. We have removed the `rounding` option, as it wasn't adding much. The same can be achieved by using a large number of decimals.
 
 We also fixed a bug for sensors with ATC firmware, which were not working in combination with `discovery: False`
 
