@@ -14,15 +14,13 @@ To celebrate, we have added more settings that can be set/overrulled for individ
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.9.11
+# Changes in 1.0.0
 
-- Remove jagged humidity measurements for sensors with ATC firmware
-- Added support for Bluetooth 5 advertisements (extended format) for sensors with ATC firmware
-- Improved support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor (thanks for the support of @andrewjswan and @skynetua).
+It's time to move to 1.0.0! We were running out of numbers, so it was about time to move on and start with the magic number 1.0.0. 
 
-  This release adds support for the motion sensor MJYD02YL. You can use the `reset_timer` to define after how long the sensor should report `motion clear` (default is 30 seconds). Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`.
-  
-  Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
+To celebrate, we have added more settings that can be set/overrulled for individual devices. `decimals`, `use_median` and `restore_state` can now be set at device level. We have removed the `rounding` option, as it wasn't adding much. The same can be achieved by using a large number of decimals.
+
+We also fixed a bug for sensors with ATC firmware, which were not working in combination with `discovery: False`
 
 {% endif %}
 
