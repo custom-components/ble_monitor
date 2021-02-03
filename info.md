@@ -5,24 +5,21 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.0.0-beta
+# Changes in 1.0.1-beta
 
-It's time to move to 1.0.0! We were running out of numbers, so it was about time to move on and start with the magic number 1.0.0 (ok, still beta). 
-
-To celebrate, we have added more settings that can be set/overrulled for individual devices. `decimals`, `use_median` and `restore_state` can now be set at device level. We have removed the `rounding` option, as it wasn't adding much. The same can be achieved by using a large number of decimals.  
+Adds support for sensors which send BLE advertisements in the format used by Qingping. 
+In this release, the CGD1 alarm clock and CGP1W weather station are added (the first also sends in the Xiaomi MiBeacon format, so was already supported. However, the Qingping format has the advantage that it doesn't need an encryption key)
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 0.9.11
+# Changes in 1.0.0
 
-- Remove jagged humidity measurements for sensors with ATC firmware
-- Added support for Bluetooth 5 advertisements (extended format) for sensors with ATC firmware
-- Improved support for motion sensor of MJYD02YL Xiaomi Motion Activated Night Light sensor (thanks for the support of @andrewjswan and @skynetua).
+It's time to move to 1.0.0! We were running out of numbers, so it was about time to move on and start with the magic number 1.0.0 (ok, still beta). 
 
-  This release adds support for the motion sensor MJYD02YL. You can use the `reset_timer` to define after how long the sensor should report `motion clear` (default is 30 seconds). Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`.
-  
-  Note that advertisements are encrypted, therefore you need to set the encryption key in your configuration
+To celebrate, we have added more settings that can be set/overruled for individual devices. `decimals`, `use_median` and `restore_state` can now be set at device level. We have removed the `rounding` option, as it wasn't adding much. The same can be achieved by using a large number of decimals.
+
+We also fixed a bug for sensors with ATC firmware, which were not working in combination with discovery: False
 
 {% endif %}
 
@@ -97,9 +94,15 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - CGD1
 
-  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
+  (Qingping Cleargrass CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet). The sensor sends BLE advertisements in Xiaomi MiBeacon format and Qingping format. Qingping advertisements are not encrypted. Xiaomi MiBeacon advertisements are encrypted, if you want to receive both advertisements, you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
   ![CGD1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGD1.jpg)
+
+- CGP1W
+
+  (Qingping Cleargrass indoor weather station with Atmospheric pressure measurement, broadcasts temperature, humidity, air pressure and and battery level (we do not have accurate periodicity information yet))
+
+  ![CGD1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGP1W.jpg)
 
 - MHO-C303
 
