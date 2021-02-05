@@ -78,8 +78,9 @@ XIAOMI_TYPE_DICT = {
 }
 
 QINGPING_TYPE_DICT = {
-    b'\x08\x0C': ("CGD1", False),
+    b'\x08\x07': ("CGG1", False),
     b'\x08\x09': ("CGP1W", False),
+    b'\x08\x0C': ("CGD1", False),
 }
 
 ATC_TYPE_DICT = {
