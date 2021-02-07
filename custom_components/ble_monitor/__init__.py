@@ -79,6 +79,7 @@ _LOGGER = logging.getLogger(__name__)
 TH_STRUCT = struct.Struct("<hH")
 H_STRUCT = struct.Struct("<H")
 T_STRUCT = struct.Struct("<h")
+TTB_STRUCT = struct.Struct("<hhB")
 CND_STRUCT = struct.Struct("<H")
 ILL_STRUCT = struct.Struct("<I")
 LIGHT_STRUCT = struct.Struct("<I")
@@ -370,6 +371,12 @@ class HCIdump(Thread):
     def __init__(self, config, dataqueue):
         """Initiate HCIdump thread."""
 
+        def obj0020(xobj):
+            (temp, _temp2, bat) = TTB_STRUCT.unpack(xobj)
+            # temp is the actual body temperature determined by an algorithm of the sensor
+            # _temp2 is the real measured temperature (not used)
+            return {"temperature": temp / 100, "battery": bat}
+
         def obj0410(xobj):
             (temp,) = T_STRUCT.unpack(xobj)
             return {"temperature": temp / 10}
@@ -498,6 +505,7 @@ class HCIdump(Thread):
         # dataobject dictionary to implement switch-case statement
         # dataObject id  (converter, binary, measuring)
         self._dataobject_dict = {
+            b'\x00\x20': (obj0020, False, True),
             b'\x04\x10': (obj0410, False, True),
             b'\x05\x10': (obj0510, True, True),
             b'\x06\x10': (obj0610, False, True),
