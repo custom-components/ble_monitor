@@ -149,9 +149,15 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected/clear) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. 
   
-  Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option to have a additional `motion clear`, but keep in mind that in the current implementation, messages of the sensor can overrule the [reset_timer](#reset_timer). Battery is broadcasted once every 5 minutes. 
+  Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option if you want to use a different time to set the sensor to `motion clear`. Battery is broadcasted once every 5 minutes. 
   
   ![MJYD02YL](/pictures/MJYD02YL.jpg)
+
+- MMC-T201-1
+
+  (Xiaomi Miaomiaoce Digital Baby Thermometer. Broadcasts temperature and battery state. The sensor sends two temperatures, the actual measured temperature and the body temperature calculated based on an algorithm. The calculated body temperature is displayed in BLE Monitor. About 15-20 messages per minute)
+  
+  ![MMC-T201-1](/pictures/MMC-T201-1.jpg)
   
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
