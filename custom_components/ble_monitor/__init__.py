@@ -3,6 +3,7 @@ import asyncio
 import copy
 import json
 import logging
+import math
 import struct
 from threading import Thread
 import janus
@@ -372,10 +373,10 @@ class HCIdump(Thread):
         """Initiate HCIdump thread."""
 
         def obj0020(xobj):
-            (temp, _temp2, bat) = TTB_STRUCT.unpack(xobj)
-            # temp is the actual body temperature determined by an algorithm of the sensor
-            # _temp2 is the real measured temperature (not used)
-            return {"temperature": temp / 100, "battery": bat}
+            (temp1, temp2, bat) = TTB_STRUCT.unpack(xobj)
+            # Body temperature is calculated from the two measured temperatures is a similar way as in the app
+            body_temp = 123.993 * math.log10(temp1 / 100) - 73.428 * math.log10(temp2 / 100) - 42.214
+            return {"temperature": body_temp, "battery": bat}
 
         def obj0410(xobj):
             (temp,) = T_STRUCT.unpack(xobj)
