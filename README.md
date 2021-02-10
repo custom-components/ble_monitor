@@ -155,9 +155,11 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MMC-T201-1
 
-  (Xiaomi Miaomiaoce Digital Baby Thermometer. Broadcasts temperature and battery state. The calculated body temperature is displayed in BLE Monitor, please note the disclaimer below. About 15-20 messages per minute.
+  (Xiaomi Miaomiaoce Digital Baby Thermometer. Broadcasts temperature and battery state. The calculated body temperature is displayed in BLE Monitor, please note the disclaimer below. About 15-20 messages per minute)
   
-  DISCLAIMER. The sensor sends two temperatures in the BLE advertisements, that are converted to a body temperature with a certain algorithm in the original app. We tried to reverse engineering this relation, but we were only able to approximate the relation in the range of 36.5°C - 37.9°C at this moment. It has not been calibrated at elevated body temperature (e.g. if someone has a fever), so measurements displayed in Home Assistant might be different (wrong) compared to those reported in the app. It is therefore advised NOT to rely on the measurements in BLE monitor if you want to monitor your or other peoples body temperature / health). If you have additional measurements, especially outside the investigated range, please report them in this [issue](https://github.com/custom-components/ble_monitor/issues/264). 
+  **DISCLAIMER**
+  
+  The sensor sends two temperatures in the BLE advertisements, that are converted to a body temperature with a certain algorithm in the original app. We tried to reverse engineering this relation, but we were only able to approximate the relation in the range of 36.5°C - 37.9°C at this moment. It has not been calibrated at elevated body temperature (e.g. if someone has a fever), so measurements displayed in Home Assistant might be different (wrong) compared to those reported in the app. It is therefore advised NOT to rely on the measurements in BLE monitor if you want to monitor your or other peoples body temperature / health). If you have additional measurements, especially outside the investigated range, please report them in this [issue](https://github.com/custom-components/ble_monitor/issues/264).
   
   ![MMC-T201-1](/pictures/MMC-T201-1.jpg)
   
