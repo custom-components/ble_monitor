@@ -19,13 +19,16 @@ In this release, the CGD1 alarm clock and CGP1W weather station are added (the f
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.0.0
+# Changes in 1.0.2
 
-It's time to move to 1.0.0! We were running out of numbers, so it was about time to move on and start with the magic number 1.0.0. 
+- Adds support for Xiaomi Miaomiaoce MMC-T201-1 Digital Baby Thermometer (read the disclaimer)
+- Adds support for Qingping CGP1W weather station
+- Adds support for Qingping CGG1 and CGD1 sensor without using an encrypting key (using the Qingping advertisements)
+- Fixes a small bug for the reset_timer in combination with MJYD02YL motion sensors.
 
-To celebrate, we have added more settings that can be set/overruled for individual devices. `decimals`, `use_median` and `restore_state` can now be set at device level. We have removed the `rounding` option, as it wasn't adding much. The same can be achieved by using a large number of decimals.
-
-We also fixed a bug for sensors with ATC firmware, which were not working in combination with `discovery: False`
+**DISCLAIMER**
+  
+  The MMC-T201-1 sensor sends two temperatures in the BLE advertisements, that are converted to a body temperature with a certain algorithm in the original app. We tried to reverse engineering this relation, but we were only able to approximate the relation in the range of 36.5°C - 37.9°C at this moment. It has not been calibrated at elevated body temperature (e.g. if someone has a fever), so measurements displayed in Home Assistant might be different (wrong) compared to those reported in the app. It is therefore advised NOT to rely on the measurements in BLE monitor if you want to monitor your or other peoples body temperature / health). If you have additional measurements, especially outside the investigated range, please report them in this [issue](https://github.com/custom-components/ble_monitor/issues/264).
 
 {% endif %}
 
@@ -186,7 +189,11 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MMC-T201-1
 
-  (Xiaomi Miaomiaoce Digital Baby Thermometer. Broadcasts temperature and battery state. The sensor sends two temperatures, the actual measured temperature and the body temperature calculated based on an algorithm. The calculated body temperature is displayed in BLE Monitor. About 15-20 messages per minute)
+  (Xiaomi Miaomiaoce Digital Baby Thermometer. Broadcasts temperature and battery state. The calculated body temperature is displayed in BLE Monitor, please note the disclaimer below. About 15-20 messages per minute)
+  
+  **DISCLAIMER**
+  
+  The sensor sends two temperatures in the BLE advertisements, that are converted to a body temperature with a certain algorithm in the original app. We tried to reverse engineering this relation, but we were only able to approximate the relation in the range of 36.5°C - 37.9°C at this moment. It has not been calibrated at elevated body temperature (e.g. if someone has a fever), so measurements displayed in Home Assistant might be different (wrong) compared to those reported in the app. It is therefore advised NOT to rely on the measurements in BLE monitor if you want to monitor your or other peoples body temperature / health). If you have additional measurements, especially outside the investigated range, please report them in this [issue](https://github.com/custom-components/ble_monitor/issues/264).
   
   ![MMC-T201-1](https://github.com/custom-components/ble_monitor/blob/master/pictures/MMC-T201-1.jpg)
 
