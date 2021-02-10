@@ -461,14 +461,20 @@ class MotionBinarySensor(SwitchingSensor):
 
     async def async_update(self):
         """Update sensor state and attribute."""
-        self._state = self._newstate
-        # start reset count down if reset timer is set and motion is detected
+
+        # check if the reset timer is enabled
         if self._reset_timer > 0:
-            _LOGGER.debug("Motion detection state is: %s", self._state)
-            if self._state == 1:
+            try:
+                # if there is a last motion attribute, check the timer
+                self._now = dt_util.now()
                 self._start_timer = self._device_state_attributes["last motion"]
-                _LOGGER.debug(
-                    "Motion detection reset timer is set to: %i seconds, starting at %s",
-                    self._reset_timer, self._start_timer
-                )
-                async_call_later(self.hass, self._reset_timer, self.reset_state)
+
+                if self._now - self._start_timer >= timedelta(seconds=self._reset_timer):
+                    self._state = False
+                else:
+                    self._state = True
+                    async_call_later(self.hass, self._reset_timer, self.reset_state)
+            except KeyError:
+                self._state = self._newstate
+        else:
+            self._state = self._newstate

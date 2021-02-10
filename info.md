@@ -5,11 +5,16 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.0.0-beta
+# Changes in 1.0.2-beta
 
-It's time to move to 1.0.0! We were running out of numbers, so it was about time to move on and start with the magic number 1.0.0 (ok, still beta). 
+- Adds support for Xiaomi Miaomiaoce MMC-T201-1 Digital Baby Thermometer
+- Adds support for CGG1 sensor without using an encrypting key (using the Qingping advertisements)
+- Fixes a small bug for the reset_timer in combination with MJYD02YL motion sensors. 
 
-To celebrate, we have added more settings that can be set/overrulled for individual devices. `decimals`, `use_median` and `restore_state` can now be set at device level. We have removed the `rounding` option, as it wasn't adding much. The same can be achieved by using a large number of decimals.  
+# Changes in 1.0.1-beta
+
+Adds support for sensors which send BLE advertisements in the format used by Qingping. 
+In this release, the CGD1 alarm clock and CGP1W weather station are added (the first also sends in the Xiaomi MiBeacon format, so was already supported. However, the Qingping format has the advantage that it doesn't need an encryption key)
 
 {% endif %}
 {% if installed or pending_update %}
@@ -18,7 +23,7 @@ To celebrate, we have added more settings that can be set/overrulled for individ
 
 It's time to move to 1.0.0! We were running out of numbers, so it was about time to move on and start with the magic number 1.0.0. 
 
-To celebrate, we have added more settings that can be set/overrulled for individual devices. `decimals`, `use_median` and `restore_state` can now be set at device level. We have removed the `rounding` option, as it wasn't adding much. The same can be achieved by using a large number of decimals.
+To celebrate, we have added more settings that can be set/overruled for individual devices. `decimals`, `use_median` and `restore_state` can now be set at device level. We have removed the `rounding` option, as it wasn't adding much. The same can be achieved by using a large number of decimals.
 
 We also fixed a bug for sensors with ATC firmware, which were not working in combination with `discovery: False`
 
@@ -95,9 +100,15 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - CGD1
 
-  (Cleargrass (Qingping) CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
+  (Qingping Cleargrass CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet). The sensor sends BLE advertisements in Xiaomi MiBeacon format and Qingping format. Qingping advertisements are not encrypted. Xiaomi MiBeacon advertisements are encrypted, if you want to receive both advertisements, you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
   ![CGD1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGD1.jpg)
+
+- CGP1W
+
+  (Qingping Cleargrass indoor weather station with Atmospheric pressure measurement, broadcasts temperature, humidity, air pressure and and battery level (we do not have accurate periodicity information yet))
+
+  ![CGD1](https://raw.github.com/custom-components/ble_monitor/master/pictures/CGP1W.jpg)
 
 - MHO-C303
 
@@ -169,9 +180,15 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected/clear) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. 
   
-  Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option to have a additional `motion clear`, but keep in mind that in the current implementation, messages of the sensor can overrule the [reset_timer](#reset_timer). Battery is broadcasted once every 5 minutes.
-
+  Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option if you want to use a different time to set the sensor to `motion clear`. Battery is broadcasted once every 5 minutes. 
+  
   ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/master/pictures/MJYD02YL.jpg)
+
+- MMC-T201-1
+
+  (Xiaomi Miaomiaoce Digital Baby Thermometer. Broadcasts temperature and battery state. The sensor sends two temperatures, the actual measured temperature and the body temperature calculated based on an algorithm. The calculated body temperature is displayed in BLE Monitor. About 15-20 messages per minute)
+  
+  ![MMC-T201-1](https://github.com/custom-components/ble_monitor/blob/master/pictures/MMC-T201-1.jpg)
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
