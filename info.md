@@ -5,16 +5,9 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.0.2-beta
+# Changes in 1.0.3-beta
 
-- Adds support for Xiaomi Miaomiaoce MMC-T201-1 Digital Baby Thermometer
-- Adds support for CGG1 sensor without using an encrypting key (using the Qingping advertisements)
-- Fixes a small bug for the reset_timer in combination with MJYD02YL motion sensors. 
-
-# Changes in 1.0.1-beta
-
-Adds support for sensors which send BLE advertisements in the format used by Qingping. 
-In this release, the CGD1 alarm clock and CGP1W weather station are added (the first also sends in the Xiaomi MiBeacon format, so was already supported. However, the Qingping format has the advantage that it doesn't need an encryption key)
+- Adds support for Xiaomi Philips Bluetooth Night Light (MUE4094RT)
 
 {% endif %}
 {% if installed or pending_update %}
@@ -186,6 +179,12 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option if you want to use a different time to set the sensor to `motion clear`. Battery is broadcasted once every 5 minutes. 
   
   ![MJYD02YL](https://github.com/custom-components/ble_monitor/blob/master/pictures/MJYD02YL.jpg)
+
+- MUE4094RT
+
+  (Xiaomi Philips Bluetooth Night Light. Broadcasts motion detection (only `motion detected`, no light or battery state). Sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](#reset_timer) option with a value that is not 0)
+  
+  ![MUE4094RT](https://github.com/custom-components/ble_monitor/blob/master/pictures/MUE4094RT.jpg)
 
 - MMC-T201-1
 

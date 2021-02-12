@@ -153,6 +153,12 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
   ![MJYD02YL](/pictures/MJYD02YL.jpg)
 
+- MUE4094RT
+
+  (Xiaomi Philips Bluetooth Night Light. Broadcasts motion detection (only `motion detected`, no light or battery state). Sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](#reset_timer) option with a value that is not 0)
+  
+  ![MUE4094RT](/pictures/MUE4094RT.jpg)
+
 - MMC-T201-1
 
   (Xiaomi Miaomiaoce Digital Baby Thermometer. Broadcasts temperature and battery state. The calculated body temperature is displayed in BLE Monitor, please note the disclaimer below. About 15-20 messages per minute)

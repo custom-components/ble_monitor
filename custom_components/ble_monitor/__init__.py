@@ -372,16 +372,7 @@ class HCIdump(Thread):
     def __init__(self, config, dataqueue):
         """Initiate HCIdump thread."""
 
-        def obj0020(xobj):
-            (temp1, temp2, bat) = TTB_STRUCT.unpack(xobj)
-            # Body temperature is calculated from the two measured temperatures is a similar way as in the app
-            body_temp = (
-                3.71934 * pow(10, -11) * math.exp(0.69314 * temp1 / 100)
-                - 1.02801 * pow(10, -8) * math.exp(0.53871 * temp2 / 100)
-                + 36.413
-            )
-            return {"temperature": body_temp, "battery": bat}
-
+        # Xiaomi MiBeacon BLE advertisements
         def obj0410(xobj):
             (temp,) = T_STRUCT.unpack(xobj)
             return {"temperature": temp / 10}
@@ -434,10 +425,25 @@ class HCIdump(Thread):
             (temp, humi) = TH_STRUCT.unpack(xobj)
             return {"temperature": temp / 10, "humidity": humi / 10}
 
+        def obj0300(xobj):
+            return {"motion": xobj[0], "motion timer": xobj[0]}
+
         def obj0f00(xobj):
             (light,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
             return {"motion": 1, "motion timer": 1, "light": 1 if light == 100 else 0}
 
+        def obj0020(xobj):
+            (temp1, temp2, bat) = TTB_STRUCT.unpack(xobj)
+            # Body temperature is calculated from the two measured temperatures.
+            # Formula is based on approximation based on values inthe app in the range 36.5 - 37.8.
+            body_temp = (
+                3.71934 * pow(10, -11) * math.exp(0.69314 * temp1 / 100)
+                - 1.02801 * pow(10, -8) * math.exp(0.53871 * temp2 / 100)
+                + 36.413
+            )
+            return {"temperature": body_temp, "battery": bat}
+
+        # Qingping BLE advertisements
         def obj0104(xobj):
             (temp, humi) = TH_STRUCT.unpack(xobj)
             return {"temperature": temp / 10, "humidity": humi / 10}
@@ -449,6 +455,7 @@ class HCIdump(Thread):
             (pres,) = P_STRUCT.unpack(xobj)
             return {"pressure": pres / 10}
 
+        # ATC BLE advertisements
         def objATC_short(xobj):
             (temp, humi, batt, volt) = THBV_STRUCT.unpack(xobj)
             return {"temperature": temp / 10, "humidity": humi, "voltage": volt / 1000, "battery": batt}
@@ -526,6 +533,7 @@ class HCIdump(Thread):
             b'\x19\x10': (obj1910, True, False),
             b'\x0A\x10': (obj0a10, True, True),
             b'\x0D\x10': (obj0d10, False, True),
+            b'\x03\x00': (obj0300, True, False),
             b'\x0F\x00': (obj0f00, True, False),
             b'\x01\x04': (obj0104, False, True),
             b'\x02\x01': (obj0201, False, True),
@@ -657,8 +665,11 @@ class HCIdump(Thread):
             framectrl_data = data[xiaomi_index + 3:xiaomi_index + 5]
             framectrl, = struct.unpack('>H', framectrl_data)
             # flag advertisements without mac address in service data
-            # MJYD02YL (F6 07) has no mac address in the motion (48 59) advertisements
             if device_type == b'\xF6\x07' and framectrl_data == b'\x48\x59':
+                # MJYD02YL does not have a MAC address in the service data of some advertisements
+                mac_in_service_data = False
+            if device_type == b'\xDD\x03' and framectrl_data == b'\x40\x30':
+                # MUE4094RT does not have a MAC address in the service data
                 mac_in_service_data = False
             else:
                 mac_in_service_data = True

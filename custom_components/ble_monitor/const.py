@@ -76,6 +76,7 @@ XIAOMI_TYPE_DICT = {
     b'\x63\x08': ("SJWS01LM", True),
     b'\xF6\x07': ("MJYD02YL", True),
     b'\xDB\x00': ("MMC-T201-1", False),
+    b'\xDD\x03': ("MUE4094RT", True),
 }
 
 QINGPING_TYPE_DICT = {
@@ -117,6 +118,7 @@ MMTS_DICT = {
     'SJWS01LM'       : [[9, 9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 9, 9, 0, 9, 1]],
     'MJYD02YL'       : [[9, 9, 9, 9, 9, 9, 9, 9, 9, 0], [9, 9, 0, 9, 1, 2]],
     'MMC-T201-1'     : [[0, 9, 9, 9, 9, 9, 9, 9, 9, 1], [9, 9, 9, 9, 9, 9]],
+    'MUE4094RT'      : [[9, 9, 9, 9, 9, 9, 9, 9, 9, 9], [9, 9, 9, 9, 0, 9]],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -145,6 +147,7 @@ MANUFACTURER_DICT = {
     'SJWS01LM'       : 'Xiaomi',
     'MJYD02YL'       : 'Xiaomi',
     'MMC-T201-1'     : 'Xiaomi',
+    'MUE4094RT'      : 'Xiaomi',
 }
 
 # The use of the following dictionaries is lost when changing the sensor naming system
