@@ -171,7 +171,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - YLAI003
 
-  (Yeelight Smart Wireless Switch (YLAI003). Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant.
+  (Yeelight Smart Wireless Switch (YLAI003). Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
 
   ![YLAI003](/pictures/YLAI003.jpg)
   
