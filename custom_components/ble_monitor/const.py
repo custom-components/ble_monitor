@@ -150,7 +150,7 @@ MANUFACTURER_DICT = {
     'MJYD02YL'       : 'Xiaomi',
     'MMC-T201-1'     : 'Xiaomi',
     'MUE4094RT'      : 'Xiaomi',
-    'YLAI003'        : 'Xiaomi',
+    'YLAI003'        : 'Yeelight',
 }
 
 # The use of the following dictionaries is lost when changing the sensor naming system
