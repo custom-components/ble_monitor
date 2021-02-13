@@ -5,9 +5,9 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.0.3-beta
+# Changes in 1.0.4-beta
 
-- Adds support for Xiaomi Philips Bluetooth Night Light (MUE4094RT)
+- Adds support for Yeelight Smart Wireless Switch (YLAI003)
 
 {% endif %}
 {% if installed or pending_update %}
@@ -189,6 +189,12 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   
   ![MMC-T201-1](https://github.com/custom-components/ble_monitor/blob/master/pictures/MMC-T201-1.jpg)
 
+- YLAI003
+
+  (Yeelight Smart Wireless Switch (YLAI003). Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant.
+
+  ![YLAI003](https://github.com/custom-components/ble_monitor/blob/master/pictures/YLAI003.jpg)
+
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
 **Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
@@ -231,7 +237,7 @@ There are two ways to configure the integration and your devices (sensors), in t
 
 Make sure you restart Home Assistant after the installation in HACS. After the restart, go to **Configuration** in the side menu in Home Assistant and select **Integrations**. Click on **Add Integrations** in the bottom right corner and search for **Passive BLE Monitor** to install. This will open the configuration menu with the default settings. The options are explained in the [configuration parameters](#configuration-parameters) section below and can also be changed later in the options menu. After a few seconds, the sensors should be added to your Home Assistant automatically. Note that the actual measurements require at least one [period](#period) to become visible.
 
-  ![Integration setup](https://raw.github.com/custom-components/ble_monitor/more-device-settings/pictures/configuration_screen.png)
+  ![Integration setup](https://github.com/custom-components/ble_monitor/raw/master/pictures/configuration_screen.png)
 
 #### 4b. Configuration in YAML
 
@@ -357,7 +363,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    To add a device, open the options menu of the integration and select **Add Device** in the device drop down menu and click on Submit. You can modify existing configured devices in a similar way, by selecting your device in the same drop down menu and clicking on Submit. Both will show the following form.
 
-  ![device setup](https://raw.github.com/custom-components/ble_monitor/more-device-settings/pictures/device_screen.png)
+  ![device setup](https://github.com/custom-components/ble_monitor/raw/master/pictures/device_screen.png)
 
 ### Configuraton in YAML
 
