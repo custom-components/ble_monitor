@@ -373,6 +373,25 @@ class HCIdump(Thread):
         """Initiate HCIdump thread."""
 
         # Xiaomi MiBeacon BLE advertisements
+        # https://iot.mi.com/new/doc/embedded-development/ble/object-definition
+        def obj0300(xobj):
+            return {"motion": xobj[0], "motion timer": xobj[0]}
+
+        def obj0f00(xobj):
+            (light,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
+            return {"motion": 1, "motion timer": 1, "light": 1 if light == 100 else 0}
+
+        def obj0110(xobj):
+            if xobj[2] == 0:
+                press = "single press"
+            elif xobj[2] == 1:
+                press = "double press"
+            elif xobj[2] == 2:
+                press = "long press"
+            else:
+                press = "no press"
+            return {"button": press}
+
         def obj0410(xobj):
             (temp,) = T_STRUCT.unpack(xobj)
             return {"temperature": temp / 10}
@@ -424,13 +443,6 @@ class HCIdump(Thread):
         def obj0d10(xobj):
             (temp, humi) = TH_STRUCT.unpack(xobj)
             return {"temperature": temp / 10, "humidity": humi / 10}
-
-        def obj0300(xobj):
-            return {"motion": xobj[0], "motion timer": xobj[0]}
-
-        def obj0f00(xobj):
-            (light,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
-            return {"motion": 1, "motion timer": 1, "light": 1 if light == 100 else 0}
 
         def obj0020(xobj):
             (temp1, temp2, bat) = TTB_STRUCT.unpack(xobj)
@@ -517,7 +529,9 @@ class HCIdump(Thread):
         # dataobject dictionary to implement switch-case statement
         # dataObject id  (converter, binary, measuring)
         self._dataobject_dict = {
-            b'\x00\x20': (obj0020, False, True),
+            b'\x03\x00': (obj0300, True, False),
+            b'\x0F\x00': (obj0f00, True, False),
+            b'\x01\x10': (obj0110, False, True),
             b'\x04\x10': (obj0410, False, True),
             b'\x05\x10': (obj0510, True, True),
             b'\x06\x10': (obj0610, False, True),
@@ -533,8 +547,7 @@ class HCIdump(Thread):
             b'\x19\x10': (obj1910, True, False),
             b'\x0A\x10': (obj0a10, True, True),
             b'\x0D\x10': (obj0d10, False, True),
-            b'\x03\x00': (obj0300, True, False),
-            b'\x0F\x00': (obj0f00, True, False),
+            b'\x00\x20': (obj0020, False, True),
             b'\x01\x04': (obj0104, False, True),
             b'\x02\x01': (obj0201, False, True),
             b'\x07\x02': (obj0702, False, True),
