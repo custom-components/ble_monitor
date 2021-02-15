@@ -670,7 +670,6 @@ class ConsumableSensor(MeasuringSensor):
 
     async def async_update(self):
         """Update."""
-        self._state = self._newstate
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self.rssi_values.clear()
         self.pending_update = False
@@ -709,7 +708,7 @@ class ButtonSensor(MeasuringSensor):
         """Reset state of the sensor."""
         self._state = "no press"
         self.schedule_update_ha_state(False)
-            
+
     async def async_update(self):
         """Update."""
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
