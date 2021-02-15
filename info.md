@@ -12,9 +12,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.0.3
+# Changes in 1.0.4
 
-- Adds support for Xiaomi Philips Bluetooth Night Light (MUE4094RT)
+- Adds support for Yeelight Smart Wireless Switch (YLAI003)
 
 {% endif %}
 
