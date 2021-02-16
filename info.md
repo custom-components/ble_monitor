@@ -12,9 +12,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.0.4
+# Changes in 1.0.5
 
-- Adds support for Yeelight Smart Wireless Switch (YLAI003)
+- Fix bug for consumable sensor (Xiaomi Mija Mosquito Repellent WX08ZM)
 
 {% endif %}
 
