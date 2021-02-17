@@ -204,24 +204,30 @@ There are several ways to increase coverage:
 
 ### My sensor's BLE advertisements are encrypted, how can I get the key?
 
-The BLE messages from some sensors are encrypted. To decrypt these messages, you need to configure the encryption key. The encryption key (also called bind key) is only visible at the moment it is created, e.g. when adding the sensor to the MiHome app. There are several ways to get the encryption key:
+The BLE messages from some sensors are encrypted. To decrypt these messages, you need to configure the encryption key. The encryption key (also called bind key) is visible at the moment it is created, e.g. when adding the sensor to the MiHome app, but it is also stored in the Xiaomi cloud. There are several ways to get the encryption key. The first 2 options are the easiest:
 
-1. TelinkFlasher (LYWSD03MMC sensors only)
+1. Xiaomi Cloud Tokens Extractor
 
-    Get the encryption key with the online tool on the [TelinkFlasher website](https://atc1441.github.io/TelinkFlasher.html).
+    Get the encryption key with a python script called [Xiaomi Cloud Token Extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). The script logs in on the Xiaomi Cloud (password of your Xiaomi account is required) and extracts information. You will get a list of all devices that are added to the MiHome app. Look for your sensor in the list and copy the `BLE KEY`. If the key ends with `FFFFFFFF`, the sensor does not require an encryption key. This method works on Windows (use the exe file) as well as Linux (or any platform that runs python).
+
+
+2. TelinkFlasher (LYWSD03MMC sensors only)
+
+    Get the encryption key with the online tool on the [TelinkFlasher website](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html).
 
     ![Telink Flasher](/pictures/Telink_flasher_website.png)
 
-    - Keep the sensor close to the mobile phone (android only) or Windows computer.
+    - Keep the sensor close to the mobile phone (Android only) or PC.
     - Make sure that the bluetooth is enabled.
-    - Using your browser, navigate to [this page](https://atc1441.github.io/TelinkFlasher.html).
-    - Now, click the [Connect] button (1) and wait until it shows "Connected." See the Log section at the bottom.
+    - Using your browser, navigate to [this page](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html).
+    - If using Linux: Ensure you enabled "experimental web platform features". Therefore copy the according link (i.e. chrome://flags/#enable-experimental-web-platform-features for Chrome), open a new browser tab, paste the copied URL. Now sten the Experimental Web Platform features flag to Enabled. Then restart the browser.
+    - Now, click the [Connect] button (1) and wait until it shows "Connected." See the Log section at the bottom. Choose the according target device (i.e. LYWSD03MMC) to pair.
     - Once connected, click the [Do Activation] button (2) and wait until the "Mi Bind Key" (3) shows the information.
 
-    Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore. If you want to use MiHome and our custom component at the same time, you wil have to use one of the other options.
+    Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore. If you want to use MiHome and our custom component at the same time, follow the instructions [here](https://github.com/pvvx/ATC_MiThermometer/issues/51)
     
   
-2. MiHome mod (Android only) 
+3. MiHome mod (Android only) 
 
     Get the key with the customized [MiHome mod](https://www.kapiba.ru/2017/11/mi-home.html) with the following steps.
 
@@ -233,7 +239,7 @@ The BLE messages from some sensors are encrypted. To decrypt these messages, you
     - After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod. 
 
 
-3. Intercepting the MiHome application traffic
+4. Intercepting the MiHome application traffic
 
     Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms). 
 
