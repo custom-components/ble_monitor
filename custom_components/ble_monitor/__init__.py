@@ -379,7 +379,7 @@ class HCIdump(Thread):
 
         def obj0f00(xobj):
             (light,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
-            return {"motion": 1, "motion timer": 1, "light": 1 if light == 100 else 0}
+            return {"motion": 1, "motion timer": 1, "light": 1 if light == 100 else 0, "illuminance": light}
 
         def obj0110(xobj):
             if xobj[2] == 0:
