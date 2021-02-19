@@ -530,7 +530,7 @@ class HCIdump(Thread):
         # dataObject id  (converter, binary, measuring)
         self._dataobject_dict = {
             b'\x03\x00': (obj0300, True, False),
-            b'\x0F\x00': (obj0f00, True, False),
+            b'\x0F\x00': (obj0f00, True, True),
             b'\x01\x10': (obj0110, False, True),
             b'\x04\x10': (obj0410, False, True),
             b'\x05\x10': (obj0510, True, True),
