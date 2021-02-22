@@ -5,9 +5,9 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.0.5-beta
+# Changes in 1.1.1-beta
 
-- Fix bug for consumable sensor (Xiaomi Mija Mosquito Repellent WX08ZM)
+- Add support for Xiaomi Mi Motion Sensor 2 (RTCGQ02LM). Note that the sensor needs an encryption key.
 
 {% endif %}
 {% if installed or pending_update %}
@@ -167,7 +167,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MJYD02YL
 
-  (Xiaomi Motion Activated Night Light. Broadcasts light state (light/no light), motion (motion detected/clear) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. 
+  (Xiaomi Motion Activated Night Light. Broadcasts light state (`light detected/no light`), motion (`motion detected/clear`) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. 
   
   Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option if you want to use a different time to set the sensor to `motion clear`. Battery is broadcasted once every 5 minutes. 
   
@@ -178,6 +178,14 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
   (Xiaomi Philips Bluetooth Night Light. Broadcasts motion detection (only `motion detected`, no light or battery state). Sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](#reset_timer) option with a value that is not 0)
   
   ![MUE4094RT](https://github.com/custom-components/ble_monitor/blob/master/pictures/MUE4094RT.jpg)
+
+- RTCGQ02LM
+
+  (Xiaomi Mi Motion Sensor 2. Broadcasts light state (`light detected/no light`), motion (`motion detected/clear`), button press and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.
+  
+  Light state is broadcasted once every 5 minutes when no motion is detected, and at the same time as a motion detected message. You can use the [reset_timer](#reset_timer) option to specify the time the sensor reports `motion clear` after the last detected motion message. The sensor also broadcasts `single press` if you press the button. After each button press, the sensor state shortly shows `single press` and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Battery is broadcasted once every few hours. 
+
+  ![RTCGQ02LM](https://github.com/custom-components/ble_monitor/blob/master/pictures/RTCGQ02LM.png)
 
 - MMC-T201-1
 
