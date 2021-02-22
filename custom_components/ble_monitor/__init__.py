@@ -748,13 +748,13 @@ class HCIdump(Thread):
         # check data is present
         if not (framectrl & 0x4000):
             return {
-                       "rssi": rssi,
-                       "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
-                       "type": sensor_type,
-                       "packet": packet_id,
-                       "firmware": firmware,
-                       "data": False,
-                   }, None, None
+                "rssi": rssi,
+                "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+                "type": sensor_type,
+                "packet": packet_id,
+                "firmware": firmware,
+                "data": False,
+            }, None, None
         xdata_length = 0
         xdata_point = 0
 

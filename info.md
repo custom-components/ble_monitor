@@ -5,9 +5,10 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.0.5-beta
+# Changes in 1.1.0-beta
 
-- Fix bug for consumable sensor (Xiaomi Mija Mosquito Repellent WX08ZM)
+- Update of the latest changes from aioblescan into our component
+- Code cleaning of the parser (by @SeiTaN)
 
 {% endif %}
 {% if installed or pending_update %}
