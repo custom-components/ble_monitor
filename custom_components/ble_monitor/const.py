@@ -38,7 +38,7 @@ DEFAULT_RESTORE_STATE = False
 DEFAULT_DEVICE_DECIMALS = "default"
 DEFAULT_DEVICE_USE_MEDIAN = "default"
 DEFAULT_DEVICE_RESTORE_STATE = "default"
-DEFAULT_DEVICE_RESET_TIMER = 30
+DEFAULT_DEVICE_RESET_TIMER = 35
 
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
