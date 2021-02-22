@@ -13,9 +13,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.0.5
+# Changes in 1.1.0
 
-- Fix bug for consumable sensor (Xiaomi Mija Mosquito Repellent WX08ZM)
+- Update of the latest changes from aioblescan into our component
+- Code cleaning of the parser (by @SeiTaN)
 
 {% endif %}
 
