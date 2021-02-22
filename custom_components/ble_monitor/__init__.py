@@ -449,9 +449,9 @@ class HCIdump(Thread):
             # Body temperature is calculated from the two measured temperatures.
             # Formula is based on approximation based on values inthe app in the range 36.5 - 37.8.
             body_temp = (
-                3.71934 * pow(10, -11) * math.exp(0.69314 * temp1 / 100)
-                - 1.02801 * pow(10, -8) * math.exp(0.53871 * temp2 / 100)
-                + 36.413
+                    3.71934 * pow(10, -11) * math.exp(0.69314 * temp1 / 100)
+                    - 1.02801 * pow(10, -8) * math.exp(0.53871 * temp2 / 100)
+                    + 36.413
             )
             return {"temperature": body_temp, "battery": bat}
 
