@@ -176,7 +176,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 - MUE4094RT
 
-  (Xiaomi Philips Bluetooth Night Light. Broadcasts motion detection (only `motion detected`, no light or battery state). Sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](#reset_timer) option with a value that is not 0)
+  (Xiaomi Philips Bluetooth Night Light. Broadcasts motion detection (only `motion detected`, no light or battery state). The sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](#reset_timer) option with a value that is not 0)
   
   ![MUE4094RT](https://github.com/custom-components/ble_monitor/blob/master/pictures/MUE4094RT.jpg)
 
@@ -184,7 +184,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
   (Xiaomi Mi Motion Sensor 2. Broadcasts light state (`light detected/no light`), motion (`motion detected/clear`), button press and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.
   
-  Light state is broadcasted once every 5 minutes when no motion is detected, and at the same time as a motion detected message. You can use the [reset_timer](#reset_timer) option to specify the time the sensor reports `motion clear` after the last detected motion message. The sensor also broadcasts `single press` if you press the button. After each button press, the sensor state shortly shows `single press` and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Battery is broadcasted once every few hours. 
+  Light state is broadcasted upon a change in light in the room and is also broadcasted at the same time as motion is detected. The sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](#reset_timer) option with a value that is not 0). The sensor also broadcasts `single press` if you press the button. After each button press, the sensor state shortly shows `single press` and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Battery is broadcasted once every few hours. 
 
   ![RTCGQ02LM](https://github.com/custom-components/ble_monitor/blob/master/pictures/RTCGQ02LM.png)
 
@@ -284,7 +284,7 @@ ble_monitor:
       name: 'Bedroom'
       temperature_unit: F
     - mac: 'B4:7C:8D:6D:4C:D3'
-      reset_timer: 30
+      reset_timer: 35
 ```
 
 Note: The encryption_key parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
@@ -389,7 +389,7 @@ ble_monitor:
       use_median: False
       restore_state: default
     - mac: 'C4:3C:4D:6B:4F:F3'
-      reset_timer: 30
+      reset_timer: 35
 ```
 
 #### mac
@@ -472,13 +472,13 @@ ble_monitor:
 
 #### reset_timer
 
-   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `motion clear`. After each `motion detected` advertisement, the timer starts counting down again. Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`. Default value: 30
+   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `motion clear`. After each `motion detected` advertisement, the timer starts counting down again. Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`. Default value: 35
 
 ```yaml
 ble_monitor:
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
-      reset_timer: 30
+      reset_timer: 35
 ```
 
 ### Deleting devices and sensors
