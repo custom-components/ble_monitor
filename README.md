@@ -31,158 +31,32 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## SUPPORTED SENSORS
 
-- LYWSDCGQ
+|Name|Description|Picture|
+|---|---|---|
+|**LYWSDCGQ** <img width=100/>|Xiaomi Hygro thermometer, round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute. <img width=100/>|![LYWSDCGQ](/pictures/LYWSDCGQ.jpg) <img width=1500/>|
+|**CGG1**|Qingping Hygro thermometer, round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute. There are two versions, with encryption and without encryption. We expect that you can check which version you have by looking at the back of the sensor. The ones with encryption have a `qingping` logo at the back (left picture), while the ones without encryption don't have any logo (right picture).<br /><br />For sensors with encryption, you will need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![CGG1](/pictures/CGG1.png)|
+|**CGDK2**|Qingping Temp & RH Monitor Lite, round body, E-Ink, broadcasts temperature, humidity and battery level, about 10 readings per minute, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![CGDK2](/pictures/CGDK2.png)|
+|**LYWSD02**|Xiaomi Temperature and Humidity sensor, rectangular body, E-Ink, broadcasts temperature, humidity and battery level (battery level is available for firmware version 1.1.2_00085 and later), about 20 readings per minute.|![LYWSD02](/pictures/LYWSD02.jpeg)|
+|**LYWSD03MMC**|Xiaomi Hygro thermometer, small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour (original firmware). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware).<br /><br />`ble_monitor` also supports custom ATC firmware (both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer)). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent (note that both battery sensors are only visible as sensor with `batt_entities: True`). Reloading the integration is needed to receive the voltage sensor after switching the firmware. For the `pvvx` firmware, it is advised to change the `advertisement type` from `all` to `custom`. Sending multiple advertisment types at the same time might cause the voltage sensor from not showing up, depending on which advertisement comes first. The advertisement type `custom` will also result in a higher accuracy.|![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)|
+|**CGD1**|Qingping Cleargrass CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet). The sensor sends BLE advertisements in Xiaomi MiBeacon format and Qingping format. Qingping advertisements are not encrypted. Xiaomi MiBeacon advertisements are encrypted, if you want to receive both advertisements, you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![CGD1](/pictures/CGD1.jpg)|
+|**CGP1W**|Qingping Cleargrass indoor weather station with Atmospheric pressure measurement, broadcasts temperature, humidity, air pressure and and battery level (we do not have accurate periodicity information yet).|![CGP1W](/pictures/CGP1W.jpg)|
+|**MHO-C303**|Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute.|![MHO-C303](/pictures/MHO-C303.png)|
+|**MHO-C401**|Alarm clock, small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![MHO-C401](/pictures/MHO-C401.jpg)|
+|**JQJCY01YM**|Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute.|![supported sensors](/pictures/JQJCY01YM.jpg)|
+|**HHCCJCY01**|MiFlora plant sensor, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1.|![HHCCJCY01](/pictures/HHCCJCY01.jpg)|
+|**GCLS002**|VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01.|![GCLS002](/pictures/GCLS002.png)|
+|**HHCCPOT002**|FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6.|![HHCCPOT002](/pictures/HHCCPOT002.jpg)|
+|**WX08ZM**|Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute.|![WX08ZM](/pictures/WX08ZM.jpg)
+|**MCCGQ02HL**|Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. Advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Battery level is only send once in approximately 24 hours.|![MCCGQ02HL](/pictures/MCCGQ02HL.png)|
+|**YM-K1501**|Xiaomi Mijia Smart kettle, experimental support, collecting data. The switch entity has an extra `ext_state` attribute, with the following values: `0` - kettle is idle, `1` - kettle is heating water, `2` - warming function is active with boiling, `3` - warming function is active without boiling.|![YM-K1501](/pictures/YM-K1501.png)|
+|**V-SK152**|Viomi Smart Kettle, experimental support, collecting data, `ext_state` attribute as in YM-K1501, data broadcasted every 30 seconds.|![V-SK152](/pictures/V-SK152.png)|
+|**SJWS01LM**|Xiaomi Smart Water Leak Sensor. Broadcasts moisture state (wet/dry), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![SJWS01LM](/pictures/SJWS01LM.png)|
+|**MJYD02YL**|Xiaomi Motion Activated Night Light. Broadcasts light state (`light detected/no light`), motion (`motion detected/clear`) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.<br /><br />Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option if you want to use a different time to set the sensor to `motion clear`. Battery is broadcasted once every 5 minutes.|![MJYD02YL](/pictures/MJYD02YL.jpg)|
+|**MUE4094RT**|Xiaomi Philips Bluetooth Night Light. Broadcasts motion detection (only `motion detected`, no light or battery state). The sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](#reset_timer) option with a value that is not 0.|![MUE4094RT](/pictures/MUE4094RT.jpg)|
+|**RTCGQ02LM**|Xiaomi Mi Motion Sensor 2. Broadcasts light state (`light detected/no light`), motion (`motion detected/clear`), button press and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.<br /><br />Light state is broadcasted upon a change in light in the room and is also broadcasted at the same time as motion is detected. The sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](#reset_timer) option with a value that is not 0). The sensor also broadcasts `single press` if you press the button. After each button press, the sensor state shortly shows `single press` and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Battery is broadcasted once every few hours.|![RTCGQ02LM](/pictures/RTCGQ02LM.png)|
+|**MMC-T201-1**|Xiaomi Miaomiaoce Digital Baby Thermometer. Broadcasts temperature and battery state. The calculated body temperature is displayed in BLE Monitor, please note the disclaimer below. About 15-20 messages per minute.<br /><br />**DISCLAIMER**<br />The sensor sends two temperatures in the BLE advertisements, that are converted to a body temperature with a certain algorithm in the original app. We tried to reverse engineering this relation, but we were only able to approximate the relation in the range of 36.5°C - 37.9°C at this moment. It has not been calibrated at elevated body temperature (e.g. if someone has a fever), so measurements displayed in Home Assistant might be different (wrong) compared to those reported in the app. It is therefore advised NOT to rely on the measurements in BLE monitor if you want to monitor your or other peoples body temperature / health). If you have additional measurements, especially outside the investigated range, please report them in this [issue](https://github.com/custom-components/ble_monitor/issues/264).|![MMC-T201-1](/pictures/MMC-T201-1.jpg)|
+|**YLAI003**|Yeelight Smart Wireless Switch (YLAI003). Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLAI003](/pictures/YLAI003.jpg)|
 
-  (round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute)
-  
-  ![LYWSDCGQ](/pictures/LYWSDCGQ.jpg)
-  
-- CGG1
-
-  (round body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute. There are two versions, with encryption and without encryption. We expect that you can check which version you have by looking at the back of the sensor. The ones with encryption have a `qingping` logo at the back (left picture), while the ones without encryption don't have any logo (right picture))
-
-  ![CGG1](/pictures/CGG1-back.png)
-
-  For sensors with encryption, you will need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option))
-
-  ![CGG1](/pictures/CGG1.png)
-
-- CGDK2
-
-  (round body, E-Ink, broadcasts temperature, humidity and battery level, about 10 readings per minute, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
-
-  ![CGDK2](/pictures/CGDK2.png)
-
-- LYWSD02
-
-  (rectangular body, E-Ink, broadcasts temperature, humidity and battery level (battery level is available for firmware version 1.1.2_00085 and later), about 20 readings per minute)
-
-  ![LYWSD02](/pictures/LYWSD02.jpeg)
-  
-- LYWSD03MMC
-
-  (small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour (original firmware). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option (not needed for sensors with custom firmware).
-  
-  `ble_monitor` also supports custom ATC firmware (both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer)). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent (note that both battery sensors are only visible as sensor with `batt_entities: True`). Reloading the integration is needed to receive the voltage sensor after switching the firmware. For the `pvvx` firmware, it is advised to change the `advertisement type` from `all` to `custom`. Sending multiple advertisment types at the same time might cause the voltage sensor from not showing up, depending on which advertisement comes first. The advertisement type `custom` will also result in a higher accuracy.)   
-  
-  ![LYWSD03MMC](/pictures/LYWSD03MMC.jpg)
-
-- CGD1
-
-  (Qingping Cleargrass CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 3 minutes?), and battery level (we do not have accurate periodicity information yet). The sensor sends BLE advertisements in Xiaomi MiBeacon format and Qingping format. Qingping advertisements are not encrypted. Xiaomi MiBeacon advertisements are encrypted, if you want to receive both advertisements, you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
-
-  ![CGD1](/pictures/CGD1.jpg)
-
-- CGP1W
-
-  (Qingping Cleargrass indoor weather station with Atmospheric pressure measurement, broadcasts temperature, humidity, air pressure and and battery level (we do not have accurate periodicity information yet))
-
-  ![CGP1W](/pictures/CGP1W.jpg)
-
-- MHO-C303
-
-  (Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute)
-  
-  ![MHO-C303](/pictures/MHO-C303.png)
-
-- MHO-C401
-  
-  (small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
-  
-  ![MHO-C401](/pictures/MHO-C401.jpg)
-
-- JQJCY01YM
-
-  (Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute)
-  
-  ![supported sensors](/pictures/JQJCY01YM.jpg)
-
-- HHCCJCY01
-
-  (MiFlora, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1)
-  
-  ![HHCCJCY01](/pictures/HHCCJCY01.jpg)
-
-- GCLS002
-
-  (VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01)
-
-  ![GCLS002](/pictures/GCLS002.png)
-
-- HHCCPOT002
-
-  (FlowerPot, RoPot, broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6)
-  
-  ![HHCCPOT002](/pictures/HHCCPOT002.jpg)
-
-- WX08ZM
-
-  (Xiaomi Mija Mosquito Repellent, Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute)
-
-  ![WX08ZM](/pictures/WX08ZM.jpg)
-
-- MCCGQ02HL
-
-  (Xiaomi Mijia Window Door Sensor 2, broadcasts opening state, light state and battery level. Advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Battery level is only send once in approximately 24 hours.)
-
-  ![MCCGQ02HL](/pictures/MCCGQ02HL.png)
-
-- YM-K1501
-
-  (Xiaomi Mijia Smart kettle, experimental support, collecting data. The switch entity has an extra `ext_state` attribute, with the following values: `0` - kettle is idle, `1` - kettle is heating water, `2` - warming function is active with boiling, `3` - warming function is active without boiling)
-
-  ![YM-K1501](/pictures/YM-K1501.png)
-
-- V-SK152
-
-  (Viomi Smart Kettle, experimental support, collecting data, `ext_state` attribute as in YM-K1501, data broadcasted every 30 seconds)
-
-  ![V-SK152](/pictures/V-SK152.png)
-
-- SJWS01LM
-
-  (Xiaomi Smart Water Leak Sensor. Broadcasts moisture state (wet/dry), advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
-
-  ![SJWS01LM](/pictures/SJWS01LM.png)
-
-- MJYD02YL
-
-  (Xiaomi Motion Activated Night Light. Broadcasts light state (`light detected/no light`), motion (`motion detected/clear`) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option. 
-  
-  Light state is broadcasted once every 5 minutes when no motion is detected, when motion is detected the sensor also broadcasts the light state. Motion state is broadcasted when motion is detected, but is also broadcasted once per 5 minutes. If this message is within 30 seconds after motion, it's broadcasting `motion detected`, if it's after 30 seconds, it's broadcasting `motion clear`. Additonally, `motion clear` messages are broadcasted at 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option if you want to use a different time to set the sensor to `motion clear`. Battery is broadcasted once every 5 minutes. 
-  
-  ![MJYD02YL](/pictures/MJYD02YL.jpg)
-
-- MUE4094RT
-
-  (Xiaomi Philips Bluetooth Night Light. Broadcasts motion detection (only `motion detected`, no light or battery state). The sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](#reset_timer) option with a value that is not 0)
-  
-  ![MUE4094RT](/pictures/MUE4094RT.jpg)
-
-- RTCGQ02LM
-
-  (Xiaomi Mi Motion Sensor 2. Broadcasts light state (`light detected/no light`), motion (`motion detected/clear`), button press and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.
-  
-  Light state is broadcasted upon a change in light in the room and is also broadcasted at the same time as motion is detected. The sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](#reset_timer) option with a value that is not 0). The sensor also broadcasts `single press` if you press the button. After each button press, the sensor state shortly shows `single press` and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Battery is broadcasted once every few hours. 
-
-  ![RTCGQ02LM](/pictures/RTCGQ02LM.png)
-
-- MMC-T201-1
-
-  (Xiaomi Miaomiaoce Digital Baby Thermometer. Broadcasts temperature and battery state. The calculated body temperature is displayed in BLE Monitor, please note the disclaimer below. About 15-20 messages per minute)
-  
-  **DISCLAIMER**
-  
-  The sensor sends two temperatures in the BLE advertisements, that are converted to a body temperature with a certain algorithm in the original app. We tried to reverse engineering this relation, but we were only able to approximate the relation in the range of 36.5°C - 37.9°C at this moment. It has not been calibrated at elevated body temperature (e.g. if someone has a fever), so measurements displayed in Home Assistant might be different (wrong) compared to those reported in the app. It is therefore advised NOT to rely on the measurements in BLE monitor if you want to monitor your or other peoples body temperature / health). If you have additional measurements, especially outside the investigated range, please report them in this [issue](https://github.com/custom-components/ble_monitor/issues/264).
-  
-  ![MMC-T201-1](/pictures/MMC-T201-1.jpg)
-
-- YLAI003
-
-  (Yeelight Smart Wireless Switch (YLAI003). Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option)
-
-  ![YLAI003](/pictures/YLAI003.jpg)
-  
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
 **Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
