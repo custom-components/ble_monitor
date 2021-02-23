@@ -12,10 +12,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.1.0
+# Changes in 1.1.1
 
-- Update of the latest changes from aioblescan into our component
-- Code cleaning of the parser (by @SeiTaN)
+- Add support for Xiaomi Mi Motion Sensor 2 (RTCGQ02LM). Note that the sensor needs an encryption key.
 
 {% endif %}
 
