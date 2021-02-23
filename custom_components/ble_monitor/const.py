@@ -38,7 +38,7 @@ DEFAULT_RESTORE_STATE = False
 DEFAULT_DEVICE_DECIMALS = "default"
 DEFAULT_DEVICE_USE_MEDIAN = "default"
 DEFAULT_DEVICE_RESTORE_STATE = "default"
-DEFAULT_DEVICE_RESET_TIMER = 30
+DEFAULT_DEVICE_RESET_TIMER = 35
 
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"
@@ -78,6 +78,7 @@ XIAOMI_TYPE_DICT = {
     b'\xDB\x00': ("MMC-T201-1", False),
     b'\xDD\x03': ("MUE4094RT", True),
     b'\xBF\x07': ("YLAI003", False),
+    b'\x8D\x0A': ("RTCGQ02LM", True),
 }
 
 QINGPING_TYPE_DICT = {
@@ -121,6 +122,7 @@ MMTS_DICT = {
     'MMC-T201-1'     : [[0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1], [9, 9, 9, 9, 9, 9]],
     'MUE4094RT'      : [[9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9], [9, 9, 9, 9, 0, 9]],
     'YLAI003'        : [[9, 9, 9, 9, 9, 9, 9, 9, 0, 9, 1], [9, 9, 9, 9, 9, 9]],
+    'RTCGQ02LM'      : [[9, 9, 9, 9, 9, 9, 9, 9, 0, 9, 1], [9, 9, 0, 9, 1, 2]],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -151,6 +153,7 @@ MANUFACTURER_DICT = {
     'MMC-T201-1'     : 'Xiaomi',
     'MUE4094RT'      : 'Xiaomi',
     'YLAI003'        : 'Yeelight',
+    'RTCGQ02LM'      : 'Xiaomi',
 }
 
 # The use of the following dictionaries is lost when changing the sensor naming system
