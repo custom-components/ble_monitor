@@ -727,10 +727,10 @@ class HCIdump(Thread):
         try:
             prev_packet = self.lpacket_ids[xiaomi_mac_reversed]
         except KeyError:
-            # TODO check if error should be raisen
+            # start with empty first packet
             prev_packet = None, None, None
         if prev_packet == packet_id:
-            # not an error, it happens when device doesn't update info
+            # only process new messages
             return None, None, None
         self.lpacket_ids[xiaomi_mac_reversed] = packet_id
 
@@ -1047,10 +1047,10 @@ class HCIdump(Thread):
         try:
             prev_packet = self.lpacket_ids[atc_index]
         except KeyError:
-            # TODO check if error should be raisen
+            # start with empty first packet
             prev_packet = None, None, None
         if prev_packet == packet_id:
-            # not an error, it happens when device doesn't update info
+            # only process new messages
             return None, None, None
         self.lpacket_ids[atc_index] = packet_id
 
