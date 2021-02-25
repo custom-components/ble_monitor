@@ -8,7 +8,7 @@
 # Changes in 1.1.2-beta
 
 - Add support for Qingping Door/window contact sensor (GCH1). 
-- Add support for Qingping Motiona and ambient light sensor (GCPR1). 
+- Add support for Qingping Motion and ambient light sensor (GCPR1). 
 
 Note that both sensors needs an encryption key.
 
@@ -20,7 +20,7 @@ Sensors have not been tested. If you own one of these sensor, please confirm if 
 # Changes in 1.1.2
 
 - Add support for Qingping Door/window contact sensor (GCH1). 
-- Add support for Qingping Motiona and ambient light sensor (GCPR1). 
+- Add support for Qingping Motion and ambient light sensor (GCPR1). 
 - Better error handling in the parser (thanks to @SeiTaN)
 
 Note that both sensors needs an encryption key.
