@@ -17,9 +17,15 @@ Sensors have not been tested. If you own one of these sensor, please confirm if 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.1.1
+# Changes in 1.1.2
 
-- Add support for Xiaomi Mi Motion Sensor 2 (RTCGQ02LM). Note that the sensor needs an encryption key.
+- Add support for Qingping Door/window contact sensor (GCH1). 
+- Add support for Qingping Motiona and ambient light sensor (GCPR1). 
+- Better error handling in the parser (thanks to @SeiTaN)
+
+Note that both sensors needs an encryption key.
+
+Sensors have not been tested. If you own one of these sensor, please confirm if it is working correctly [here](https://github.com/custom-components/ble_monitor/issues/284).
 
 {% endif %}
 
