@@ -661,17 +661,18 @@ class HCIdump(Thread):
         qingping_index = data.find(b'\x16\xCD\xFD', 15 + 15 if is_ext_packet else 0)
         atc_index = data.find(b'\x16\x1A\x18', 15 + 15 if is_ext_packet else 0)
 
-        if xiaomi_index != -1:
-            return self.parse_xiaomi(data, xiaomi_index, is_ext_packet)
+        try:
+            if xiaomi_index != -1:
+                return self.parse_xiaomi(data, xiaomi_index, is_ext_packet)
+            elif qingping_index != -1:
+                return self.parse_qingping(data, qingping_index, is_ext_packet)
+            elif atc_index != -1:
+                return self.parse_atc(data, atc_index, is_ext_packet)
 
-        elif qingping_index != -1:
-            return self.parse_qingping(data, qingping_index, is_ext_packet)
+        except NoValidError as nve:
+            _LOGGER.error("Invalid data: %s", nve)
 
-        elif atc_index != -1:
-            return self.parse_atc(data, atc_index, is_ext_packet)
-
-        else:
-            return None, None, None
+        return None, None, None
 
     def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         # parse BLE message in Xiaomi MiBeacon format
@@ -682,14 +683,14 @@ class HCIdump(Thread):
         adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
         adv_index2 = data.find(b"\x15\x16\x95", advert_start, 3 + advert_start)
         if adv_index == -1 and adv_index2 == -1:
-            return None, None, None
+            raise NoValidError("Invalid index")
         if adv_index2 != -1:
             adv_index = adv_index2
 
         # check for BTLE msg size
         msg_length = data[2] + 3
         if msg_length != len(data):
-            return None, None, None
+            raise NoValidError("Invalid msg size")
 
         # extract device type
         device_type = data[xiaomi_index + 5:xiaomi_index + 7]
@@ -714,20 +715,22 @@ class HCIdump(Thread):
             xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
             source_mac_reversed = data[mac_index - 7:mac_index - 1]
             if xiaomi_mac_reversed != source_mac_reversed:
-                return None, None, None
+                raise NoValidError("Invalid MAC address")
         else:
             # for sensors without mac in service data, use the first mac in advertisment
             xiaomi_mac_reversed = data[mac_index - 7:mac_index - 1]
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and xiaomi_mac_reversed not in self.whitelist:
-            return None, None, None
+            raise NoValidError("MAC is not present in whitelist")
         packet_id = data[xiaomi_index + 7]
         try:
             prev_packet = self.lpacket_ids[xiaomi_mac_reversed]
         except KeyError:
+            # TODO check if error should be raisen
             prev_packet = None, None, None
         if prev_packet == packet_id:
+            # not an error, it happens when device doesn't update info
             return None, None, None
         self.lpacket_ids[xiaomi_mac_reversed] = packet_id
 
@@ -748,7 +751,7 @@ class HCIdump(Thread):
                     ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
                     data.hex()
                 )
-            return None, None, None
+            raise NoValidError("Device unkown")
 
         # check data is present
         if not (framectrl & 0x4000):
@@ -783,12 +786,13 @@ class HCIdump(Thread):
         #     -capability byte offset
         xdata_length += msg_length - xiaomi_index - 15
         if xdata_length < 3:
-            return None, None, None
+            raise NoValidError("Xdata length invalid")
+
         xdata_point += xiaomi_index + 14
 
         # check if parse_xiaomi data start and length is valid
         if xdata_length != len(data[xdata_point:-1]):
-            return None, None, None
+            raise NoValidError("Invalid data length")
 
         # check encrypted data flags
         if framectrl & 0x0800:
@@ -797,7 +801,7 @@ class HCIdump(Thread):
                 key = self.aeskeys[xiaomi_mac_reversed]
             except KeyError:
                 # no encryption key found
-                return None, None, None
+                raise NoValidError("No encription key found")
             nonce = b"".join(
                 [
                     xiaomi_mac_reversed,
@@ -823,13 +827,13 @@ class HCIdump(Thread):
                 _LOGGER.error("nonce: %s", nonce.hex())
                 _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
                 _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
-                return None, None, None
+                raise NoValidError("Error decrypting with arguments")
             if decrypted_payload is None:
                 _LOGGER.error(
                     "Decryption failed for %s, decrypted payload is None",
                     "".join("{:02X}".format(x) for x in xiaomi_mac_reversed[::-1]),
                 )
-                return None, None, None
+                raise NoValidError("Decryption failed")
 
             # replace cipher with decrypted data
             msg_length -= len(encrypted_payload)
@@ -902,12 +906,12 @@ class HCIdump(Thread):
         advert_start = 29 if is_ext_packet else 14
         adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
         if adv_index == -1:
-            return None, None, None
+            raise NoValidError("Invalid index")
 
         # check for BTLE msg size
         msg_length = data[2] + 3
         if msg_length != len(data):
-            return None, None, None
+            raise NoValidError("Invalid msg size")
 
         # extract device type
         device_type = data[qingping_index + 3:qingping_index + 5]
@@ -917,11 +921,11 @@ class HCIdump(Thread):
         qingping_mac_reversed = data[qingping_index + 5:qingping_index + 11]
         source_mac_reversed = data[mac_index - 7:mac_index - 1]
         if qingping_mac_reversed != source_mac_reversed:
-            return None, None, None
+            raise NoValidError("Invalid MAC address")
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and qingping_mac_reversed not in self.whitelist:
-            return None, None, None
+            raise NoValidError("MAC is not present in whitelist")
         packet_id = "no packed id"
 
         # extract RSSI byte
@@ -941,7 +945,7 @@ class HCIdump(Thread):
                     ''.join('{:02X}'.format(x) for x in qingping_mac_reversed[::-1]),
                     data.hex()
                 )
-            return None, None, None
+            raise NoValidError("Device unkown")
         xdata_length = 0
         xdata_point = 0
 
@@ -953,12 +957,13 @@ class HCIdump(Thread):
         #     -6 bytes MAC
         xdata_length += msg_length - qingping_index - 12
         if xdata_length < 3:
-            return None, None, None
+            raise NoValidError("Xdata length invalid")
+
         xdata_point += qingping_index + 11
 
         # check if parse_qingping data start and length is valid
         if xdata_length != len(data[xdata_point:-1]):
-            return None, None, None
+            raise NoValidError("Invalid data length")
         result = {
             "rssi": rssi,
             "mac": ''.join('{:02X}'.format(x) for x in qingping_mac_reversed[::-1]),
@@ -1019,7 +1024,7 @@ class HCIdump(Thread):
         # check for BTLE msg size
         msg_length = data[2] + 3
         if msg_length != len(data):
-            return None, None, None
+            raise NoValidError("Invalid index")
 
         # check for MAC presence in message and in service data
         if is_custom_adv is True:
@@ -1027,21 +1032,25 @@ class HCIdump(Thread):
             atc_mac = atc_mac_reversed[::-1]
         else:
             atc_mac = data[atc_index + 3:atc_index + 9]
+
         mac_index = atc_index - (22 if is_ext_packet else 8)
         source_mac_reversed = data[mac_index:mac_index + 6]
         source_mac = source_mac_reversed[::-1]
         if atc_mac != source_mac:
-            return None, None, None
+            raise NoValidError("Invalid MAC address")
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and source_mac_reversed not in self.whitelist:
-            return None, None, None
+            raise NoValidError("MAC is not present in whitelist")
+
         packet_id = data[atc_index + 16 if is_custom_adv else atc_index + 15]
         try:
             prev_packet = self.lpacket_ids[atc_index]
         except KeyError:
+            # TODO check if error should be raisen
             prev_packet = None, None, None
         if prev_packet == packet_id:
+            # not an error, it happens when device doesn't update info
             return None, None, None
         self.lpacket_ids[atc_index] = packet_id
 
@@ -1063,7 +1072,7 @@ class HCIdump(Thread):
                     ''.join('{:02X}'.format(x) for x in atc_mac[:]),
                     data.hex()
                 )
-            return None, None, None
+            raise NoValidError("Device unkown")
 
         # ATC data length = message length
         # -all bytes before ATC UUID
@@ -1074,12 +1083,14 @@ class HCIdump(Thread):
         # -1 RSSI (normal, not extended packet only)
         xdata_length = msg_length - atc_index - (11 if is_custom_adv else 10) - (0 if is_ext_packet else 1)
         if xdata_length < 6:
-            return None, None, None
+            raise NoValidError("Xdata length invalid")
+
         xdata_point = atc_index + 9
 
         # check if parse_atc data start and length is valid
         if xdata_length != len(data[xdata_point:(-3 if (is_custom_adv and not is_ext_packet) else -2)]):
-            return None, None, None
+            raise NoValidError("Invalid data length")
+
         result = {
             "rssi": rssi,
             "mac": ''.join('{:02X}'.format(x) for x in atc_mac[:]),
@@ -1108,3 +1119,7 @@ class HCIdump(Thread):
                 )
         binary = binary and binary_data
         return result, binary, measuring
+
+
+class NoValidError(Exception):
+    pass
