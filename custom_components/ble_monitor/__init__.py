@@ -378,10 +378,11 @@ class HCIdump(Thread):
             return {"motion": xobj[0], "motion timer": xobj[0]}
 
         def obj0f00(xobj):
-            (light,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
+            (value,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
             # MJYD02YL:  1 - moving no light, 100 - moving with light
             # RTCGQ02LM: 0 - moving no light, 256 - moving with light
-            return {"motion": 1, "motion timer": 1, "light": int(light >= 100)}
+            # CGPR1:     moving, value is illumination in lux
+            return {"motion": 1, "motion timer": 1, "light": int(value >= 100), "illuminance": value}
 
         def obj0110(xobj):
             if xobj[2] == 0:
@@ -431,6 +432,8 @@ class HCIdump(Thread):
 
         def obj1710(xobj):
             (motion,) = M_STRUCT.unpack(xobj)
+            # seconds since last motion detected message (not used, we use motion timer in obj0f00)
+            # 0 = motion detected
             return {"motion": 1 if motion == 0 else 0}
 
         def obj1810(xobj):
@@ -451,9 +454,9 @@ class HCIdump(Thread):
             # Body temperature is calculated from the two measured temperatures.
             # Formula is based on approximation based on values inthe app in the range 36.5 - 37.8.
             body_temp = (
-                    3.71934 * pow(10, -11) * math.exp(0.69314 * temp1 / 100)
-                    - 1.02801 * pow(10, -8) * math.exp(0.53871 * temp2 / 100)
-                    + 36.413
+                3.71934 * pow(10, -11) * math.exp(0.69314 * temp1 / 100)
+                - 1.02801 * pow(10, -8) * math.exp(0.53871 * temp2 / 100)
+                + 36.413
             )
             return {"temperature": body_temp, "battery": bat}
 
@@ -533,7 +536,7 @@ class HCIdump(Thread):
         # dataObject id  (converter, binary, measuring)
         self._dataobject_dict = {
             b'\x03\x00': (obj0300, True, False),
-            b'\x0F\x00': (obj0f00, True, False),
+            b'\x0F\x00': (obj0f00, True, True),
             b'\x01\x10': (obj0110, False, True),
             b'\x04\x10': (obj0410, False, True),
             b'\x05\x10': (obj0510, True, True),
