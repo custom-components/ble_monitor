@@ -722,7 +722,7 @@ class HCIdump(Thread):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and xiaomi_mac_reversed not in self.whitelist:
-            raise NoValidError("MAC is not present in whitelist")
+            return None, None, None
         packet_id = data[xiaomi_index + 7]
         try:
             prev_packet = self.lpacket_ids[xiaomi_mac_reversed]
@@ -925,7 +925,7 @@ class HCIdump(Thread):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and qingping_mac_reversed not in self.whitelist:
-            raise NoValidError("MAC is not present in whitelist")
+            return None, None, None
         packet_id = "no packed id"
 
         # extract RSSI byte
@@ -1041,7 +1041,7 @@ class HCIdump(Thread):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and source_mac_reversed not in self.whitelist:
-            raise NoValidError("MAC is not present in whitelist")
+            return None, None, None
 
         packet_id = data[atc_index + 16 if is_custom_adv else atc_index + 15]
         try:
