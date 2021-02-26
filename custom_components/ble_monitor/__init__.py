@@ -801,7 +801,7 @@ class HCIdump(Thread):
                 key = self.aeskeys[xiaomi_mac_reversed]
             except KeyError:
                 # no encryption key found
-                raise NoValidError("No encription key found")
+                raise NoValidError("No encryption key found")
             nonce = b"".join(
                 [
                     xiaomi_mac_reversed,
