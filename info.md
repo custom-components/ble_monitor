@@ -17,15 +17,10 @@ Sensors have not been tested. If you own one of these sensor, please confirm if 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.1.2
+# Changes in 1.1.3
 
-- Add support for Qingping Door/window contact sensor (GCH1). 
-- Add support for Qingping Motion and ambient light sensor (GCPR1). 
-- Better error handling in the parser (thanks to @SeiTaN)
-
-Note that both sensors needs an encryption key.
-
-Sensors have not been tested. If you own one of these sensor, please confirm if it is working correctly [here](https://github.com/custom-components/ble_monitor/issues/284).
+- Fix error for unpacking of messages with wrong format of LYWSDCGQ sensor #233
+- Fix for error Invalid data: MAC is not present in whitelist #293
 
 {% endif %}
 
