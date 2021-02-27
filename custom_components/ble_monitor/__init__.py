@@ -446,8 +446,11 @@ class HCIdump(Thread):
             return {"battery": xobj[0]}
 
         def obj0d10(xobj):
-            (temp, humi) = TH_STRUCT.unpack(xobj)
-            return {"temperature": temp / 10, "humidity": humi / 10}
+            if len(xobj) == 4:
+                (temp, humi) = TH_STRUCT.unpack(xobj)
+                return {"temperature": temp / 10, "humidity": humi / 10}
+            else:
+                return {}
 
         def obj0020(xobj):
             (temp1, temp2, bat) = TTB_STRUCT.unpack(xobj)
