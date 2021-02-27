@@ -446,8 +446,11 @@ class HCIdump(Thread):
             return {"battery": xobj[0]}
 
         def obj0d10(xobj):
-            (temp, humi) = TH_STRUCT.unpack(xobj)
-            return {"temperature": temp / 10, "humidity": humi / 10}
+            if len(xobj) == 4:
+                (temp, humi) = TH_STRUCT.unpack(xobj)
+                return {"temperature": temp / 10, "humidity": humi / 10}
+            else:
+                return {}
 
         def obj0020(xobj):
             (temp1, temp2, bat) = TTB_STRUCT.unpack(xobj)
@@ -722,7 +725,7 @@ class HCIdump(Thread):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and xiaomi_mac_reversed not in self.whitelist:
-            raise NoValidError("MAC is not present in whitelist")
+            return None, None, None
         packet_id = data[xiaomi_index + 7]
         try:
             prev_packet = self.lpacket_ids[xiaomi_mac_reversed]
@@ -801,7 +804,7 @@ class HCIdump(Thread):
                 key = self.aeskeys[xiaomi_mac_reversed]
             except KeyError:
                 # no encryption key found
-                raise NoValidError("No encription key found")
+                raise NoValidError("No encryption key found")
             nonce = b"".join(
                 [
                     xiaomi_mac_reversed,
@@ -925,7 +928,7 @@ class HCIdump(Thread):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and qingping_mac_reversed not in self.whitelist:
-            raise NoValidError("MAC is not present in whitelist")
+            return None, None, None
         packet_id = "no packed id"
 
         # extract RSSI byte
@@ -1041,7 +1044,7 @@ class HCIdump(Thread):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and source_mac_reversed not in self.whitelist:
-            raise NoValidError("MAC is not present in whitelist")
+            return None, None, None
 
         packet_id = data[atc_index + 16 if is_custom_adv else atc_index + 15]
         try:
