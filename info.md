@@ -17,10 +17,9 @@ Sensors have not been tested. If you own one of these sensor, please confirm if 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.1.3
+# Changes in 1.1.4
 
-- Fix error for unpacking of messages with wrong format of LYWSDCGQ sensor #233
-- Fix for error Invalid data: MAC is not present in whitelist #293
+- Errors in parser have moved to debug level to avoid unnecessary errors in the log.
 
 {% endif %}
 
