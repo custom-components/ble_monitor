@@ -673,7 +673,7 @@ class HCIdump(Thread):
                 return self.parse_atc(data, atc_index, is_ext_packet)
 
         except NoValidError as nve:
-            _LOGGER.error("Invalid data: %s", nve)
+            _LOGGER.debug("Invalid data: %s", nve)
 
         return None, None, None
 
