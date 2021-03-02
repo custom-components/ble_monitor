@@ -7,7 +7,7 @@
 
 # Changes in 1.2.0-beta
 
-- pycryptodomex is bumped to 3.10.1
+- pycryptodomex is bumped to 3.10.1.
 - Extra check for data length is added before applying struct, fixes #233
 - Version number is added to manifest. This is mandatory soon for custom components, see https://developers.home-assistant.io/blog/2021/01/29/custom-integration-changes/#versions Also helps with #250 (will hopefully be displayed in HA in the future).
 
