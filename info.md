@@ -5,14 +5,11 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.1.2-beta
+# Changes in 1.2.0-beta
 
-- Add support for Qingping Door/window contact sensor (GCH1). 
-- Add support for Qingping Motion and ambient light sensor (GCPR1). 
-
-Note that both sensors needs an encryption key.
-
-Sensors have not been tested. If you own one of these sensor, please confirm if it is working correctly [here](https://github.com/custom-components/ble_monitor/issues/284). 
+- pycryptodomex is bumped to 3.10.1
+- Extra check for data length is added before applying struct, fixes #233
+- Version number is added to manifest. This is mandatory soon for custom components, see https://developers.home-assistant.io/blog/2021/01/29/custom-integration-changes/#versions Also helps with #250 (will hopefully be displayed in HA in the future).
 
 {% endif %}
 {% if installed or pending_update %}
