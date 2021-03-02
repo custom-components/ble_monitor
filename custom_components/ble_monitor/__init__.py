@@ -378,11 +378,14 @@ class HCIdump(Thread):
             return {"motion": xobj[0], "motion timer": xobj[0]}
 
         def obj0f00(xobj):
-            (value,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
-            # MJYD02YL:  1 - moving no light, 100 - moving with light
-            # RTCGQ02LM: 0 - moving no light, 256 - moving with light
-            # CGPR1:     moving, value is illumination in lux
-            return {"motion": 1, "motion timer": 1, "light": int(value >= 100), "illuminance": value}
+            if len(xobj) == 3:
+                (value,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
+                # MJYD02YL:  1 - moving no light, 100 - moving with light
+                # RTCGQ02LM: 0 - moving no light, 256 - moving with light
+                # CGPR1:     moving, value is illumination in lux
+                return {"motion": 1, "motion timer": 1, "light": int(value >= 100), "illuminance": value}
+            else:
+                return {}
 
         def obj0110(xobj):
             if xobj[2] == 0:
@@ -396,30 +399,45 @@ class HCIdump(Thread):
             return {"button": press}
 
         def obj0410(xobj):
-            (temp,) = T_STRUCT.unpack(xobj)
-            return {"temperature": temp / 10}
+            if len(xobj) == 2:
+                (temp,) = T_STRUCT.unpack(xobj)
+                return {"temperature": temp / 10}
+            else:
+                return {}
 
         def obj0510(xobj):
             return {"switch": xobj[0], "temperature": xobj[1]}
 
         def obj0610(xobj):
-            (humi,) = H_STRUCT.unpack(xobj)
-            return {"humidity": humi / 10}
+            if len(xobj) == 2:
+                (humi,) = H_STRUCT.unpack(xobj)
+                return {"humidity": humi / 10}
+            else:
+                return {}
 
         def obj0710(xobj):
-            (illum,) = ILL_STRUCT.unpack(xobj + b'\x00')
-            return {"illuminance": illum, "light": 1 if illum == 100 else 0}
+            if len(xobj) == 3:
+                (illum,) = ILL_STRUCT.unpack(xobj + b'\x00')
+                return {"illuminance": illum, "light": 1 if illum == 100 else 0}
+            else:
+                return {}
 
         def obj0810(xobj):
             return {"moisture": xobj[0]}
 
         def obj0910(xobj):
-            (cond,) = CND_STRUCT.unpack(xobj)
-            return {"conductivity": cond}
+            if len(xobj) == 2:
+                (cond,) = CND_STRUCT.unpack(xobj)
+                return {"conductivity": cond}
+            else:
+                return {}
 
         def obj1010(xobj):
-            (fmdh,) = FMDH_STRUCT.unpack(xobj)
-            return {"formaldehyde": fmdh / 100}
+            if len(xobj) == 2:
+                (fmdh,) = FMDH_STRUCT.unpack(xobj)
+                return {"formaldehyde": fmdh / 100}
+            else:
+                return {}
 
         def obj1210(xobj):
             return {"switch": xobj[0]}
@@ -431,10 +449,13 @@ class HCIdump(Thread):
             return {"moisture": xobj[0]}
 
         def obj1710(xobj):
-            (motion,) = M_STRUCT.unpack(xobj)
-            # seconds since last motion detected message (not used, we use motion timer in obj0f00)
-            # 0 = motion detected
-            return {"motion": 1 if motion == 0 else 0}
+            if len(xobj) == 4:
+                (motion,) = M_STRUCT.unpack(xobj)
+                # seconds since last motion detected message (not used, we use motion timer in obj0f00)
+                # 0 = motion detected
+                return {"motion": 1 if motion == 0 else 0}
+            else:
+                return {}
 
         def obj1810(xobj):
             return {"light": xobj[0]}
@@ -453,36 +474,51 @@ class HCIdump(Thread):
                 return {}
 
         def obj0020(xobj):
-            (temp1, temp2, bat) = TTB_STRUCT.unpack(xobj)
-            # Body temperature is calculated from the two measured temperatures.
-            # Formula is based on approximation based on values inthe app in the range 36.5 - 37.8.
-            body_temp = (
-                3.71934 * pow(10, -11) * math.exp(0.69314 * temp1 / 100)
-                - 1.02801 * pow(10, -8) * math.exp(0.53871 * temp2 / 100)
-                + 36.413
-            )
-            return {"temperature": body_temp, "battery": bat}
+            if len(xobj) == 5:
+                (temp1, temp2, bat) = TTB_STRUCT.unpack(xobj)
+                # Body temperature is calculated from the two measured temperatures.
+                # Formula is based on approximation based on values inthe app in the range 36.5 - 37.8.
+                body_temp = (
+                    3.71934 * pow(10, -11) * math.exp(0.69314 * temp1 / 100)
+                    - 1.02801 * pow(10, -8) * math.exp(0.53871 * temp2 / 100)
+                    + 36.413
+                )
+                return {"temperature": body_temp, "battery": bat}
+            else:
+                return {}
 
         # Qingping BLE advertisements
         def obj0104(xobj):
-            (temp, humi) = TH_STRUCT.unpack(xobj)
-            return {"temperature": temp / 10, "humidity": humi / 10}
+            if len(xobj) == 4:
+                (temp, humi) = TH_STRUCT.unpack(xobj)
+                return {"temperature": temp / 10, "humidity": humi / 10}
+            else:
+                return {}
 
         def obj0201(xobj):
             return {"battery": xobj[0]}
 
         def obj0702(xobj):
-            (pres,) = P_STRUCT.unpack(xobj)
-            return {"pressure": pres / 10}
+            if len(xobj) == 2:
+                (pres,) = P_STRUCT.unpack(xobj)
+                return {"pressure": pres / 10}
+            else:
+                return {}
 
         # ATC BLE advertisements
         def objATC_short(xobj):
-            (temp, humi, batt, volt) = THBV_STRUCT.unpack(xobj)
-            return {"temperature": temp / 10, "humidity": humi, "voltage": volt / 1000, "battery": batt}
+            if len(xobj) == 6:
+                (temp, humi, batt, volt) = THBV_STRUCT.unpack(xobj)
+                return {"temperature": temp / 10, "humidity": humi, "voltage": volt / 1000, "battery": batt}
+            else:
+                return {}
 
         def objATC_long(xobj):
-            (temp, humi, volt, batt) = THVB_STRUCT.unpack(xobj)
-            return {"temperature": temp / 100, "humidity": humi / 100, "voltage": volt / 1000, "battery": batt}
+            if len(xobj) == 7:
+                (temp, humi, volt, batt) = THVB_STRUCT.unpack(xobj)
+                return {"temperature": temp / 100, "humidity": humi / 100, "voltage": volt / 1000, "battery": batt}
+            else:
+                return {}
 
         def reverse_mac(rmac):
             """Change LE order to BE."""
