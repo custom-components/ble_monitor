@@ -14,9 +14,11 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.1.4
+# Changes in 1.2.0
 
-- Errors in parser have moved to debug level to avoid unnecessary errors in the log.
+- pycryptodomex is bumped to 3.10.1
+- Extra check for data length is added before applying struct, fixes #233
+- Version number is added to manifest. This is required for Home Assistant 2021.3 and above for custom components, see https://developers.home-assistant.io/blog/2021/01/29/custom-integration
 
 {% endif %}
 
