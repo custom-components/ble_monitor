@@ -82,11 +82,13 @@ DEVICE_SCHEMA = vol.Schema(
     }
 )
 
+HCI_LIST = [0, 1, 2]
+
 DOMAIN_SCHEMA = vol.Schema(
     {
         vol.Optional(
             CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
-        ): cv.multi_select({"0": "0", "1": "1", "2": "2"}),
+        ): cv.multi_select(HCI_LIST),
         vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
         vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
         vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
@@ -347,7 +349,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     default=self.config_entry.options.get(
                         CONF_HCI_INTERFACE, DEFAULT_HCI_INTERFACE
                     ),
-                ): cv.multi_select({"0": "0", "1": "1", "2": "2"}),
+                ): cv.multi_select(HCI_LIST),
                 vol.Optional(
                     CONF_PERIOD,
                     default=self.config_entry.options.get(
