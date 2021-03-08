@@ -13,11 +13,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.2.0
+# Changes in 1.3.0
 
-- pycryptodomex is bumped to 3.10.1
-- Extra check for data length is added before applying struct, fixes #233
-- Version number is added to manifest. This is required for Home Assistant 2021.3 and above for custom components, see https://developers.home-assistant.io/blog/2021/01/29/custom-integration
+- Fix for not being able to modify the options of BLE Monitor after an update to Home Assistant core 2021.3
+- Fix for not being able to add the BLE Monitor integration after an update to Home Assistant core 2021.3
 
 {% endif %}
 
