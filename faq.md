@@ -206,51 +206,51 @@ There are several ways to increase coverage:
 
 The BLE messages from some sensors are encrypted. To decrypt these messages, you need to configure the encryption key. The encryption key (also called bind key) is visible at the moment it is created, e.g. when adding the sensor to the MiHome app, but it is also stored in the Xiaomi cloud. There are several ways to get the encryption key. The first 2 options are the easiest:
 
-1. Xiaomi Cloud Tokens Extractor
+**1. Xiaomi Cloud Tokens Extractor**
 
-    Get the encryption key with a python script called [Xiaomi Cloud Token Extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). The script logs in on the Xiaomi Cloud (password of your Xiaomi account is required) and extracts information. You will get a list of all devices that are added to the MiHome app. Look for your sensor in the list and copy the `BLE KEY`. If the key ends with `FFFFFFFF`, the sensor does not require an encryption key. This method works on Windows (use the exe file) as well as Linux (or any platform that runs python).
+Get the encryption key with a python script called [Xiaomi Cloud Token Extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). The script logs in on the Xiaomi Cloud (password of your Xiaomi account is required) and extracts information. You will get a list of all devices that are added to the MiHome app. Look for your sensor in the list and copy the `BLE KEY`. If the key ends with `FFFFFFFF`, the sensor does not require an encryption key. This method works on Windows (use the exe file) as well as Linux (or any platform that runs python).
 
 
-2. TelinkFlasher (LYWSD03MMC sensors only)
+**2. TelinkFlasher (LYWSD03MMC sensors only)**
 
-    Get the encryption key with the online tool on the [TelinkFlasher website](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html).
+Get the encryption key with the online tool on the [TelinkFlasher website](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html).
 
-    ![Telink Flasher](/pictures/Telink_flasher_website.png)
+![Telink Flasher](/pictures/Telink_flasher_website.png)
 
-    - Keep the sensor close to the mobile phone (Android only) or PC.
-    - Make sure that the bluetooth is enabled.
-    - Using your browser, navigate to [this page](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html).
-    - If using Linux: Ensure you enabled "experimental web platform features". Therefore copy the according link (i.e. chrome://flags/#enable-experimental-web-platform-features for Chrome), open a new browser tab, paste the copied URL. Now sten the Experimental Web Platform features flag to Enabled. Then restart the browser.
-    - Now, click the [Connect] button (1) and wait until it shows "Connected." See the Log section at the bottom. Choose the according target device (i.e. LYWSD03MMC) to pair.
-    - Once connected, click the [Do Activation] button (2) and wait until the "Mi Bind Key" (3) shows the information.
+- Keep the sensor close to the mobile phone (Android only) or PC.
+- Make sure that the bluetooth is enabled.
+- Using your browser, navigate to [this page](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html).
+- If using Linux: Ensure you enabled "experimental web platform features". Therefore copy the according link (i.e. chrome://flags/#enable-experimental-web-platform-features for Chrome), open a new browser tab, paste the copied URL. Now sten the Experimental Web Platform features flag to Enabled. Then restart the browser.
+- Now, click the [Connect] button (1) and wait until it shows "Connected." See the Log section at the bottom. Choose the according target device (i.e. LYWSD03MMC) to pair.
+- Once connected, click the [Do Activation] button (2) and wait until the "Mi Bind Key" (3) shows the information.
 
-    Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore. If you want to use MiHome and our custom component at the same time, follow the instructions [here](https://github.com/pvvx/ATC_MiThermometer/issues/51)
+Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore. If you want to use MiHome and our custom component at the same time, follow the instructions [here](https://github.com/pvvx/ATC_MiThermometer/issues/51)
     
   
-3. MiHome mod (Android only) 
+**3. MiHome mod (Android only)**
 
-    Get the key with the customized [MiHome mod](https://www.kapiba.ru/2017/11/mi-home.html) with the following steps.
+Get the key with the customized [MiHome mod](https://www.kapiba.ru/2017/11/mi-home.html) with the following steps.
 
-    - You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
-    - Create a folder `/devicestorage/vevs/logs`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app. 
+- You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
+- Create a folder `/devicestorage/vevs/logs`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app. 
 - [Download](https://www.kapiba.ru/2017/11/mi-home.html) MiHome mod and install the MiHome mod apk on your android phone. Use google translate to translate the website, as the website is only available in Russian. At the bottom, you will find the download link to the latest version. MiHome mod is basically just MiHome with some translatons from chinese to English and Russian, but also with the possibility to save the encryption key.
-    - During setup of the app, give access to the local device storage.
-    - Add the sensor device to the MiHome app.
-    - After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod. 
+- During setup of the app, give access to the local device storage.
+- Add the sensor device to the MiHome app.
+- After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod. 
 
 
-4. Intercepting the MiHome application traffic
+**4. Intercepting the MiHome application traffic**
 
-    Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms). 
+Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms). 
 
-    Unfortunately, Xiaomi has enabled additional encryption of API requests recently, and therefore the procedure for intercepting traffic has become much more complicated. Most of the instructions below won't work anymore, as they are written at the time before encryption was enabled, but we are currently (successfully) looking into the [Charles proxy method](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122) to deal with this encryption. If you are successfull with this or one of the other methods, please open an issue and share the steps you took with us. 
+Unfortunately, Xiaomi has enabled additional encryption of API requests recently, and therefore the procedure for intercepting traffic has become much more complicated. Most of the instructions below won't work anymore, as they are written at the time before encryption was enabled, but we are currently (successfully) looking into the [Charles proxy method](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122) to deal with this encryption. If you are successfull with this or one of the other methods, please open an issue and share the steps you took with us. 
 
-      - iOS:
-        - [using Charles proxy, paid $7-10](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595327131). For more detailed instructions, check [these instructions](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122).
-        - [using Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex). For more detailed instructions, check [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex) or [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex).
-      - Android:
-        - using Packet Capture.
-        - [using Burp Suite](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-599780750), device must be rooted.
+  - iOS:
+    - [using Charles proxy, paid $7-10](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595327131). For more detailed instructions, check [these instructions](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122).
+    - [using Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex). For more detailed instructions, check [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex) or [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex).
+  - Android:
+    - using Packet Capture.
+    - [using Burp Suite](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-599780750), device must be rooted.
 
 ## OTHER ISSUES
 
@@ -284,7 +284,7 @@ logger:
 - Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.
 - Wait for a response from the developers.
 
-The BLE advertisements, which are collected with the above procedure, can also be collected with `hcidump` with the following command (leave it running for a couple of minutes). 
+The BLE advertisements, which are collected with the above procedure, can also be collected with `hcidump` with the following command (leave it running for a couple of minutes). If you are using a full Home Assistant installation including Home Assistant OS, etc, you will have to follow [this procedure](https://developers.home-assistant.io/docs/operating-system/debugging/) first to get access to these commands.
 
 ```shell
 sudo hcidump --raw hci > dump.txt
@@ -371,14 +371,13 @@ logger:
 ```
 
 In addition, the `btmon` utility can provide a lot of useful information.
-For example, using the command
+For example, using the command. 
 
 ```shell
 btmon --write hcitrace.snoop | tee hcitrace.txt
 ```
 
 You can write to the hcitrace.snoop and hcitrace.txt files the moment the problem occurs and attach this files to your issue.
-
 
 ## FORUM
 
