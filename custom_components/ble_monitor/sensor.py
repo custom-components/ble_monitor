@@ -189,8 +189,8 @@ class BLEupdater():
                         except KeyError:
                             batt_attr = None
                 # measuring sensors
-                if "temperature" in data:
-                    # dirty hack for kettle temperature data
+                if "temperature" in data and (t_i != 9):
+                    # schedule an immediate update of kettle temperature
                     if sensortype in KETTLES:
                         entity = sensors[t_i]
                         entity.collect(data, batt_attr)
@@ -212,7 +212,7 @@ class BLEupdater():
                                 data["temperature"],
                                 mac,
                             )
-                if "humidity" in data:
+                if "humidity" in data and (h_i != 9):
                     if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
                         sensors[h_i].collect(data, batt_attr)
                     elif self.log_spikes:
@@ -221,25 +221,21 @@ class BLEupdater():
                             data["humidity"],
                             mac,
                         )
-                if "conductivity" in data:
+                if "conductivity" in data and (c_i != 9):
                     sensors[c_i].collect(data, batt_attr)
-                if "pressure" in data:
+                if "pressure" in data and (p_i != 9):
                     sensors[p_i].collect(data, batt_attr)
-                if "moisture" in data:
+                if "moisture" in data and (m_i != 9):
                     sensors[m_i].collect(data, batt_attr)
-                if "illuminance" in data:
-                    try:
-                        sensors[i_i].collect(data, batt_attr)
-                    except IndexError:
-                        # pass for dummy illuminance sensor of MJYD02YL
-                        pass
-                if "formaldehyde" in data:
+                if "illuminance" in data and (i_i != 9):
+                    sensors[i_i].collect(data, batt_attr)
+                if "formaldehyde" in data and (f_i != 9):
                     sensors[f_i].collect(data, batt_attr)
-                if "consumable" in data:
+                if "consumable" in data and (cn_i != 9):
                     sensors[cn_i].collect(data, batt_attr)
-                # schedule an immediate update of button sensors
-                if "button" in data:
+                if "button" in data and (bu_i != 9):
                     button = sensors[bu_i]
+                    # schedule an immediate update of button sensors
                     button.collect(data, batt_attr)
                     if button.ready_for_update is True:
                         button.rssi_values = rssi[mac].copy()
@@ -247,7 +243,7 @@ class BLEupdater():
                         rssi[mac].clear()
                         button.pending_update = False
                 if self.batt_entities:
-                    if "voltage" in data:
+                    if "voltage" in data and (v_i != 9):
                         try:
                             sensors[v_i].collect(data, batt_attr)
                         except IndexError:

@@ -146,35 +146,35 @@ class BLEupdaterBinary():
                         except KeyError:
                             batt_attr = None
                 # schedule an immediate update of binary sensors
-                if "switch" in data:
+                if "switch" in data and (sw_i != 9):
                     switch = sensors[sw_i]
                     switch.collect(data, batt_attr)
                     if switch.pending_update is True:
                         switch.async_schedule_update_ha_state(True)
                     elif switch.ready_for_update is False and switch.enabled is True:
                         hpriority.append(switch)
-                if "opening" in data:
+                if "opening" in data and (op_i != 9):
                     opening = sensors[op_i]
                     opening.collect(data, batt_attr)
                     if opening.pending_update is True:
                         opening.async_schedule_update_ha_state(True)
                     elif opening.ready_for_update is False and opening.enabled is True:
                         hpriority.append(opening)
-                if "light" in data:
+                if "light" in data and (l_i != 9):
                     light = sensors[l_i]
                     light.collect(data, batt_attr)
                     if light.pending_update is True:
                         light.async_schedule_update_ha_state(True)
                     elif light.ready_for_update is False and light.enabled is True:
                         hpriority.append(light)
-                if "moisture" in data:
+                if "moisture" in data and (mo_i != 9):
                     moisture = sensors[mo_i]
                     moisture.collect(data, batt_attr)
                     if moisture.pending_update is True:
                         moisture.async_schedule_update_ha_state(True)
                     elif moisture.ready_for_update is False and moisture.enabled is True:
                         hpriority.append(moisture)
-                if "motion" in data:
+                if "motion" in data and (mn_i != 9):
                     motion = sensors[mn_i]
                     motion.collect(data, batt_attr)
                     if motion.pending_update is True:
