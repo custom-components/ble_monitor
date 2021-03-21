@@ -277,7 +277,7 @@ ble_monitor:
 
 #### temperature_unit
 
-   (C or F)(Optional) Most sensors are sending BLE advertisements with temperature data in Celsius (C), even when set to Fahrenheit (F) in the MiHome app. However, sensors with custom ATC firmware will start sending temperature data in Fahrenheit (F) after changing the display from Celsius to Fahrenheit. This means that you will have to tell `ble_monitor` that it should expect Fahrenheit data for these specific sensors, by setting this option to Fahrenheit (F). Default value: C
+   (C or F)(Optional) Most sensors are sending BLE advertisements with temperature data in Celsius (C), even when set to Fahrenheit (F) in the MiHome app. However, sensors with custom ATC firmware will start sending temperature data in Fahrenheit (F) after changing the display from Celsius to Fahrenheit. This means that you will have to tell `ble_monitor` that it should expect Fahrenheit data for these specific sensors, by setting this option to Fahrenheit (F). Note that Home Assistant is always converting measurements to C or F based on your Unit System setting in Configuration - General. Default value: C
 
 ```yaml
 ble_monitor:
