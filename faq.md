@@ -224,7 +224,7 @@ Get the encryption key with the online tool on the [TelinkFlasher website](https
 - Now, click the [Connect] button (1) and wait until it shows "Connected." See the Log section at the bottom. Choose the according target device (i.e. LYWSD03MMC) to pair.
 - Once connected, click the [Do Activation] button (2) and wait until the "Mi Bind Key" (3) shows the information.
 
-Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore. If you want to use MiHome and our custom component at the same time, follow the instructions [here](https://github.com/pvvx/ATC_MiThermometer/issues/51)
+Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore. 
     
   
 **3. MiHome mod (Android only)**
