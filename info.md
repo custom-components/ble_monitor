@@ -5,10 +5,9 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.3.0-beta
+# Changes in 1.3.1-beta
 
-- Fix for not being able to modify the options of BLE Monitor after an update to Home Assistant core 2021.3
-- Fix for not being able to add the BLE Monitor integration after an update to Home Assistant core 2021.3
+- Fix for Qingping CGPR1 Motion & Ambient Light Sensor (fix for #306)
 
 {% endif %}
 {% if installed or pending_update %}
@@ -63,7 +62,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 |**CGD1**|Qingping Cleargrass CGD1 alarm clock, segment LCD, broadcasts temperature and humidity (once in about 10 minutes), and battery level (we do not have accurate periodicity information yet). The sensor sends BLE advertisements in Xiaomi MiBeacon format and Qingping format. Qingping advertisements are not encrypted. Xiaomi MiBeacon advertisements are encrypted, if you want to receive both advertisements, you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![CGD1](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/CGD1.jpg)|
 |**CGP1W**|Qingping Cleargrass indoor weather station with Atmospheric pressure measurement, broadcasts temperature, humidity, air pressure and and battery level (we do not have accurate periodicity information yet).|![CGP1W](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/CGP1W.jpg)|
 |**MHO-C303**|Alarm clock, rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute.|![MHO-C303](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/MHO-C303.png)|
-|**MHO-C401**|Alarm clock, small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![MHO-C401](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/MHO-C401.jpg)|
+|**MHO-C401**|Alarm clock, small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.<br /><br />`ble_monitor` also supports custom ATC firmware available [here](https://github.com/pvvx/ATC_MiThermometer). It has not been confirmed working yet, but will most likely work (please confirm if working for CGG1 by creating an issue).|![MHO-C401](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/MHO-C401.jpg)|
 |**JQJCY01YM**|Xiaomi Honeywell Formaldehyde Sensor, OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute.|![supported sensors](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/JQJCY01YM.jpg)|
 |**HHCCJCY01**|MiFlora plant sensor, broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1.|![HHCCJCY01](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/HHCCJCY01.jpg)|
 |**GCLS002**|VegTrug Grow Care Garden, similar to MiFlora HHCCJCY01.|![GCLS002](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/GCLS002.png)|
