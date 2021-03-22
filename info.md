@@ -12,10 +12,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.3.0
+# Changes in 1.3.1
 
-- Fix for not being able to modify the options of BLE Monitor after an update to Home Assistant core 2021.3
-- Fix for not being able to add the BLE Monitor integration after an update to Home Assistant core 2021.3
+- Fix for Qingping CGPR1 Motion & Ambient Light Sensor (fix for #306)
 
 {% endif %}
 
