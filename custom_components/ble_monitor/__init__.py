@@ -1058,7 +1058,18 @@ class HCIdump(Thread):
         # parse BLE message in ATC format
         # Check for the atc1441 or custom format
         is_custom_adv = True if data[atc_index - 1] == 18 else False
-        firmware = "ATC (custom)" if is_custom_adv else "ATC firmware (ATC1441)"
+        # Check for old format (ATC firmware <= 2.8)
+        old_format = True if data.find(b"\x02\x01\x06", atc_index - 4, atc_index - 1) == -1 else False
+        if is_custom_adv:
+            if old_format:
+                firmware = "ATC firmware <2.9 (custom)"
+            else:
+                firmware = "ATC firmware (custom)"
+        else:
+            if old_format:
+                firmware = "ATC firmware <2.9 (ATC1441)"
+            else:
+                firmware = "ATC firmware (ATC1441)"
 
         # check for BTLE msg size
         msg_length = data[2] + 3
@@ -1072,7 +1083,7 @@ class HCIdump(Thread):
         else:
             atc_mac = data[atc_index + 3:atc_index + 9]
 
-        mac_index = atc_index - (22 if is_ext_packet else 8)
+        mac_index = atc_index - (22 if is_ext_packet else 8) - (0 if old_format else 3)
         source_mac_reversed = data[mac_index:mac_index + 6]
         source_mac = source_mac_reversed[::-1]
         if atc_mac != source_mac:
