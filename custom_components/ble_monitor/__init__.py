@@ -4,6 +4,7 @@ import copy
 import json
 import logging
 import math
+import platform
 import struct
 from threading import Thread
 import janus
@@ -128,7 +129,7 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
                     vol.Optional(
                         CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
-                    ): vol.All(cv.ensure_list, [cv.positive_int]),
+                    ): vol.All(cv.ensure_list, [cv.string]),
                     vol.Optional(
                         CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
                     ): cv.boolean,
@@ -148,6 +149,21 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 SERVICE_CLEANUP_ENTRIES_SCHEMA = vol.Schema({})
+
+
+if platform.system() == "Linux":
+    from ctypes import CDLL
+    from ctypes.util import find_library
+
+    btlib = find_library("bluetooth")
+    if not btlib:
+        raise Exception(
+            "Can't find required bluetooth libraries"
+            " (need to install bluez)"
+        )
+    bluez = CDLL(btlib, use_errno=True)
+else:
+    bluez = None
 
 
 async def async_setup(hass: HomeAssistant, config):
@@ -247,7 +263,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     else:
         hci_list = config_entry.options.get(CONF_HCI_INTERFACE)
         for i, hci in enumerate(hci_list):
-            hci_list[i] = int(hci)
+            hci_list[i] = str(hci)
         config[CONF_HCI_INTERFACE] = hci_list
     _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
 
@@ -627,11 +643,15 @@ class HCIdump(Thread):
             if self._event_loop is None:
                 self._event_loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(self._event_loop)
-            for hci in self._interfaces:
+            for hci, addr in enumerate(self._interfaces):
                 try:
-                    mysocket[hci] = aiobs.create_bt_socket(hci)
+                    if type(addr) == int or addr.isdigit():
+                        dev_id = int(addr)
+                    else:
+                        dev_id = bluez.hci_get_route(addr)
+                    mysocket[hci] = aiobs.create_bt_socket(dev_id)
                 except OSError as error:
-                    _LOGGER.error("HCIdump thread: OS error (hci%i): %s", hci, error)
+                    _LOGGER.error("HCIdump thread: OS error (hci%i): %s", addr, error)
                 else:
                     fac[hci] = getattr(self._event_loop, "_create_connection_transport")(
                         mysocket[hci], aiobs.BLEScanRequester, None, None
@@ -650,7 +670,7 @@ class HCIdump(Thread):
                 self._event_loop.run_forever()
             finally:
                 _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
-                for hci in self._interfaces:
+                for hci, addr in enumerate(self._interfaces):
                     try:
                         self._event_loop.run_until_complete(btctrl[hci].stop_scan_request())
                     except RuntimeError as error:
