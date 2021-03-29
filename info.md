@@ -12,9 +12,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.3.1
+# Changes in 1.4.0
 
-- Fix for Qingping CGPR1 Motion & Ambient Light Sensor (fix for #306)
+- Add support for ATC firmware v2.9 and above. 
 
 {% endif %}
 
