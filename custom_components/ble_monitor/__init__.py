@@ -1058,18 +1058,12 @@ class HCIdump(Thread):
         # parse BLE message in ATC format
         # Check for the atc1441 or custom format
         is_custom_adv = True if data[atc_index - 1] == 18 else False
+        if is_custom_adv:
+            firmware = "ATC firmware (custom)"
+        else:
+            firmware = "ATC firmware (ATC1441)"
         # Check for old format (ATC firmware <= 2.8)
         old_format = True if data.find(b"\x02\x01\x06", atc_index - 4, atc_index - 1) == -1 else False
-        if is_custom_adv:
-            if old_format:
-                firmware = "ATC firmware <2.9 (custom)"
-            else:
-                firmware = "ATC firmware (custom)"
-        else:
-            if old_format:
-                firmware = "ATC firmware <2.9 (ATC1441)"
-            else:
-                firmware = "ATC firmware (ATC1441)"
 
         # check for BTLE msg size
         msg_length = data[2] + 3
@@ -1138,7 +1132,8 @@ class HCIdump(Thread):
         xdata_point = atc_index + 9
 
         # check if parse_atc data start and length is valid
-        if xdata_length != len(data[xdata_point:(-3 if (is_custom_adv and not is_ext_packet) else -2)]):
+        xdata_end_offset = (-1 if is_ext_packet else -2) + (-1 if is_custom_adv else 0)
+        if xdata_length != len(data[xdata_point:xdata_end_offset]):
             raise NoValidError("Invalid data length")
 
         result = {
