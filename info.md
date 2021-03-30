@@ -12,9 +12,9 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.4.0
+# Changes in 1.4.1
 
-- Add support for ATC firmware v2.9 and above. 
+- Fix parsing of ATC BLE messages (atc1441 format in combination with extended message format). 
 
 {% endif %}
 
