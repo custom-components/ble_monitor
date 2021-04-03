@@ -43,7 +43,6 @@ from .const import (
     DEFAULT_REPORT_UNKNOWN,
     DEFAULT_DISCOVERY,
     DEFAULT_RESTORE_STATE,
-    DEFAULT_HCI_INTERFACE,
     DEFAULT_DEVICE_DECIMALS,
     DEFAULT_DEVICE_USE_MEDIAN,
     DEFAULT_DEVICE_RESTORE_STATE,
@@ -55,6 +54,7 @@ from .const import (
     CONF_USE_MEDIAN,
     CONF_ACTIVE_SCAN,
     CONF_HCI_INTERFACE,
+    CONF_BT_INTERFACE,
     CONF_BATT_ENTITIES,
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
@@ -93,6 +93,12 @@ P_STRUCT = struct.Struct("<H")
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
 
+BT_INTERFACES = aiobs.get_bt_interface_mac([0, 1, 2, 3])
+BT_HCI_INTERFACES = list(BT_INTERFACES.keys())
+BT_MAC_INTERFACES = list(BT_INTERFACES.values())
+DEFAULT_BT_INTERFACE = list(BT_INTERFACES.items())[0][1]
+DEFAULT_HCI_INTERFACE = list(BT_INTERFACES.items())[0][0]
+
 DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
@@ -127,8 +133,11 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
                     vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
                     vol.Optional(
-                        CONF_HCI_INTERFACE, default=[DEFAULT_HCI_INTERFACE]
+                        CONF_HCI_INTERFACE, default=[]
                     ): vol.All(cv.ensure_list, [cv.positive_int]),
+                    vol.Optional(
+                        CONF_BT_INTERFACE, default=DEFAULT_BT_INTERFACE
+                    ): vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]),
                     vol.Optional(
                         CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
                     ): cv.boolean,
@@ -204,8 +213,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     _LOGGER.debug("async_setup_entry: domain %s", CONFIG_YAML)
 
     config = {}
+    hci_list = []
+    bt_mac_list = []
 
     if not CONFIG_YAML:
+        # Configuration in UI
         for key, value in config_entry.data.items():
             config[key] = value
 
@@ -224,17 +236,55 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                     if CONF_NAME in dev_conf:
                         devlist[dev_idx][CONF_UNIQUE_ID] = dev_conf[CONF_NAME]
                 del config["ids_from_name"]
+
+        if not config[CONF_BT_INTERFACE]:
+            default_hci = list(BT_INTERFACES.keys())[list(BT_INTERFACES.values()).index(DEFAULT_BT_INTERFACE)]
+            hci_list.append(int(default_hci))
+            bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
+        else:
+            bt_interface_list = config_entry.options.get(CONF_BT_INTERFACE)
+            for bt_mac in bt_interface_list:
+                hci = list(BT_INTERFACES.keys())[list(BT_INTERFACES.values()).index(bt_mac)]
+                hci_list.append(int(hci))
+                bt_mac_list.append(str(bt_mac))
     else:
+        # Configuration in YAML
         for key, value in CONFIG_YAML.items():
             config[key] = value
-        if CONF_HCI_INTERFACE in CONFIG_YAML:
-            hci_list = []
-            if isinstance(CONFIG_YAML[CONF_HCI_INTERFACE], list):
-                for hci in CONFIG_YAML[CONF_HCI_INTERFACE]:
-                    hci_list.append(str(hci))
-            else:
-                hci_list.append(str(CONFIG_YAML[CONF_HCI_INTERFACE]))
-            config[CONF_HCI_INTERFACE] = hci_list
+        _LOGGER.warning("Available Bluetooth interfaces for BLE monitor: %s", BT_MAC_INTERFACES)
+
+        if config[CONF_HCI_INTERFACE]:
+            # Configuration of BT interface with hci number
+            for hci in CONFIG_YAML[CONF_HCI_INTERFACE]:
+                try:
+                    hci_list.append(int(hci))
+                    bt_mac = BT_INTERFACES.get(hci)
+                    if bt_mac:
+                        bt_mac_list.append(str(bt_mac))
+                    else:
+                        _LOGGER.error("Bluetooth interface hci%i is not available", hci)
+                except ValueError:
+                    _LOGGER.error("Bluetooth interface hci%i is not available", hci)
+        else:
+            # Configuration of BT interface with mac address
+            CONF_BT_INTERFACES = [x.upper() for x in CONFIG_YAML[CONF_BT_INTERFACE]]
+            for bt_mac in CONF_BT_INTERFACES:
+                try:
+                    hci = list(BT_INTERFACES.keys())[list(BT_INTERFACES.values()).index(bt_mac)]
+                    hci_list.append(int(hci))
+                    bt_mac_list.append(str(bt_mac))
+                except ValueError:
+                    _LOGGER.error("Bluetooth interface with MAC address %s is not available", bt_mac)
+
+    if not hci_list:
+        # Fall back in case no hci interfaces are added
+        default_hci = list(BT_INTERFACES.keys())[list(BT_INTERFACES.values()).index(DEFAULT_BT_INTERFACE)]
+        hci_list.append(int(default_hci))
+        bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
+        _LOGGER.warning("No configured Bluetooth interfaces was found, using default interface instead")
+
+    config[CONF_HCI_INTERFACE] = hci_list
+    config[CONF_BT_INTERFACE] = bt_mac_list
 
     hass.config_entries.async_update_entry(config_entry, data={}, options=config)
 
@@ -242,13 +292,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     UPDATE_UNLISTENER = config_entry.add_update_listener(_async_update_listener)
 
-    if CONF_HCI_INTERFACE not in config:
-        config[CONF_HCI_INTERFACE] = [DEFAULT_HCI_INTERFACE]
-    else:
-        hci_list = config_entry.options.get(CONF_HCI_INTERFACE)
-        for i, hci in enumerate(hci_list):
-            hci_list[i] = int(hci)
-        config[CONF_HCI_INTERFACE] = hci_list
     _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
 
     blemonitor = BLEmonitor(config)
@@ -284,6 +327,33 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
         blemonitor.stop()
 
     return unload_ok
+
+
+async def async_migrate_entry(hass, config_entry):
+    """Migrate config entry to new version."""
+    if config_entry.version == 1:
+        options = dict(config_entry.options)
+        hci_list = options.get(CONF_HCI_INTERFACE)
+        bt_mac_list = []
+        for hci in hci_list:
+            try:
+                bt_mac = BT_INTERFACES.get(hci)
+                if bt_mac:
+                    bt_mac_list.append(str(bt_mac))
+                else:
+                    _LOGGER.error("hci%i is not migrated, check the BLE monitor options", hci)
+            except ValueError:
+                _LOGGER.error("hci%i is not migrated, check the BLE monitor options", hci)
+        if not bt_mac_list:
+            # Fall back in case no hci interfaces are added
+            bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
+            _LOGGER.warning("Migration of hci interface to Bluetooth mac address failed, using default MAC address")
+        options[CONF_BT_INTERFACE] = bt_mac_list
+
+        config_entry.version = 2
+        hass.config_entries.async_update_entry(config_entry, options=options)
+        _LOGGER.info("Migrated config entry to version %d", config_entry.version)
+    return True
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:

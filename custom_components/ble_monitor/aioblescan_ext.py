@@ -25,7 +25,7 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 # IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
-import socket, platform, asyncio
+import socket, platform, asyncio, subprocess
 from struct import pack, unpack, calcsize
 
 
@@ -1765,6 +1765,19 @@ def create_bt_socket(interface=None):
         )
     return sock
 
+
+def get_bt_interface_mac(interface_list=[0]):
+    # Get dict of available bluetooth interfaces, returns hci and mac
+    btaddress_dict = {}
+    status, output = subprocess.getstatusoutput("hciconfig")
+
+    for interface in interface_list:
+        hci_id = "hci{}".format(interface)
+        try:
+            btaddress_dict[interface] = output.split("{}:".format(hci_id))[1].split("BD Address: ")[1].split(" ")[0].strip()
+        except IndexError:
+            pass
+    return btaddress_dict
 
 ###########
 
