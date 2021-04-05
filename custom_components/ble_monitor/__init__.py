@@ -96,9 +96,16 @@ UPDATE_UNLISTENER = None
 BT_INTERFACES = aiobs.get_bt_interface_mac([0, 1, 2, 3])
 BT_HCI_INTERFACES = list(BT_INTERFACES.keys())
 BT_MAC_INTERFACES = list(BT_INTERFACES.values())
-DEFAULT_BT_INTERFACE = list(BT_INTERFACES.items())[0][1]
-DEFAULT_HCI_INTERFACE = list(BT_INTERFACES.items())[0][0]
-
+try:
+    DEFAULT_BT_INTERFACE = list(BT_INTERFACES.items())[0][1]
+    DEFAULT_HCI_INTERFACE = list(BT_INTERFACES.items())[0][0]
+except IndexError:
+    DEFAULT_BT_INTERFACE = '00:00:00:00:00:00'
+    DEFAULT_HCI_INTERFACE = 0
+    BT_HCI_INTERFACES = [0]
+    BT_MAC_INTERFACES = ['00:00:00:00:00:00']
+    _LOGGER.error("No Bluetooth interface found. Make sure Bluetooth is installed on your system")
+    
 DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
@@ -242,7 +249,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             hci_list.append(int(default_hci))
             bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
         else:
-            bt_interface_list = config_entry.options.get(CONF_BT_INTERFACE)
+            bt_interface_list = config(CONF_BT_INTERFACE)
             for bt_mac in bt_interface_list:
                 hci = list(BT_INTERFACES.keys())[list(BT_INTERFACES.values()).index(bt_mac)]
                 hci_list.append(int(hci))
