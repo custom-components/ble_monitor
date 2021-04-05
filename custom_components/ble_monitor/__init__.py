@@ -249,7 +249,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             hci_list.append(int(default_hci))
             bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
         else:
-            bt_interface_list = config(CONF_BT_INTERFACE)
+            bt_interface_list = config[CONF_BT_INTERFACE]
             for bt_mac in bt_interface_list:
                 hci = list(BT_INTERFACES.keys())[list(BT_INTERFACES.values()).index(bt_mac)]
                 hci_list.append(int(hci))
