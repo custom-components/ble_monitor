@@ -5,9 +5,18 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.3.1-beta
+# BREAKING CHANGES in 1.5.0-beta 
 
-- Fix for Qingping CGPR1 Motion & Ambient Light Sensor (fix for #306)
+- New configuration option `bt_interface` to specify the MAC address of your Bluetooth interface (e.g. Bluetooth dongle or build-in Bluetooth).
+
+  `bt_interface` is an alternative for the current `hci_interface` option. With `bt_interface` you specify the MAC address of your Bluetooth interface, in stead of the HCI number. The reason for adding this option is that the HCI interface number can change, e.g. when restarting Home Assistant, while the MAC address won't change. It is therefore advised to use `bt_interface`. For backwards compatibility the `hci_interface` option is still available. 
+  
+  When using YAML to configure BLE monitor, Home Assistant will show the available MAC addresses in the Home Assistant logs when starting up (check the log). 
+  When using the User Interface to configure BLE monitor, your old hci config will be converted to the corresponding MAC address(es) automatically. In the UI, you can only select MAC addresses (a selection list of available MAC addresses will be automatically generated and presented as a selection list). 
+  
+  The breaking change is that, when not specifying a MAC address or HCI number, by default the first MAC address will be used in stead of `hci0`.
+  
+  Note that `hci_interface` will overrule `bt_interface` when using both options at the same time. 
 
 {% endif %}
 {% if installed or pending_update %}
@@ -137,7 +146,7 @@ An example of `configuration.yaml` with all optional parameters is:
 
 ```yaml
 ble_monitor:
-  hci_interface: 0
+  bt_interface: '04:B1:38:2C:84:2B'
   discovery: True
   active_scan: False
   report_unknown: False
@@ -168,9 +177,22 @@ Note: The encryption_key parameter is only needed for sensors, for which it is [
 
 ### Configuration parameters at component level
 
+#### bt_interface
+
+   (MAC address or list of multiple MAC addresses)(Optional) This parameter is used to select the Bluetooth-interface of your Home Assistant host. When using YAML, a list of available Bluetooth-interfaces available on your system is given in the Home Assistant log during startup of the Integration. If you don't specify a MAC address, by default the first interface of the list will be used. If you want to use multiple interfaces, you can use the following configuration:
+
+```yaml
+ble_monitor:
+  bt_interface:
+    - '04:B1:38:2C:84:2B'
+    - '34:DE:36:4F:23:2C'
+```
+
+   Default value: First available MAC address
+
 #### hci_interface
 
-   (positive integer or list of positive integers)(Optional) This parameter is used to select the bt-interface used. 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
+   (positive integer or list of positive integers)(Optional) Like the previous option `bt_interface`, this parameter is also used to select the bt-interface of your Home Assistant host. It is however strongly advised to use the `bt_interface` option and not this `hci_interface` option, as the hci number can change, e.g. when plugging in a dongle. However, due to backwards compatibility, this option is still available. Use 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
 
 ```yaml
 ble_monitor:
@@ -179,7 +201,7 @@ ble_monitor:
     - 1
 ```
 
-   Default value: 0
+   Default value: No default value, `bt_interface` is used as default.
 
 #### discovery
 
