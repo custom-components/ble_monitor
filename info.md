@@ -5,7 +5,7 @@
 
 # NB!: This is a Beta version
 
-# BREAKING CHANGES in 1.5.1-beta 
+# BREAKING CHANGES in 1.5.2-beta 
 
 - New configuration option `bt_interface` to specify the MAC address of your Bluetooth interface (e.g. Bluetooth dongle or build-in Bluetooth).
 
