@@ -5,7 +5,7 @@
 
 # NB!: This is a Beta version
 
-# BREAKING CHANGES in 1.5.0-beta 
+# BREAKING CHANGES in 1.5.1-beta 
 
 - New configuration option `bt_interface` to specify the MAC address of your Bluetooth interface (e.g. Bluetooth dongle or build-in Bluetooth).
 
@@ -16,7 +16,7 @@
   
   The breaking change is that, when not specifying a MAC address or HCI number, by default the first MAC address will be used in stead of `hci0`.
   
-  Note that `hci_interface` will overrule `bt_interface` when using both options at the same time. 
+  Note that `hci_interface` will overrule `bt_interface` when using both options at the same time.
 
 {% endif %}
 {% if installed or pending_update %}
