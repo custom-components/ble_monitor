@@ -13,7 +13,7 @@
           "log_spikes": "Log spikes",
           "use_median": "Use median",
           "active_scan": "Active can",
-          "hci_interface": "HCI interface",
+          "bt_interface": "MAC address Bluetooth interface",
           "report_unknown": "Report unknown",
           "restore_state": "Restore state"
         }
@@ -54,7 +54,7 @@
           "log_spikes": "Log spikes",
           "use_median": "Use median",
           "active_scan": "Active scan",
-          "hci_interface": "HCI interface",
+          "bt_interface": "MAC address Bluetooth interface",
           "report_unknown": "Report unknown",
           "restore_state": "Restore state",
           "not_in_use": "YAML is used, change options in YAML"
