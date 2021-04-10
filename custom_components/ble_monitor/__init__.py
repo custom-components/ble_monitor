@@ -71,6 +71,7 @@ from .const import (
     ATC_TYPE_DICT,
     QINGPING_TYPE_DICT,
     XIAOMI_TYPE_DICT,
+    MISCALE_TYPE_DICT,
     SERVICE_CLEANUP_ENTRIES,
 )
 
@@ -89,6 +90,7 @@ THBV_STRUCT = struct.Struct(">hBBH")
 THVB_STRUCT = struct.Struct("<hHHB")
 M_STRUCT = struct.Struct("<L")
 P_STRUCT = struct.Struct("<H")
+SCALE_STRUCT = struct.Struct("<BB7xHH")
 
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
@@ -105,7 +107,7 @@ except IndexError:
     BT_HCI_INTERFACES = [0]
     BT_MAC_INTERFACES = ['00:00:00:00:00:00']
     _LOGGER.error("No Bluetooth interface found. Make sure Bluetooth is installed on your system")
-    
+
 DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
@@ -597,6 +599,54 @@ class HCIdump(Thread):
             else:
                 return {}
 
+        # MI Scale V1 BLE advertisements
+        def obj1d18(xobj):
+            return {}
+
+        # MI Scale V2 BLE advertisements
+        def obj1b18(xobj):
+            if len(xobj) == 13:
+                (measunit, condition, impedance, weight) = SCALE_STRUCT.unpack(xobj)
+                hasImpedance = condition & (1 << 1)
+                isStabilized = condition & (1 << 5)
+                loadRemoved = condition & (1 << 7)
+
+                if measunit & (1 << 4):
+                    # measurement in Chinese Catty unit
+                    weight = weight / 100
+                    weight_unit = "jin"
+                elif measunit == 3:
+                    # measurement in lbs
+                    weight = weight / 100
+                    weight_unit = "lbs"
+                elif measunit == 2:
+                    # measurement in kg
+                    weight = weight / 200
+                    weight_unit = "kg"
+                else:
+                    # measurement in unknown unit
+                    weight = weight / 100
+                    weight_unit = None
+
+                if isStabilized:
+                    if hasImpedance:
+                        return {
+                            "weight": weight,
+                            "weight unit": weight_unit,
+                            "impedance": impedance,
+                            "load removed": 0 if loadRemoved == 0 else 1
+                        }
+                    else:
+                        return {
+                            "weight": weight,
+                            "weight unit": weight_unit,
+                            "load removed": 0 if loadRemoved == 0 else 1
+                        }
+                else:
+                    return {}
+            else:
+                return {}
+
         def reverse_mac(rmac):
             """Change LE order to BE."""
             if len(rmac) != 12:
@@ -675,6 +725,8 @@ class HCIdump(Thread):
             b'\x07\x02': (obj0702, False, True),
             b'\x10\x16': (objATC_short, False, True),
             b'\x12\x16': (objATC_long, False, True),
+            b'\x1B\x18': (obj1b18, True, True),
+            b'\x1D\x18': (obj1d18, True, True),
         }
 
     def process_hci_events(self, data):
@@ -776,6 +828,8 @@ class HCIdump(Thread):
         xiaomi_index = data.find(b'\x16\x95\xFE', 15 + 15 if is_ext_packet else 0)
         qingping_index = data.find(b'\x16\xCD\xFD', 15 + 15 if is_ext_packet else 0)
         atc_index = data.find(b'\x16\x1A\x18', 15 + 15 if is_ext_packet else 0)
+        miscale_v1_index = data.find(b'\x16\x1D\x18', 15 + 15 if is_ext_packet else 0)
+        miscale_v2_index = data.find(b'\x16\x1B\x18', 15 + 15 if is_ext_packet else 0)
 
         try:
             if xiaomi_index != -1:
@@ -784,6 +838,10 @@ class HCIdump(Thread):
                 return self.parse_qingping(data, qingping_index, is_ext_packet)
             elif atc_index != -1:
                 return self.parse_atc(data, atc_index, is_ext_packet)
+            elif miscale_v1_index != -1:
+                return self.parse_miscale_v1(data, miscale_v1_index, is_ext_packet)
+            elif miscale_v2_index != -1:
+                return self.parse_miscale_v2(data, miscale_v2_index, is_ext_packet)
 
         except NoValidError as nve:
             _LOGGER.debug("Invalid data: %s", nve)
@@ -1237,6 +1295,118 @@ class HCIdump(Thread):
                     "UNKNOWN dataobject from ATC DEVICE: %s, MAC: %s, ADV: %s",
                     sensor_type,
                     ''.join('{:02X}'.format(x) for x in atc_mac[:]),
+                    data.hex()
+                )
+        binary = binary and binary_data
+        return result, binary, measuring
+
+    def parse_miscale_v1(self, data, miscale_v1_index, is_ext_packet):
+        # parse BLE message in MiScale v1 format (NOT IMPLEMENTED YET)
+        if self.report_unknown:
+            _LOGGER.info(
+                "BLE ADV from UNKNOWN Mi SCALE V1 SENSOR: ADV: %s", data.hex()
+            )
+        return None, None, None
+
+    def parse_miscale_v2(self, data, miscale_v2_index, is_ext_packet):
+        # parse BLE message in MiScale v2 format
+        firmware = "MiScale v2"
+
+        # check for no BR/EDR + LE General discoverable mode flags
+        advert_start = 29 if is_ext_packet else 14
+        adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
+        if adv_index == -1:
+            raise NoValidError("Invalid index")
+
+        # check for BTLE msg size
+        msg_length = data[2] + 3
+        if msg_length != len(data):
+            raise NoValidError("Invalid msg size")
+
+        # extract device type
+        device_type = data[miscale_v2_index + 5:miscale_v2_index + 7]
+
+        # check for MAC presence in message and in service data
+        mac_index = adv_index - 14 if is_ext_packet else adv_index
+        miscale_v2_mac_reversed = data[mac_index - 7:mac_index - 1]
+        miscale_v2_mac = miscale_v2_mac_reversed[::-1]
+
+        # check for MAC presence in whitelist, if needed
+        if self.discovery is False and miscale_v2_mac not in self.whitelist:
+            return None, None, None
+
+        packet_id = data[miscale_v2_index + 4]
+        try:
+            prev_packet = self.lpacket_ids[miscale_v2_index]
+        except KeyError:
+            # start with empty first packet
+            prev_packet = None, None, None
+        if prev_packet == packet_id:
+            # only process new messages
+            return None, None, None
+        self.lpacket_ids[miscale_v2_index] = packet_id
+
+        # extract RSSI byte
+        rssi_index = 18 if is_ext_packet else msg_length - 1
+        (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
+
+        # strange positive RSSI workaround
+        if rssi > 0:
+            rssi = -rssi
+        device_type = data[miscale_v2_index + 1:miscale_v2_index + 3]
+        try:
+            sensor_type, binary_data = MISCALE_TYPE_DICT[device_type]
+        except KeyError:
+            if self.report_unknown:
+                _LOGGER.info(
+                    "BLE ADV from UNKNOWN MI SCALE V2 SENSOR: RSSI: %s, MAC: %s, ADV: %s",
+                    rssi,
+                    ''.join('{:02X}'.format(x) for x in miscale_v2_mac[:]),
+                    data.hex()
+                )
+            raise NoValidError("Device unkown")
+
+        # Mi Scale V2 data length = message length
+        # -all bytes before Mi Scale V2 UUID
+        # -3 bytes UUID + ADtype
+        # -1 RSSI (normal, not extended packet only)
+        xdata_length = msg_length - miscale_v2_index - 3 - (0 if is_ext_packet else 1)
+        if xdata_length < 13:
+            raise NoValidError("Xdata length invalid")
+
+        xdata_point = miscale_v2_index + 3
+
+        # check if parse_miscale_v2 data start and length is valid
+        xdata_end_offset = (0 if is_ext_packet else -1)
+        if xdata_length != len(data[xdata_point:xdata_end_offset]):
+            raise NoValidError("Invalid data length")
+
+        result = {
+            "rssi": rssi,
+            "mac": ''.join('{:02X}'.format(x) for x in miscale_v2_mac[:]),
+            "type": sensor_type,
+            "packet": packet_id,
+            "firmware": firmware,
+            "data": True,
+        }
+
+        binary = False
+        measuring = False
+        xvalue_typecode = data[miscale_v2_index + 1:miscale_v2_index + 3]
+        xnext_point = xdata_point + xdata_length
+        xvalue = data[xdata_point:xnext_point]
+
+        resfunc, tbinary, tmeasuring = self._dataobject_dict.get(xvalue_typecode, (None, None, None))
+        if resfunc:
+            binary = binary or tbinary
+            measuring = measuring or tmeasuring
+            result.update(resfunc(xvalue))
+        else:
+            if self.report_unknown:
+                _LOGGER.info(
+                    "UNKNOWN dataobject from Mi Scale v2 DEVICE: %s, MAC: %s, ADV: %s",
+                    sensor_type,
+                    ''.join('{:02X}'.format(x) for x in miscale_v2_mac[:]),
                     data.hex()
                 )
         binary = binary and binary_data
