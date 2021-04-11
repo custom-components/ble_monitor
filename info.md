@@ -21,18 +21,11 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# BREAKING CHANGES in 1.5.2
+# Changes in 1.6.0
 
-- New configuration option `bt_interface` to specify the MAC address of your Bluetooth interface (e.g. Bluetooth dongle or build-in Bluetooth).
-
-  `bt_interface` is an alternative for the current `hci_interface` option. With `bt_interface` you specify the MAC address of your Bluetooth interface, in stead of the HCI number. The reason for adding this option is that the HCI interface number can change, e.g. when restarting Home Assistant, while the MAC address won't change. It is therefore advised to use `bt_interface`. For backwards compatibility the `hci_interface` option is still available. 
+- Added support for Xiaomi Mi Scale V2 (XMTZC02HM, XMTZC05HM, NUN4049CN)
   
-  When using YAML to configure BLE monitor, Home Assistant will show the available MAC addresses in the Home Assistant logs when starting up (check the log). 
-  When using the User Interface to configure BLE monitor, your old hci config will be converted to the corresponding MAC address(es) automatically. In the UI, you can only select MAC addresses (a selection list of available MAC addresses will be automatically generated and presented as a selection list). 
-  
-  The breaking change is that, when not specifying a MAC address or HCI number, by default the first MAC address will be used in stead of `hci0`.
-  
-  Note that `hci_interface` will overrule `bt_interface` when using both options at the same time.
+  This scale is known under different names, e.g. Mi Body Composition Scale 2 / Mi Smart Scale 2 / Mi Body Fat Scale
 
 {% endif %}
 
