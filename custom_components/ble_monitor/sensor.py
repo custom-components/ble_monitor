@@ -137,7 +137,7 @@ class BLEupdater():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, v_i, b_i = MMTS_DICT[sensortype][0]
+                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, im_i, v_i, b_i = MMTS_DICT[sensortype][0]
                 if mac not in sensors_by_mac:
                     sensors = []
                     if t_i != 9:
@@ -158,6 +158,10 @@ class BLEupdater():
                         sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype, firmware))
                     if bu_i != 9:
                         sensors.insert(bu_i, ButtonSensor(self.config, mac, sensortype, firmware))
+                    if w_i != 9:
+                        sensors.insert(w_i, WeightSensor(self.config, mac, sensortype, firmware))
+                    if im_i != 9:
+                        sensors.insert(im_i, ImpedanceSensor(self.config, mac, sensortype, firmware))
                     if self.batt_entities and (v_i != 9) and "voltage" in data:
                         # only add voltage sensor if available in data
                         try:
@@ -240,8 +244,23 @@ class BLEupdater():
                     if button.ready_for_update is True:
                         button.rssi_values = rssi[mac].copy()
                         button.async_schedule_update_ha_state(True)
-                        rssi[mac].clear()
                         button.pending_update = False
+                if "weight" in data and (w_i != 9):
+                    weight = sensors[w_i]
+                    # schedule an immediate update of weight sensors
+                    weight.collect(data, batt_attr)
+                    if weight.ready_for_update is True:
+                        weight.rssi_values = rssi[mac].copy()
+                        weight.async_schedule_update_ha_state(True)
+                        weight.pending_update = False
+                if "impedance" in data and (im_i != 9):
+                    impedance = sensors[im_i]
+                    # schedule an immediate update of impedance sensors
+                    impedance.collect(data, batt_attr)
+                    if impedance.ready_for_update is True:
+                        impedance.rssi_values = rssi[mac].copy()
+                        impedance.async_schedule_update_ha_state(True)
+                        impedance.pending_update = False
                 if self.batt_entities:
                     if "voltage" in data and (v_i != 9):
                         try:
@@ -710,6 +729,82 @@ class ButtonSensor(MeasuringSensor):
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self._device_state_attributes["last button press"] = self._state
         async_call_later(self.hass, 1, self.reset_state)
+        self.rssi_values.clear()
+        self.pending_update = False
+
+
+class WeightSensor(MeasuringSensor):
+    """Representation of a Weight sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "weight"
+        self._name = "ble weight {}".format(self._device_name)
+        self._unique_id = "w_" + self._device_name
+        self._device_class = None
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:scale-bathroom"
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
+        self._state = data[self._measurement]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
+        if "weight unit" in data:
+            self._unit_of_measurement = data["weight unit"]
+        else: 
+            self._unit_of_measurement = None
+
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
+
+    async def async_update(self):
+        """Update."""
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        self.rssi_values.clear()
+        self.pending_update = False
+
+
+class ImpedanceSensor(MeasuringSensor):
+    """Representation of a Impedance sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "impedance"
+        self._name = "ble impedance {}".format(self._device_name)
+        self._unique_id = "im_" + self._device_name
+        self._unit_of_measurement = "Ohm"
+        self._device_class = None
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:omega"
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
+        self._state = data[self._measurement]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
+
+    async def async_update(self):
+        """Update."""
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self.rssi_values.clear()
         self.pending_update = False
 

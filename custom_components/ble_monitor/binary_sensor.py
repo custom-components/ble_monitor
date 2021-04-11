@@ -108,7 +108,7 @@ class BLEupdaterBinary():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                sw_i, op_i, l_i, mo_i, mn_i, b_i = MMTS_DICT[sensortype][1]
+                sw_i, op_i, l_i, mo_i, mn_i, lr_i, b_i = MMTS_DICT[sensortype][1]
                 if mac not in sensors_by_mac:
                     sensors = []
                     if sw_i != 9:
@@ -121,6 +121,8 @@ class BLEupdaterBinary():
                         sensors.insert(mo_i, MoistureBinarySensor(self.config, mac, sensortype, firmware))
                     if mn_i != 9:
                         sensors.insert(mn_i, MotionBinarySensor(self.config, mac, sensortype, firmware))
+                    if lr_i != 9:
+                        sensors.insert(lr_i, LoadRemovedBinarySensor(self.config, mac, sensortype, firmware))
                     if len(sensors) != 0:
                         sensors_by_mac[mac] = sensors
                         self.add_entities(sensors)
@@ -181,6 +183,13 @@ class BLEupdaterBinary():
                         motion.schedule_update_ha_state(True)
                     elif motion.ready_for_update is False and motion.enabled is True:
                         hpriority.append(motion)
+                if "load removed" in data and (lr_i != 9):
+                    load_removed = sensors[lr_i]
+                    load_removed.collect(data, batt_attr)
+                    if load_removed.pending_update is True:
+                        load_removed.schedule_update_ha_state(True)
+                    elif load_removed.ready_for_update is False and load_removed.enabled is True:
+                        hpriority.append(load_removed)
                 data = None
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
@@ -379,7 +388,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
 
 
 class PowerBinarySensor(SwitchingSensor):
-    """Representation of a Sensor."""
+    """Representation of a Power Binary Sensor."""
 
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
@@ -398,7 +407,7 @@ class PowerBinarySensor(SwitchingSensor):
 
 
 class LightBinarySensor(SwitchingSensor):
-    """Representation of a Sensor."""
+    """Representation of a Light Binary Sensor."""
 
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
@@ -410,7 +419,7 @@ class LightBinarySensor(SwitchingSensor):
 
 
 class OpeningBinarySensor(SwitchingSensor):
-    """Representation of a Sensor."""
+    """Representation of a Opening Binary Sensor."""
 
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
@@ -429,7 +438,7 @@ class OpeningBinarySensor(SwitchingSensor):
 
 
 class MoistureBinarySensor(SwitchingSensor):
-    """Representation of a Sensor."""
+    """Representation of a Moisture Binary Sensor."""
 
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
@@ -441,7 +450,7 @@ class MoistureBinarySensor(SwitchingSensor):
 
 
 class MotionBinarySensor(SwitchingSensor):
-    """Representation of a Sensor."""
+    """Representation of a Motion Binary Sensor."""
 
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
@@ -478,3 +487,20 @@ class MotionBinarySensor(SwitchingSensor):
                 self._state = self._newstate
         else:
             self._state = self._newstate
+
+
+class LoadRemovedBinarySensor(SwitchingSensor):
+    """Representation of a Load Removed Binary Sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "load removed"
+        self._name = "ble load removed {}".format(self._device_name)
+        self._unique_id = "lr_" + self._device_name
+        self._device_class = None
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:weight"
