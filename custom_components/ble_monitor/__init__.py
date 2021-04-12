@@ -620,11 +620,18 @@ class HCIdump(Thread):
                 if isStabilized:
                     return {
                         "weight": weight,
+                        "non-stabilized weight": weight,
                         "weight unit": weight_unit,
-                        "weight removed": 0 if weightRemoved == 0 else 1
+                        "weight removed": 0 if weightRemoved == 0 else 1,
+                        "stabilized": 0 if isStabilized == 0 else 1
                     }
                 else:
-                    return {"weight removed": 0 if weightRemoved == 0 else 1}
+                    return {
+                        "non-stabilized weight": weight,
+                        "weight unit": weight_unit,
+                        "weight removed": 0 if weightRemoved == 0 else 1,
+                        "stabilized": 0 if isStabilized == 0 else 1
+                    }
             else:
                 return {}
 
@@ -657,18 +664,27 @@ class HCIdump(Thread):
                     if hasImpedance:
                         return {
                             "weight": weight,
+                            "non-stabilized weight": weight,
                             "weight unit": weight_unit,
                             "impedance": impedance,
-                            "weight removed": 0 if weightRemoved == 0 else 1
+                            "weight removed": 0 if weightRemoved == 0 else 1,
+                            "stabilized": 0 if isStabilized == 0 else 1
                         }
                     else:
                         return {
                             "weight": weight,
+                            "non-stabilized weight": weight,
                             "weight unit": weight_unit,
-                            "weight removed": 0 if weightRemoved == 0 else 1
+                            "weight removed": 0 if weightRemoved == 0 else 1,
+                            "stabilized": 0 if isStabilized == 0 else 1
                         }
                 else:
-                    return {"weight removed": 0 if weightRemoved == 0 else 1}
+                    return {
+                        "non-stabilized weight": weight,
+                        "weight unit": weight_unit,
+                        "weight removed": 0 if weightRemoved == 0 else 1,
+                        "stabilized": 0 if isStabilized == 0 else 1
+                    }
             else:
                 return {}
 
