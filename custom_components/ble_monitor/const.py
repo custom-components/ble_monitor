@@ -94,8 +94,8 @@ ATC_TYPE_DICT = {
 }
 
 MISCALE_TYPE_DICT = {
-    b'\x1D\x18': ("V1 Scale", True),
-    b'\x1B\x18': ("V2 Scale", True),
+    b'\x1D\x18': ("Mi Scale V1", True),
+    b'\x1B\x18': ("Mi Scale V2", True),
 }
 
 # Sensor type indexes dictionary for sensor platform
@@ -120,10 +120,10 @@ MISCALE_TYPE_DICT = {
 # L  = Light
 # Mo = Moisture
 # Mn = Motion
-# LR = Load Removed
+# WR = Weight Removed
 # B  = Battery
 #                                  sensor                    binary sensor
-# Measurement type      [T  H  M  P  C  I  F  Cn Bu W  Im V  B]  [Sw Op L  Mo Mn LR B]     (start from 0, 9 - no data)
+# Measurement type      [T  H  M  P  C  I  F  Cn Bu W  Im V  B]  [Sw Op L  Mo Mn WR B]     (start from 0, 9 - no data)
 MMTS_DICT = {
     'LYWSDCGQ'       : [[0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9, 9]],
     'CGG1'           : [[0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9, 9]],
@@ -152,8 +152,8 @@ MMTS_DICT = {
     'CGPR1'          : [[9, 9, 9, 9, 9, 0, 9, 9, 9, 9, 9, 9, 1], [9, 9, 9, 9, 0, 9, 1]],
     'MMC-T201-1'     : [[0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1], [9, 9, 9, 9, 9, 9, 9]],
     'YLAI003'        : [[9, 9, 9, 9, 9, 9, 9, 9, 0, 9, 9, 9, 1], [9, 9, 9, 9, 9, 9, 9]],
-    'V1 Scale'       : [[9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9], [9, 9, 9, 9, 9, 9, 9]],
-    'V2 Scale'       : [[9, 9, 9, 9, 9, 9, 9, 9, 9, 0, 1, 9, 9], [9, 9, 9, 9, 9, 0, 9]],
+    'Mi Scale V1'    : [[9, 9, 9, 9, 9, 9, 9, 9, 9, 0, 9, 9, 9], [9, 9, 9, 9, 9, 0, 9]],
+    'Mi Scale V2'    : [[9, 9, 9, 9, 9, 9, 9, 9, 9, 0, 1, 9, 9], [9, 9, 9, 9, 9, 0, 9]],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -187,6 +187,6 @@ MANUFACTURER_DICT = {
     'CGPR1'          : 'Qingping',
     'MMC-T201-1'     : 'Xiaomi',
     'YLAI003'        : 'Yeelight',
-    'V1 Scale'       : 'Xiaomi',
-    'V2 Scale'       : 'Xiaomi',
+    'Mi Scale V1'    : 'Xiaomi',
+    'Mi Scale V2'    : 'Xiaomi',
 }

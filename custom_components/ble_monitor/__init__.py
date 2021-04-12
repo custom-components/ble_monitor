@@ -90,7 +90,8 @@ THBV_STRUCT = struct.Struct(">hBBH")
 THVB_STRUCT = struct.Struct("<hHHB")
 M_STRUCT = struct.Struct("<L")
 P_STRUCT = struct.Struct("<H")
-SCALE_STRUCT = struct.Struct("<BB7xHH")
+SCALE_V1_STRUCT = struct.Struct("<BH7x")
+SCALE_V2_STRUCT = struct.Struct("<BB7xHH")
 
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
@@ -601,15 +602,39 @@ class HCIdump(Thread):
 
         # MI Scale V1 BLE advertisements
         def obj1d18(xobj):
-            return {}
+            if len(xobj) == 10:
+                (controlByte, weight) = SCALE_V1_STRUCT.unpack(xobj)
+                isStabilized = controlByte & (1 << 5)
+                weightRemoved = controlByte & (1 << 7)
+
+                if controlByte & (1 << 0):
+                    weight = weight / 100
+                    weight_unit = 'lbs'
+                elif controlByte & (1 << 4):
+                    weight = weight / 100
+                    weight_unit = 'jin'
+                else:
+                    weight = weight / 200
+                    weight_unit = 'kg'
+
+                if isStabilized:
+                    return {
+                        "weight": weight,
+                        "weight unit": weight_unit,
+                        "weight removed": 0 if weightRemoved == 0 else 1
+                    }
+                else:
+                    return {"weight removed": 0 if weightRemoved == 0 else 1}
+            else:
+                return {}
 
         # MI Scale V2 BLE advertisements
         def obj1b18(xobj):
             if len(xobj) == 13:
-                (measunit, condition, impedance, weight) = SCALE_STRUCT.unpack(xobj)
-                hasImpedance = condition & (1 << 1)
-                isStabilized = condition & (1 << 5)
-                loadRemoved = condition & (1 << 7)
+                (measunit, controlByte, impedance, weight) = SCALE_V2_STRUCT.unpack(xobj)
+                hasImpedance = controlByte & (1 << 1)
+                isStabilized = controlByte & (1 << 5)
+                weightRemoved = controlByte & (1 << 7)
 
                 if measunit & (1 << 4):
                     # measurement in Chinese Catty unit
@@ -634,16 +659,16 @@ class HCIdump(Thread):
                             "weight": weight,
                             "weight unit": weight_unit,
                             "impedance": impedance,
-                            "load removed": 0 if loadRemoved == 0 else 1
+                            "weight removed": 0 if weightRemoved == 0 else 1
                         }
                     else:
                         return {
                             "weight": weight,
                             "weight unit": weight_unit,
-                            "load removed": 0 if loadRemoved == 0 else 1
+                            "weight removed": 0 if weightRemoved == 0 else 1
                         }
                 else:
-                    return {}
+                    return {"weight removed": 0 if weightRemoved == 0 else 1}
             else:
                 return {}
 
@@ -839,9 +864,9 @@ class HCIdump(Thread):
             elif atc_index != -1:
                 return self.parse_atc(data, atc_index, is_ext_packet)
             elif miscale_v1_index != -1:
-                return self.parse_miscale_v1(data, miscale_v1_index, is_ext_packet)
+                return self.parse_miscale(data, miscale_v1_index, is_ext_packet)
             elif miscale_v2_index != -1:
-                return self.parse_miscale_v2(data, miscale_v2_index, is_ext_packet)
+                return self.parse_miscale(data, miscale_v2_index, is_ext_packet)
 
         except NoValidError as nve:
             _LOGGER.debug("Invalid data: %s", nve)
@@ -1308,9 +1333,8 @@ class HCIdump(Thread):
             )
         return None, None, None
 
-    def parse_miscale_v2(self, data, miscale_v2_index, is_ext_packet):
-        # parse BLE message in MiScale v2 format
-        firmware = "MiScale v2"
+    def parse_miscale(self, data, miscale_index, is_ext_packet):
+        # parse BLE message in MiScale (v1 or v2) format
 
         # check for no BR/EDR + LE General discoverable mode flags
         advert_start = 29 if is_ext_packet else 14
@@ -1324,27 +1348,27 @@ class HCIdump(Thread):
             raise NoValidError("Invalid msg size")
 
         # extract device type
-        device_type = data[miscale_v2_index + 5:miscale_v2_index + 7]
+        device_type = data[miscale_index + 5:miscale_index + 7]
 
         # check for MAC presence in message and in service data
         mac_index = adv_index - 14 if is_ext_packet else adv_index
-        miscale_v2_mac_reversed = data[mac_index - 7:mac_index - 1]
-        miscale_v2_mac = miscale_v2_mac_reversed[::-1]
+        miscale_mac_reversed = data[mac_index - 7:mac_index - 1]
+        miscale_mac = miscale_mac_reversed[::-1]
 
         # check for MAC presence in whitelist, if needed
-        if self.discovery is False and miscale_v2_mac not in self.whitelist:
+        if self.discovery is False and miscale_mac not in self.whitelist:
             return None, None, None
 
-        packet_id = data[miscale_v2_index + 4]
+        packet_id = data[miscale_index + 4]
         try:
-            prev_packet = self.lpacket_ids[miscale_v2_index]
+            prev_packet = self.lpacket_ids[miscale_index]
         except KeyError:
             # start with empty first packet
             prev_packet = None, None, None
         if prev_packet == packet_id:
             # only process new messages
             return None, None, None
-        self.lpacket_ids[miscale_v2_index] = packet_id
+        self.lpacket_ids[miscale_index] = packet_id
 
         # extract RSSI byte
         rssi_index = 18 if is_ext_packet else msg_length - 1
@@ -1353,37 +1377,34 @@ class HCIdump(Thread):
         # strange positive RSSI workaround
         if rssi > 0:
             rssi = -rssi
-        device_type = data[miscale_v2_index + 1:miscale_v2_index + 3]
+        device_type = data[miscale_index + 1:miscale_index + 3]
         try:
             sensor_type, binary_data = MISCALE_TYPE_DICT[device_type]
         except KeyError:
             if self.report_unknown:
                 _LOGGER.info(
-                    "BLE ADV from UNKNOWN MI SCALE V2 SENSOR: RSSI: %s, MAC: %s, ADV: %s",
+                    "BLE ADV from UNKNOWN MI SCALE SENSOR: RSSI: %s, MAC: %s, ADV: %s",
                     rssi,
-                    ''.join('{:02X}'.format(x) for x in miscale_v2_mac[:]),
+                    ''.join('{:02X}'.format(x) for x in miscale_mac[:]),
                     data.hex()
                 )
             raise NoValidError("Device unkown")
 
-        # Mi Scale V2 data length = message length
-        # -all bytes before Mi Scale V2 UUID
+        firmware = sensor_type
+
+        # Mi Scale data length = message length
+        # -all bytes before Mi Scale UUID
         # -3 bytes UUID + ADtype
         # -1 RSSI (normal, not extended packet only)
-        xdata_length = msg_length - miscale_v2_index - 3 - (0 if is_ext_packet else 1)
-        if xdata_length < 13:
+        xdata_length = msg_length - miscale_index - 3 - (0 if is_ext_packet else 1)
+        if xdata_length != (10 if sensor_type == "Mi Scale V1" else 13):
             raise NoValidError("Xdata length invalid")
 
-        xdata_point = miscale_v2_index + 3
-
-        # check if parse_miscale_v2 data start and length is valid
-        xdata_end_offset = (0 if is_ext_packet else -1)
-        if xdata_length != len(data[xdata_point:xdata_end_offset]):
-            raise NoValidError("Invalid data length")
+        xdata_point = miscale_index + 3
 
         result = {
             "rssi": rssi,
-            "mac": ''.join('{:02X}'.format(x) for x in miscale_v2_mac[:]),
+            "mac": ''.join('{:02X}'.format(x) for x in miscale_mac[:]),
             "type": sensor_type,
             "packet": packet_id,
             "firmware": firmware,
@@ -1392,7 +1413,7 @@ class HCIdump(Thread):
 
         binary = False
         measuring = False
-        xvalue_typecode = data[miscale_v2_index + 1:miscale_v2_index + 3]
+        xvalue_typecode = data[miscale_index + 1:miscale_index + 3]
         xnext_point = xdata_point + xdata_length
         xvalue = data[xdata_point:xnext_point]
 
@@ -1404,9 +1425,9 @@ class HCIdump(Thread):
         else:
             if self.report_unknown:
                 _LOGGER.info(
-                    "UNKNOWN dataobject from Mi Scale v2 DEVICE: %s, MAC: %s, ADV: %s",
+                    "UNKNOWN dataobject from Mi Scale DEVICE: %s, MAC: %s, ADV: %s",
                     sensor_type,
-                    ''.join('{:02X}'.format(x) for x in miscale_v2_mac[:]),
+                    ''.join('{:02X}'.format(x) for x in miscale_mac[:]),
                     data.hex()
                 )
         binary = binary and binary_data
