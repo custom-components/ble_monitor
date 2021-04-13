@@ -1341,14 +1341,6 @@ class HCIdump(Thread):
         binary = binary and binary_data
         return result, binary, measuring
 
-    def parse_miscale_v1(self, data, miscale_v1_index, is_ext_packet):
-        # parse BLE message in MiScale v1 format (NOT IMPLEMENTED YET)
-        if self.report_unknown:
-            _LOGGER.info(
-                "BLE ADV from UNKNOWN Mi SCALE V1 SENSOR: ADV: %s", data.hex()
-            )
-        return None, None, None
-
     def parse_miscale(self, data, miscale_index, is_ext_packet):
         # parse BLE message in MiScale (v1 or v2) format
 
@@ -1374,17 +1366,6 @@ class HCIdump(Thread):
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and miscale_mac not in self.whitelist:
             return None, None, None
-
-        packet_id = data[miscale_index + 4]
-        try:
-            prev_packet = self.lpacket_ids[miscale_index]
-        except KeyError:
-            # start with empty first packet
-            prev_packet = None, None, None
-        if prev_packet == packet_id:
-            # only process new messages
-            return None, None, None
-        self.lpacket_ids[miscale_index] = packet_id
 
         # extract RSSI byte
         rssi_index = 18 if is_ext_packet else msg_length - 1
@@ -1417,6 +1398,19 @@ class HCIdump(Thread):
             raise NoValidError("Xdata length invalid")
 
         xdata_point = miscale_index + 3
+        xnext_point = xdata_point + xdata_length
+        xvalue = data[xdata_point:xnext_point]
+
+        packet_id = xvalue.hex()
+        try:
+            prev_packet = self.lpacket_ids[miscale_index]
+        except KeyError:
+            # start with empty first packet
+            prev_packet = None, None, None
+        if prev_packet == packet_id:
+            # only process new messages
+            return None, None, None
+        self.lpacket_ids[miscale_index] = packet_id
 
         result = {
             "rssi": rssi,
@@ -1430,8 +1424,6 @@ class HCIdump(Thread):
         binary = False
         measuring = False
         xvalue_typecode = data[miscale_index + 1:miscale_index + 3]
-        xnext_point = xdata_point + xdata_length
-        xvalue = data[xdata_point:xnext_point]
 
         resfunc, tbinary, tmeasuring = self._dataobject_dict.get(xvalue_typecode, (None, None, None))
         if resfunc:
