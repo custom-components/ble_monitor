@@ -5,11 +5,12 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.6.2-beta 
+# Changes in 1.6.3-beta 
 
 - Added support for Xiaomi Mi Scale V1 (XMTZC01HM, XMTZC04HM). This scale is known under different names, e.g. Mi Smart Scale 1 / Mi Smart Scale 2
 - `load removed`  sensor has been renamed to `weight removed` sensor for the V1 sensors.
 - Added `non-stabilized weight` sensor
+- Fixed packet_id filtering for Mi Scale V1
 
 {% endif %}
 {% if installed or pending_update %}
