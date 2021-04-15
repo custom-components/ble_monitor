@@ -21,8 +21,6 @@
 - `load removed`  sensor has been renamed to `weight removed` sensor for the Mi scale V2 devices (you can delete the `load removed` binary sensor).
 - Added `non-stabilized weight` sensor for scales
 - Improved packet_id filtering for scales
-  
-  This scale is known under different names, e.g. Mi Body Composition Scale 2 / Mi Body Fat Scale
 
 {% endif %}
 
