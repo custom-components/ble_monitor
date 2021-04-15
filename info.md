@@ -5,27 +5,24 @@
 
 # NB!: This is a Beta version
 
-# BREAKING CHANGES in 1.5.2-beta 
+# Changes in 1.6.3-beta 
 
-- New configuration option `bt_interface` to specify the MAC address of your Bluetooth interface (e.g. Bluetooth dongle or build-in Bluetooth).
-
-  `bt_interface` is an alternative for the current `hci_interface` option. With `bt_interface` you specify the MAC address of your Bluetooth interface, in stead of the HCI number. The reason for adding this option is that the HCI interface number can change, e.g. when restarting Home Assistant, while the MAC address won't change. It is therefore advised to use `bt_interface`. For backwards compatibility the `hci_interface` option is still available. 
-  
-  When using YAML to configure BLE monitor, Home Assistant will show the available MAC addresses in the Home Assistant logs when starting up (check the log). 
-  When using the User Interface to configure BLE monitor, your old hci config will be converted to the corresponding MAC address(es) automatically. In the UI, you can only select MAC addresses (a selection list of available MAC addresses will be automatically generated and presented as a selection list). 
-  
-  The breaking change is that, when not specifying a MAC address or HCI number, by default the first MAC address will be used in stead of `hci0`.
-  
-  Note that `hci_interface` will overrule `bt_interface` when using both options at the same time.
+- Added support for Xiaomi Mi Scale V1 (XMTZC01HM, XMTZC04HM). This scale is known under different names, e.g. Mi Smart Scale 1 / Mi Smart Scale 2
+- `load removed`  sensor has been renamed to `weight removed` sensor for the V1 sensors.
+- Added `non-stabilized weight` sensor
+- Fixed packet_id filtering for Mi Scale V1
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.6.0
+# Changes in 1.7.0
 
-- Added support for Xiaomi Mi Scale V2 (XMTZC02HM, XMTZC05HM, NUN4049CN)
+- Added support for Xiaomi Mi Scale V1 (XMTZC01HM, XMTZC04HM). This scale is known under different names, e.g. Mi Smart Scale 1 / Mi Smart Scale 2
+- `load removed`  sensor has been renamed to `weight removed` sensor for the Mi scale V2 devices (you can delete the `load removed` binary sensor).
+- Added `non-stabilized weight` sensor for scales
+- Improved packet_id filtering for scales
   
-  This scale is known under different names, e.g. Mi Body Composition Scale 2 / Mi Smart Scale 2 / Mi Body Fat Scale
+  This scale is known under different names, e.g. Mi Body Composition Scale 2 / Mi Body Fat Scale
 
 {% endif %}
 
@@ -89,7 +86,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 |**CGPR1**|**Qingping Motion and ambient light sensor**<br /><br />Broadcasts illuminance (in lux), motion (`motion detected/clear`) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.<br /><br />Illumination is broadcasted upon every 10 minutes and when motion is detected. Motion state is broadcasted when motion is detected. Additonally, `motion clear` messages are broadcasted at 1, 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option if you want to use a different time to set the sensor to `motion clear`. Battery level is broadcasted, but interval is currently not known.|![CGPR1](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/CGPR1.png)|
 |**MMC-T201-1**|**Xiaomi Miaomiaoce Digital Baby Thermometer**. Broadcasts temperature and battery state. The calculated body temperature is displayed in BLE Monitor, please note the disclaimer below. About 15-20 messages per minute.<br /><br />**DISCLAIMER**<br />The sensor sends two temperatures in the BLE advertisements, that are converted to a body temperature with a certain algorithm in the original app. We tried to reverse engineering this relation, but we were only able to approximate the relation in the range of 36.5°C - 37.9°C at this moment. It has not been calibrated at elevated body temperature (e.g. if someone has a fever), so measurements displayed in Home Assistant might be different (wrong) compared to those reported in the app. It is therefore advised NOT to rely on the measurements in BLE monitor if you want to monitor your or other peoples body temperature / health). If you have additional measurements, especially outside the investigated range, please report them in this [issue](https://github.com/custom-components/ble_monitor/issues/264).|![MMC-T201-1](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/MMC-T201-1.jpg)|
 |**YLAI003**|**Yeelight Smart Wireless Switch (YLAI003)**<br /><br />Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLAI003](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLAI003.jpg)|
-|**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Smart Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `impedance` and `load removed`. Weight is only reported after the scale is stabilized.|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC05HM.png)|
+|**XMTZC01HM, XMTZC04HM**|**Mi Smart Scale 1 / Mi Smart Scale 2**<br /><br />Broadcasts `weight`, `non-stabilized weight` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration.|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC04HM.png)|
+|**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `non-stabilized weight`, `impedance` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, muscle mass etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration.|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC05HM.png)|
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 

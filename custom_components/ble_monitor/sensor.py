@@ -137,7 +137,7 @@ class BLEupdater():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, im_i, v_i, b_i = MMTS_DICT[sensortype][0]
+                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, v_i, b_i = MMTS_DICT[sensortype][0]
                 if mac not in sensors_by_mac:
                     sensors = []
                     if t_i != 9:
@@ -160,6 +160,8 @@ class BLEupdater():
                         sensors.insert(bu_i, ButtonSensor(self.config, mac, sensortype, firmware))
                     if w_i != 9:
                         sensors.insert(w_i, WeightSensor(self.config, mac, sensortype, firmware))
+                    if nw_i != 9:
+                        sensors.insert(nw_i, NonStabilizedWeightSensor(self.config, mac, sensortype, firmware))
                     if im_i != 9:
                         sensors.insert(im_i, ImpedanceSensor(self.config, mac, sensortype, firmware))
                     if self.batt_entities and (v_i != 9) and "voltage" in data:
@@ -253,6 +255,14 @@ class BLEupdater():
                         weight.rssi_values = rssi[mac].copy()
                         weight.async_schedule_update_ha_state(True)
                         weight.pending_update = False
+                if "non-stabilized weight" in data and (nw_i != 9):
+                    non_stabilized_weight = sensors[nw_i]
+                    # schedule an immediate update of non-stabilized weight sensors
+                    non_stabilized_weight.collect(data, batt_attr)
+                    if non_stabilized_weight.ready_for_update is True:
+                        non_stabilized_weight.rssi_values = rssi[mac].copy()
+                        non_stabilized_weight.async_schedule_update_ha_state(True)
+                        non_stabilized_weight.pending_update = False
                 if "impedance" in data and (im_i != 9):
                     impedance = sensors[im_i]
                     # schedule an immediate update of impedance sensors
@@ -759,7 +769,49 @@ class WeightSensor(MeasuringSensor):
         self._device_state_attributes["firmware"] = data["firmware"]
         if "weight unit" in data:
             self._unit_of_measurement = data["weight unit"]
-        else: 
+        else:
+            self._unit_of_measurement = None
+
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
+
+    async def async_update(self):
+        """Update."""
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        self.rssi_values.clear()
+        self.pending_update = False
+
+
+class NonStabilizedWeightSensor(MeasuringSensor):
+    """Representation of a non-stabilized Weight sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "non-stabilized weight"
+        self._name = "ble non-stabilized weight {}".format(self._device_name)
+        self._unique_id = "nw_" + self._device_name
+        self._device_class = None
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:scale-bathroom"
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
+        self._state = data[self._measurement]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
+        self._device_state_attributes["stabilized"] = True if data["stabilized"] else False
+        self._device_state_attributes["weight removed"] = True if data["weight removed"] else False
+        if "weight unit" in data:
+            self._unit_of_measurement = data["weight unit"]
+        else:
             self._unit_of_measurement = None
 
         if batt_attr is not None:
