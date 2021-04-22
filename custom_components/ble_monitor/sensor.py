@@ -67,7 +67,7 @@ async def async_setup_entry(hass, config_entry, add_entities):
     _LOGGER.debug("Starting measuring sensor entry startup")
     blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdater(blemonitor, add_entities)
-    hass.loop.create_task(bleupdater.async_run())
+    hass.loop.create_task(bleupdater.async_run(hass))
     _LOGGER.debug("Measuring sensor entry setup finished")
     # Return successful setup
     return True
@@ -89,7 +89,7 @@ class BLEupdater():
         self.add_entities = add_entities
         _LOGGER.debug("BLE sensors updater initialized")
 
-    async def async_run(self):
+    async def async_run(self, hass):
         """Entities updater loop."""
 
         def temperature_limit(config, mac, temp):
@@ -106,17 +106,81 @@ class BLEupdater():
                         break
             return temp
 
+        async def async_add_sensor(mac, sensortype, firmware):
+            t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, v_i, b_i = MMTS_DICT[sensortype][0]
+
+            if mac not in sensors_by_mac:
+                sensors = []
+                if t_i != 9:
+                    sensors.insert(t_i, TemperatureSensor(self.config, mac, sensortype, firmware))
+                if h_i != 9:
+                    sensors.insert(h_i, HumiditySensor(self.config, mac, sensortype, firmware))
+                if m_i != 9:
+                    sensors.insert(m_i, MoistureSensor(self.config, mac, sensortype, firmware))
+                if p_i != 9:
+                    sensors.insert(p_i, PressureSensor(self.config, mac, sensortype, firmware))
+                if c_i != 9:
+                    sensors.insert(c_i, ConductivitySensor(self.config, mac, sensortype, firmware))
+                if i_i != 9:
+                    sensors.insert(i_i, IlluminanceSensor(self.config, mac, sensortype, firmware))
+                if f_i != 9:
+                    sensors.insert(f_i, FormaldehydeSensor(self.config, mac, sensortype, firmware))
+                if cn_i != 9:
+                    sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype, firmware))
+                if bu_i != 9:
+                    sensors.insert(bu_i, ButtonSensor(self.config, mac, sensortype, firmware))
+                if w_i != 9:
+                    sensors.insert(w_i, WeightSensor(self.config, mac, sensortype, firmware))
+                if nw_i != 9:
+                    sensors.insert(nw_i, NonStabilizedWeightSensor(self.config, mac, sensortype, firmware))
+                if im_i != 9:
+                    sensors.insert(im_i, ImpedanceSensor(self.config, mac, sensortype, firmware))
+                if self.batt_entities and (v_i != 9) and "Xiaomi (MiBeacon)" not in firmware:
+                    try:
+                        sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
+                    except IndexError:
+                        pass
+                if self.batt_entities and (b_i != 9):
+                    sensors.insert(b_i, BatterySensor(self.config, mac, sensortype, firmware))
+                if len(sensors) != 0:
+                    sensors_by_mac[mac] = sensors
+                    self.add_entities(sensors)
+            else:
+                sensors = sensors_by_mac[mac]
+            return sensors
+
         _LOGGER.debug("Entities updater loop started!")
         sensors_by_mac = {}
         sensors = []
         batt = {}  # batteries
         rssi = {}
-        mibeacon_cnt = 0
+        ble_adv_cnt = 0
         new_sensor_message = False
         ts_last = dt_util.now()
         ts_now = ts_last
         data = None
         await asyncio.sleep(0)
+
+        # Set up sensors of configured devices on startup when sensortype is available in device registry
+        if self.config[CONF_DEVICES]:
+            dev_registry = await hass.helpers.device_registry.async_get_registry()
+            for device in self.config[CONF_DEVICES]:
+                mac = device["mac"]
+
+                # get sensortype and firmware from device registry to setup sensor
+                dev = dev_registry.async_get_device(identifiers={(DOMAIN, mac)})
+                if dev:
+                    mac = mac.replace(":", "")
+                    sensortype = dev.model
+                    firmware = dev.sw_version
+                    sensors = await async_add_sensor(mac, sensortype, firmware)
+                else:
+                    pass
+        else:
+            sensors = []
+
+        # Set up new sensors when first BLE advertisement is received
+        sensors = []
         while True:
             try:
                 advevent = await asyncio.wait_for(self.dataqueue.get(), 1)
@@ -128,7 +192,8 @@ class BLEupdater():
             except asyncio.TimeoutError:
                 pass
             if data:
-                mibeacon_cnt += 1
+                _LOGGER.debug("Data measuring sensor received: %s", data)
+                ble_adv_cnt += 1
                 mac = data["mac"]
                 # the RSSI value will be averaged for all valuable packets
                 if mac not in rssi:
@@ -138,51 +203,14 @@ class BLEupdater():
                 sensortype = data["type"]
                 firmware = data["firmware"]
                 t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, v_i, b_i = MMTS_DICT[sensortype][0]
-                if mac not in sensors_by_mac:
-                    sensors = []
-                    if t_i != 9:
-                        sensors.insert(t_i, TemperatureSensor(self.config, mac, sensortype, firmware))
-                    if h_i != 9:
-                        sensors.insert(h_i, HumiditySensor(self.config, mac, sensortype, firmware))
-                    if m_i != 9:
-                        sensors.insert(m_i, MoistureSensor(self.config, mac, sensortype, firmware))
-                    if p_i != 9:
-                        sensors.insert(p_i, PressureSensor(self.config, mac, sensortype, firmware))
-                    if c_i != 9:
-                        sensors.insert(c_i, ConductivitySensor(self.config, mac, sensortype, firmware))
-                    if i_i != 9:
-                        sensors.insert(i_i, IlluminanceSensor(self.config, mac, sensortype, firmware))
-                    if f_i != 9:
-                        sensors.insert(f_i, FormaldehydeSensor(self.config, mac, sensortype, firmware))
-                    if cn_i != 9:
-                        sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype, firmware))
-                    if bu_i != 9:
-                        sensors.insert(bu_i, ButtonSensor(self.config, mac, sensortype, firmware))
-                    if w_i != 9:
-                        sensors.insert(w_i, WeightSensor(self.config, mac, sensortype, firmware))
-                    if nw_i != 9:
-                        sensors.insert(nw_i, NonStabilizedWeightSensor(self.config, mac, sensortype, firmware))
-                    if im_i != 9:
-                        sensors.insert(im_i, ImpedanceSensor(self.config, mac, sensortype, firmware))
-                    if self.batt_entities and (v_i != 9) and "voltage" in data:
-                        # only add voltage sensor if available in data
-                        try:
-                            sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
-                        except IndexError:
-                            pass
-                    if self.batt_entities and (b_i != 9):
-                        sensors.insert(b_i, BatterySensor(self.config, mac, sensortype, firmware))
-                    if len(sensors) != 0:
-                        sensors_by_mac[mac] = sensors
-                        self.add_entities(sensors)
-                else:
-                    sensors = sensors_by_mac[mac]
+                sensors = await async_add_sensor(mac, sensortype, firmware)
 
                 if data["data"] is False:
                     data = None
                     continue
 
                 # store found readings per device
+                # battery sensors and battery attribute
                 if (b_i != 9):
                     if "battery" in data:
                         batt[mac] = int(data["battery"])
@@ -301,11 +329,11 @@ class BLEupdater():
                 rssi[mac].clear()
 
             _LOGGER.debug(
-                "%i MiBeacon BLE ADV messages processed for %i measuring device(s).",
-                mibeacon_cnt,
+                "%i BLE ADV messages processed for %i measuring device(s).",
+                ble_adv_cnt,
                 len(sensors_by_mac),
             )
-            mibeacon_cnt = 0
+            ble_adv_cnt = 0
 
 
 class MeasuringSensor(RestoreEntity):

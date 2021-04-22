@@ -55,7 +55,7 @@ async def async_setup_entry(hass, config_entry, add_entities):
 
     blemonitor = hass.data[DOMAIN]["blemonitor"]
     bleupdater = BLEupdaterBinary(blemonitor, add_entities)
-    hass.loop.create_task(bleupdater.async_run())
+    hass.loop.create_task(bleupdater.async_run(hass))
     _LOGGER.debug("Binary sensor entry setup finished")
     # Return successful setup
     return True
@@ -75,8 +75,35 @@ class BLEupdaterBinary():
         self.add_entities = add_entities
         _LOGGER.debug("BLE binary sensors updater initialized")
 
-    async def async_run(self):
+    async def async_run(self, hass):
         """Entities updater loop."""
+
+        async def async_add_binary_sensor(mac, sensortype, firmware):
+            sw_i, op_i, l_i, mo_i, mn_i, wr_i, b_i = MMTS_DICT[sensortype][1]
+
+            if mac not in sensors_by_mac:
+                sensors = []
+                if sw_i != 9:
+                    sensors.insert(sw_i, PowerBinarySensor(self.config, mac, sensortype, firmware))
+                if op_i != 9:
+                    sensors.insert(op_i, OpeningBinarySensor(self.config, mac, sensortype, firmware))
+                if l_i != 9:
+                    sensors.insert(l_i, LightBinarySensor(self.config, mac, sensortype, firmware))
+                if mo_i != 9:
+                    sensors.insert(mo_i, MoistureBinarySensor(self.config, mac, sensortype, firmware))
+                if mn_i != 9:
+                    sensors.insert(mn_i, MotionBinarySensor(self.config, mac, sensortype, firmware))
+                if wr_i != 9:
+                    sensors.insert(wr_i, WeightRemovedBinarySensor(self.config, mac, sensortype, firmware))
+                if b_i != 9:
+                    pass
+                if len(sensors) != 0:
+                    sensors_by_mac[mac] = sensors
+                    self.add_entities(sensors)
+            else:
+                sensors = sensors_by_mac[mac]
+            return sensors
+
         _LOGGER.debug("Binary entities updater loop started!")
         sensors_by_mac = {}
         sensors = []
@@ -87,6 +114,27 @@ class BLEupdaterBinary():
         ts_now = ts_last
         data = None
         await asyncio.sleep(0)
+
+        # Set up binary sensors of configured devices on startup when sensortype is available in device registry
+        if self.config[CONF_DEVICES]:
+            dev_registry = await hass.helpers.device_registry.async_get_registry()
+            for device in self.config[CONF_DEVICES]:
+                mac = device["mac"]
+
+                # get sensortype and firmware from device registry to setup sensor
+                dev = dev_registry.async_get_device(identifiers={(DOMAIN, mac)})
+                if dev:
+                    mac = mac.replace(":", "")
+                    sensortype = dev.model
+                    firmware = dev.sw_version
+                    sensors = await async_add_binary_sensor(mac, sensortype, firmware)
+                else:
+                    pass
+        else:
+            sensors = []
+
+        # Set up new binary sensors when first BLE advertisement is received
+        sensors = []
         while True:
             try:
                 advevent = await asyncio.wait_for(self.dataqueue.get(), 1)
@@ -103,31 +151,14 @@ class BLEupdaterBinary():
                         hpriority.remove(entity)
                         entity.async_schedule_update_ha_state(True)
             if data:
+                _LOGGER.debug("Data binary sensor received: %s", data)
                 mibeacon_cnt += 1
                 mac = data["mac"]
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
                 sw_i, op_i, l_i, mo_i, mn_i, wr_i, b_i = MMTS_DICT[sensortype][1]
-                if mac not in sensors_by_mac:
-                    sensors = []
-                    if sw_i != 9:
-                        sensors.insert(sw_i, PowerBinarySensor(self.config, mac, sensortype, firmware))
-                    if op_i != 9:
-                        sensors.insert(op_i, OpeningBinarySensor(self.config, mac, sensortype, firmware))
-                    if l_i != 9:
-                        sensors.insert(l_i, LightBinarySensor(self.config, mac, sensortype, firmware))
-                    if mo_i != 9:
-                        sensors.insert(mo_i, MoistureBinarySensor(self.config, mac, sensortype, firmware))
-                    if mn_i != 9:
-                        sensors.insert(mn_i, MotionBinarySensor(self.config, mac, sensortype, firmware))
-                    if wr_i != 9:
-                        sensors.insert(wr_i, WeightRemovedBinarySensor(self.config, mac, sensortype, firmware))
-                    if len(sensors) != 0:
-                        sensors_by_mac[mac] = sensors
-                        self.add_entities(sensors)
-                else:
-                    sensors = sensors_by_mac[mac]
+                sensors = await async_add_binary_sensor(mac, sensortype, firmware)
 
                 if data["data"] is False:
                     data = None
@@ -239,7 +270,6 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
             self.ready_for_update = True
             return
         old_state = await self.async_get_last_state()
-        _LOGGER.debug("Restored state: %s", old_state)
         if not old_state:
             self.ready_for_update = True
             return
