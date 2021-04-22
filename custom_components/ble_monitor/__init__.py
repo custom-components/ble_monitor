@@ -107,7 +107,7 @@ except IndexError:
     DEFAULT_HCI_INTERFACE = 0
     BT_HCI_INTERFACES = [0]
     BT_MAC_INTERFACES = ['00:00:00:00:00:00']
-    _LOGGER.error("No Bluetooth interface found. Make sure Bluetooth is installed on your system")
+    _LOGGER.warning("No Bluetooth interface found. Make sure Bluetooth is installed on your system")
 
 DEVICE_SCHEMA = vol.Schema(
     {
