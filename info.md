@@ -7,11 +7,11 @@
 
 # Changes in 1.7.2-beta 
 
-- Fixed failing configuration check #321
+- Fixed failing configuration check [#321](https://github.com/custom-components/ble_monitor/issues/321)
 
 # Changes in 1.7.1-beta 
 
-- Fixed `restore_state` option. State was restored when the first BLE advertisement arrived, but this could take a while, especially for scales which only send data when activeated. `restore_state` has been changed to restore the state immediately at startup, if the device is configured in the `devices` option. #326
+- Fixed `restore_state` option. State was restored when the first BLE advertisement arrived, but this could take a while, especially for scales which only send data when activeated. `restore_state` has been changed to restore the state immediately at startup, if the device is configured in the `devices` option. [#326](https://github.com/custom-components/ble_monitor/issues/326)
 
 {% endif %}
 {% if installed or pending_update %}
