@@ -5,22 +5,21 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.6.3-beta 
+# Changes in 1.7.2-beta 
 
-- Added support for Xiaomi Mi Scale V1 (XMTZC01HM, XMTZC04HM). This scale is known under different names, e.g. Mi Smart Scale 1 / Mi Smart Scale 2
-- `load removed`  sensor has been renamed to `weight removed` sensor for the V1 sensors.
-- Added `non-stabilized weight` sensor
-- Fixed packet_id filtering for Mi Scale V1
+- Fixed failing configuration check [#321](https://github.com/custom-components/ble_monitor/issues/321)
+
+# Changes in 1.7.1-beta 
+
+- Fixed `restore_state` option. State was restored when the first BLE advertisement arrived, but this could take a while, especially for scales which only send data when activeated. `restore_state` has been changed to restore the state immediately at startup, if the device is configured in the `devices` option. [#326](https://github.com/custom-components/ble_monitor/issues/326)
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.7.0
+# Changes in 1.7.2
 
-- Added support for Xiaomi Mi Scale V1 (XMTZC01HM, XMTZC04HM). This scale is known under different names, e.g. Mi Smart Scale 1 / Mi Smart Scale 2
-- `load removed`  sensor has been renamed to `weight removed` sensor for the Mi scale V2 devices (you can delete the `load removed` binary sensor).
-- Added `non-stabilized weight` sensor for scales
-- Improved packet_id filtering for scales
+- Fixed `restore_state` option. State was restored when the first BLE advertisement arrived, but this could take a while, especially for scales which only send data when activeated. `restore_state` has been changed to restore the state immediately at startup, if the device is configured in the `devices` option. [#326](https://github.com/custom-components/ble_monitor/issues/326)
+- Fixed failing configuration check [#321](https://github.com/custom-components/ble_monitor/issues/321)
 
 {% endif %}
 
@@ -256,7 +255,8 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### restore_state
 
-   (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors immediately after a restart of Home Assistant to the state right before the restart. The integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. If you only use measuring sensors like temperature sensors, this option can be safely set to `True`. It is also possible to overrule this setting for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
+   (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors. If your [devices](#devices) are configured with a [mac](#mac) address, they will restore immediately after a restart of Home Assistant to the state right before the restart. If you didn't configure your [devices](#devices), the state will be restored upon the first BLE advertisement being received. 
+   with `restore_state` set to `False`, the integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. For measuring sensors like temperature sensors, this option can be safely set to `True`. It is also possible to overrule this setting for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
 
 ### Configuration parameters at device level
 
