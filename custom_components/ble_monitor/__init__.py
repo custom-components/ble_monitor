@@ -72,6 +72,7 @@ from .const import (
     QINGPING_TYPE_DICT,
     XIAOMI_TYPE_DICT,
     MISCALE_TYPE_DICT,
+    KEGTRON_TYPE_DICT,
     SERVICE_CLEANUP_ENTRIES,
 )
 
@@ -92,6 +93,7 @@ M_STRUCT = struct.Struct("<L")
 P_STRUCT = struct.Struct("<H")
 SCALE_V1_STRUCT = struct.Struct("<BH7x")
 SCALE_V2_STRUCT = struct.Struct("<BB7xHH")
+KEGTRON_STRUCT = struct.Struct(">HHHB20x")
 
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
@@ -688,6 +690,36 @@ class HCIdump(Thread):
             else:
                 return {}
 
+        # Kegtron BLE advertisements
+        def objKegtron(xobj):
+            if len(xobj) == 27:
+                (keg_size, vol_start, vol_disp, port) = KEGTRON_STRUCT.unpack(xobj)
+                if port & (1 << 0):
+                    port_state = "configured"
+                else:
+                    port_state = "unconfigured (new device)"
+
+                if port & (1 << 4):
+                    port_index = "port 2"
+                else:
+                    port_index = "port 1"
+
+                if port & (1 << 6):
+                    port_count = "Dual port device"
+                else:
+                    port_count = "Single port device"
+
+                return {
+                    "keg size": keg_size,
+                    "volume start": vol_start,
+                    "volume dispensed": vol_disp,
+                    "port state": port_state,
+                    "port index": port_index,
+                    "port count": port_count
+                }
+            else:
+                return {}
+
         def reverse_mac(rmac):
             """Change LE order to BE."""
             if len(rmac) != 12:
@@ -768,6 +800,7 @@ class HCIdump(Thread):
             b'\x12\x16': (objATC_long, False, True),
             b'\x1B\x18': (obj1b18, True, True),
             b'\x1D\x18': (obj1d18, True, True),
+            b'\xFF\xFF': (objKegtron, False, True),
         }
 
     def process_hci_events(self, data):
@@ -871,6 +904,7 @@ class HCIdump(Thread):
         atc_index = data.find(b'\x16\x1A\x18', 15 + 15 if is_ext_packet else 0)
         miscale_v1_index = data.find(b'\x16\x1D\x18', 15 + 15 if is_ext_packet else 0)
         miscale_v2_index = data.find(b'\x16\x1B\x18', 15 + 15 if is_ext_packet else 0)
+        kegtron_index = data.find(b'\x1E\xFF\xFF\xFF', 14 + 15 if is_ext_packet else 0)
 
         try:
             if xiaomi_index != -1:
@@ -883,6 +917,8 @@ class HCIdump(Thread):
                 return self.parse_miscale(data, miscale_v1_index, is_ext_packet)
             elif miscale_v2_index != -1:
                 return self.parse_miscale(data, miscale_v2_index, is_ext_packet)
+            elif kegtron_index != -1:
+                return self.parse_kegtron(data, kegtron_index, is_ext_packet)
 
         except NoValidError as nve:
             _LOGGER.debug("Invalid data: %s", nve)
@@ -1436,6 +1472,97 @@ class HCIdump(Thread):
                     "UNKNOWN dataobject from Mi Scale DEVICE: %s, MAC: %s, ADV: %s",
                     sensor_type,
                     ''.join('{:02X}'.format(x) for x in miscale_mac[:]),
+                    data.hex()
+                )
+        binary = binary and binary_data
+        return result, binary, measuring
+
+    def parse_kegtron(self, data, kegtron_index, is_ext_packet):
+        # parse BLE message in Kegtron format
+        firmware = "Kegtron"
+
+        # check for no BR/EDR + LE General discoverable mode flags
+        advert_start = 29 if is_ext_packet else 14
+        adv_index = data.find(b"\x1E\xFF\xFF", advert_start, advert_start + 3)
+        if adv_index == -1:
+            raise NoValidError("Invalid index")
+
+        # check for BTLE msg size
+        msg_length = data[2] + 3
+        if msg_length != len(data):
+            raise NoValidError("Invalid msg size")
+
+        # extract device type
+        device_type = data[kegtron_index:kegtron_index + 4]
+
+        # check for MAC presence in message and in service data
+        mac_index = adv_index - 14 if is_ext_packet else adv_index
+        kegtron_mac_reversed = data[mac_index - 7:mac_index - 1]
+
+        # check for MAC presence in whitelist, if needed
+        if self.discovery is False and kegtron_mac_reversed not in self.whitelist:
+            return None, None, None
+        packet_id = "no packed id"
+
+        # extract RSSI byte
+        rssi_index = 18 if is_ext_packet else msg_length - 1
+        (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
+
+        # strange positive RSSI workaround
+        if rssi > 0:
+            rssi = -rssi
+        try:
+            sensor_type, binary_data = KEGTRON_TYPE_DICT[device_type]
+        except KeyError:
+            if self.report_unknown:
+                _LOGGER.info(
+                    "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
+                    rssi,
+                    ''.join('{:02X}'.format(x) for x in kegtron_mac_reversed[::-1]),
+                    data.hex()
+                )
+            raise NoValidError("Device unkown")
+
+        # kegtron data length = message length
+        #     -all bytes before Kegtron UUID
+        #     -1 Len byte
+        #     -3 bytes kegtron UUID + ADtype
+        #     -1 RSSI (normal, not extended packet only)
+        xdata_length = msg_length - kegtron_index - (4 if is_ext_packet else 5)
+        if xdata_length != 27:
+            raise NoValidError("Xdata length invalid")
+
+        xdata_point = kegtron_index + 4
+
+        # check if kegtron data start and length is valid
+        if xdata_length != len(data[xdata_point:-1]):
+            raise NoValidError("Invalid data length")
+        result = {
+            "rssi": rssi,
+            "mac": ''.join('{:02X}'.format(x) for x in kegtron_mac_reversed[::-1]),
+            "type": sensor_type,
+            "packet": packet_id,
+            "firmware": firmware,
+            "data": True,
+        }
+        binary = False
+        measuring = False
+
+        xvalue_typecode = data[xdata_point - 2:xdata_point]
+        xvalue_length = xdata_length
+        xnext_point = xdata_point + xvalue_length
+        xvalue = data[xdata_point:xnext_point]
+        resfunc, tbinary, tmeasuring = self._dataobject_dict.get(xvalue_typecode, (None, None, None))
+        if resfunc:
+            binary = binary or tbinary
+            measuring = measuring or tmeasuring
+            result.update(resfunc(xvalue))
+        else:
+            if self.report_unknown:
+                _LOGGER.info(
+                    "UNKNOWN dataobject from DEVICE: %s, MAC: %s, ADV: %s",
+                    sensor_type,
+                    ''.join('{:02X}'.format(x) for x in kegtron_mac_reversed[::-1]),
                     data.hex()
                 )
         binary = binary and binary_data
