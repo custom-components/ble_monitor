@@ -16,12 +16,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.7.0
+# Changes in 1.7.2
 
-- Added support for Xiaomi Mi Scale V1 (XMTZC01HM, XMTZC04HM). This scale is known under different names, e.g. Mi Smart Scale 1 / Mi Smart Scale 2
-- `load removed`  sensor has been renamed to `weight removed` sensor for the Mi scale V2 devices (you can delete the `load removed` binary sensor).
-- Added `non-stabilized weight` sensor for scales
-- Improved packet_id filtering for scales
+- Fixed `restore_state` option. State was restored when the first BLE advertisement arrived, but this could take a while, especially for scales which only send data when activeated. `restore_state` has been changed to restore the state immediately at startup, if the device is configured in the `devices` option. [#326](https://github.com/custom-components/ble_monitor/issues/326)
+- Fixed failing configuration check [#321](https://github.com/custom-components/ble_monitor/issues/321)
 
 {% endif %}
 
