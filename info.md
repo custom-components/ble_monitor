@@ -5,13 +5,9 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.7.2-beta 
+# Changes in 1.8.0-beta 
 
-- Fixed failing configuration check [#321](https://github.com/custom-components/ble_monitor/issues/321)
-
-# Changes in 1.7.1-beta 
-
-- Fixed `restore_state` option. State was restored when the first BLE advertisement arrived, but this could take a while, especially for scales which only send data when activeated. `restore_state` has been changed to restore the state immediately at startup, if the device is configured in the `devices` option. [#326](https://github.com/custom-components/ble_monitor/issues/326)
+- Add support for Kegtron KT-100 and KT-200
 
 {% endif %}
 {% if installed or pending_update %}
@@ -27,7 +23,7 @@
 
 # Passive BLE Monitor integration
 
-### Xiaomi Mijia BLE MiBeacon Monitor
+### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Kegtron sensors
 
 <!-- TOC -->
 
@@ -58,6 +54,8 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## SUPPORTED SENSORS
 
+This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Kegtron** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors. 
+
 |Name|Description|Picture|
 |---|---|---|
 |**LYWSDCGQ** <img width=100/>|**Xiaomi Hygro thermometer**<br /><br />Round body, segment LCD, broadcasts temperature, humidity and battery level, about 20 readings per minute. <img width=100/>|![LYWSDCGQ](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/LYWSDCGQ.jpg) <img width=1500/>|
@@ -87,6 +85,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 |**YLAI003**|**Yeelight Smart Wireless Switch (YLAI003)**<br /><br />Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLAI003](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLAI003.jpg)|
 |**XMTZC01HM, XMTZC04HM**|**Mi Smart Scale 1 / Mi Smart Scale 2**<br /><br />Broadcasts `weight`, `non-stabilized weight` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration.|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC04HM.png)|
 |**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `non-stabilized weight`, `impedance` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, muscle mass etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration.|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC05HM.png)|
+|**Kegtron KT-100, KT-200**|**Kegtron KT-100 / KT-200**<br /><br />Broadcasts `keg size`, `volume start`, `volume dispensed` and port attributes (`state`, `index` and `number of ports`. Kegtron devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`||
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
