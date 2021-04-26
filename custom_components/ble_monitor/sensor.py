@@ -135,11 +135,8 @@ class BLEupdater():
                     sensors.insert(nw_i, NonStabilizedWeightSensor(self.config, mac, sensortype, firmware))
                 if im_i != 9:
                     sensors.insert(im_i, ImpedanceSensor(self.config, mac, sensortype, firmware))
-                if self.batt_entities and (v_i != 9) and "voltage" in data:
-                    try:
-                        sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
-                    except IndexError:
-                        pass
+                if self.batt_entities and (v_i != 9):
+                    sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
                 if self.batt_entities and (b_i != 9):
                     sensors.insert(b_i, BatterySensor(self.config, mac, sensortype, firmware))
                 if len(sensors) != 0:
@@ -301,16 +298,7 @@ class BLEupdater():
                         impedance.pending_update = False
                 if self.batt_entities:
                     if "voltage" in data and (v_i != 9):
-                        try:
-                            sensors[v_i].collect(data, batt_attr)
-                        except IndexError:
-                            if new_sensor_message is False:
-                                _LOGGER.warning(
-                                    "New voltage sensor found with MAC address %s. "
-                                    "Make sure you use only one advertisement type (not all)", mac
-                                )
-                                new_sensor_message = True
-                            pass
+                        sensors[v_i].collect(data, batt_attr)
                 data = None
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
