@@ -18,7 +18,7 @@
 
 # Changes in 1.7.3
 
-- Fixed TypeError in voltage sensor
+- Add voltage to LYWSD03MMC when broadcasting in Xiaomi MiBeacon format. Fixed TypeError in voltage sensor
 
 {% endif %}
 
