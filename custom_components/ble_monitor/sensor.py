@@ -135,7 +135,7 @@ class BLEupdater():
                     sensors.insert(nw_i, NonStabilizedWeightSensor(self.config, mac, sensortype, firmware))
                 if im_i != 9:
                     sensors.insert(im_i, ImpedanceSensor(self.config, mac, sensortype, firmware))
-                if self.batt_entities and (v_i != 9) and "Xiaomi (MiBeacon)" not in firmware:
+                if self.batt_entities and (v_i != 9) and "voltage" in data:
                     try:
                         sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
                     except IndexError:
