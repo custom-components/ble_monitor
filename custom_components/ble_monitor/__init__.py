@@ -544,7 +544,9 @@ class HCIdump(Thread):
             return {"opening": xobj[0]}
 
         def obj0a10(xobj):
-            return {"battery": xobj[0]}
+            batt = xobj[0]
+            volt = 2.2 + (3.1 - 2.2) * (batt / 100)
+            return {"battery": batt, "voltage": volt}
 
         def obj0d10(xobj):
             if len(xobj) == 4:
