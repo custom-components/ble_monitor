@@ -5,7 +5,7 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.8.1-beta
+# Changes in 1.8.2-beta
 
 BLE parser is split into indepenent files for code clarity
 - Improves future development
