@@ -5,12 +5,29 @@
 
 # NB!: This is a Beta version
 
+# Changes in 1.8.1-beta
+
+BLE parser is split into indepenent files for code clarity
+- Improves future development
+
+Kegtron improvements
+- Moved keg size and volume start to attributes of volume dispensed sensor (Kegtron)
+- keg size is converted to text
+- One volume dispensed sensor per port
+- Several optimizations in the kegtron parser
+
+Fixed failing configuration check #321
+
 # Changes in 1.8.0-beta 
 
 - Add support for Kegtron KT-100 and KT-200
 
 {% endif %}
 {% if installed or pending_update %}
+
+# Changes in 1.7.3
+
+Fixed failing configuration check #321
 
 # Changes in 1.7.2
 
