@@ -137,7 +137,6 @@ class BLEupdater():
                 if vd_i != 9:
                     port = 1
                     sensors.insert(vd_i, VolumeDispensedSensor(self.config, mac, sensortype, port, firmware))
-                    _LOGGER.error("sensortype: %s", sensortype)
                     if sensortype == "Kegtron KT-200":
                         port = 2
                         sensors.insert(vd_i + 1, VolumeDispensedSensor(self.config, mac, sensortype, port, firmware))
@@ -145,7 +144,6 @@ class BLEupdater():
                     sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
                 if self.batt_entities and (b_i != 9):
                     sensors.insert(b_i, BatterySensor(self.config, mac, sensortype, firmware))
-                _LOGGER.error("sensors: %s", sensors)
                 if len(sensors) != 0:
                     sensors_by_mac[mac] = sensors
                     self.add_entities(sensors)
