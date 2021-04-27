@@ -107,8 +107,7 @@ class BLEupdater():
             return temp
 
         async def async_add_sensor(mac, sensortype, firmware):
-            t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, ks_i, vs_i, vd_i, v_i, b_i = MMTS_DICT[sensortype][0]
-
+            t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, vd_i, v_i, b_i = MMTS_DICT[sensortype][0]
             if mac not in sensors_by_mac:
                 sensors = []
                 if t_i != 9:
@@ -135,19 +134,18 @@ class BLEupdater():
                     sensors.insert(nw_i, NonStabilizedWeightSensor(self.config, mac, sensortype, firmware))
                 if im_i != 9:
                     sensors.insert(im_i, ImpedanceSensor(self.config, mac, sensortype, firmware))
-                if ks_i != 9:
-                    sensors.insert(ks_i, KegSizeSensor(self.config, mac, sensortype, firmware))
-                if vs_i != 9:
-                    sensors.insert(vs_i, VolumeStartSensor(self.config, mac, sensortype, firmware))
                 if vd_i != 9:
-                    sensors.insert(vd_i, VolumeDispensedSensor(self.config, mac, sensortype, firmware))
-                if self.batt_entities and (v_i != 9) and "Xiaomi (MiBeacon)" not in firmware:
-                    try:
-                        sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
-                    except IndexError:
-                        pass
+                    port = 1
+                    sensors.insert(vd_i, VolumeDispensedSensor(self.config, mac, sensortype, port, firmware))
+                    _LOGGER.error("sensortype: %s", sensortype)
+                    if sensortype == "Kegtron KT-200":
+                        port = 2
+                        sensors.insert(vd_i + 1, VolumeDispensedSensor(self.config, mac, sensortype, port, firmware))
+                if self.batt_entities and (v_i != 9):
+                    sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
                 if self.batt_entities and (b_i != 9):
                     sensors.insert(b_i, BatterySensor(self.config, mac, sensortype, firmware))
+                _LOGGER.error("sensors: %s", sensors)
                 if len(sensors) != 0:
                     sensors_by_mac[mac] = sensors
                     self.add_entities(sensors)
@@ -161,7 +159,6 @@ class BLEupdater():
         batt = {}  # batteries
         rssi = {}
         ble_adv_cnt = 0
-        new_sensor_message = False
         ts_last = dt_util.now()
         ts_now = ts_last
         data = None
@@ -208,7 +205,7 @@ class BLEupdater():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, ks_i, vs_i, vd_i, v_i, b_i = MMTS_DICT[sensortype][0]
+                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, vd_i, v_i, b_i = MMTS_DICT[sensortype][0]
                 sensors = await async_add_sensor(mac, sensortype, firmware)
 
                 if data["data"] is False:
@@ -305,23 +302,9 @@ class BLEupdater():
                         impedance.rssi_values = rssi[mac].copy()
                         impedance.async_schedule_update_ha_state(True)
                         impedance.pending_update = False
-                if "keg size" in data and (ks_i != 9):
-                    keg_size = sensors[ks_i]
-                    # schedule an immediate update of kegtron keg size sensors
-                    keg_size.collect(data, batt_attr)
-                    if keg_size.ready_for_update is True:
-                        keg_size.rssi_values = rssi[mac].copy()
-                        keg_size.async_schedule_update_ha_state(True)
-                        keg_size.pending_update = False
-                if "volume start" in data and (vs_i != 9):
-                    volume_start = sensors[vs_i]
-                    # schedule an immediate update of kegtron volume start sensors
-                    volume_start.collect(data, batt_attr)
-                    if volume_start.ready_for_update is True:
-                        volume_start.rssi_values = rssi[mac].copy()
-                        volume_start.async_schedule_update_ha_state(True)
-                        volume_start.pending_update = False
                 if "volume dispensed" in data and (vd_i != 9):
+                    port = data["port index"]
+                    vd_i = vd_i + port - 1
                     volume_dispensed = sensors[vd_i]
                     # schedule an immediate update of kegtron volume dispensed sensors
                     volume_dispensed.collect(data, batt_attr)
@@ -331,16 +314,7 @@ class BLEupdater():
                         volume_dispensed.pending_update = False
                 if self.batt_entities:
                     if "voltage" in data and (v_i != 9):
-                        try:
-                            sensors[v_i].collect(data, batt_attr)
-                        except IndexError:
-                            if new_sensor_message is False:
-                                _LOGGER.warning(
-                                    "New voltage sensor found with MAC address %s. "
-                                    "Make sure you use only one advertisement type (not all)", mac
-                                )
-                                new_sensor_message = True
-                            pass
+                        sensors[v_i].collect(data, batt_attr)
                 data = None
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
@@ -919,90 +893,17 @@ class ImpedanceSensor(MeasuringSensor):
         self.pending_update = False
 
 
-class KegSizeSensor(MeasuringSensor):
-    """Representation of a Keg Size sensor."""
-
-    def __init__(self, config, mac, devtype, firmware):
-        """Initialize the sensor."""
-        super().__init__(config, mac, devtype, firmware)
-        self._measurement = "keg size"
-        self._name = "ble keg size {}".format(self._device_name)
-        self._unique_id = "ks_" + self._device_name
-        self._unit_of_measurement = "mL"
-        self._device_class = None
-
-    @property
-    def icon(self):
-        """Return the icon of the sensor."""
-        return "mdi:keg"
-
-    def collect(self, data, batt_attr=None):
-        """Measurements collector."""
-        if self.enabled is False:
-            self.pending_update = False
-            return
-        self._state = data[self._measurement]
-        self._device_state_attributes["last packet id"] = data["packet"]
-        self._device_state_attributes["firmware"] = data["firmware"]
-        self._device_state_attributes["port state"] = data["port state"]
-        self._device_state_attributes["port index"] = data["port index"]
-        self._device_state_attributes["port count"] = data["port count"]
-        self.pending_update = True
-
-    async def async_update(self):
-        """Update."""
-        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
-        self.rssi_values.clear()
-        self.pending_update = False
-
-
-class VolumeStartSensor(MeasuringSensor):
-    """Representation of a Kegtron Start Volume sensor."""
-
-    def __init__(self, config, mac, devtype, firmware):
-        """Initialize the sensor."""
-        super().__init__(config, mac, devtype, firmware)
-        self._measurement = "volume start"
-        self._name = "ble volume start {}".format(self._device_name)
-        self._unique_id = "vs_" + self._device_name
-        self._unit_of_measurement = "mL"
-        self._device_class = None
-
-    @property
-    def icon(self):
-        """Return the icon of the sensor."""
-        return "mdi:keg"
-
-    def collect(self, data, batt_attr=None):
-        """Measurements collector."""
-        if self.enabled is False:
-            self.pending_update = False
-            return
-        self._state = data[self._measurement]
-        self._device_state_attributes["last packet id"] = data["packet"]
-        self._device_state_attributes["firmware"] = data["firmware"]
-        self._device_state_attributes["port state"] = data["port state"]
-        self._device_state_attributes["port index"] = data["port index"]
-        self._device_state_attributes["port count"] = data["port count"]
-        self.pending_update = True
-
-    async def async_update(self):
-        """Update."""
-        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
-        self.rssi_values.clear()
-        self.pending_update = False
-
-
 class VolumeDispensedSensor(MeasuringSensor):
     """Representation of a Kegtron Volume dispensed sensor."""
 
-    def __init__(self, config, mac, devtype, firmware):
+    def __init__(self, config, mac, devtype, port, firmware):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
         self._measurement = "volume dispensed"
-        self._name = "ble volume dispensed {}".format(self._device_name)
-        self._unique_id = "vd_" + self._device_name
-        self._unit_of_measurement = "mL"
+        self._port = port
+        self._name = "ble volume dispensed port {} {}".format(self._port, self._device_name)
+        self._unique_id = "vd_" + str(self._port) + "_" + self._device_name
+        self._unit_of_measurement = "L"
         self._device_class = None
 
     @property
@@ -1018,9 +919,10 @@ class VolumeDispensedSensor(MeasuringSensor):
         self._state = data[self._measurement]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
+        self._device_state_attributes["volume start"] = data["volume start"]
+        self._device_state_attributes["keg size"] = data["keg size"]
         self._device_state_attributes["port state"] = data["port state"]
         self._device_state_attributes["port index"] = data["port index"]
-        self._device_state_attributes["port count"] = data["port count"]
         self.pending_update = True
 
     async def async_update(self):
