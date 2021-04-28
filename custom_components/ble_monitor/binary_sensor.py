@@ -122,7 +122,7 @@ class BLEupdaterBinary():
                 mac = device["mac"]
 
                 # get sensortype and firmware from device registry to setup sensor
-                dev = dev_registry.async_get_device(identifiers={(DOMAIN, mac)})
+                dev = dev_registry.async_get_device({(DOMAIN, mac)}, set())
                 if dev:
                     mac = mac.replace(":", "")
                     sensortype = dev.model
