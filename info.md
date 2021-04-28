@@ -25,6 +25,10 @@ Fixed failing configuration check #321
 {% endif %}
 {% if installed or pending_update %}
 
+# Changes in 1.7.4
+
+- Fix in getting devices from registry (Fixes issue #336)
+
 # Changes in 1.7.3
 
 Fixed failing configuration check #321
