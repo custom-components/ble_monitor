@@ -919,6 +919,7 @@ class VolumeDispensedSensor(MeasuringSensor):
         self._device_state_attributes["firmware"] = data["firmware"]
         self._device_state_attributes["volume start"] = data["volume start"]
         self._device_state_attributes["keg size"] = data["keg size"]
+        self._device_state_attributes["port name"] = data["port name"]
         self._device_state_attributes["port state"] = data["port state"]
         self._device_state_attributes["port index"] = data["port index"]
         self.pending_update = True

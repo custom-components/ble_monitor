@@ -22,13 +22,13 @@ KEGTRON_SIZE_DICT = {
 }
 
 # Structured objects for data conversions
-KEGTRON_STRUCT = struct.Struct(">HHHB20x")
+KEGTRON_STRUCT = struct.Struct(">HHHB20s")
 
 
 # Advertisement conversion of measurement data
 def objKegtron(xobj):
     if len(xobj) == 27:
-        (keg_size, vol_start, vol_disp, port) = KEGTRON_STRUCT.unpack(xobj)
+        (keg_size, vol_start, vol_disp, port, port_name) = KEGTRON_STRUCT.unpack(xobj)
 
         if keg_size in KEGTRON_SIZE_DICT:
             keg_size = KEGTRON_SIZE_DICT[keg_size]
@@ -50,13 +50,16 @@ def objKegtron(xobj):
         else:
             port_count = "Single port device"
 
+        port_name = str(port_name.decode("utf-8").rstrip('\x00'))
+
         return {
             "keg size": keg_size,
             "volume start": vol_start / 1000,
             "volume dispensed": vol_disp / 1000,
             "port state": port_state,
             "port index": port_index,
-            "port count": port_count
+            "port count": port_count,
+            "port name": port_name
         }
     else:
         return {}
