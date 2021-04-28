@@ -16,6 +16,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
+# Changes in 1.7.4
+
+- Fix in getting devices from registry (Fixes issue #336)
+
 # Changes in 1.7.3
 
 - Add voltage to LYWSD03MMC when broadcasting in Xiaomi MiBeacon format. Fixed TypeError in voltage sensor
