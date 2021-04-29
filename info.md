@@ -7,7 +7,8 @@
 
 # Changes in 1.9.0-beta
 
-- Add first support for Xiaomi Mi Electric Toothbrush T500. This version is a first draft. We are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [this topic](https://github.com/custom-components/ble_monitor/issues/319)
+- Add initial support for Xiaomi Mi Electric Toothbrush T500. This version is a first draft. We are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [issue #319](https://github.com/custom-components/ble_monitor/issues/319)
+- Bug fix for too short encrypted messages, fixes #322
 
 {% endif %}
 {% if installed or pending_update %}
