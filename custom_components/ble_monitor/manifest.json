@@ -10,5 +10,6 @@
     "@Ernst79",
     "@Magalex2x14"
   ],
-  "version": "1.8.3-beta"
+  "version": "1.8.3-beta",
+  "iot_class": "local_polling"
 }
