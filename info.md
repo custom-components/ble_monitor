@@ -30,15 +30,10 @@ Fixed failing configuration check #321
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.7.4
+# Changes in 1.8.3
 
-- Fix in getting devices from registry (Fixes issue #336)
-
-# Changes in 1.7.3
-
-Fixed failing configuration check #321
-
-- Add voltage to LYWSD03MMC when broadcasting in Xiaomi MiBeacon format. Fixed TypeError in voltage sensor
+- BLE parser is split into indepenent files for code clarity. Improves future development
+- Add support for Kegtron KT-100 and KT-200 devices
 
 {% endif %}
 
