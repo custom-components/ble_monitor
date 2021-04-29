@@ -335,6 +335,9 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
 
         # check encrypted data flags
         if framectrl & 0x0800:
+            # check for minimum length of encrypted advertisement
+            if xdata_length < 11:
+                raise NoValidError("Invalid encrypted data length")
             # try to find encryption key for current device
             try:
                 key = self.aeskeys[xiaomi_mac_reversed]
