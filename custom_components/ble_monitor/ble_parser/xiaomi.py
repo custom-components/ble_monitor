@@ -36,6 +36,7 @@ XIAOMI_TYPE_DICT = {
     b'\x83\x0A': ("CGPR1", True),
     b'\xDB\x00': ("MMC-T201-1", False),
     b'\xBF\x07': ("YLAI003", False),
+    b'\x89\x04': ("M1S-T500", False),
 }
 
 # Structured objects for data conversions
@@ -55,6 +56,10 @@ P_STRUCT = struct.Struct("<H")
 # https://iot.mi.com/new/doc/embedded-development/ble/object-definition
 def obj0300(xobj):
     return {"motion": xobj[0], "motion timer": xobj[0]}
+
+
+def obj1000(xobj):
+    return {"toothbrush mode": xobj[1]}
 
 
 def obj0f00(xobj):
@@ -191,6 +196,7 @@ def obj0020(xobj):
 # {dataObject_id: (converter, binary, measuring)
 xiaomi_dataobject_dict = {
     b'\x03\x00': (obj0300, True, False),
+    b'\x10\x00': (obj1000, False, True),
     b'\x0F\x00': (obj0f00, True, True),
     b'\x01\x10': (obj0110, False, True),
     b'\x04\x10': (obj0410, False, True),

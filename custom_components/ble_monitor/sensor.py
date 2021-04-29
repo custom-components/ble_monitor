@@ -107,7 +107,7 @@ class BLEupdater():
             return temp
 
         async def async_add_sensor(mac, sensortype, firmware):
-            t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, vd_i, v_i, b_i = MMTS_DICT[sensortype][0]
+            t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, vd_i, to_i, v_i, b_i = MMTS_DICT[sensortype][0]
             if mac not in sensors_by_mac:
                 sensors = []
                 if t_i != 9:
@@ -140,6 +140,8 @@ class BLEupdater():
                     if sensortype == "Kegtron KT-200":
                         port = 2
                         sensors.insert(vd_i + 1, VolumeDispensedSensor(self.config, mac, sensortype, port, firmware))
+                if to_i != 9:
+                    sensors.insert(to_i, ToothbrushModeSensor(self.config, mac, sensortype, firmware))
                 if self.batt_entities and (v_i != 9):
                     sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
                 if self.batt_entities and (b_i != 9):
@@ -203,7 +205,7 @@ class BLEupdater():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, vd_i, v_i, b_i = MMTS_DICT[sensortype][0]
+                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, w_i, nw_i, im_i, vd_i, to_i, v_i, b_i = MMTS_DICT[sensortype][0]
                 sensors = await async_add_sensor(mac, sensortype, firmware)
 
                 if data["data"] is False:
@@ -310,6 +312,14 @@ class BLEupdater():
                         volume_dispensed.rssi_values = rssi[mac].copy()
                         volume_dispensed.async_schedule_update_ha_state(True)
                         volume_dispensed.pending_update = False
+                if "toothbrush mode" in data and (to_i != 9):
+                    toothbrushmode = sensors[to_i]
+                    # schedule an immediate update of toothbrush mode sensors
+                    toothbrushmode.collect(data, batt_attr)
+                    if toothbrushmode.ready_for_update is True:
+                        toothbrushmode.rssi_values = rssi[mac].copy()
+                        toothbrushmode.async_schedule_update_ha_state(True)
+                        toothbrushmode.pending_update = False
                 if self.batt_entities:
                     if "voltage" in data and (v_i != 9):
                         sensors[v_i].collect(data, batt_attr)
@@ -922,6 +932,42 @@ class VolumeDispensedSensor(MeasuringSensor):
         self._device_state_attributes["port name"] = data["port name"]
         self._device_state_attributes["port state"] = data["port state"]
         self._device_state_attributes["port index"] = data["port index"]
+        self.pending_update = True
+
+    async def async_update(self):
+        """Update."""
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        self.rssi_values.clear()
+        self.pending_update = False
+
+
+class ToothbrushModeSensor(MeasuringSensor):
+    """Representation of a Toothbrush mode sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "toothbrush mode"
+        self._name = "ble toothbrush mode {}".format(self._device_name)
+        self._unique_id = "to_" + self._device_name
+        self._unit_of_measurement = None
+        self._device_class = None
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:toothbrush-electric"
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
+        self._state = data[self._measurement]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
 
     async def async_update(self):
