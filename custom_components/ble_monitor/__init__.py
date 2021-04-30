@@ -129,13 +129,15 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(
                         CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
                     ): cv.boolean,
-                    vol.Optional(
-                        CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
-                    ): cv.boolean,
                     vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
                     vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
                     vol.Optional(CONF_DEVICES, default=[]): vol.All(
                         cv.ensure_list, [DEVICE_SCHEMA]
+                    ),
+                    vol.Optional(
+                        CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
+                    ): vol.In(
+                        ["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Other", False]
                     ),
                 }
             )
@@ -380,8 +382,6 @@ class BLEmonitor:
             "measuring": janus.Queue(),
         }
         self.config = config
-        if config[CONF_REPORT_UNKNOWN] is True:
-            _LOGGER.info("Attention! Option report_unknown is enabled, be ready for a huge output...")
         self.dumpthread = None
 
     def shutdown_handler(self, event):
@@ -452,9 +452,10 @@ class HCIdump(Thread):
         self.whitelist = []
         self.report_unknown = False
         if self.config[CONF_REPORT_UNKNOWN]:
-            self.report_unknown = True
-            _LOGGER.debug(
-                "Attention! Option report_unknown is enabled, be ready for a huge output..."
+            self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
+            _LOGGER.info(
+                "Attention! Option report_unknown is enabled for %s sensors, be ready for a huge output...",
+                self.report_unknown
             )
         # prepare device:key lists to speedup parser
         if self.config[CONF_DEVICES]:

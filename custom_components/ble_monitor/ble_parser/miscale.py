@@ -153,7 +153,7 @@ def parse_miscale(self, data, miscale_index, is_ext_packet):
         try:
             sensor_type, binary_data = MISCALE_TYPE_DICT[device_type]
         except KeyError:
-            if self.report_unknown:
+            if self.report_unknown == "Mi Scale":
                 _LOGGER.info(
                     "BLE ADV from UNKNOWN MI SCALE SENSOR: RSSI: %s, MAC: %s, ADV: %s",
                     rssi,
@@ -206,7 +206,7 @@ def parse_miscale(self, data, miscale_index, is_ext_packet):
             measuring = measuring or tmeasuring
             result.update(resfunc(xvalue))
         else:
-            if self.report_unknown:
+            if self.report_unknown == "Mi Scale":
                 _LOGGER.info(
                     "UNKNOWN dataobject from Mi Scale DEVICE: %s, MAC: %s, ADV: %s",
                     sensor_type,
