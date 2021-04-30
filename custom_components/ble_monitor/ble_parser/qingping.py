@@ -8,6 +8,7 @@ _LOGGER = logging.getLogger(__name__)
 # {device type code: (device name, binary?)}
 QINGPING_TYPE_DICT = {
     b'\x08\x07': ("CGG1", False),
+    b'\x08\x01': ("CGG1", False),
     b'\x08\x09': ("CGP1W", False),
     b'\x08\x0C': ("CGD1", False),
 }
