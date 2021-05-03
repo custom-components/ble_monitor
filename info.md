@@ -18,10 +18,14 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.8.3
+# Changes in 1.9.2
 
-- BLE parser is split into indepenent files for code clarity. Improves future development
-- Add support for Kegtron KT-100 and KT-200 devices
+- Add initial support for Xiaomi Mi Electric Toothbrush T500. This version is a first draft. We are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [issue #319](https://github.com/custom-components/ble_monitor/issues/319)
+- Add additional Qingping CGG1 sensors that use a different type code (thanks @swingerman)
+- Battery entities are now enabled by default. You can disable battery entities with `batt_entities: False`
+- Expand functionality of the `report_unknown` function, you can now specify a specific format to log (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale` or `Kegtron`) or you can even log all BLE advertisements (use `Other`). 
+- Bug fix for too short encrypted messages, fixes #322
+
 
 {% endif %}
 
@@ -227,7 +231,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### batt_entities
 
-   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.ble_battery_ <sensor_mac_address>`. Default value: False
+   (boolean)(Optional) By default, BLE monitor will generate battery sensors for each device (if supported by the device). If you don't want battery sensors, you can set this option to `False`. Battery information will always be available as a sensor attribute called `battery level`. Default value: True
 
 #### rounding [DEPRECATED]
 
