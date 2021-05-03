@@ -201,7 +201,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### batt_entities
 
-   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.ble_battery_ <sensor_mac_address>`. Default value: False
+   (boolean)(Optional) By default, BLE monitor will generate battery sensors for each device (if supported by the device). If you don't want battery sensors, you can set this option to `False`. Battery information will always be available as a sensor attribute called `battery level`. Default value: True
 
 #### rounding [DEPRECATED]
 
