@@ -145,9 +145,9 @@ def parse_kegtron(self, data, kegtron_index, is_ext_packet):
             measuring = measuring or tmeasuring
             result.update(resfunc(xvalue))
         else:
-            if self.report_unknown:
+            if self.report_unknown == "Kegtron":
                 _LOGGER.info(
-                    "UNKNOWN dataobject from DEVICE: %s, MAC: %s, ADV: %s",
+                    "UNKNOWN dataobject from Kegtron DEVICE: %s, MAC: %s, ADV: %s",
                     sensor_type,
                     ''.join('{:02X}'.format(x) for x in kegtron_mac_reversed[::-1]),
                     data.hex()

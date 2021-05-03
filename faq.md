@@ -278,7 +278,7 @@ logger:
 ```
 
 - Place your sensor extremely close to the HA host (BT interface).
-- [Enable the option](https://github.com/custom-components/ble_monitor/blob/master/README.md#configuration) `report_unknown`.
+- [Enable the option](https://github.com/custom-components/ble_monitor/blob/master/README.md#configuration) `report_unknown` by specifying the sensor type you want to get info from.
 - Wait until a number of "BLE ADV from UNKNOWN" messages accumulate in the log.
 - Create a new [issue](https://github.com/custom-components/ble_monitor/issues), write everything you know about your sensor and attach the obtained log.
 - Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.

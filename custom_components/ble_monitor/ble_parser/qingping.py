@@ -89,9 +89,9 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
         try:
             sensor_type, binary_data = QINGPING_TYPE_DICT[device_type]
         except KeyError:
-            if self.report_unknown:
+            if self.report_unknown == "Qingping":
                 _LOGGER.info(
-                    "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
+                    "BLE ADV from UNKNOWN Qingping sensor: RSSI: %s, MAC: %s, ADV: %s",
                     rssi,
                     ''.join('{:02X}'.format(x) for x in qingping_mac_reversed[::-1]),
                     data.hex()
@@ -152,9 +152,9 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
                 measuring = measuring or tmeasuring
                 result.update(resfunc(xvalue))
             else:
-                if self.report_unknown:
+                if self.report_unknown == "Qingping":
                     _LOGGER.info(
-                        "UNKNOWN dataobject from DEVICE: %s, MAC: %s, ADV: %s",
+                        "UNKNOWN dataobject from Qingping DEVICE: %s, MAC: %s, ADV: %s",
                         sensor_type,
                         ''.join('{:02X}'.format(x) for x in qingping_mac_reversed[::-1]),
                         data.hex()

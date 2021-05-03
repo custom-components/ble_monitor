@@ -5,35 +5,27 @@
 
 # NB!: This is a Beta version
 
-# Changes in 1.8.3-beta
+# Changes in 1.9.1-beta
 
-- Fix in getting devices from registry (Fixes issue #336)
-- Adding port name attribute to Kegtron sensors
+- Add additional Qingping CGG1 sensors that use a different type code (thanks @swingerman)
+- Expand functionality of the `report_unknown` function, you can now specify a specific format to log (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale` or `Kegtron`) or you can even log all BLE advertisements (use `Other`). 
 
-# Changes in 1.8.2-beta
+# Changes in 1.9.0-beta
 
-BLE parser is split into indepenent files for code clarity
-- Improves future development
-
-Kegtron improvements
-- Moved keg size and volume start to attributes of volume dispensed sensor (Kegtron)
-- keg size is converted to text
-- One volume dispensed sensor per port
-- Several optimizations in the kegtron parser
-
-Fixed failing configuration check #321
-
-# Changes in 1.8.0-beta 
-
-- Add support for Kegtron KT-100 and KT-200
+- Add initial support for Xiaomi Mi Electric Toothbrush T500. This version is a first draft. We are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [issue #319](https://github.com/custom-components/ble_monitor/issues/319)
+- Bug fix for too short encrypted messages, fixes #322
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.8.3
+# Changes in 1.9.2
 
-- BLE parser is split into indepenent files for code clarity. Improves future development
-- Add support for Kegtron KT-100 and KT-200 devices
+- Add initial support for Xiaomi Mi Electric Toothbrush T500. This version is a first draft. We are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [issue #319](https://github.com/custom-components/ble_monitor/issues/319)
+- Add additional Qingping CGG1 sensors that use a different type code (thanks @swingerman)
+- Battery entities are now enabled by default. You can disable battery entities with `batt_entities: False`
+- Expand functionality of the `report_unknown` function, you can now specify a specific format to log (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale` or `Kegtron`) or you can even log all BLE advertisements (use `Other`). 
+- Bug fix for too short encrypted messages, fixes #322
+
 
 {% endif %}
 
@@ -99,6 +91,7 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Keg
 |**CGPR1**|**Qingping Motion and ambient light sensor**<br /><br />Broadcasts illuminance (in lux), motion (`motion detected/clear`) and battery state, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.<br /><br />Illumination is broadcasted upon every 10 minutes and when motion is detected. Motion state is broadcasted when motion is detected. Additonally, `motion clear` messages are broadcasted at 1, 2, 5, 10, 20 and 30 minutes after the last motion. You can use the [reset_timer](#reset_timer) option if you want to use a different time to set the sensor to `motion clear`. Battery level is broadcasted, but interval is currently not known.|![CGPR1](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/CGPR1.png)|
 |**MMC-T201-1**|**Xiaomi Miaomiaoce Digital Baby Thermometer**. Broadcasts temperature and battery state. The calculated body temperature is displayed in BLE Monitor, please note the disclaimer below. About 15-20 messages per minute.<br /><br />**DISCLAIMER**<br />The sensor sends two temperatures in the BLE advertisements, that are converted to a body temperature with a certain algorithm in the original app. We tried to reverse engineering this relation, but we were only able to approximate the relation in the range of 36.5°C - 37.9°C at this moment. It has not been calibrated at elevated body temperature (e.g. if someone has a fever), so measurements displayed in Home Assistant might be different (wrong) compared to those reported in the app. It is therefore advised NOT to rely on the measurements in BLE monitor if you want to monitor your or other peoples body temperature / health). If you have additional measurements, especially outside the investigated range, please report them in this [issue](https://github.com/custom-components/ble_monitor/issues/264).|![MMC-T201-1](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/MMC-T201-1.jpg)|
 |**YLAI003**|**Yeelight Smart Wireless Switch (YLAI003)**<br /><br />Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLAI003](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLAI003.jpg)|
+|**M1S-T500**|**Xiaomi Mi Electric Toothbrush T500**<br /><br />Broadcasts `toothbrush mode` and `battery state`. At the moment, we are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [this topic](https://github.com/custom-components/ble_monitor/issues/319)||
 |**XMTZC01HM, XMTZC04HM**|**Mi Smart Scale 1 / Mi Smart Scale 2**<br /><br />Broadcasts `weight`, `non-stabilized weight` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC04HM.png)|
 |**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `non-stabilized weight`, `impedance` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, muscle mass etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC05HM.png)|
 |**Kegtron KT-100, KT-200**|**Kegtron KT-100 / KT-200**<br /><br />Broadcasts `volume dispensed` for each port and port attributes (`keg size`, `start volume`, `state`, `index` and `port name`. Kegtron devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`||
@@ -236,13 +229,9 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
 
-#### report_unknown
-
-   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `True`, then the component will log all messages from unknown Xiaomi ecosystem devices to the Home Assitant log (`logger` component must be enabled). **Attention!** Enabling this option can lead to huge output to the Home Assistant log, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
-
 #### batt_entities
 
-   (boolean)(Optional) By default, the battery information will be presented only as a sensor attribute called `battery level`. If you set this parameter to `True`, then the battery sensor entity will be additionally created - `sensor.ble_battery_ <sensor_mac_address>`. Default value: False
+   (boolean)(Optional) By default, BLE monitor will generate battery sensors for each device (if supported by the device). If you don't want battery sensors, you can set this option to `False`. Battery information will always be available as a sensor attribute called `battery level`. Default value: True
 
 #### rounding [DEPRECATED]
 
@@ -274,6 +263,11 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors. If your [devices](#devices) are configured with a [mac](#mac) address, they will restore immediately after a restart of Home Assistant to the state right before the restart. If you didn't configure your [devices](#devices), the state will be restored upon the first BLE advertisement being received. 
    with `restore_state` set to `False`, the integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. For measuring sensors like temperature sensors, this option can be safely set to `True`. It is also possible to overrule this setting for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
+
+
+#### report_unknown
+
+   (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `Xiaomi`, `Qingping`, `ATC`, `Mi Scale` or `Kegtron`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
 ### Configuration parameters at device level
 

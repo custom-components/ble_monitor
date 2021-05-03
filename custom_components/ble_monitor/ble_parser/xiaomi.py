@@ -36,6 +36,7 @@ XIAOMI_TYPE_DICT = {
     b'\x83\x0A': ("CGPR1", True),
     b'\xDB\x00': ("MMC-T201-1", False),
     b'\xBF\x07': ("YLAI003", False),
+    b'\x89\x04': ("M1S-T500", False),
 }
 
 # Structured objects for data conversions
@@ -55,6 +56,10 @@ P_STRUCT = struct.Struct("<H")
 # https://iot.mi.com/new/doc/embedded-development/ble/object-definition
 def obj0300(xobj):
     return {"motion": xobj[0], "motion timer": xobj[0]}
+
+
+def obj1000(xobj):
+    return {"toothbrush mode": xobj[1]}
 
 
 def obj0f00(xobj):
@@ -191,6 +196,7 @@ def obj0020(xobj):
 # {dataObject_id: (converter, binary, measuring)
 xiaomi_dataobject_dict = {
     b'\x03\x00': (obj0300, True, False),
+    b'\x10\x00': (obj1000, False, True),
     b'\x0F\x00': (obj0f00, True, True),
     b'\x01\x10': (obj0110, False, True),
     b'\x04\x10': (obj0410, False, True),
@@ -283,9 +289,9 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         try:
             sensor_type, binary_data = XIAOMI_TYPE_DICT[device_type]
         except KeyError:
-            if self.report_unknown:
+            if self.report_unknown == "Xiaomi":
                 _LOGGER.info(
-                    "BLE ADV from UNKNOWN: RSSI: %s, MAC: %s, ADV: %s",
+                    "BLE ADV from UNKNOWN Xiaomi sensor: RSSI: %s, MAC: %s, ADV: %s",
                     rssi,
                     ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
                     data.hex()
@@ -335,6 +341,9 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
 
         # check encrypted data flags
         if framectrl & 0x0800:
+            # check for minimum length of encrypted advertisement
+            if xdata_length < 11:
+                raise NoValidError("Invalid encrypted data length")
             # try to find encryption key for current device
             try:
                 key = self.aeskeys[xiaomi_mac_reversed]
@@ -421,9 +430,9 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
                 measuring = measuring or tmeasuring
                 result.update(resfunc(xvalue))
             else:
-                if self.report_unknown:
+                if self.report_unknown == "Xiaomi":
                     _LOGGER.info(
-                        "UNKNOWN dataobject from DEVICE: %s, MAC: %s, ADV: %s",
+                        "UNKNOWN dataobject from Xiaomi DEVICE: %s, MAC: %s, ADV: %s",
                         sensor_type,
                         ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
                         data.hex()

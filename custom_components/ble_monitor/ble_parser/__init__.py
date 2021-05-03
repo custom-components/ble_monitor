@@ -1,9 +1,13 @@
 """Parser for BLE advertisements used by Passive BLE monitor integration."""
+import logging
+
 from .atc import parse_atc
 from .kegtron import parse_kegtron
 from .miscale import parse_miscale
 from .xiaomi import parse_xiaomi
 from .qingping import parse_qingping
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def ble_parser(self, data):
@@ -32,5 +36,8 @@ def ble_parser(self, data):
         return parse_miscale(self, data, miscale_v2_index, is_ext_packet)
     elif kegtron_index != -1:
         return parse_kegtron(self, data, kegtron_index, is_ext_packet)
+    elif self.report_unknown == "Other":
+        _LOGGER.info("Unknown advertisement received: %s", data.hex())
+        return None, None, None
     else:
         return None, None, None

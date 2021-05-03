@@ -98,7 +98,6 @@ DOMAIN_SCHEMA = vol.Schema(
         vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
         vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
         vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
-        vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): cv.boolean,
         vol.Optional(CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES): cv.boolean,
         vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
@@ -106,6 +105,10 @@ DOMAIN_SCHEMA = vol.Schema(
         vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
         vol.Optional(CONF_DEVICES, default=[]): vol.All(
             cv.ensure_list, [DEVICE_SCHEMA]
+        ),
+        vol.Optional(
+            CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): vol.In(
+            ["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Other", False]
         ),
     }
 )
@@ -373,12 +376,6 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     ),
                 ): cv.boolean,
                 vol.Optional(
-                    CONF_REPORT_UNKNOWN,
-                    default=self.config_entry.options.get(
-                        CONF_REPORT_UNKNOWN, DEFAULT_REPORT_UNKNOWN
-                    ),
-                ): cv.boolean,
-                vol.Optional(
                     CONF_BATT_ENTITIES,
                     default=self.config_entry.options.get(
                         CONF_BATT_ENTITIES, DEFAULT_BATT_ENTITIES
@@ -408,6 +405,12 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                         CONF_RESTORE_STATE, DEFAULT_RESTORE_STATE
                     ),
                 ): cv.boolean,
+                vol.Optional(
+                    CONF_REPORT_UNKNOWN,
+                    default=self.config_entry.options.get(
+                        CONF_REPORT_UNKNOWN, DEFAULT_REPORT_UNKNOWN
+                    ),
+                ): vol.In(["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Other", False]),
             }
         )
         return self._show_user_form("init", options_schema, errors or {})
