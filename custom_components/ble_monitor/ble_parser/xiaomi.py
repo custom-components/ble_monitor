@@ -254,10 +254,13 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         advert_start = 29 if is_ext_packet else 14
         adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
         adv_index2 = data.find(b"\x15\x16\x95", advert_start, 3 + advert_start)
-        if adv_index == -1 and adv_index2 == -1:
+        adv_index3 = data.find(b"\x14\x16\x95", advert_start, 3 + advert_start)
+        if adv_index == -1 and adv_index2 == -1 and adv_index3 == -1:
             raise NoValidError("Invalid index")
         if adv_index2 != -1:
             adv_index = adv_index2
+        elif adv_index3 != -1:
+            adv_index = adv_index3
 
         # check for BTLE msg size
         msg_length = data[2] + 3
