@@ -5,6 +5,11 @@
 
 # NB!: This is a Beta version
 
+# Changes in 2.0.1-beta
+
+- Fix for getting xiaomi_index for Yeelight Remote Control (YLYK01YL)
+- Remove exception for Yeelight Remote Control (YLYK01YL) in packet_id check 
+
 # Changes in 2.0.0-beta
 
 - Add initial support for Yeelight Remote Control (YLYK01YL)
