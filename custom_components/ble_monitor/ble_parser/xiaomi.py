@@ -305,9 +305,8 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
             # start with empty first packet
             prev_packet = None, None, None
         if prev_packet == packet_id:
-            if device_type != b'\x53\x01':
-                # only process new messages (except for YLYK01YL, which always has packet_id 1)
-                return None, None, None
+            # only process new messages
+            return None, None, None
         self.lpacket_ids[xiaomi_mac_reversed] = packet_id
 
         # extract RSSI byte
