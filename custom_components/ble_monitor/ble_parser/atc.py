@@ -156,5 +156,14 @@ def parse_atc(self, data, atc_index, is_ext_packet):
     return None, None, None
 
 
+class ATCParser:
+    """Class defining the content of an advertisement of a sensor with ATC firmware."""
+
+    def decode(self, data, atc_index, is_ext_packet):
+        # Decode ATC advertisement
+        result = parse_atc(self, data, atc_index, is_ext_packet)
+        return result
+
+
 class NoValidError(Exception):
     pass

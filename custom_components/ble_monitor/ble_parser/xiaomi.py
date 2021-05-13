@@ -35,8 +35,9 @@ XIAOMI_TYPE_DICT = {
     b'\x8D\x0A': ("RTCGQ02LM", True),
     b'\x83\x0A': ("CGPR1", True),
     b'\xDB\x00': ("MMC-T201-1", False),
-    b'\xBF\x07': ("YLAI003", False),
     b'\x89\x04': ("M1S-T500", False),
+    b'\xBF\x07': ("YLAI003", False),
+    b'\x53\x01': ("YLYK01YL", True),
 }
 
 # Structured objects for data conversions
@@ -74,6 +75,28 @@ def obj0f00(xobj):
 
 
 def obj0110(xobj):
+    if xobj[0] == 0:
+        remote_command = "on"
+        binary = 1
+    elif xobj[0] == 1:
+        remote_command = "off"
+        binary = 0
+    elif xobj[0] == 2:
+        remote_command = "sun"
+        binary = None
+    elif xobj[0] == 3:
+        remote_command = "+"
+        binary = 1
+    elif xobj[0] == 4:
+        remote_command = "m"
+        binary = None
+    elif xobj[0] == 5:
+        remote_command = "-"
+        binary = 1
+    else:
+        remote_command = "unknown command"
+        binary = None
+
     if xobj[2] == 0:
         press = "single press"
     elif xobj[2] == 1:
@@ -82,7 +105,11 @@ def obj0110(xobj):
         press = "long press"
     else:
         press = "no press"
-    return {"button": press}
+
+    if binary is None:
+        return {"press": press, "remote": remote_command}
+    else:
+        return {"press": press, "remote": remote_command, "binary": binary}
 
 
 def obj0410(xobj):
@@ -198,7 +225,7 @@ xiaomi_dataobject_dict = {
     b'\x03\x00': (obj0300, True, False),
     b'\x10\x00': (obj1000, False, True),
     b'\x0F\x00': (obj0f00, True, True),
-    b'\x01\x10': (obj0110, False, True),
+    b'\x01\x10': (obj0110, True, True),
     b'\x04\x10': (obj0410, False, True),
     b'\x05\x10': (obj0510, True, True),
     b'\x06\x10': (obj0610, False, True),
@@ -275,8 +302,9 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
             # start with empty first packet
             prev_packet = None, None, None
         if prev_packet == packet_id:
-            # only process new messages
-            return None, None, None
+            if device_type != b'\x53\x01':
+                # only process new messages (except for YLYK01YL, which always has packet_id 1)
+                return None, None, None
         self.lpacket_ids[xiaomi_mac_reversed] = packet_id
 
         # extract RSSI byte
@@ -449,6 +477,15 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         _LOGGER.debug("Invalid data: %s", nve)
 
     return None, None, None
+
+
+class XiaomiMiBeaconParser:
+    """Class defining the content of an advertisement of a Xiaomi MiBeacon sensor."""
+
+    def decode(self, data, xiaomi_index, is_ext_packet):
+        # Decode Xiaomi MiBeacon advertisement
+        result = parse_xiaomi(self, data, xiaomi_index, is_ext_packet)
+        return result
 
 
 class NoValidError(Exception):

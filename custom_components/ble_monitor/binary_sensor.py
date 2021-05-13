@@ -79,10 +79,12 @@ class BLEupdaterBinary():
         """Entities updater loop."""
 
         async def async_add_binary_sensor(mac, sensortype, firmware):
-            sw_i, op_i, l_i, mo_i, mn_i, wr_i, b_i = MMTS_DICT[sensortype][1]
+            bi_i, sw_i, op_i, l_i, mo_i, mn_i, wr_i, b_i = MMTS_DICT[sensortype][1]
 
             if mac not in sensors_by_mac:
                 sensors = []
+                if bi_i != 9:
+                    sensors.insert(bi_i, BinarySensor(self.config, mac, sensortype, firmware))
                 if sw_i != 9:
                     sensors.insert(sw_i, PowerBinarySensor(self.config, mac, sensortype, firmware))
                 if op_i != 9:
@@ -157,7 +159,7 @@ class BLEupdaterBinary():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                sw_i, op_i, l_i, mo_i, mn_i, wr_i, b_i = MMTS_DICT[sensortype][1]
+                bi_i, sw_i, op_i, l_i, mo_i, mn_i, wr_i, b_i = MMTS_DICT[sensortype][1]
                 sensors = await async_add_binary_sensor(mac, sensortype, firmware)
 
                 if data["data"] is False:
@@ -179,6 +181,13 @@ class BLEupdaterBinary():
                         except KeyError:
                             batt_attr = None
                 # schedule an immediate update of binary sensors
+                if "binary" in data and (bi_i != 9):
+                    binary = sensors[bi_i]
+                    binary.collect(data, batt_attr)
+                    if binary.pending_update is True:
+                        binary.async_schedule_update_ha_state(True)
+                    elif binary.ready_for_update is False and binary.enabled is True:
+                        hpriority.append(binary)
                 if "switch" in data and (sw_i != 9):
                     switch = sensors[sw_i]
                     switch.collect(data, batt_attr)
@@ -415,6 +424,17 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
     async def async_update(self):
         """Update sensor state and attribute."""
         self._state = self._newstate
+
+
+class BinarySensor(SwitchingSensor):
+    """Representation of a General Binary Sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "binary"
+        self._name = "ble binary {}".format(self._device_name)
+        self._unique_id = "bi_" + self._device_name
 
 
 class PowerBinarySensor(SwitchingSensor):
