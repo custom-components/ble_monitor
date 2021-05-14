@@ -77,25 +77,25 @@ def obj0f00(xobj):
 def obj0110(xobj):
     if xobj[0] == 0:
         remote_command = "on"
-        binary = 1
+        remote_binary = 1
     elif xobj[0] == 1:
         remote_command = "off"
-        binary = 0
+        remote_binary = 0
     elif xobj[0] == 2:
         remote_command = "sun"
-        binary = None
+        remote_binary = None
     elif xobj[0] == 3:
         remote_command = "+"
-        binary = 1
+        remote_binary = 1
     elif xobj[0] == 4:
         remote_command = "m"
-        binary = None
+        remote_binary = None
     elif xobj[0] == 5:
         remote_command = "-"
-        binary = 1
+        remote_binary = 1
     else:
         remote_command = "unknown command"
-        binary = None
+        remote_binary = None
 
     if xobj[2] == 0:
         press = "single press"
@@ -106,10 +106,10 @@ def obj0110(xobj):
     else:
         press = "no press"
 
-    if binary is None:
+    if remote_binary is None:
         return {"press": press, "remote": remote_command}
     else:
-        return {"press": press, "remote": remote_command, "binary": binary}
+        return {"press": press, "remote": remote_command, "remote binary": remote_binary}
 
 
 def obj0410(xobj):

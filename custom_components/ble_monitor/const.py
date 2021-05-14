@@ -73,7 +73,7 @@ CONF_HMAX = 99.9
 # B  = Battery
 
 # Binary_sensor:
-# Bi = Binary (general)
+# Rb = Remote binary
 # Sw = Switch
 # Op = Opening
 # L  = Light
@@ -82,7 +82,7 @@ CONF_HMAX = 99.9
 # WR = Weight Removed
 # B  = Battery
 #                                        sensor                                   binary sensor
-# Measurement type      [T  H  M  P  C  I  F  Cn Bu Re W  NW Im Vd To V  B]  [Bi Sw Op L  Mo Mn WR B]
+# Measurement type      [T  H  M  P  C  I  F  Cn Bu Re W  NW Im Vd To V  B]  [Rb Sw Op L  Mo Mn WR B]
 # start from 0 till 8. 9 means no data
 MMTS_DICT = {
     'LYWSDCGQ'       : [[0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2], [9, 9, 9, 9, 9, 9, 9, 9]],

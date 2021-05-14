@@ -428,8 +428,10 @@ class MeasuringSensor(RestoreEntity):
             self._device_state_attributes["last packet id"] = old_state.attributes["last packet id"]
         if "last button press" in old_state.attributes:
             self._device_state_attributes["last button press"] = old_state.attributes["last button press"]
-        if "last remote press" in old_state.attributes:
-            self._device_state_attributes["last remote press"] = old_state.attributes["last remote press"]
+        if "last remote button pressed" in old_state.attributes:
+            self._device_state_attributes["last remote button pressed"] = old_state.attributes["last remote button pressed"]
+        if "last type of press" in old_state.attributes:
+            self._device_state_attributes["last type of press"] = old_state.attributes["last type of press"]
         if ATTR_BATTERY_LEVEL in old_state.attributes:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = old_state.attributes[ATTR_BATTERY_LEVEL]
         self.ready_for_update = True
@@ -801,7 +803,8 @@ class RemoteSensor(MeasuringSensor):
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
-        self._measurement = "remote"
+        self._press = "press"
+        self._remote = "remote"
         self._name = "ble remote {}".format(self._device_name)
         self._unique_id = "re_" + self._device_name
         self._unit_of_measurement = None
@@ -817,10 +820,11 @@ class RemoteSensor(MeasuringSensor):
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self._measurement]
+        self._state = data[self._press] + " " + data[self._remote]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
-        self._device_state_attributes["last remote press"] = data["press"]
+        self._device_state_attributes["last remote button pressed"] = data["remote"]
+        self._device_state_attributes["last type of press"] = data["press"]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
