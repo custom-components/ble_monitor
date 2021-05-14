@@ -1,4 +1,4 @@
-# Reverse engineering the (non-encrypted) MiBeacon protocol 
+# Reverse engineering the MiBeacon protocol 
 
 With the `report_unknown` option, you can collect information about new devices that are not supported yet. An example of the LYWSDCGQ sensor is given below. This sensor supports Temperature, Humidity and battery level and is not encrypted. Enabling this option will genereate a lot of output in the logs, which look like this.
 
@@ -108,3 +108,49 @@ type code    evt rep type addr                             flag         type  UU
 - W Hum = Humidity in (divide by 10) (e.g. `75 02` --> `02 75` (hex) --> 629 (decimal) --> 62.9 %)
 - X Batt = Battery in % (`48` (hex) --> 72 (decimals) --> 72%)
 - Y RSSI (`CB` (hex) --> -53 (decimals))
+
+# Encrypted advertisements
+Some advertisements are encrypted. The following python script shows the decryption of these messages
+
+```python
+from Cryptodome.Cipher import AES
+
+data_string = "043e2b020103000fc4e044ef541f0201061b1695fe58598d0a170fc4e044ef547cc27a5c03a1000000790df258bb"
+aeskey = "FDD8CE9C08AE7533A79BDAF0BB755E96"
+
+data = bytes(bytearray.fromhex(data_string))
+key = bytes.fromhex(aeskey)
+
+xiaomi_index = data.find(b'\x16\x95\xFE')
+xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
+# xiaomi_mac_reversed: 0fc4e044ef54
+
+device_type = data[xiaomi_index + 5:xiaomi_index + 7]
+# device_type: 8d0a
+
+nonce = b"".join([xiaomi_mac_reversed, device_type, data[xiaomi_index + 7:xiaomi_index + 8]])
+# nonce: 0fc4e044ef548d0a17
+
+encrypted_payload = data[xiaomi_index + 14:-1]
+# encrypted_payload: 7cc27a5c03a1000000790df258
+
+aad = b"\x11"
+
+token = encrypted_payload[-4:]
+# token: 790df258
+
+payload_counter = encrypted_payload[-7:-4]
+# payload_counter: 000000
+
+nonce = b"".join([nonce, payload_counter])
+# nonce: 0fc4e044ef548d0a17000000
+
+cipherpayload = encrypted_payload[:-7]
+# cipherpayload: 7cc27a5c03a1
+
+cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
+cipher.update(aad)
+
+decrypted_payload = cipher.decrypt_and_verify(cipherpayload, token)
+# decrypted_payload:  0f0003000000
+```
