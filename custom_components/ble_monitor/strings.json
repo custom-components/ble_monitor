@@ -12,7 +12,7 @@
           "period": "Period",
           "log_spikes": "Log spikes",
           "use_median": "Use median",
-          "active_scan": "Active can",
+          "active_scan": "Active scan",
           "bt_interface": "MAC address Bluetooth interface",
           "report_unknown": "Report unknown",
           "restore_state": "Restore state"
