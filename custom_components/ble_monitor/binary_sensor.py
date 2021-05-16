@@ -79,10 +79,15 @@ class BLEupdaterBinary():
         """Entities updater loop."""
 
         async def async_add_binary_sensor(mac, sensortype, firmware):
-            sw_i, op_i, l_i, mo_i, mn_i, wr_i, b_i = MMTS_DICT[sensortype][1]
+            rb_i, sw_i, op_i, l_i, mo_i, mn_i, wr_i, b_i = MMTS_DICT[sensortype][1]
 
             if mac not in sensors_by_mac:
                 sensors = []
+                if rb_i != 9:
+                    press = "single press"
+                    sensors.insert(rb_i, RemoteBinarySensor(self.config, mac, sensortype, press, firmware))
+                    press = "long press"
+                    sensors.insert(rb_i + 1, RemoteBinarySensor(self.config, mac, sensortype, press, firmware))
                 if sw_i != 9:
                     sensors.insert(sw_i, PowerBinarySensor(self.config, mac, sensortype, firmware))
                 if op_i != 9:
@@ -157,7 +162,7 @@ class BLEupdaterBinary():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                sw_i, op_i, l_i, mo_i, mn_i, wr_i, b_i = MMTS_DICT[sensortype][1]
+                rb_i, sw_i, op_i, l_i, mo_i, mn_i, wr_i, b_i = MMTS_DICT[sensortype][1]
                 sensors = await async_add_binary_sensor(mac, sensortype, firmware)
 
                 if data["data"] is False:
@@ -178,7 +183,16 @@ class BLEupdaterBinary():
                             batt_attr = batt[mac]
                         except KeyError:
                             batt_attr = None
-                # schedule an immediate update of binary sensors
+                # schedule an immediate update of remote binary sensors
+                if "remote binary" in data and (rb_i != 9):
+                    press_index = 0 if data["press"] == "single press" else 1
+                    rb_i = rb_i + press_index
+                    remote_binary = sensors[rb_i]
+                    remote_binary.collect(data, batt_attr)
+                    if remote_binary.pending_update is True:
+                        remote_binary.async_schedule_update_ha_state(True)
+                    elif remote_binary.ready_for_update is False and remote_binary.enabled is True:
+                        hpriority.append(remote_binary)
                 if "switch" in data and (sw_i != 9):
                     switch = sensors[sw_i]
                     switch.collect(data, batt_attr)
@@ -415,6 +429,18 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
     async def async_update(self):
         """Update sensor state and attribute."""
         self._state = self._newstate
+
+
+class RemoteBinarySensor(SwitchingSensor):
+    """Representation of a Remote Binary Sensor."""
+
+    def __init__(self, config, mac, devtype, press, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "remote binary"
+        self._press = press
+        self._name = "ble remote binary {} {}".format(self._press, self._device_name)
+        self._unique_id = "rb_" + str(self._press) + "_" + self._device_name
 
 
 class PowerBinarySensor(SwitchingSensor):

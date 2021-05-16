@@ -222,5 +222,14 @@ def parse_miscale(self, data, miscale_index, is_ext_packet):
     return None, None, None
 
 
+class XiaomiMiScaleParser:
+    """Class defining the content of an advertisement of a Xiaomi Mi Scale."""
+
+    def decode(self, data, miscale_index, is_ext_packet):
+        # Decode Xiaomi Mi Scale advertisement
+        result = parse_miscale(self, data, miscale_index, is_ext_packet)
+        return result
+
+
 class NoValidError(Exception):
     pass

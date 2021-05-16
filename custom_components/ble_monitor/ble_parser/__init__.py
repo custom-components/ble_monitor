@@ -1,11 +1,11 @@
 """Parser for BLE advertisements used by Passive BLE monitor integration."""
 import logging
 
-from .atc import parse_atc
-from .kegtron import parse_kegtron
-from .miscale import parse_miscale
-from .xiaomi import parse_xiaomi
-from .qingping import parse_qingping
+from .atc import ATCParser
+from .kegtron import KegtronParser
+from .miscale import XiaomiMiScaleParser
+from .xiaomi import XiaomiMiBeaconParser
+from .qingping import QingpingParser
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,17 +25,17 @@ def ble_parser(self, data):
     kegtron_index = data.find(b'\x1E\xFF\xFF\xFF', 14 + 15 if is_ext_packet else 0)
 
     if xiaomi_index != -1:
-        return parse_xiaomi(self, data, xiaomi_index, is_ext_packet)
+        return XiaomiMiBeaconParser.decode(self, data, xiaomi_index, is_ext_packet)
     elif qingping_index != -1:
-        return parse_qingping(self, data, qingping_index, is_ext_packet)
+        return QingpingParser.decode(self, data, qingping_index, is_ext_packet)
     elif atc_index != -1:
-        return parse_atc(self, data, atc_index, is_ext_packet)
+        return ATCParser.decode(self, data, atc_index, is_ext_packet)
     elif miscale_v1_index != -1:
-        return parse_miscale(self, data, miscale_v1_index, is_ext_packet)
+        return XiaomiMiScaleParser.decode(self, data, miscale_v1_index, is_ext_packet)
     elif miscale_v2_index != -1:
-        return parse_miscale(self, data, miscale_v2_index, is_ext_packet)
+        return XiaomiMiScaleParser.decode(self, data, miscale_v2_index, is_ext_packet)
     elif kegtron_index != -1:
-        return parse_kegtron(self, data, kegtron_index, is_ext_packet)
+        return KegtronParser.decode(self, data, kegtron_index, is_ext_packet)
     elif self.report_unknown == "Other":
         _LOGGER.info("Unknown advertisement received: %s", data.hex())
         return None, None, None

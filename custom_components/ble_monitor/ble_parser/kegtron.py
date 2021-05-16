@@ -160,5 +160,14 @@ def parse_kegtron(self, data, kegtron_index, is_ext_packet):
     return None, None, None
 
 
+class KegtronParser:
+    """Class defining the content of an advertisement of a Kegtron sensor."""
+
+    def decode(self, data, kegtron_index, is_ext_packet):
+        # Decode Kegtron advertisement
+        result = parse_kegtron(self, data, kegtron_index, is_ext_packet)
+        return result
+
+
 class NoValidError(Exception):
     pass

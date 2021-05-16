@@ -171,5 +171,14 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
     return None, None, None
 
 
+class QingpingParser:
+    """Class defining the content of an advertisement of a Qingping sensor."""
+
+    def decode(self, data, qingping_index, is_ext_packet):
+        # Decode Qingping advertisement
+        result = parse_qingping(self, data, qingping_index, is_ext_packet)
+        return result
+
+
 class NoValidError(Exception):
     pass

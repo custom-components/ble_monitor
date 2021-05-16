@@ -29,7 +29,6 @@ from homeassistant.helpers.entity_registry import (
 # thanks to @vicamo
 from . import aioblescan_ext as aiobs
 from .ble_parser import ble_parser
-
 from .const import (
     DEFAULT_ROUNDING,
     DEFAULT_DECIMALS,
