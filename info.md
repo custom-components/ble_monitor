@@ -5,30 +5,17 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.0.2-beta
+# Changes in 2.1.0-beta
 
-- Remove battery from Yeelight Remote Control (not broadcasted) (YLYK01YL)
-- Split binary sensor in one binary sensor for short press and one for long press
-
-# Changes in 2.0.1-beta
-
-- Fix for getting xiaomi_index for Yeelight Remote Control (YLYK01YL)
-- Remove exception for Yeelight Remote Control (YLYK01YL) in packet_id check 
-
-# Changes in 2.0.0-beta
-
-- Add initial support for Yeelight Remote Control (YLYK01YL)
+- Add initial support for Yeelight Rotating dimmer (YLKG08YL) (with help of @rezmus)
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.9.2
+# Changes in 2.0.0
 
-- Add initial support for Xiaomi Mi Electric Toothbrush T500. This version is a first draft. We are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [issue #319](https://github.com/custom-components/ble_monitor/issues/319)
-- Add additional Qingping CGG1 sensors that use a different type code (thanks @swingerman)
-- Battery entities are now enabled by default. You can disable battery entities with `batt_entities: False`
-- Expand functionality of the `report_unknown` function, you can now specify a specific format to log (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale` or `Kegtron`) or you can even log all BLE advertisements (use `Other`). 
-- Bug fix for too short encrypted messages, fixes #322
+- Add support for Yeelight Remote (YLYK01YL)
+- Fix type in configuration screen (@syssi)
 
 
 {% endif %}
@@ -97,6 +84,7 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Keg
 |**M1S-T500**|**Xiaomi Mi Electric Toothbrush T500**<br /><br />Broadcasts `toothbrush mode` and `battery state`. At the moment, we are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [this topic](https://github.com/custom-components/ble_monitor/issues/319)|![M1S-T500](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/M1S-T500.jpg)|
 |**YLAI003**|**Yeelight Smart Wireless Switch**<br /><br />Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLAI003](![YLAI003](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLAI003.jpg)|
 |**YLYK01YL**|**Yeelight Remote Control**<br /><br />Broadcasts the remote button being used (`on`, `off`, `sun`, `+`, `M`, `-`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Additinally, two binary sensors are generated (one for `short press`, one for `long press`), which is `True` when pressing `on`, `+` or `-` and `False` when pressing `off`||
+|**YLKG08YL**|**Yeelight Rotating Dimmer**<br /><br />Broadcasts the press type (`rotate`, `rotate (presses)`, `short press`, `long press`). For rotation, it reports the rotation direction (`left`, `right`) and how far you rotate (1, 2 or 3 `clicks`). For `short press` it reports how many times you pressed the dimmer, for `long press` it reports the time you pressed the dimmer (for now, we assumed these are seconds, please report if this isn't correct). Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.||
 |**XMTZC01HM, XMTZC04HM**|**Mi Smart Scale 1 / Mi Smart Scale 2**<br /><br />Broadcasts `weight`, `non-stabilized weight` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC04HM.png)|
 |**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `non-stabilized weight`, `impedance` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, muscle mass etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC05HM.png)|
 |**Kegtron KT-100, KT-200**|**Kegtron KT-100 / KT-200**<br /><br />Broadcasts `volume dispensed` for each port and port attributes (`keg size`, `start volume`, `state`, `index` and `port name`. Kegtron devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![Kegtron](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/kegtron.jpg)|
@@ -323,7 +311,7 @@ ble_monitor:
 
 #### encryption_key
 
-   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1, MCCGQ02HL and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (string, 24 or 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes) for most devices, only YLKG08YL requires a 24 character (= 12 bytes) long key. This is only needed for LYWSD03MMC, CGD1, MCCGQ02HL, YLKG08YL and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
 ```yaml
 ble_monitor:

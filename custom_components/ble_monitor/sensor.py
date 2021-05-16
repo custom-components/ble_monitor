@@ -107,7 +107,7 @@ class BLEupdater():
             return temp
 
         async def async_add_sensor(mac, sensortype, firmware):
-            t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, re_i, w_i, nw_i, im_i, vd_i, to_i, v_i, b_i = MMTS_DICT[sensortype][0]
+            t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, re_i, di_i, w_i, nw_i, im_i, vd_i, to_i, v_i, b_i = MMTS_DICT[sensortype][0]
             if mac not in sensors_by_mac:
                 sensors = []
                 if t_i != 9:
@@ -130,6 +130,8 @@ class BLEupdater():
                     sensors.insert(bu_i, ButtonSensor(self.config, mac, sensortype, firmware))
                 if re_i != 9:
                     sensors.insert(re_i, RemoteSensor(self.config, mac, sensortype, firmware))
+                if di_i != 9:
+                    sensors.insert(di_i, DimmerSensor(self.config, mac, sensortype, firmware))
                 if w_i != 9:
                     sensors.insert(w_i, WeightSensor(self.config, mac, sensortype, firmware))
                 if nw_i != 9:
@@ -207,7 +209,7 @@ class BLEupdater():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, re_i, w_i, nw_i, im_i, vd_i, to_i, v_i, b_i = MMTS_DICT[sensortype][0]
+                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, re_i, di_i, w_i, nw_i, im_i, vd_i, to_i, v_i, b_i = MMTS_DICT[sensortype][0]
                 sensors = await async_add_sensor(mac, sensortype, firmware)
 
                 if data["data"] is False:
@@ -288,6 +290,14 @@ class BLEupdater():
                         remote.rssi_values = rssi[mac].copy()
                         remote.async_schedule_update_ha_state(True)
                         remote.pending_update = False
+                if "dimmer" in data and (di_i != 9):
+                    dimmer = sensors[di_i]
+                    # schedule an immediate update of dimmer sensors
+                    dimmer.collect(data, batt_attr)
+                    if dimmer.ready_for_update is True:
+                        dimmer.rssi_values = rssi[mac].copy()
+                        dimmer.async_schedule_update_ha_state(True)
+                        dimmer.pending_update = False
                 if "weight" in data and (w_i != 9):
                     weight = sensors[w_i]
                     # schedule an immediate update of weight sensors
@@ -432,6 +442,8 @@ class MeasuringSensor(RestoreEntity):
             self._device_state_attributes["last remote button pressed"] = old_state.attributes["last remote button pressed"]
         if "last type of press" in old_state.attributes:
             self._device_state_attributes["last type of press"] = old_state.attributes["last type of press"]
+        if "dimmer value" in old_state.attributes:
+            self._device_state_attributes["dimmer value"] = old_state.attributes["dimmer value"]
         if ATTR_BATTERY_LEVEL in old_state.attributes:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = old_state.attributes[ATTR_BATTERY_LEVEL]
         self.ready_for_update = True
@@ -825,6 +837,45 @@ class RemoteSensor(MeasuringSensor):
         self._device_state_attributes["firmware"] = data["firmware"]
         self._device_state_attributes["last remote button pressed"] = data["remote"]
         self._device_state_attributes["last type of press"] = data["press"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
+
+    async def async_update(self):
+        """Update."""
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        self.rssi_values.clear()
+        self.pending_update = False
+
+
+class DimmerSensor(MeasuringSensor):
+    """Representation of a Dimmer sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._press = "press"
+        self._dimmer = "dimmer"
+        self._name = "ble dimmer {}".format(self._device_name)
+        self._unique_id = "di_" + self._device_name
+        self._unit_of_measurement = None
+        self._device_class = None
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:rotate-right"
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
+        self._state = data[self._press] + " " + data[self._dimmer]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
+        self._device_state_attributes["dimmer value"] = data[self._dimmer]
+        self._device_state_attributes["last type of press"] = data[self._press]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True

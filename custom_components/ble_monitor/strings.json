@@ -12,7 +12,7 @@
           "period": "Period",
           "log_spikes": "Log spikes",
           "use_median": "Use median",
-          "active_scan": "Active can",
+          "active_scan": "Active scan",
           "bt_interface": "MAC address Bluetooth interface",
           "report_unknown": "Report unknown",
           "restore_state": "Restore state"
@@ -33,7 +33,7 @@
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
-      "invalid_key": "Encryption key must be 32 hexadecimal characters.",
+      "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for YLKG08YL).",
       "cannot_change_mac": "MAC address cannot be changed."
     },
     "abort": {
@@ -75,7 +75,7 @@
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
-      "invalid_key": "Encryption key must be 32 hexadecimal characters.",
+      "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for YLKG08YL).",
       "cannot_change_mac": "MAC address cannot be changed."
     },
     "abort": {

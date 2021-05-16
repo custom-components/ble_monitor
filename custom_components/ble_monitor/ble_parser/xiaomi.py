@@ -3,7 +3,6 @@ import logging
 import math
 import struct
 from Cryptodome.Cipher import AES
-import random
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,6 +37,7 @@ XIAOMI_TYPE_DICT = {
     b'\x89\x04': ("M1S-T500", False),
     b'\xBF\x07': ("YLAI003", False),
     b'\x53\x01': ("YLYK01YL", True),
+    b'\xB6\x03': ("YLKG08YL", False),
 }
 
 # Structured objects for data conversions
@@ -51,6 +51,7 @@ LIGHT_STRUCT = struct.Struct("<I")
 FMDH_STRUCT = struct.Struct("<H")
 M_STRUCT = struct.Struct("<L")
 P_STRUCT = struct.Struct("<H")
+BUTTON_STRUCT = struct.Struct("<BBB")
 
 
 # Advertisement conversion of measurement data
@@ -75,41 +76,100 @@ def obj0f00(xobj):
 
 
 def obj0110(xobj):
-    if xobj[0] == 0:
+    (button, value, press) = BUTTON_STRUCT.unpack(xobj)
+
+    # remote command and remote binary
+    if button == 0:
         remote_command = "on"
         remote_binary = 1
-    elif xobj[0] == 1:
+    elif button == 1:
         remote_command = "off"
         remote_binary = 0
-    elif xobj[0] == 2:
+    elif button == 2:
         remote_command = "sun"
         remote_binary = None
-    elif xobj[0] == 3:
+    elif button == 3:
         remote_command = "+"
         remote_binary = 1
-    elif xobj[0] == 4:
+    elif button == 4:
         remote_command = "m"
         remote_binary = None
-    elif xobj[0] == 5:
+    elif button == 5:
         remote_command = "-"
         remote_binary = 1
     else:
         remote_command = "unknown command"
         remote_binary = None
 
-    if xobj[2] == 0:
-        press = "single press"
-    elif xobj[2] == 1:
-        press = "double press"
-    elif xobj[2] == 2:
-        press = "long press"
+    # press type and dimmer
+    if press == 0:
+        press_type = "single press"
+        dimmer = None
+    elif press == 1:
+        press_type = "double press"
+        dimmer = None
+    elif press == 2:
+        press_type = "long press"
+        dimmer = None
+    elif press == 3:
+        if button == 0:
+            press_type = "short press"
+            dimmer = str("short press " + str(value) + " x")
+        if button == 1:
+            press_type = "long press"
+            dimmer = str("long press for " + str(value) + " seconds")
+    elif press == 4:
+        if button == 0:
+            if value == 1:
+                press_type = "rotate right"
+                dimmer = "1 click"
+            elif value == 5:
+                press_type = "rotate right"
+                dimmer = "2 clicks"
+            elif value == 17:
+                press_type = "rotate right"
+                dimmer = "3 clicks"
+            elif value == 255:
+                press_type = "rotate left"
+                dimmer = "1 click"
+            elif value == 245:
+                press_type = "rotate left"
+                dimmer = "2 click"
+            elif value == 240:
+                press_type = "rotate left"
+                dimmer = "3 clicks"
+            else:
+                press_type = "rotate"
+                dimmer = str("rotate with value " + str(value))
+        elif button == 1:
+            press_type = "rotate right (pressed)"
+            dimmer = "1 click"
+        elif button == 5:
+            press_type = "rotate right (pressed)"
+            dimmer = "2 clicks"
+        elif button == 17:
+            press_type = "rotate right (pressed)"
+            dimmer = "3 clicks"
+        elif button == 255:
+            press_type = "rotate left (pressed)"
+            dimmer = "1 click"
+        elif button == 245:
+            press_type = "rotate left (pressed)"
+            dimmer = "2 click"
+        elif button == 240:
+            press_type = "rotate left (pressed)"
+            dimmer = "3 clicks"
+        else:
+            press_type = "rotate (pressed)"
+            dimmer = str("rotate (pressed) with value " + str(value))
     else:
-        press = "no press"
+        press_type = "no press"
+        dimmer = None
 
     if remote_binary is None:
-        return {"press": press, "remote": remote_command}
+        return {"remote": remote_command, "press": press_type, "dimmer": dimmer}
     else:
-        return {"press": press, "remote": remote_command, "remote binary": remote_binary}
+        return {"remote": remote_command, "press": press_type, "remote binary": remote_binary, "dimmer": dimmer}
 
 
 def obj0410(xobj):
@@ -249,81 +309,84 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
     # parse BLE message in Xiaomi MiBeacon format
     try:
         firmware = "Xiaomi (MiBeacon)"
-
+        self.is_ext_packet = is_ext_packet
         # check for no BR/EDR + LE General discoverable mode flags
-        advert_start = 29 if is_ext_packet else 14
+        advert_start = 29 if self.is_ext_packet else 14
         adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
-        adv_index2 = data.find(b"\x15\x16\x95", advert_start, 3 + advert_start)
-        adv_index3 = data.find(b"\x14\x16\x95", advert_start, 3 + advert_start)
-        if adv_index == -1 and adv_index2 == -1 and adv_index3 == -1:
+        adv_index2 = data.find(b"\x14\x16\x95", advert_start, 3 + advert_start)
+        adv_index3 = data.find(b"\x15\x16\x95", advert_start, 3 + advert_start)
+        adv_index4 = data.find(b"\x18\x16\x95", advert_start, 3 + advert_start)
+        if adv_index == -1 and adv_index2 == -1 and adv_index3 == -1 and adv_index4 == -1:
             raise NoValidError("Invalid index")
         if adv_index2 != -1:
             adv_index = adv_index2
         elif adv_index3 != -1:
             adv_index = adv_index3
+        elif adv_index4 != -1:
+            adv_index = adv_index4
 
         # check for BTLE msg size
-        msg_length = data[2] + 3
-        if msg_length != len(data):
+        self.msg_length = data[2] + 3
+        if self.msg_length != len(data):
             raise NoValidError("Invalid msg size")
 
         # extract device type
-        device_type = data[xiaomi_index + 5:xiaomi_index + 7]
+        self.device_type = data[xiaomi_index + 5:xiaomi_index + 7]
 
         # extract frame control bits
-        framectrl_data = data[xiaomi_index + 3:xiaomi_index + 5]
-        framectrl, = struct.unpack('>H', framectrl_data)
+        self.framectrl_data = data[xiaomi_index + 3:xiaomi_index + 5]
+        framectrl, = struct.unpack('>H', self.framectrl_data)
 
         # flag advertisements without mac address in service data
-        if device_type == b'\xF6\x07' and framectrl_data == b'\x48\x59':
+        if self.device_type == b'\xF6\x07' and self.framectrl_data == b'\x48\x59':
             # MJYD02YL does not have a MAC address in the service data of some advertisements
             mac_in_service_data = False
-        elif device_type == b'\xDD\x03' and framectrl_data == b'\x40\x30':
+        elif self.device_type == b'\xDD\x03' and self.framectrl_data == b'\x40\x30':
             # MUE4094RT does not have a MAC address in the service data
             mac_in_service_data = False
         else:
             mac_in_service_data = True
 
         # check for MAC presence in message and in service data
-        mac_index = adv_index - 14 if is_ext_packet else adv_index
+        mac_index = adv_index - 14 if self.is_ext_packet else adv_index
         if mac_in_service_data is True:
-            xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
+            self.xiaomi_mac_reversed = data[xiaomi_index + 8:xiaomi_index + 14]
             source_mac_reversed = data[mac_index - 7:mac_index - 1]
-            if xiaomi_mac_reversed != source_mac_reversed:
+            if self.xiaomi_mac_reversed != source_mac_reversed:
                 raise NoValidError("Invalid MAC address")
         else:
             # for sensors without mac in service data, use the first mac in advertisment
-            xiaomi_mac_reversed = data[mac_index - 7:mac_index - 1]
+            self.xiaomi_mac_reversed = data[mac_index - 7:mac_index - 1]
 
         # check for MAC presence in whitelist, if needed
-        if self.discovery is False and xiaomi_mac_reversed not in self.whitelist:
+        if self.discovery is False and self.xiaomi_mac_reversed not in self.whitelist:
             return None, None, None
-        packet_id = data[xiaomi_index + 7]
+        self.packet_id = data[xiaomi_index + 7]
         try:
-            prev_packet = self.lpacket_ids[xiaomi_mac_reversed]
+            prev_packet = self.lpacket_ids[self.xiaomi_mac_reversed]
         except KeyError:
             # start with empty first packet
             prev_packet = None, None, None
-        if prev_packet == packet_id:
+        if prev_packet == self.packet_id:
             # only process new messages
             return None, None, None
-        self.lpacket_ids[xiaomi_mac_reversed] = packet_id
+        self.lpacket_ids[self.xiaomi_mac_reversed] = self.packet_id
 
         # extract RSSI byte
-        rssi_index = 18 if is_ext_packet else msg_length - 1
+        rssi_index = 18 if self.is_ext_packet else self.msg_length - 1
         (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
 
         # strange positive RSSI workaround
         if rssi > 0:
             rssi = -rssi
         try:
-            sensor_type, binary_data = XIAOMI_TYPE_DICT[device_type]
+            sensor_type, binary_data = XIAOMI_TYPE_DICT[self.device_type]
         except KeyError:
             if self.report_unknown == "Xiaomi":
                 _LOGGER.info(
                     "BLE ADV from UNKNOWN Xiaomi sensor: RSSI: %s, MAC: %s, ADV: %s",
                     rssi,
-                    ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+                    ''.join('{:02X}'.format(x) for x in self.xiaomi_mac_reversed[::-1]),
                     data.hex()
                 )
             raise NoValidError("Device unkown")
@@ -332,24 +395,24 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         if not (framectrl & 0x4000):
             return {
                 "rssi": rssi,
-                "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+                "mac": ''.join('{:02X}'.format(x) for x in self.xiaomi_mac_reversed[::-1]),
                 "type": sensor_type,
-                "packet": packet_id,
+                "packet": self.packet_id,
                 "firmware": firmware,
                 "data": False,
             }, None, None
-        xdata_length = 0
-        xdata_point = 0
+        self.xdata_length = 0
+        self.xdata_point = 0
 
         # check capability byte present
         if framectrl & 0x2000:
-            xdata_length = -1
-            xdata_point = 1
+            self.xdata_length = -1
+            self.xdata_point = 1
 
         # check for messages without mac address in service data
         if mac_in_service_data is False:
-            xdata_length = +6
-            xdata_point = -6
+            self.xdata_length = +6
+            self.xdata_point = -6
 
         # parse_xiaomi data length = message length
         #     -all bytes before XiaomiUUID
@@ -359,73 +422,33 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         #     -1 byte packet_id
         #     -6 bytes MAC (if present)
         #     -capability byte offset
-        xdata_length += msg_length - xiaomi_index - 15
-        if xdata_length < 3:
+        self.xdata_length += self.msg_length - xiaomi_index - 15
+        if self.xdata_length < 3:
             raise NoValidError("Xdata length invalid")
 
-        xdata_point += xiaomi_index + 14
+        self.xdata_point += xiaomi_index + 14
 
         # check if parse_xiaomi data start and length is valid
-        if xdata_length != len(data[xdata_point:-1]):
+        if self.xdata_length != len(data[self.xdata_point:-1]):
             raise NoValidError("Invalid data length")
 
-        # check encrypted data flags
+        # decryption of encrypted messages
         if framectrl & 0x0800:
-            # check for minimum length of encrypted advertisement
-            if xdata_length < 11:
-                raise NoValidError("Invalid encrypted data length")
-            # try to find encryption key for current device
-            try:
-                key = self.aeskeys[xiaomi_mac_reversed]
-            except KeyError:
-                # no encryption key found
-                raise NoValidError("No encryption key found")
-            nonce = b"".join(
-                [
-                    xiaomi_mac_reversed,
-                    device_type,
-                    data[xiaomi_index + 7:xiaomi_index + 8]
-                ]
-            )
-            endoffset = msg_length - int(not is_ext_packet)
-            encrypted_payload = data[xdata_point:endoffset]
-            aad = b"\x11"
-            token = encrypted_payload[-4:]
-            payload_counter = encrypted_payload[-7:-4]
-            nonce = b"".join([nonce, payload_counter])
-            cipherpayload = encrypted_payload[:-7]
-            cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
-            cipher.update(aad)
-
-            try:
-                decrypted_payload = cipher.decrypt_and_verify(cipherpayload, token)
-            except ValueError as error:
-                _LOGGER.error("Decryption failed: %s", error)
-                _LOGGER.error("token: %s", token.hex())
-                _LOGGER.error("nonce: %s", nonce.hex())
-                _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
-                _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
-                raise NoValidError("Error decrypting with arguments")
-            if decrypted_payload is None:
-                _LOGGER.error(
-                    "Decryption failed for %s, decrypted payload is None",
-                    "".join("{:02X}".format(x) for x in xiaomi_mac_reversed[::-1]),
-                )
-                raise NoValidError("Decryption failed")
-
-            # replace cipher with decrypted data
-            msg_length -= len(encrypted_payload)
-            if is_ext_packet:
-                data = b"".join((data[:xdata_point], decrypted_payload))
+            encrypted_length = len(data)
+            if self.device_type == b'\xB6\x03':
+                data = decrypt_mibeacon_legacy(self, data)
             else:
-                data = b"".join((data[:xdata_point], decrypted_payload, data[-1:]))
-            msg_length += len(decrypted_payload)
+                data = decrypt_mibeacon_v4_v5(self, data)
+            if data is None:
+                raise NoValidError("Data decryption failed")
+            decrypted_length = len(data)
+            self.msg_length = self.msg_length - encrypted_length + decrypted_length
 
         result = {
             "rssi": rssi,
-            "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+            "mac": ''.join('{:02X}'.format(x) for x in self.xiaomi_mac_reversed[::-1]),
             "type": sensor_type,
-            "packet": packet_id,
+            "packet": self.packet_id,
             "firmware": firmware,
             "data": True,
         }
@@ -435,24 +458,24 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         # loop through parse_xiaomi payload
         # assume that the data may have several values of different types
         while True:
-            xvalue_typecode = data[xdata_point:xdata_point + 2]
+            xvalue_typecode = data[self.xdata_point:self.xdata_point + 2]
             try:
-                xvalue_length = data[xdata_point + 2]
+                xvalue_length = data[self.xdata_point + 2]
             except ValueError as error:
                 _LOGGER.error("xvalue_length conv. error: %s", error)
-                _LOGGER.error("xdata_point: %s", xdata_point)
+                _LOGGER.error("xdata_point: %s", self.xdata_point)
                 _LOGGER.error("data: %s", data.hex())
                 result = {}
                 break
             except IndexError as error:
                 _LOGGER.error("Wrong xdata_point: %s", error)
-                _LOGGER.error("xdata_point: %s", xdata_point)
+                _LOGGER.error("xdata_point: %s", self.xdata_point)
                 _LOGGER.error("data: %s", data.hex())
                 result = {}
                 break
 
-            xnext_point = xdata_point + 3 + xvalue_length
-            xvalue = data[xdata_point + 3:xnext_point]
+            xnext_point = self.xdata_point + 3 + xvalue_length
+            xvalue = data[self.xdata_point + 3:xnext_point]
             resfunc, tbinary, tmeasuring = xiaomi_dataobject_dict.get(xvalue_typecode, (None, None, None))
 
             if resfunc:
@@ -464,13 +487,13 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
                     _LOGGER.info(
                         "UNKNOWN dataobject from Xiaomi DEVICE: %s, MAC: %s, ADV: %s",
                         sensor_type,
-                        ''.join('{:02X}'.format(x) for x in xiaomi_mac_reversed[::-1]),
+                        ''.join('{:02X}'.format(x) for x in self.xiaomi_mac_reversed[::-1]),
                         data.hex()
                     )
 
-            if xnext_point > msg_length - 3:
+            if xnext_point > self.msg_length - 3:
                 break
-            xdata_point = xnext_point
+            self.xdata_point = xnext_point
 
         binary = binary and binary_data
         return result, binary, measuring
@@ -479,6 +502,124 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         _LOGGER.debug("Invalid data: %s", nve)
 
     return None, None, None
+
+
+def decrypt_mibeacon_v4_v5(self, data):
+    try:
+        # check for minimum length of encrypted advertisement
+        if self.xdata_length < 11:
+            raise DecryptionError("Invalid encrypted data length")
+        # try to find encryption key for current device
+        try:
+            key = self.aeskeys[self.xiaomi_mac_reversed]
+            if len(key) != 16:
+                raise DecryptionError("Encryption key should be 16 bytes (32 characters) long")
+        except KeyError:
+            # no encryption key found
+            raise DecryptionError("No encryption key found")
+        endoffset = self.msg_length - int(not self.is_ext_packet)
+        encrypted_payload = data[self.xdata_point:endoffset]
+        payload_counter = b"".join([bytes([self.packet_id]), encrypted_payload[-7:-4]])
+        nonce = b"".join(
+            [
+                self.xiaomi_mac_reversed,
+                self.device_type,
+                payload_counter
+            ]
+        )
+
+        aad = b"\x11"
+        token = encrypted_payload[-4:]
+        cipherpayload = encrypted_payload[:-7]
+        cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
+        cipher.update(aad)
+
+        try:
+            decrypted_payload = cipher.decrypt_and_verify(cipherpayload, token)
+        except ValueError as error:
+            _LOGGER.error("Decryption failed: %s", error)
+            _LOGGER.error("token: %s", token.hex())
+            _LOGGER.error("nonce: %s", nonce.hex())
+            _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
+            _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
+            raise DecryptionError("Error decrypting with arguments")
+        if decrypted_payload is None:
+            _LOGGER.error(
+                "Decryption failed for %s, decrypted payload is None",
+                "".join("{:02X}".format(x) for x in self.xiaomi_mac_reversed[::-1]),
+            )
+            raise DecryptionError("Decrypted payload is empty")
+
+        # replace cipher with decrypted data
+        if self.is_ext_packet:
+            decrypted_data = b"".join((data[:self.xdata_point], decrypted_payload))
+        else:
+            decrypted_data = b"".join((data[:self.xdata_point], decrypted_payload, data[-1:]))
+
+        return decrypted_data
+
+    except DecryptionError as nve:
+        _LOGGER.error("Decryption MiBeacon V4/V5 advertisement failed: %s", nve)
+        return None
+
+
+def decrypt_mibeacon_legacy(self, data):
+    try:
+        # check for minimum length of encrypted advertisement
+        if self.xdata_length < 9:
+            raise DecryptionError("Invalid encrypted data length")
+        # try to find encryption key for current device
+        try:
+            aeskey = self.aeskeys[self.xiaomi_mac_reversed]
+            if len(aeskey) != 12:
+                raise DecryptionError("encryption key should be 12 bytes (24 characters) long")
+            key = b"".join([aeskey[0:6], bytes.fromhex("8d3d3c97"), aeskey[6:]])
+        except KeyError:
+            # no encryption key found
+            raise DecryptionError("No encryption key found")
+        endoffset = self.msg_length - int(not self.is_ext_packet)
+        encrypted_payload = data[self.xdata_point:endoffset]
+        payload_counter = b"".join([bytes([self.packet_id]), encrypted_payload[-4:-1]])
+        nonce = b"".join(
+            [
+                self.framectrl_data,
+                self.device_type,
+                payload_counter,
+                self.xiaomi_mac_reversed[:-1]
+            ]
+        )
+
+        aad = b"\x11"
+        cipherpayload = encrypted_payload[:-4]
+        cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
+        cipher.update(aad)
+
+        try:
+            decrypted_payload = cipher.decrypt(cipherpayload)
+        except ValueError as error:
+            _LOGGER.error("Decryption failed: %s", error)
+            _LOGGER.error("nonce: %s", nonce.hex())
+            _LOGGER.error("encrypted_payload: %s", encrypted_payload.hex())
+            _LOGGER.error("cipherpayload: %s", cipherpayload.hex())
+            raise DecryptionError("Error decrypting with arguments")
+        if decrypted_payload is None:
+            _LOGGER.error(
+                "Decryption failed for %s, decrypted payload is None",
+                "".join("{:02X}".format(x) for x in self.xiaomi_mac_reversed[::-1]),
+            )
+            raise DecryptionError("Decrypted payload is empty")
+
+        # replace cipher with decrypted data
+        if self.is_ext_packet:
+            decrypted_data = b"".join((data[:self.xdata_point], decrypted_payload))
+        else:
+            decrypted_data = b"".join((data[:self.xdata_point], decrypted_payload, data[-1:]))
+
+        return decrypted_data
+
+    except DecryptionError as nve:
+        _LOGGER.error("Decryption MiBeacon V2/V3 advertisement failed: %s", nve)
+        return None
 
 
 class XiaomiMiBeaconParser:
@@ -491,4 +632,8 @@ class XiaomiMiBeaconParser:
 
 
 class NoValidError(Exception):
+    pass
+
+
+class DecryptionError(Exception):
     pass
