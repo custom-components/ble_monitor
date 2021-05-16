@@ -7,7 +7,7 @@
 
 # Changes in 2.1.0-beta
 
-- Add initial support for Yeelight Rotating dimmer (YLKG08YL) (with help of @rezmus)
+- Add initial support for Yeelight Rotating dimmer (YLKG08YL) (with help of @rezmus and @rexbut)
 
 {% endif %}
 {% if installed or pending_update %}
