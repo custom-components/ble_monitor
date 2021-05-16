@@ -22,13 +22,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 1.9.2
+# Changes in 2.0.2
 
-- Add initial support for Xiaomi Mi Electric Toothbrush T500. This version is a first draft. We are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [issue #319](https://github.com/custom-components/ble_monitor/issues/319)
-- Add additional Qingping CGG1 sensors that use a different type code (thanks @swingerman)
-- Battery entities are now enabled by default. You can disable battery entities with `batt_entities: False`
-- Expand functionality of the `report_unknown` function, you can now specify a specific format to log (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale` or `Kegtron`) or you can even log all BLE advertisements (use `Other`). 
-- Bug fix for too short encrypted messages, fixes #322
+- Add support for Yeelight Remote Control (YLYK01YL)
+- Fix in configuration screen
 
 
 {% endif %}
