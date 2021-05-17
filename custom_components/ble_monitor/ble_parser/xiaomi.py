@@ -37,8 +37,11 @@ XIAOMI_TYPE_DICT = {
     b'\x89\x04': ("M1S-T500", False),
     b'\xBF\x07': ("YLAI003", False),
     b'\x53\x01': ("YLYK01YL", True),
-    b'\xB6\x03': ("YLKG08YL", False),
+    b'\xB6\x03': ("YLYK07YL/YLKG08YL", False),
 }
+
+# List of devices with legacy MiBeacon V2/V3 decryption
+LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLYK07YL/YLKG08YL"]
 
 # Structured objects for data conversions
 TH_STRUCT = struct.Struct("<hH")
@@ -405,7 +408,7 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         # decryption of encrypted messages
         if framectrl & 0x0800:
             encrypted_length = len(data)
-            if self.device_type == b'\xB6\x03':
+            if sensor_type in LEGACY_DECRYPT_LIST:
                 data = decrypt_mibeacon_legacy(self, data)
             else:
                 data = decrypt_mibeacon_v4_v5(self, data)

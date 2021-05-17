@@ -5,6 +5,11 @@
 
 # NB!: This is a Beta version
 
+# Changes in 2.1.2-beta
+
+- Add support for decrypted advertisements of Yeelight Remote Control (YLYK01YL)
+- Renamed YLKG08YL to YLYK07YL/YLKG08YL
+
 # Changes in 2.1.1-beta
 
 - Improved description of the state of the Yeelight Rotating dimmer (YLKG08YL)
