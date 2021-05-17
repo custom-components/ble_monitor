@@ -114,54 +114,24 @@ def obj0110(xobj):
     elif press == 3:
         if button == 0:
             press_type = "short press"
-            dimmer = str("short press " + str(value) + " x")
+            dimmer = str(value) + " x"
         if button == 1:
             press_type = "long press"
-            dimmer = str("long press for " + str(value) + " seconds")
+            dimmer = str(value) + " seconds"
     elif press == 4:
         if button == 0:
-            if value == 1:
+            if value <= 127:
                 press_type = "rotate right"
-                dimmer = "1 click"
-            elif value == 5:
-                press_type = "rotate right"
-                dimmer = "2 clicks"
-            elif value == 17:
-                press_type = "rotate right"
-                dimmer = "3 clicks"
-            elif value == 255:
-                press_type = "rotate left"
-                dimmer = "1 click"
-            elif value == 245:
-                press_type = "rotate left"
-                dimmer = "2 click"
-            elif value == 240:
-                press_type = "rotate left"
-                dimmer = "3 clicks"
+                dimmer = str(value) + " step(s)"
             else:
-                press_type = "rotate"
-                dimmer = str("rotate with value " + str(value))
-        elif button == 1:
+                press_type = "rotate left"
+                dimmer = str(256 - value) + " step(s)"
+        elif button <= 127:
             press_type = "rotate right (pressed)"
-            dimmer = "1 click"
-        elif button == 5:
-            press_type = "rotate right (pressed)"
-            dimmer = "2 clicks"
-        elif button == 17:
-            press_type = "rotate right (pressed)"
-            dimmer = "3 clicks"
-        elif button == 255:
-            press_type = "rotate left (pressed)"
-            dimmer = "1 click"
-        elif button == 245:
-            press_type = "rotate left (pressed)"
-            dimmer = "2 click"
-        elif button == 240:
-            press_type = "rotate left (pressed)"
-            dimmer = "3 clicks"
+            dimmer = str(button) + " step(s)"
         else:
-            press_type = "rotate (pressed)"
-            dimmer = str("rotate (pressed) with value " + str(value))
+            press_type = "rotate left (pressed)"
+            dimmer = str(256 - button) + " step(s)"
     else:
         press_type = "no press"
         dimmer = None
