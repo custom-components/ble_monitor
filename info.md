@@ -5,10 +5,15 @@
 
 # NB!: This is a Beta version
 
+# Changes in 2.1.3-beta
+
+- Rename YLYK7YL/YLKG08YL to YLKG07YL/YLKG08YL
+- Add encryption type to firmware attribute
+ 
 # Changes in 2.1.2-beta
 
 - Add support for decrypted advertisements of Yeelight Remote Control (YLYK01YL)
-- Renamed YLKG08YL to YLKG07YL/YLKG08YL
+- Renamed YLKG08YL to YLYK7YL/YLKG08YL
 
 # Changes in 2.1.1-beta
 
