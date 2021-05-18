@@ -307,6 +307,8 @@ And than run the first command again.
 
 Attach the created `dump.txt` to a new [issue](https://github.com/custom-components/ble_monitor/issues) as described above.
 
+If you don't have access to `hcidump`, you could also use the android app [Bluetooth LE Scanner](https://play.google.com/store/apps/details?id=uk.co.alt236.btlescan) to collect data.
+
 
 ### My sensor isn't showing the battery level
 
