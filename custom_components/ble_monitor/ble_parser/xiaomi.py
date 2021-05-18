@@ -37,11 +37,11 @@ XIAOMI_TYPE_DICT = {
     b'\x89\x04': ("M1S-T500", False),
     b'\xBF\x07': ("YLAI003", False),
     b'\x53\x01': ("YLYK01YL", True),
-    b'\xB6\x03': ("YLYK07YL/YLKG08YL", False),
+    b'\xB6\x03': ("YLKG07YL/YLKG08YL", False),
 }
 
 # List of devices with legacy MiBeacon V2/V3 decryption
-LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLYK07YL/YLKG08YL"]
+LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLKG07YL/YLKG08YL"]
 
 # Structured objects for data conversions
 TH_STRUCT = struct.Struct("<hH")
