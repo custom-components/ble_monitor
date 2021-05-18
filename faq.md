@@ -204,7 +204,11 @@ There are several ways to increase coverage:
 
 ### My sensor's BLE advertisements are encrypted, how can I get the key?
 
-The BLE messages from some sensors are encrypted. To decrypt these messages, you need to configure the encryption key. The encryption key (also called bind key) is visible at the moment it is created, e.g. when adding the sensor to the MiHome app, but it is also stored in the Xiaomi cloud. There are several ways to get the encryption key. The first 2 options are the easiest:
+There are two types of encryption, Yeelight Remotes (YLYK01YL) and dimmers (YLKG07YL and YLKG08YL) use a legacy MiBeacon (V2/V3) encryption, all other devices (with encryption) use the later MiBeacon V4/V5 encryption.
+
+#### How to get the MiBeacon V4/V5 encryption key
+
+The BLE advertisements from some devices are encrypted. To decrypt these messages, you need to configure the encryption key. This encryption key is a 16 bytes (32 characters) long string. The encryption key (also called bind key or beaconkey) is broadcasted at the moment it is created, e.g. when adding the sensor to the MiHome app, but it is also stored in the Xiaomi cloud. This means that there are several ways to get the encryption key. The first 2 options are the easiest:
 
 **1. Xiaomi Cloud Tokens Extractor**
 
@@ -251,6 +255,32 @@ Unfortunately, Xiaomi has enabled additional encryption of API requests recently
   - Android:
     - using Packet Capture.
     - [using Burp Suite](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-599780750), device must be rooted.
+
+
+#### How to get the MiBeacon V2/V3 encryption key
+
+Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legacy type of encryption. This MiBeacon V2/V3 encryption key is shorter than the MiBeacon V4/V5 encryption key, as it is a 12 bytes (24 characters) long string. You can't retrieve the encryption key with method 1 till 3 from above, as it can't be added to MiHome. Method 4 might work, but if the remote is connected to a ceiling light, it's easier to follow the following procedure. 
+
+**5. miiocli tool**
+
+You can get the encryption key with the [miiocli tool (python-miio)](https://github.com/rytilahti/python-miio). 
+
+- First get the IP address and TOKEN of your the device the remote/dimmer is connected to with [Xiaomi cloud token extractor](). Login with your Xiaomi credentials and make a note of the `<IP>` and `<TOKEN>` of the device the remote/dimmer is connected to, e.g. a Yeelight ceiling light. 
+- Install `python-miio`, installation instructions can be found [in the documentation](https://python-miio.readthedocs.io/en/latest/discovery.html#installation).
+- Send the following command, while replacing `<IP>` and `<TOKEN>` with the result of the first step. 
+
+```
+miiocli device --ip <IP> --token <TOKEN> raw_command ble_dbg_tbl_dump '{"table":"evtRuleTbl"}'
+```
+
+This will return something like:
+
+```
+Running command raw_command
+[{'mac': '3b48c54324e4', 'evtid': 4097, 'pid': 950, 'beaconkey': 'c451234558487ca39a5b5ab8'}, {'mac': '1230e94124e3', 'evtid': 4097, 'pid': 339, 'beaconkey': '341342546305f34c2cea3fde'}]
+```
+
+Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key you will need. `'pid': 950`corresponds to the remote, `'pid': 339`corresponds to the dimmer. The mac is reversed per two, so in the example above, the MAC of the remote is E4:24:43:C5:48:3B.
 
 ## OTHER ISSUES
 
