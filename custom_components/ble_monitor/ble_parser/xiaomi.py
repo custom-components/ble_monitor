@@ -409,8 +409,10 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         if framectrl & 0x0800:
             encrypted_length = len(data)
             if sensor_type in LEGACY_DECRYPT_LIST:
+                firmware = "Xiaomi (MiBeacon V2/V3 encrypted)"
                 data = decrypt_mibeacon_legacy(self, data)
             else:
+                firmware = "Xiaomi (MiBeacon V4/V5 encrypted)"
                 data = decrypt_mibeacon_v4_v5(self, data)
             if data is None:
                 raise NoValidError("Data decryption failed")
