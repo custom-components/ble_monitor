@@ -284,11 +284,11 @@ Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key yo
 
 **6. MiHome mod (Android only)**
 
-If you don't have a device (ceiling light) to pair your remote/dimmer with, you can get the key with the customized [MiHome mod](https://www.kapiba.ru/2017/11/mi-home.html) with the following steps.
+If you don't have a device (ceiling light) to pair your remote/dimmer with, you can get the key with the customized [MiHome mod](https://ru.kapiba.ru/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) with the following steps.
 
 - You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
 - Create a folder `/devicestorage/vevs/logs/`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app. 
-- [Download](https://www.kapiba.ru/2017/11/mi-home.html) the latest version of MiHome mod and install the MiHome mod apk on your android phone. Use google translate to translate the website, as the website is only available in Russian. At the bottom, you will find the download link to the latest version. MiHome mod is basically just MiHome with some translatons from chinese to English and Russian, but also with the possibility to save the encryption key.
+- [Download MiHome mod](https://ru.kapiba.ru/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) (Make sure your have the modified version 6.5.700_63911_vevs_dimmer.apk) and install the MiHome mod apk on your android phone. MiHome mod is basically just MiHome with some translatons from Chinese to English and Russian, but also with the possibility to save the encryption key and in this specific version the possibility to add the dimmer/remote.
 - During setup of the app, give access to the local device storage.
 - It's suggested to choose India as the region, as this will allow you to use a temporary account and the beaconkey won't change anymore. 
 - Put your device in pairing mode, click + and pair the remote to the MiHome app.
