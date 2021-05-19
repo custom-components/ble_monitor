@@ -265,7 +265,7 @@ Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legac
 
 You can get the encryption key with the [miiocli tool (python-miio)](https://github.com/rytilahti/python-miio). 
 
-- First get the IP address and TOKEN of your the device the remote/dimmer is connected to with [Xiaomi cloud token extractor](). Login with your Xiaomi credentials and make a note of the `<IP>` and `<TOKEN>` of the device the remote/dimmer is connected to, e.g. a Yeelight ceiling light. 
+- First get the IP address and TOKEN of your the device the remote/dimmer is connected to with [Xiaomi cloud token extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). Login with your Xiaomi credentials and make a note of the `<IP>` and `<TOKEN>` of the device the remote/dimmer is connected to, e.g. a Yeelight ceiling light. 
 - Install `python-miio`, installation instructions can be found [in the documentation](https://python-miio.readthedocs.io/en/latest/discovery.html#installation).
 - Send the following command, while replacing `<IP>` and `<TOKEN>` with the result of the first step. 
 
