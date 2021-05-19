@@ -64,7 +64,8 @@ from .const import (
     DOMAIN,
     PLATFORMS,
     MAC_REGEX,
-    AES128KEY_REGEX,
+    AES128KEY24_REGEX,
+    AES128KEY32_REGEX,
     SERVICE_CLEANUP_ENTRIES,
 )
 
@@ -90,7 +91,9 @@ DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
         vol.Optional(CONF_NAME): cv.string,
-        vol.Optional(CONF_ENCRYPTION_KEY): cv.matches_regex(AES128KEY_REGEX),
+        vol.Optional(CONF_ENCRYPTION_KEY): vol.Any(
+            cv.matches_regex(AES128KEY24_REGEX), cv.matches_regex(AES128KEY32_REGEX)
+        ),
         vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
         vol.Optional(
             CONF_DEVICE_DECIMALS, default=DEFAULT_DEVICE_DECIMALS

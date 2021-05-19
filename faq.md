@@ -204,7 +204,11 @@ There are several ways to increase coverage:
 
 ### My sensor's BLE advertisements are encrypted, how can I get the key?
 
-The BLE messages from some sensors are encrypted. To decrypt these messages, you need to configure the encryption key. The encryption key (also called bind key) is visible at the moment it is created, e.g. when adding the sensor to the MiHome app, but it is also stored in the Xiaomi cloud. There are several ways to get the encryption key. The first 2 options are the easiest:
+There are two types of encryption, Yeelight Remotes (YLYK01YL) and dimmers (YLKG07YL and YLKG08YL) use a legacy MiBeacon (V2/V3) encryption, all other devices (with encryption) use the later MiBeacon V4/V5 encryption.
+
+#### How to get the MiBeacon V4/V5 encryption key
+
+The BLE advertisements from some devices are encrypted. To decrypt these messages, you need to configure the encryption key. This encryption key is a 16 bytes (32 characters) long string. The encryption key (also called bind key or beaconkey) is broadcasted at the moment it is created, e.g. when adding the sensor to the MiHome app, but it is also stored in the Xiaomi cloud. This means that there are several ways to get the encryption key. The first 2 options are the easiest:
 
 **1. Xiaomi Cloud Tokens Extractor**
 
@@ -232,8 +236,8 @@ Note that this last step will generate a new encryption key, which means it won'
 Get the key with the customized [MiHome mod](https://www.kapiba.ru/2017/11/mi-home.html) with the following steps.
 
 - You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
-- Create a folder `/devicestorage/vevs/logs`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app. 
-- [Download](https://www.kapiba.ru/2017/11/mi-home.html) MiHome mod and install the MiHome mod apk on your android phone. Use google translate to translate the website, as the website is only available in Russian. At the bottom, you will find the download link to the latest version. MiHome mod is basically just MiHome with some translatons from chinese to English and Russian, but also with the possibility to save the encryption key.
+- Create a folder `/devicestorage/vevs/logs/`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app. 
+- [Download](https://www.kapiba.ru/2017/11/mi-home.html) the latest version of MiHome mod and install the MiHome mod apk on your android phone. Use google translate to translate the website, as the website is only available in Russian. At the bottom, you will find the download link to the latest version. MiHome mod is basically just MiHome with some translatons from chinese to English and Russian, but also with the possibility to save the encryption key.
 - During setup of the app, give access to the local device storage.
 - Add the sensor device to the MiHome app.
 - After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod. 
@@ -251,6 +255,50 @@ Unfortunately, Xiaomi has enabled additional encryption of API requests recently
   - Android:
     - using Packet Capture.
     - [using Burp Suite](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-599780750), device must be rooted.
+
+
+#### How to get the MiBeacon V2/V3 encryption key
+
+Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legacy type of encryption. This MiBeacon V2/V3 encryption key is shorter than the MiBeacon V4/V5 encryption key, as it is a 12 bytes (24 characters) long string. You won't be able to retrieve the encryption key with method 1 and 2 from above. If you're remote is connected to a ceiling light, the easiest way is to follow method 5 (miiocli tool). If you don't have a device it is connected to, you can follow method 6 (which is more or less similar to method 3 from above.
+
+**5. miiocli tool**
+
+You can get the encryption key with the [miiocli tool (python-miio)](https://github.com/rytilahti/python-miio). 
+
+- First get the IP address and TOKEN of your the device the remote/dimmer is connected to with [Xiaomi cloud token extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). Login with your Xiaomi credentials and make a note of the `<IP>` and `<TOKEN>` of the device the remote/dimmer is connected to, e.g. a Yeelight ceiling light. 
+- Install `python-miio`, installation instructions can be found [in the documentation](https://python-miio.readthedocs.io/en/latest/discovery.html#installation).
+- Send the following command, while replacing `<IP>` and `<TOKEN>` with the result of the first step. 
+
+```
+miiocli device --ip <IP> --token <TOKEN> raw_command ble_dbg_tbl_dump '{"table":"evtRuleTbl"}'
+```
+
+This will return something like:
+
+```
+Running command raw_command
+[{'mac': '3b48c54324e4', 'evtid': 4097, 'pid': 950, 'beaconkey': 'c451234558487ca39a5b5ab8'}, {'mac': '1230e94124e3', 'evtid': 4097, 'pid': 339, 'beaconkey': '341342546305f34c2cea3fde'}]
+```
+
+Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key you will need. `'pid': 950`corresponds to the dimmer, `'pid': 339`corresponds to the remote. The mac is reversed per two, so in the example above, the MAC of the remote is E4:24:43:C5:48:3B.
+
+**6. MiHome mod (Android only)**
+
+If you don't have a device (ceiling light) to pair your remote/dimmer with, you can get the key with the customized [MiHome mod](https://ru.kapiba.ru/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) with the following steps.
+
+- You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
+- Create a folder `/devicestorage/vevs/logs/`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app. 
+- [Download MiHome mod](https://ru.kapiba.ru/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) (Make sure your have the modified version 6.5.700_63911_vevs_dimmer.apk) and install the MiHome mod apk on your android phone. MiHome mod is basically just MiHome with some translatons from Chinese to English and Russian, but also with the possibility to save the encryption key and in this specific version the possibility to add the dimmer/remote.
+- During setup of the app, give access to the local device storage.
+- It's suggested to choose India as the region, as this will allow you to use a temporary account and the beaconkey won't change anymore. 
+- Put your device in pairing mode, click + and pair the remote to the MiHome app.
+- After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod.
+- You can also read the key after the pairing with [Xiaomi cloud token extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). Use region `i2` if you have selected India before. 
+
+**7. Read beaconkey directly with Bluetooth controller**
+
+Some people are currently looking into the possibility to get the [beacon key directly](https://github.com/archaron/docs/blob/master/BLE/ylkg08y.md). If you have more information or a script to do this, please create an issue and share the information. 
+
 
 ## OTHER ISSUES
 
@@ -306,6 +354,8 @@ sudo hciconfig hci0 reset
 And than run the first command again. 
 
 Attach the created `dump.txt` to a new [issue](https://github.com/custom-components/ble_monitor/issues) as described above.
+
+If you don't have access to `hcidump`, you could also use the android app [Bluetooth LE Scanner](https://play.google.com/store/apps/details?id=uk.co.alt236.btlescan) to collect data.
 
 
 ### My sensor isn't showing the battery level

@@ -50,7 +50,8 @@ from .const import (
     CONFIG_IS_FLOW,
     DOMAIN,
     MAC_REGEX,
-    AES128KEY_REGEX,
+    AES128KEY24_REGEX,
+    AES128KEY32_REGEX,
 )
 
 from . import (
@@ -138,8 +139,9 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         """Key validation."""
         if not value or value == "-":
             return
-        if not self.validate_regex(value, AES128KEY_REGEX):
-            errors[CONF_ENCRYPTION_KEY] = "invalid_key"
+        if not self.validate_regex(value, AES128KEY24_REGEX):
+            if not self.validate_regex(value, AES128KEY32_REGEX):
+                errors[CONF_ENCRYPTION_KEY] = "invalid_key"
 
     def _show_main_form(self, errors=None):
         _LOGGER.error("_show_main_form: shouldn't be here")

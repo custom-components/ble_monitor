@@ -5,28 +5,31 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.0.2-beta
+# Changes in 2.1.3-beta
 
-- Remove battery from Yeelight Remote Control (not broadcasted) (YLYK01YL)
-- Split binary sensor in one binary sensor for short press and one for long press
+- Rename YLYK07YL/YLKG08YL to YLKG07YL/YLKG08YL
+- Add encryption type to firmware attribute
+ 
+# Changes in 2.1.2-beta
 
-# Changes in 2.0.1-beta
+- Add support for decrypted advertisements of Yeelight Remote Control (YLYK01YL)
+- Renamed YLKG08YL to YLYK07YL/YLKG08YL
 
-- Fix for getting xiaomi_index for Yeelight Remote Control (YLYK01YL)
-- Remove exception for Yeelight Remote Control (YLYK01YL) in packet_id check 
+# Changes in 2.1.1-beta
 
-# Changes in 2.0.0-beta
+- Improved description of the state of the Yeelight Rotating dimmer (YLKG08YL)
 
-- Add initial support for Yeelight Remote Control (YLYK01YL)
+# Changes in 2.1.0-beta
+
+- Add initial support for Yeelight Rotating dimmer (YLKG08YL) (with help of @rezmus and @rexbut)
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 2.0.2
+# Changes in 2.1.3
 
-- Add support for Yeelight Remote Control (YLYK01YL)
-- Fix in configuration screen
-
+- Add support for Yeelight dimmers (YLKG07YL/YLKG08YL). These dimmers require a encryption key (24 characters), for instructions to find the key, check the [FAQ](https://github.com/custom-components/ble_monitor/blob/Yeelight-dimmer-YLKG08YL/faq.md#how-to-get-the-mibeacon-v2v3-encryption-key). Special thanks to @rezmus with the support for adding this. 
+- Add support for decrypted advertisements of Yeelight Remote Control (YLYK01YL). This remote seems to (partly) use encryption, to receive all messages, you will need to configure the encryption key (24 characters), check the [FAQ](https://github.com/custom-components/ble_monitor/blob/Yeelight-dimmer-YLKG08YL/faq.md#how-to-get-the-mibeacon-v2v3-encryption-key) for instructions.
 
 {% endif %}
 
@@ -93,7 +96,8 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Keg
 |**MMC-T201-1**|**Xiaomi Miaomiaoce Digital Baby Thermometer**. Broadcasts temperature and battery state. The calculated body temperature is displayed in BLE Monitor, please note the disclaimer below. About 15-20 messages per minute.<br /><br />**DISCLAIMER**<br />The sensor sends two temperatures in the BLE advertisements, that are converted to a body temperature with a certain algorithm in the original app. We tried to reverse engineering this relation, but we were only able to approximate the relation in the range of 36.5°C - 37.9°C at this moment. It has not been calibrated at elevated body temperature (e.g. if someone has a fever), so measurements displayed in Home Assistant might be different (wrong) compared to those reported in the app. It is therefore advised NOT to rely on the measurements in BLE monitor if you want to monitor your or other peoples body temperature / health). If you have additional measurements, especially outside the investigated range, please report them in this [issue](https://github.com/custom-components/ble_monitor/issues/264).|![MMC-T201-1](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/MMC-T201-1.jpg)|
 |**M1S-T500**|**Xiaomi Mi Electric Toothbrush T500**<br /><br />Broadcasts `toothbrush mode` and `battery state`. At the moment, we are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [this topic](https://github.com/custom-components/ble_monitor/issues/319)|![M1S-T500](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/M1S-T500.jpg)|
 |**YLAI003**|**Yeelight Smart Wireless Switch**<br /><br />Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLAI003](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLAI003.jpg)|
-|**YLYK01YL**|**Yeelight Remote Control**<br /><br />Broadcasts the remote button being used (`on`, `off`, `sun`, `+`, `M`, `-`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Additinally, two binary sensors are generated (one for `short press`, one for `long press`), which is `True` when pressing `on`, `+` or `-` and `False` when pressing `off`|![YLYK01YL](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLYK01YL.jpg)|
+|**YLYK01YL**|**Yeelight Remote Control**<br /><br />Broadcasts the remote button being used (`on`, `off`, `sun`, `+`, `M`, `-`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Additinally, two binary sensors are generated (one for `short press`, one for `long press`), which is `True` when pressing `on`, `+` or `-` and `False` when pressing `off`. Advertisements are (partly) encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLYK01YL](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLYK01YL.jpg)|
+|**YLKG07YL, YLKG08YL**|**Yeelight Rotating Dimmer**<br /><br />Broadcasts the press type (`rotate`, `rotate (presses)`, `short press`, `long press`). For rotation, it reports the rotation direction (`left`, `right`) and how far you rotate (number of `steps`). For `short press` it reports how many times you pressed the dimmer, for `long press` it reports the time (in seconds) you pressed the dimmer. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.||
 |**XMTZC01HM, XMTZC04HM**|**Mi Smart Scale 1 / Mi Smart Scale 2**<br /><br />Broadcasts `weight`, `non-stabilized weight` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC04HM.png)|
 |**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `non-stabilized weight`, `impedance` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, muscle mass etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC05HM.png)|
 |**Kegtron KT-100, KT-200**|**Kegtron KT-100 / KT-200**<br /><br />Broadcasts `volume dispensed` for each port and port attributes (`keg size`, `start volume`, `state`, `index` and `port name`. Kegtron devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![Kegtron](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/kegtron.jpg)|
@@ -320,7 +324,7 @@ ble_monitor:
 
 #### encryption_key
 
-   (string, 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes). This is only needed for LYWSD03MMC, CGD1, MCCGQ02HL and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (string, 24 or 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes) for most devices, only Yeelight YLYK01YL, YLKG07YL and YLKG08YL require a 24 character (= 12 bytes) long key. This is only needed for LYWSD03MMC, CGD1, MCCGQ02HL, YLYK01YL, YLKG07YL, YLKG08YL and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
 ```yaml
 ble_monitor:
