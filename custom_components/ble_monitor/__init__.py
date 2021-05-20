@@ -28,7 +28,7 @@ from homeassistant.helpers.entity_registry import (
 # the official aioblescan repo see https://github.com/frawau/aioblescan/pull/30,
 # thanks to @vicamo
 from . import aioblescan_ext as aiobs
-from .ble_parser import ble_parser
+from .ble_parser import ble_parser, BLEinterface
 from .const import (
     DEFAULT_ROUNDING,
     DEFAULT_DECIMALS,
@@ -74,10 +74,10 @@ _LOGGER = logging.getLogger(__name__)
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
 
-BT_INTERFACES = aiobs.get_bt_interface_mac([0, 1, 2, 3])
-BT_HCI_INTERFACES = list(BT_INTERFACES.keys())
-BT_MAC_INTERFACES = list(BT_INTERFACES.values())
 try:
+    BT_INTERFACES = BLEinterface.get_mac([0, 1, 2, 3])
+    BT_HCI_INTERFACES = list(BT_INTERFACES.keys())
+    BT_MAC_INTERFACES = list(BT_INTERFACES.values())
     DEFAULT_BT_INTERFACE = list(BT_INTERFACES.items())[0][1]
     DEFAULT_HCI_INTERFACE = list(BT_INTERFACES.items())[0][0]
 except IndexError:

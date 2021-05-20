@@ -25,7 +25,7 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 # IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
-import socket, platform, asyncio, subprocess
+import socket, platform, asyncio
 from struct import pack, unpack, calcsize
 
 
@@ -49,8 +49,6 @@ MY_UUID = b"\x90\x6e\xd6\xab\x67\x85\x4e\xab\x98\x47\xbf\x98\x89\xc0\x98\xae"
 #
 # Let's define some useful types
 #
-
-
 class MACAddr:
     """Class representing a MAC address.
 
@@ -895,11 +893,11 @@ class HCI_Cmd_LE_Set_Scan_Params(HCI_Command):
                                                      2 => Private with public fallback
                                                      3 => Private with random fallback
         :type oaddr_type: int
-        :param filter: How white list filter is applied. 0 => No filter (Default)
-                                                         1 => sender must be in white list
-                                                         2 => Similar to 0. Some directed advertising may be received.
-                                                         3 => Similar to 1. Some directed advertising may be received.
-        :type filter: int
+        :param nfilter: How white list filter is applied. 0 => No filter (Default)
+                                                          1 => sender must be in white list
+                                                          2 => Similar to 0. Some directed advertising may be received.
+                                                          3 => Similar to 1. Some directed advertising may be received.
+        :type nfilter: int
         :returns: HCI_Cmd_LE_Set_Scan_Params instance.
         :rtype: HCI_Cmd_LE_Set_Scan_Params
 
@@ -992,7 +990,7 @@ class HCI_Cmd_LE_Set_Advertised_Params(HCI_Command):
         :type interval_min: int/float
         :param interval_max: maximum advertising interval in ms. Default 750
         :type interval_max: int/float
-        :param adv_type: Type of advertising. Value 0 +> Connectable, Scannable advertising
+        :param adv_type: Type of advertising. Value 0 +> Connectable, Scanable advertising
                                                     1 => Connectable directed advertising (High duty cycle)
                                                     2 => Scannable Undirected advertising
                                                     3 => Non connectable undirected advertising (default)
@@ -1010,11 +1008,11 @@ class HCI_Cmd_LE_Set_Advertised_Params(HCI_Command):
         :param cmap: Channel map. A bit field dfined as  "Channel 37","Channel 38","Channel 39","RFU","RFU","RFU","RFU","RFU"
         Default value is 0x7. The value 0x0 is RFU.
         :type cmap: int
-        :param filter: How white list filter is applied. 0 => No filter (Default)
-                                                         1 => scan are filtered
-                                                         2 => Connection are filtered
-                                                         3 => scan and connection are filtered
-        :type filter: int
+        :param nfilter: How white list filter is applied. 0 => No filter (Default)
+                                                          1 => scan are filtered
+                                                          2 => Connection are filtered
+                                                          3 => scan and connection are filtered
+        :type nfilter: int
         :returns: HCI_Cmd_LE_Scan_Params instance.
         :rtype: HCI_Cmd_LE_Scan_Params
 
@@ -1317,6 +1315,7 @@ class HCI_Event(Packet):
 
 class HCI_CC_Event(Packet):
     """Command Complete event"""
+
     def __init__(self):
         self.name = "Command Completed"
         self.payload = [UIntByte("allow pkt"), OgfOcf("cmd"), Itself("resp code")]
@@ -1717,7 +1716,6 @@ def create_bt_socket(interface=None):
                 interface = "ubt0"
             libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
             # bind/connect via libc is required due to https://bugs.python.org/issue41130
-
             class SockaddrHci(ctypes.Structure):
                 _fields_ = [
                     ("hci_len", ctypes.c_char),
@@ -1765,19 +1763,6 @@ def create_bt_socket(interface=None):
         )
     return sock
 
-
-def get_bt_interface_mac(interface_list=[0]):
-    # Get dict of available bluetooth interfaces, returns hci and mac
-    btaddress_dict = {}
-    status, output = subprocess.getstatusoutput("hciconfig")
-
-    for interface in interface_list:
-        hci_id = "hci{}".format(interface)
-        try:
-            btaddress_dict[interface] = output.split("{}:".format(hci_id))[1].split("BD Address: ")[1].split(" ")[0].strip()
-        except IndexError:
-            pass
-    return btaddress_dict
 
 ###########
 
@@ -1852,11 +1837,11 @@ class BLEScanRequester(asyncio.Protocol):
         if self._uninitialized:
             ev = HCI_Event()
             extra_data = ev.decode(packet)
-            if ev.payload[0].val == b'\x0e':
+            if ev.payload[0].val == b"\x0e":
                 cc = ev.retrieve("Command Completed")[0]
                 cmd = cc.retrieve(OgfOcf)[0]
                 opcode = (ord(cmd.ogf) << 10) | ord(cmd.ocf)
-                resp = cc.retrieve('resp code')[0]
+                resp = cc.retrieve("resp code")[0]
                 if opcode == 0x1002:
                     self._handle_cc_read_local_supported_commands(resp)
                 elif opcode == 0x2003:
