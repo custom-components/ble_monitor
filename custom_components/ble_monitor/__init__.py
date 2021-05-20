@@ -1,4 +1,5 @@
 """Passive BLE monitor integration."""
+import aioblescan as aiobs
 import asyncio
 import copy
 import json
@@ -23,11 +24,6 @@ from homeassistant.helpers.entity_registry import (
     async_entries_for_device,
 )
 
-# It was decided to temporarily include this file in the integration bundle
-# until the issue with checking the adapter's capabilities is resolved in
-# the official aioblescan repo see https://github.com/frawau/aioblescan/pull/30,
-# thanks to @vicamo
-from . import aioblescan_ext as aiobs
 from .ble_parser import ble_parser, BLEinterface
 from .const import (
     DEFAULT_ROUNDING,
