@@ -5,23 +5,10 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.1.3-beta
+# Changes in 2.2.0-beta
 
-- Rename YLYK07YL/YLKG08YL to YLKG07YL/YLKG08YL
-- Add encryption type to firmware attribute
- 
-# Changes in 2.1.2-beta
-
-- Add support for decrypted advertisements of Yeelight Remote Control (YLYK01YL)
-- Renamed YLKG08YL to YLYK07YL/YLKG08YL
-
-# Changes in 2.1.1-beta
-
-- Improved description of the state of the Yeelight Rotating dimmer (YLKG08YL)
-
-# Changes in 2.1.0-beta
-
-- Add initial support for Yeelight Rotating dimmer (YLKG08YL) (with help of @rezmus and @rexbut)
+- Add support for Yeelight Fan Remote control (YLYK01YL-FANCL)
+- Removal of modified aioblescan and move back to aioblescan 2.8. All changes have been added to the original aiblescan pypi package, so we can say goodbye to our own modified version.
 
 {% endif %}
 {% if installed or pending_update %}
@@ -97,6 +84,7 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Keg
 |**M1S-T500**|**Xiaomi Mi Electric Toothbrush T500**<br /><br />Broadcasts `toothbrush mode` and `battery state`. At the moment, we are looking into the meaning of the different states. If you have more info which state corresponds to what, please post a message in [this topic](https://github.com/custom-components/ble_monitor/issues/319)|![M1S-T500](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/M1S-T500.jpg)|
 |**YLAI003**|**Yeelight Smart Wireless Switch**<br /><br />Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLAI003](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLAI003.jpg)|
 |**YLYK01YL**|**Yeelight Remote Control**<br /><br />Broadcasts the remote button being used (`on`, `off`, `sun`, `+`, `M`, `-`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Additinally, two binary sensors are generated (one for `short press`, one for `long press`), which is `True` when pressing `on`, `+` or `-` and `False` when pressing `off`. Advertisements are (partly) encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLYK01YL](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLYK01YL.jpg)|
+|**YLYK01YL-FANCL**|**Yeelight Fan Remote Control**<br /><br />Broadcasts the remote button being used (`fan toggle`, `light toggle`, `wind speed`, `brightness min`, `wind mode`, `brightness plus`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Advertisements are (partly) encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.||
 |**YLKG07YL, YLKG08YL**|**Yeelight Rotating Dimmer**<br /><br />Broadcasts the press type (`rotate`, `rotate (presses)`, `short press`, `long press`). For rotation, it reports the rotation direction (`left`, `right`) and how far you rotate (number of `steps`). For `short press` it reports how many times you pressed the dimmer, for `long press` it reports the time (in seconds) you pressed the dimmer. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLKG07YL_YLKG08YL](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLKG07YL_YLKG08YL.png)|
 |**XMTZC01HM, XMTZC04HM**|**Mi Smart Scale 1 / Mi Smart Scale 2**<br /><br />Broadcasts `weight`, `non-stabilized weight` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC04HM.png)|
 |**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `non-stabilized weight`, `impedance` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, muscle mass etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC05HM.png)|
