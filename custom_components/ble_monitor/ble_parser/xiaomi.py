@@ -92,20 +92,20 @@ def obj0110(xobj):
         fan_remote_command = "light toggle"
         remote_binary = 0
     elif button == 2:
-        remote_command = "sun"
-        fan_remote_command = "wind speed"
+        remote_command = "color temperature"
+        fan_remote_command = "standard wind speed"
         remote_binary = None
     elif button == 3:
         remote_command = "+"
-        fan_remote_command = "brightness min"
+        fan_remote_command = "color temperature"
         remote_binary = 1
     elif button == 4:
         remote_command = "m"
-        fan_remote_command = "wind mode"
+        fan_remote_command = "natural wind speed"
         remote_binary = None
     elif button == 5:
         remote_command = "-"
-        fan_remote_command = "brightness min"
+        fan_remote_command = "brightness"
         remote_binary = 1
     else:
         remote_command = "unknown command"
