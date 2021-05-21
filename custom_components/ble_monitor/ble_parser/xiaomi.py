@@ -37,11 +37,12 @@ XIAOMI_TYPE_DICT = {
     b'\x89\x04': ("M1S-T500", False),
     b'\xBF\x07': ("YLAI003", False),
     b'\x53\x01': ("YLYK01YL", True),
+    b'\x8E\x06': ("YLYK01YL-FANCL", False),
     b'\xB6\x03': ("YLKG07YL/YLKG08YL", False),
 }
 
 # List of devices with legacy MiBeacon V2/V3 decryption
-LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLKG07YL/YLKG08YL"]
+LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLYK01YL-FANCL", "YLKG07YL/YLKG08YL"]
 
 # Structured objects for data conversions
 TH_STRUCT = struct.Struct("<hH")
@@ -84,24 +85,31 @@ def obj0110(xobj):
     # remote command and remote binary
     if button == 0:
         remote_command = "on"
+        fan_remote_command = "fan toggle"
         remote_binary = 1
     elif button == 1:
         remote_command = "off"
+        fan_remote_command = "light toggle"
         remote_binary = 0
     elif button == 2:
-        remote_command = "sun"
+        remote_command = "color temperature"
+        fan_remote_command = "standard wind speed"
         remote_binary = None
     elif button == 3:
         remote_command = "+"
+        fan_remote_command = "color temperature"
         remote_binary = 1
     elif button == 4:
         remote_command = "m"
+        fan_remote_command = "natural wind speed"
         remote_binary = None
     elif button == 5:
         remote_command = "-"
+        fan_remote_command = "brightness"
         remote_binary = 1
     else:
         remote_command = "unknown command"
+        fan_remote_command = "unknown command"
         remote_binary = None
 
     # press type and dimmer
@@ -140,9 +148,20 @@ def obj0110(xobj):
         dimmer = None
 
     if remote_binary is None:
-        return {"remote": remote_command, "press": press_type, "dimmer": dimmer}
+        return {
+            "remote": remote_command,
+            "fan remote": fan_remote_command,
+            "press": press_type,
+            "dimmer": dimmer
+        }
     else:
-        return {"remote": remote_command, "press": press_type, "remote binary": remote_binary, "dimmer": dimmer}
+        return {
+            "remote": remote_command,
+            "fan remote": fan_remote_command,
+            "press": press_type,
+            "remote binary": remote_binary,
+            "dimmer": dimmer
+        }
 
 
 def obj0410(xobj):
