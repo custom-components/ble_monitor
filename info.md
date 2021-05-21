@@ -8,7 +8,7 @@
 # Changes in 2.2.0-beta
 
 - Add support for Yeelight Fan Remote control (YLYK01YL-FANCL)
-- Removal of modified aioblescan and move back to aioblescan 2.8. All changes have been added to the original aiblescan pypi package, so we can say goodbye to our own modified version.
+- Removal of modified aioblescan and move back to aioblescan 2.8. All changes have been added to the original aioblescan pypi package, so we can say goodbye to our own modified version.
 
 {% endif %}
 {% if installed or pending_update %}
