@@ -259,9 +259,36 @@ Unfortunately, Xiaomi has enabled additional encryption of API requests recently
 
 #### How to get the MiBeacon V2/V3 encryption key
 
-Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legacy type of encryption. This MiBeacon V2/V3 encryption key is shorter than the MiBeacon V4/V5 encryption key, as it is a 12 bytes (24 characters) long string. You won't be able to retrieve the encryption key with method 1 and 2 from above. If you're remote is connected to a ceiling light, the easiest way is to follow method 5 (miiocli tool). If you don't have a device it is connected to, you can follow method 6 (which is more or less similar to method 3 from above.
+Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legacy type of encryption. This MiBeacon V2/V3 encryption key is shorter than the MiBeacon V4/V5 encryption key, as it is a 12 bytes (24 characters) long string. You won't be able to retrieve the encryption key with method 1 and 2 from above. There are different ways to get the key, the easiest is to use a python script to get the key (method 5). If your remote is connected to a ceiling light/fan, an alternative is to follow method 6 (miiocli tool). A third alternative is method 7, which also works when you don't have a ceiling light/fan connected (which is more or less similar to method 3 from above).
 
-**5. miiocli tool**
+**5. get_beacon_key python script**
+
+We have created a python script that will get the beaconkey by connecting to the remote/dimmer, which can be found [here](https://github.com/custom-components/ble_monitor/blob/master/custom_components/ble_monitor/ble_parser/get_beacon_key.py). The script is based on a script that is used for [Mi Kettles](https://github.com/rexbut/mikettle/blob/master/get_beacon_key.py). You can get the beaconkey with the following commands. 
+
+```
+wget https://raw.githubusercontent.com/custom-components/ble_monitor/master/custom_components/ble_monitor/ble_parser/get_beacon_key.py
+pip3 install bluepy
+python3 get_beacon_key.py <MAC> <PRODUCT_ID>
+```
+Replace `<MAC>` with your MAC address of the remote/dimmer and replace `<PRODUCT_ID>` with one of the following numbers, corresponding to your remote/dimmer. 
+
+| PRODUCT_ID|Device               |Type                    |
+|-----------|---------------------|------------------------|
+| 339       | 'YLYK01YL'          | Remote                 |
+| 950       | 'YLKG07YL/YLKG08YL' | Dimmer                 |
+| 1254      | 'YLYK01YL-VENFAN'   | Fan Remote             |
+| 1678      | 'YLYK01YL-FANCL'    | Ventilator Fan Remote  |
+
+
+Example: 
+
+```
+python3 get_beacon_key.py AB:CD:EF:12:34:56 950
+```
+
+This will return the beaconkey from your device.
+
+**6. miiocli tool**
 
 You can get the encryption key with the [miiocli tool (python-miio)](https://github.com/rytilahti/python-miio). 
 
@@ -280,9 +307,9 @@ Running command raw_command
 [{'mac': '3b48c54324e4', 'evtid': 4097, 'pid': 950, 'beaconkey': 'c451234558487ca39a5b5ab8'}, {'mac': '1230e94124e3', 'evtid': 4097, 'pid': 339, 'beaconkey': '341342546305f34c2cea3fde'}]
 ```
 
-Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key you will need. `'pid': 950`corresponds to the dimmer, `'pid': 339`corresponds to the remote. The mac is reversed per two, so in the example above, the MAC of the remote is E4:24:43:C5:48:3B.
+Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key you will need. `'pid'` corresponds to the PRODUCT_ID as mentioned in method 5. The mac is reversed per two, so in the example above, the MAC of the remote is E4:24:43:C5:48:3B.
 
-**6. MiHome mod (Android only)**
+**7. MiHome mod (Android only)**
 
 If you don't have a device (ceiling light) to pair your remote/dimmer with, you can get the key with the customized [MiHome mod](https://ru.kapiba.ru/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) with the following steps.
 
@@ -294,10 +321,6 @@ If you don't have a device (ceiling light) to pair your remote/dimmer with, you 
 - Put your device in pairing mode, click + and pair the remote to the MiHome app.
 - After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod.
 - You can also read the key after the pairing with [Xiaomi cloud token extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). Use region `i2` if you have selected India before. 
-
-**7. Read beaconkey directly with Bluetooth controller**
-
-Some people are currently looking into the possibility to get the [beacon key directly](https://github.com/archaron/docs/blob/master/BLE/ylkg08y.md). If you have more information or a script to do this, please create an issue and share the information. 
 
 
 ## OTHER ISSUES
