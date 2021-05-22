@@ -6,7 +6,8 @@
 # 
 # List of PRODUCT_ID:
 #   339: For 'YLYK01YL'
-#   950: For 'YLKG08YL'
+#   950: For 'YLKG07YL/YLKG08YL'
+#   959: For 'YLYB01YL-BHFRC'
 #   1254: For 'YLYK01YL-VENFAN'
 #   1678: For 'YLYK01YL-FANCL'
 #
@@ -122,7 +123,8 @@ def main(argv):
         print("usage: get_beacon_key.py <MAC> <PRODUCT_ID>\n")
         print("PRODUCT_ID:")
         print("  339: For 'YLYK01YL'")
-        print("  950: For 'YLKG08YL'")
+        print("  950: For 'YLKG07YL/YLKG08YL'")
+        print("  959: For 'YLYB01YL-BHFRC'")
         print("  1254: For 'YLYK01YL-VENFAN'")
         print("  1678: For 'YLYK01YL-FANCL'")
         return
