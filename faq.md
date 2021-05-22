@@ -276,6 +276,7 @@ Replace `<MAC>` with your MAC address of the remote/dimmer and replace `<PRODUCT
 |-----------|---------------------|------------------------|
 | 339       | 'YLYK01YL'          | Remote                 |
 | 950       | 'YLKG07YL/YLKG08YL' | Dimmer                 |
+| 959       | 'YLYB01YL-BHFRC'    | Bathroom Heater Remote |
 | 1254      | 'YLYK01YL-VENFAN'   | Fan Remote             |
 | 1678      | 'YLYK01YL-FANCL'    | Ventilator Fan Remote  |
 
