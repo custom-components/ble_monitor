@@ -13,6 +13,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
+# Changes in 2.2.1
+
+- Fix for YLKG07YL and YLkG08YL (Thanks @rexbut)
+
 # Changes in 2.2.0
 
 - Add support for Yeelight Fan Remote control (YLYK01YL-FANCL)
