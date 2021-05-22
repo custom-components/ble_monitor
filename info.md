@@ -13,6 +13,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
+# Changes in 2.2.2
+
+- Fix for YLYK01YL showing as Fan Remote
+
 # Changes in 2.2.1
 
 - Fix for YLKG07YL and YLkG08YL (Thanks @rexbut)
