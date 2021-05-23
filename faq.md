@@ -308,7 +308,7 @@ Running command raw_command
 [{'mac': '3b48c54324e4', 'evtid': 4097, 'pid': 950, 'beaconkey': 'c451234558487ca39a5b5ab8'}, {'mac': '1230e94124e3', 'evtid': 4097, 'pid': 339, 'beaconkey': '341342546305f34c2cea3fde'}]
 ```
 
-Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key you will need. `'pid'` corresponds to the PRODUCT_ID as mentioned in method 5. The mac is reversed per two, so in the example above, the MAC of the remote is E4:24:43:C5:48:3B.
+Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key you will need. `'pid'` corresponds to the PRODUCT_ID as mentioned in method 5. **The mac is reversed per two**, so in the example above, the MAC of the remote is E4:24:43:C5:48:3B.
 
 **7. MiHome mod (Android only)**
 
