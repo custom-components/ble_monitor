@@ -24,7 +24,7 @@ from homeassistant.helpers.entity_registry import (
     async_entries_for_device,
 )
 
-from .ble_parser import ble_parser, BLEinterface
+from .ble_parser import ble_parser, hci_get_mac
 from .const import (
     DEFAULT_ROUNDING,
     DEFAULT_DECIMALS,
@@ -71,7 +71,7 @@ CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
 
 try:
-    BT_INTERFACES = BLEinterface.get_mac([0, 1, 2, 3])
+    BT_INTERFACES = hci_get_mac([0, 1, 2, 3])
     BT_HCI_INTERFACES = list(BT_INTERFACES.keys())
     BT_MAC_INTERFACES = list(BT_INTERFACES.values())
     DEFAULT_BT_INTERFACE = list(BT_INTERFACES.items())[0][1]

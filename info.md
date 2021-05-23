@@ -5,27 +5,18 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.2.0-beta
+# Changes in 2.3.0-beta
 
-- Add support for Yeelight Fan Remote control (YLYK01YL-FANCL)
-- Removal of modified aioblescan and move back to aioblescan 2.8. All changes have been added to the original aioblescan pypi package, so we can say goodbye to our own modified version.
+- Add support for Yeelight Ventilator Fan Remote control (YLYK01YL-VENFAN)
+- Fix for additional Bluetooth adapters not being recognized anymore
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 2.2.2
+# Changes in 2.3.0
 
-- Fix for YLYK01YL showing as Fan Remote
-
-# Changes in 2.2.1
-
-- Fix for YLKG07YL and YLkG08YL (Thanks @rexbut)
-
-# Changes in 2.2.0
-
-- Add support for Yeelight Fan Remote control (YLYK01YL-FANCL)
-- Renaming "sun" button to "color temperature" (YLYK01YL)
-- Removal of modified aioblescan and move back to aioblescan 2.8. All changes have been added to the original aioblescan pypi package, so we can say goodbye to our own modified version.
+- Add support for Yeelight Ventilator Fan Remote control (YLYK01YL-VENFAN)
+- Fix for additional Bluetooth adapters not being recognized anymore
 
 {% endif %}
 
@@ -94,6 +85,7 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Keg
 |**YLAI003**|**Yeelight Smart Wireless Switch**<br /><br />Broadcasts `single press`, `double press` and `long press`. After each button press, the sensor state shortly shows the type of press and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLAI003](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLAI003.jpg)|
 |**YLYK01YL**|**Yeelight Remote Control**<br /><br />Broadcasts the remote button being used (`on`, `off`, `color temperature`, `+`, `M`, `-`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Additinally, two binary sensors are generated (one for `short press`, one for `long press`), which is `True` when pressing `on`, `+` or `-` and `False` when pressing `off`. Advertisements are (partly) encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLYK01YL](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLYK01YL.jpg)|
 |**YLYK01YL-FANCL**|**Yeelight Fan Remote Control**<br /><br />Broadcasts the remote button being used (`fan toggle`, `light toggle`, `standard wind speed`, `color temperature`, `natural wind speed`, `brightness`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Advertisements are (partly) encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLYK01YL-FAN](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLYK01YL-FAN.jpg)|
+|**YLYK01YL-VENFAN**|**Yeelight Ventilator Fan Remote Control**<br /><br />Broadcasts the remote button being used (`swing`, `power toggle`, `timer 30 minutes`, `timer 60 seconds`, `strong wind speed`, `low wind speed`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Advertisements are (partly) encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.||
 |**YLKG07YL, YLKG08YL**|**Yeelight Rotating Dimmer**<br /><br />Broadcasts the press type (`rotate`, `rotate (presses)`, `short press`, `long press`). For rotation, it reports the rotation direction (`left`, `right`) and how far you rotate (number of `steps`). For `short press` it reports how many times you pressed the dimmer, for `long press` it reports the time (in seconds) you pressed the dimmer. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLKG07YL_YLKG08YL](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLKG07YL_YLKG08YL.png)|
 |**XMTZC01HM, XMTZC04HM**|**Mi Smart Scale 1 / Mi Smart Scale 2**<br /><br />Broadcasts `weight`, `non-stabilized weight` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC04HM.png)|
 |**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `non-stabilized weight`, `impedance` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, muscle mass etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC05HM.png)|

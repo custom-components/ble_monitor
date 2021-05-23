@@ -38,11 +38,12 @@ XIAOMI_TYPE_DICT = {
     b'\xBF\x07': ("YLAI003", False),
     b'\x53\x01': ("YLYK01YL", True),
     b'\x8E\x06': ("YLYK01YL-FANCL", False),
+    b'\xE6\x04': ("YLYK01YL-VENFAN", False),
     b'\xB6\x03': ("YLKG07YL/YLKG08YL", False),
 }
 
 # List of devices with legacy MiBeacon V2/V3 decryption
-LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLYK01YL-FANCL", "YLKG07YL/YLKG08YL"]
+LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLYK01YL-FANCL", "YLYK01YL-VENFAN", "YLKG07YL/YLKG08YL"]
 
 # Structured objects for data conversions
 TH_STRUCT = struct.Struct("<hH")
@@ -81,35 +82,48 @@ def obj0f00(xobj):
 
 def obj0110(xobj):
     (button, value, press) = BUTTON_STRUCT.unpack(xobj)
+    # RTCGQ02LM:            press_type
+    # YLAI003:              press_type
+    # YLYK01YL:             remote_command and remote_binary
+    # YLYK01YL-FANRC:       fan_remote_command, press_type
+    # YLYK01YL-VENFAN:      ven_fan_remote_command, press_type
+    # YLKG07YL/YLKG08YL:    press_type, dimmer
 
     # remote command and remote binary
     if button == 0:
         remote_command = "on"
         fan_remote_command = "fan toggle"
+        ven_fan_remote_command = "swing"
         remote_binary = 1
     elif button == 1:
         remote_command = "off"
         fan_remote_command = "light toggle"
+        ven_fan_remote_command = "power toggle"
         remote_binary = 0
     elif button == 2:
-        remote_command = "color temperature"
-        fan_remote_command = "standard wind speed"
+        remote_command = "sun"
+        fan_remote_command = "wind speed"
+        ven_fan_remote_command = "timer 60 minutes"
         remote_binary = None
     elif button == 3:
         remote_command = "+"
-        fan_remote_command = "color temperature"
+        fan_remote_command = "brightness min"
+        ven_fan_remote_command = "strong wind speed"
         remote_binary = 1
     elif button == 4:
         remote_command = "m"
-        fan_remote_command = "natural wind speed"
+        fan_remote_command = "wind mode"
+        ven_fan_remote_command = "timer 30 minutes"
         remote_binary = None
     elif button == 5:
         remote_command = "-"
-        fan_remote_command = "brightness"
+        fan_remote_command = "brightness min"
+        ven_fan_remote_command = "low wind speed"
         remote_binary = 1
     else:
         remote_command = "unknown command"
         fan_remote_command = "unknown command"
+        ven_fan_remote_command = "unknown command"
         remote_binary = None
 
     # press type and dimmer
@@ -147,21 +161,18 @@ def obj0110(xobj):
         press_type = "no press"
         dimmer = None
 
-    if remote_binary is None:
-        return {
-            "remote": remote_command,
-            "fan remote": fan_remote_command,
-            "press": press_type,
-            "dimmer": dimmer
-        }
-    else:
-        return {
-            "remote": remote_command,
-            "fan remote": fan_remote_command,
-            "press": press_type,
-            "remote binary": remote_binary,
-            "dimmer": dimmer
-        }
+    result = {
+        "remote": remote_command,
+        "fan remote": fan_remote_command,
+        "ventilator fan remote": ven_fan_remote_command,
+        "press": press_type,
+        "dimmer": dimmer
+    }
+
+    if remote_binary is not None:
+        result["remote binary"] = remote_binary
+
+    return result
 
 
 def obj0410(xobj):
