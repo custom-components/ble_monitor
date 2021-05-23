@@ -13,19 +13,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 2.2.2
+# Changes in 2.3.0
 
-- Fix for YLYK01YL showing as Fan Remote
-
-# Changes in 2.2.1
-
-- Fix for YLKG07YL and YLkG08YL (Thanks @rexbut)
-
-# Changes in 2.2.0
-
-- Add support for Yeelight Fan Remote control (YLYK01YL-FANCL)
-- Renaming "sun" button to "color temperature" (YLYK01YL)
-- Removal of modified aioblescan and move back to aioblescan 2.8. All changes have been added to the original aioblescan pypi package, so we can say goodbye to our own modified version.
+- Add support for Yeelight Ventilator Fan Remote control (YLYK01YL-VENFAN)
+- Fix for additional Bluetooth adapters not being recognized anymore
 
 {% endif %}
 
