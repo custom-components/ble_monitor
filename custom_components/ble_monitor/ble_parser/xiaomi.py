@@ -39,11 +39,12 @@ XIAOMI_TYPE_DICT = {
     b'\x53\x01': ("YLYK01YL", True),
     b'\x8E\x06': ("YLYK01YL-FANCL", False),
     b'\xE6\x04': ("YLYK01YL-VENFAN", False),
+    b'\xBF\x03': ("YLYB01YL-BHFRC", False),
     b'\xB6\x03': ("YLKG07YL/YLKG08YL", False),
 }
 
 # List of devices with legacy MiBeacon V2/V3 decryption
-LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLYK01YL-FANCL", "YLYK01YL-VENFAN", "YLKG07YL/YLKG08YL"]
+LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLYK01YL-FANCL", "YLYK01YL-VENFAN", "YLYB01YL-BHFRC", "YLKG07YL/YLKG08YL"]
 
 # Structured objects for data conversions
 TH_STRUCT = struct.Struct("<hH")
@@ -87,6 +88,7 @@ def obj0110(xobj):
     # YLYK01YL:             remote_command and remote_binary
     # YLYK01YL-FANRC:       fan_remote_command, press_type
     # YLYK01YL-VENFAN:      ven_fan_remote_command, press_type
+    # YLYB01YL-BHFRC:       button, value, press
     # YLKG07YL/YLKG08YL:    press_type, dimmer
 
     # remote command and remote binary
@@ -166,7 +168,11 @@ def obj0110(xobj):
         "fan remote": fan_remote_command,
         "ventilator fan remote": ven_fan_remote_command,
         "press": press_type,
-        "dimmer": dimmer
+        "dimmer": dimmer,
+        "bathroom heater remote": button,
+        "byte_1": button,
+        "byte_2": value,
+        "byte_3": press
     }
 
     if remote_binary is not None:

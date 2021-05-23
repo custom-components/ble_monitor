@@ -5,10 +5,9 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.3.0-beta
+# Changes in 2.4.0-beta
 
-- Add support for Yeelight Ventilator Fan Remote control (YLYK01YL-VENFAN)
-- Fix for additional Bluetooth adapters not being recognized anymore
+- Add support for Yeelight Bathroom Heater Remote control (YLYB01YL-BHFRC) (development version)
 
 {% endif %}
 {% if installed or pending_update %}
