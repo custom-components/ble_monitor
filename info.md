@@ -5,10 +5,13 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.3.0-beta
+# Changes in 2.4.1-beta
 
-- Add support for Yeelight Ventilator Fan Remote control (YLYK01YL-VENFAN)
-- Fix for additional Bluetooth adapters not being recognized anymore
+- Rewriting BLE parser (part 1)
+
+# Changes in 2.4.0-beta
+
+- Add support for Yeelight Bathroom Heater Remote control (YLYB01YL-BHFRC) (development version)
 
 {% endif %}
 {% if installed or pending_update %}
@@ -227,10 +230,6 @@ Data from sensors with other addresses will be ignored. Default value: True
 #### batt_entities
 
    (boolean)(Optional) By default, BLE monitor will generate battery sensors for each device (if supported by the device). If you don't want battery sensors, you can set this option to `False`. Battery information will always be available as a sensor attribute called `battery level`. Default value: True
-
-#### rounding [DEPRECATED]
-
-   (boolean)(Optional) This option has been deprecated from `ble_monitor` 1.0.0. Enable/disable rounding of the average of all measurements taken within the number seconds specified with 'period'. This option is designed to disable rounding and thus keep the full average accuracy. When disabled, the `decimals` option is ignored. Default value: True
 
 #### decimals
 
