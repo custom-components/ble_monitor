@@ -83,102 +83,118 @@ def obj0f00(xobj):
 
 
 def obj0110(xobj):
-    (button, value, press) = BUTTON_STRUCT.unpack(xobj)
-    # RTCGQ02LM:            press_type
-    # YLAI003:              press_type
-    # YLYK01YL:             remote_command and remote_binary
-    # YLYK01YL-FANRC:       fan_remote_command, press_type
-    # YLYK01YL-VENFAN:      ven_fan_remote_command, press_type
-    # YLKG07YL/YLKG08YL:    press_type, dimmer
+    if len(xobj) == 3:
+        (button, value, press) = BUTTON_STRUCT.unpack(xobj)
+        # RTCGQ02LM:            press_type
+        # YLAI003:              press_type
+        # YLYK01YL:             remote_command and remote_binary
+        # YLYK01YL-FANRC:       fan_remote_command, press_type
+        # YLYK01YL-VENFAN:      ven_fan_remote_command, press_type
+        # YLYB01YL-BHFRC:       bathroom_remote_command, press_type
+        # YLKG07YL/YLKG08YL:    press_type, dimmer
 
-    # remote command and remote binary
-    if button == 0:
-        remote_command = "on"
-        fan_remote_command = "fan toggle"
-        ven_fan_remote_command = "swing"
-        remote_binary = 1
-    elif button == 1:
-        remote_command = "off"
-        fan_remote_command = "light toggle"
-        ven_fan_remote_command = "power toggle"
-        remote_binary = 0
-    elif button == 2:
-        remote_command = "sun"
-        fan_remote_command = "wind speed"
-        ven_fan_remote_command = "timer 60 minutes"
-        remote_binary = None
-    elif button == 3:
-        remote_command = "+"
-        fan_remote_command = "brightness min"
-        ven_fan_remote_command = "strong wind speed"
-        remote_binary = 1
-    elif button == 4:
-        remote_command = "m"
-        fan_remote_command = "wind mode"
-        ven_fan_remote_command = "timer 30 minutes"
-        remote_binary = None
-    elif button == 5:
-        remote_command = "-"
-        fan_remote_command = "brightness min"
-        ven_fan_remote_command = "low wind speed"
-        remote_binary = 1
-    else:
-        remote_command = "unknown command"
-        fan_remote_command = "unknown command"
-        ven_fan_remote_command = "unknown command"
+        # remote command and remote binary
+        remote_command = None
+        fan_remote_command = None
+        ven_fan_remote_command = None
+        bathroom_remote_command = None
         remote_binary = None
 
-    # press type and dimmer
-    if press == 0:
-        press_type = "single press"
-        dimmer = None
-    elif press == 1:
-        press_type = "double press"
-        dimmer = None
-    elif press == 2:
-        press_type = "long press"
-        dimmer = None
-    elif press == 3:
         if button == 0:
-            press_type = "short press"
-            dimmer = str(value) + " x"
-        if button == 1:
-            press_type = "long press"
-            dimmer = str(value) + " seconds"
-    elif press == 4:
-        if button == 0:
-            if value <= 127:
-                press_type = "rotate right"
-                dimmer = str(value) + " step(s)"
-            else:
-                press_type = "rotate left"
-                dimmer = str(256 - value) + " step(s)"
-        elif button <= 127:
-            press_type = "rotate right (pressed)"
-            dimmer = str(button) + " step(s)"
-        else:
-            press_type = "rotate left (pressed)"
-            dimmer = str(256 - button) + " step(s)"
-    else:
+            remote_command = "on"
+            fan_remote_command = "fan toggle"
+            ven_fan_remote_command = "swing"
+            bathroom_remote_command = "stop"
+            remote_binary = 1
+        elif button == 1:
+            remote_command = "off"
+            fan_remote_command = "light toggle"
+            ven_fan_remote_command = "power toggle"
+            bathroom_remote_command = "air exchange"
+            remote_binary = 0
+        elif button == 2:
+            remote_command = "sun"
+            fan_remote_command = "wind speed"
+            ven_fan_remote_command = "timer 60 minutes"
+            bathroom_remote_command = "fan"
+            remote_binary = None
+        elif button == 3:
+            remote_command = "+"
+            fan_remote_command = "brightness min"
+            ven_fan_remote_command = "strong wind speed"
+            bathroom_remote_command = "speed +"
+            remote_binary = 1
+        elif button == 4:
+            remote_command = "m"
+            fan_remote_command = "wind mode"
+            ven_fan_remote_command = "timer 30 minutes"
+            bathroom_remote_command = "speed -"
+            remote_binary = None
+        elif button == 5:
+            remote_command = "-"
+            fan_remote_command = "brightness min"
+            ven_fan_remote_command = "low wind speed"
+            bathroom_remote_command = "dry"
+            remote_binary = 1
+        elif button == 6:
+            bathroom_remote_command = "light toggle"
+        elif button == 7:
+            bathroom_remote_command = "swing"
+        elif button == 8:
+            bathroom_remote_command = "heat"
+
+        # press type and dimmer
         press_type = "no press"
         dimmer = None
 
-    result = {
-        "remote": remote_command,
-        "fan remote": fan_remote_command,
-        "ventilator fan remote": ven_fan_remote_command,
-        "press": press_type,
-        "dimmer": dimmer,
-        "bathroom heater remote": button,
-        "byte_1": button,
-        "byte_2": value,
-        "byte_3": press
-    }
+        if press == 0:
+            press_type = "single press"
+        elif press == 1:
+            press_type = "double press"
+        elif press == 2:
+            press_type = "long press"
+        elif press == 3:
+            if button == 0:
+                press_type = "short press"
+                dimmer = str(value) + " x"
+            if button == 1:
+                press_type = "long press"
+                dimmer = str(value) + " seconds"
+        elif press == 4:
+            if button == 0:
+                if value <= 127:
+                    press_type = "rotate right"
+                    dimmer = str(value) + " step(s)"
+                else:
+                    press_type = "rotate left"
+                    dimmer = str(256 - value) + " step(s)"
+            elif button <= 127:
+                press_type = "rotate right (pressed)"
+                dimmer = str(button) + " step(s)"
+            else:
+                press_type = "rotate left (pressed)"
+                dimmer = str(256 - button) + " step(s)"
+        elif press == 5:
+            press_type = "short press"
+        elif press == 6:
+            press_type = "long press"
 
-    if remote_binary is not None:
-        result["remote binary"] = remote_binary
+        result = {
+            "remote": remote_command,
+            "fan remote": fan_remote_command,
+            "ventilator fan remote": ven_fan_remote_command,
+            "bathroom heater remote": bathroom_remote_command,
+            "press": press_type,
+            "dimmer": dimmer,
+        }
 
-    return result
+        if remote_binary is not None:
+            result["remote binary"] = remote_binary
+
+        return result
+
+    else:
+        return None
 
 
 def obj0410(xobj):

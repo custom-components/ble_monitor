@@ -962,7 +962,8 @@ class BathroomHeaterRemoteSensor(MeasuringSensor):
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
-        self._measurement = "bathroom heater remote"
+        self._press = "press"
+        self._bathroom_heater_remote = "bathroom heater remote"
         self._name = "ble bathroom heater remote {}".format(self._device_name)
         self._unique_id = "br_" + self._device_name
         self._unit_of_measurement = None
@@ -971,19 +972,19 @@ class BathroomHeaterRemoteSensor(MeasuringSensor):
     @property
     def icon(self):
         """Return the icon of the sensor."""
-        return "mdi:remote"
+        return "mdi:gesture-tap-button"
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self._measurement]
+
+        self._state = data[self._bathroom_heater_remote]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
-        self._device_state_attributes["byte 1"] = data["byte_1"]
-        self._device_state_attributes["byte 2"] = data["byte_2"]
-        self._device_state_attributes["byte 3"] = data["byte_3"]
+        self._device_state_attributes["last type of press"] = data[self._press]
+        self._device_state_attributes["last remote button pressed"] = data["bathroom heater remote"]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
