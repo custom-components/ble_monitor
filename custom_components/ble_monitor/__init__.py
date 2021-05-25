@@ -122,7 +122,7 @@ CONFIG_SCHEMA = vol.Schema(
                         CONF_HCI_INTERFACE, default=[]
                     ): vol.All(cv.ensure_list, [cv.positive_int]),
                     vol.Optional(
-                        CONF_BT_INTERFACE, default=DEFAULT_BT_INTERFACE
+                        CONF_BT_INTERFACE, default=[]
                     ): vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]),
                     vol.Optional(
                         CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
@@ -239,7 +239,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         # Configuration in YAML
         for key, value in CONFIG_YAML.items():
             config[key] = value
-        _LOGGER.info("Available Bluetooth interfaces for BLE monitor: %s", BT_MAC_INTERFACES)
 
         if config[CONF_HCI_INTERFACE]:
             # Configuration of BT interface with hci number
@@ -269,7 +268,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         default_hci = list(BT_INTERFACES.keys())[list(BT_INTERFACES.values()).index(DEFAULT_BT_INTERFACE)]
         hci_list.append(int(default_hci))
         bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
-        _LOGGER.warning("No configured Bluetooth interfaces was found, using default interface instead")
+        _LOGGER.warning("No configured Bluetooth interfaces was found, using default interface instead. Available Bluetooth interfaces: %s", BT_MAC_INTERFACES)
 
     config[CONF_HCI_INTERFACE] = hci_list
     config[CONF_BT_INTERFACE] = bt_mac_list
