@@ -5,8 +5,8 @@ import struct
 _LOGGER = logging.getLogger(__name__)
 
 # Sensors type dictionary
-# {device type code: (device name, binary?)}
-KEGTRON_TYPE_DICT = {b'\x1E\xFF\xFF\xFF': ("Kegtron", False)}
+# {device type code: device name}
+KEGTRON_TYPE_DICT = {b'\x1E\xFF\xFF\xFF': "Kegtron"}
 
 KEGTRON_SIZE_DICT = {
     9464: "Half Corny (2.5 gal)",
@@ -66,8 +66,8 @@ def objKegtron(xobj):
 
 
 # Dataobject dictionary
-# {dataObject_id: (converter, binary, measuring)
-kegtron_dataobject_dict = {b'\xFF\xFF': (objKegtron, False, True)}
+# {dataObject_id: converter}
+kegtron_dataobject_dict = {b'\xFF\xFF': objKegtron}
 
 
 def parse_kegtron(self, data, kegtron_index, is_ext_packet):
@@ -99,7 +99,7 @@ def parse_kegtron(self, data, kegtron_index, is_ext_packet):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and kegtron_mac_reversed not in self.whitelist:
-            return None, None, None
+            return None
         packet_id = "no packed id"
 
         # extract RSSI byte
@@ -132,17 +132,13 @@ def parse_kegtron(self, data, kegtron_index, is_ext_packet):
             "firmware": firmware,
             "data": True,
         }
-        binary = False
-        measuring = False
 
         xvalue_typecode = data[xdata_point - 2:xdata_point]
         xvalue_length = xdata_length
         xnext_point = xdata_point + xvalue_length
         xvalue = data[xdata_point:xnext_point]
-        resfunc, tbinary, tmeasuring = kegtron_dataobject_dict.get(xvalue_typecode, (None, None, None))
+        resfunc = kegtron_dataobject_dict.get(xvalue_typecode, None)
         if resfunc:
-            binary = binary or tbinary
-            measuring = measuring or tmeasuring
             result.update(resfunc(xvalue))
         else:
             if self.report_unknown == "Kegtron":
@@ -152,12 +148,12 @@ def parse_kegtron(self, data, kegtron_index, is_ext_packet):
                     ''.join('{:02X}'.format(x) for x in kegtron_mac_reversed[::-1]),
                     data.hex()
                 )
-        return result, binary, measuring
+        return result
 
     except NoValidError as nve:
         _LOGGER.debug("Invalid data: %s", nve)
 
-    return None, None, None
+    return None
 
 
 class KegtronParser:

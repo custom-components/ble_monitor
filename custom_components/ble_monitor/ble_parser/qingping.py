@@ -5,12 +5,12 @@ import struct
 _LOGGER = logging.getLogger(__name__)
 
 # Sensors type dictionary
-# {device type code: (device name, binary?)}
+# {device type code: device name}
 QINGPING_TYPE_DICT = {
-    b'\x08\x01': ("CGG1", False),
-    b'\x08\x07': ("CGG1", False),
-    b'\x08\x09': ("CGP1W", False),
-    b'\x08\x0C': ("CGD1", False),
+    b'\x08\x01': "CGG1",
+    b'\x08\x07': "CGG1",
+    b'\x08\x09': "CGP1W",
+    b'\x08\x0C': "CGD1",
 }
 
 # Structured objects for data conversions
@@ -40,11 +40,11 @@ def obj0702(xobj):
 
 
 # Dataobject dictionary
-# {dataObject_id: (converter, binary, measuring)
+# {dataObject_id: converter}
 qingping_dataobject_dict = {
-    b'\x01\x04': (obj0104, False, True),
-    b'\x02\x01': (obj0201, False, True),
-    b'\x07\x02': (obj0702, False, True),
+    b'\x01\x04': obj0104,
+    b'\x02\x01': obj0201,
+    b'\x07\x02': obj0702,
 }
 
 
@@ -76,7 +76,7 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and qingping_mac_reversed not in self.whitelist:
-            return None, None, None
+            return None
         packet_id = "no packed id"
 
         # extract RSSI byte
@@ -87,7 +87,7 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
         if rssi > 0:
             rssi = -rssi
         try:
-            sensor_type, binary_data = QINGPING_TYPE_DICT[device_type]
+            sensor_type = QINGPING_TYPE_DICT[device_type]
         except KeyError:
             if self.report_unknown == "Qingping":
                 _LOGGER.info(
@@ -123,8 +123,6 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
             "firmware": firmware,
             "data": True,
         }
-        binary = False
-        measuring = False
 
         # loop through parse_qingping payload
         # assume that the data may have several values of different types
@@ -146,10 +144,8 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
                 break
             xnext_point = xdata_point + 2 + xvalue_length
             xvalue = data[xdata_point + 2:xnext_point]
-            resfunc, tbinary, tmeasuring = qingping_dataobject_dict.get(xvalue_typecode, (None, None, None))
+            resfunc = qingping_dataobject_dict.get(xvalue_typecode, None)
             if resfunc:
-                binary = binary or tbinary
-                measuring = measuring or tmeasuring
                 result.update(resfunc(xvalue))
             else:
                 if self.report_unknown == "Qingping":
@@ -162,13 +158,12 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
             if xnext_point > msg_length - 3:
                 break
             xdata_point = xnext_point
-        binary = binary and binary_data
-        return result, binary, measuring
+        return result
 
     except NoValidError as nve:
         _LOGGER.debug("Invalid data: %s", nve)
 
-    return None, None, None
+    return None
 
 
 class QingpingParser:

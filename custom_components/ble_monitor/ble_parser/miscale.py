@@ -5,10 +5,10 @@ import struct
 _LOGGER = logging.getLogger(__name__)
 
 # Sensors type dictionary
-# {device type code: (device name, binary?)}
+# {device type code: device name}
 MISCALE_TYPE_DICT = {
-    b'\x1D\x18': ("Mi Scale V1", True),
-    b'\x1B\x18': ("Mi Scale V2", True),
+    b'\x1D\x18': "Mi Scale V1",
+    b'\x1B\x18': "Mi Scale V2",
 }
 
 # Structured objects for data conversions
@@ -108,10 +108,10 @@ def obj1b18(xobj):
 
 
 # Dataobject dictionary
-# {dataObject_id: (converter, binary, measuring)
+# {dataObject_id: converter}
 miscale_dataobject_dict = {
-    b'\x1B\x18': (obj1b18, True, True),
-    b'\x1D\x18': (obj1d18, True, True),
+    b'\x1B\x18': obj1b18,
+    b'\x1D\x18': obj1d18,
 }
 
 
@@ -140,7 +140,7 @@ def parse_miscale(self, data, miscale_index, is_ext_packet):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and miscale_mac not in self.whitelist:
-            return None, None, None
+            return None
 
         # extract RSSI byte
         rssi_index = 18 if is_ext_packet else msg_length - 1
@@ -151,7 +151,7 @@ def parse_miscale(self, data, miscale_index, is_ext_packet):
             rssi = -rssi
         device_type = data[miscale_index + 1:miscale_index + 3]
         try:
-            sensor_type, binary_data = MISCALE_TYPE_DICT[device_type]
+            sensor_type = MISCALE_TYPE_DICT[device_type]
         except KeyError:
             if self.report_unknown == "Mi Scale":
                 _LOGGER.info(
@@ -181,10 +181,10 @@ def parse_miscale(self, data, miscale_index, is_ext_packet):
             prev_packet = self.lpacket_ids[miscale_index]
         except KeyError:
             # start with empty first packet
-            prev_packet = None, None, None
+            prev_packet = None
         if prev_packet == packet_id:
             # only process new messages
-            return None, None, None
+            return None
         self.lpacket_ids[miscale_index] = packet_id
 
         result = {
@@ -196,14 +196,10 @@ def parse_miscale(self, data, miscale_index, is_ext_packet):
             "data": True,
         }
 
-        binary = False
-        measuring = False
         xvalue_typecode = data[miscale_index + 1:miscale_index + 3]
 
-        resfunc, tbinary, tmeasuring = miscale_dataobject_dict.get(xvalue_typecode, (None, None, None))
+        resfunc = miscale_dataobject_dict.get(xvalue_typecode, None)
         if resfunc:
-            binary = binary or tbinary
-            measuring = measuring or tmeasuring
             result.update(resfunc(xvalue))
         else:
             if self.report_unknown == "Mi Scale":
@@ -213,13 +209,12 @@ def parse_miscale(self, data, miscale_index, is_ext_packet):
                     ''.join('{:02X}'.format(x) for x in miscale_mac[:]),
                     data.hex()
                 )
-        binary = binary and binary_data
-        return result, binary, measuring
+        return result
 
     except NoValidError as nve:
         _LOGGER.debug("Invalid data: %s", nve)
 
-    return None, None, None
+    return None
 
 
 class XiaomiMiScaleParser:

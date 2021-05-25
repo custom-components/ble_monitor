@@ -2,10 +2,10 @@
 import aioblescan as aiobs
 import asyncio
 import copy
+import janus
 import json
 import logging
 from threading import Thread
-import janus
 import voluptuous as vol
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
@@ -62,6 +62,7 @@ from .const import (
     MAC_REGEX,
     AES128KEY24_REGEX,
     AES128KEY32_REGEX,
+    MEASUREMENT_DICT,
     SERVICE_CLEANUP_ENTRIES,
 )
 
@@ -486,8 +487,12 @@ class HCIdump(Thread):
         self.evt_cnt += 1
         if len(data) < 12:
             return
-        msg, binary, measuring = ble_parser(self, data)
+        msg = ble_parser(self, data)
         if msg:
+            measurements = list(msg.keys())
+            device_type = msg["type"]
+            measuring = any(x in measurements for x in MEASUREMENT_DICT[device_type][0])
+            binary = any(x in measurements for x in MEASUREMENT_DICT[device_type][1])
             if binary == measuring:
                 self.dataqueue_bin.sync_q.put_nowait(msg)
                 self.dataqueue_meas.sync_q.put_nowait(msg)

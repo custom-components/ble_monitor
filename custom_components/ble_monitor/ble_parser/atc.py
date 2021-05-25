@@ -5,8 +5,8 @@ import struct
 _LOGGER = logging.getLogger(__name__)
 
 # Sensors type dictionary
-# {device type code: (device name, binary?)}
-ATC_TYPE_DICT = {b'\x1A\x18': ("LYWSD03MMC", False)}
+# {device type code: device name}
+ATC_TYPE_DICT = {b'\x1A\x18': "LYWSD03MMC"}
 
 # Structured objects for data conversions
 THBV_STRUCT = struct.Struct(">hBBH")
@@ -31,10 +31,10 @@ def objATC_long(xobj):
 
 
 # Dataobject dictionary
-# {dataObject_id: (converter, binary, measuring)
+# {dataObject_id: converter}
 atc_dataobject_dict = {
-    b'\x10\x16': (objATC_short, False, True),
-    b'\x12\x16': (objATC_long, False, True),
+    b'\x10\x16': objATC_short,
+    b'\x12\x16': objATC_long,
 }
 
 
@@ -70,17 +70,17 @@ def parse_atc(self, data, atc_index, is_ext_packet):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and source_mac_reversed not in self.whitelist:
-            return None, None, None
+            return None
 
         packet_id = data[atc_index + 16 if is_custom_adv else atc_index + 15]
         try:
             prev_packet = self.lpacket_ids[atc_index]
         except KeyError:
             # start with empty first packet
-            prev_packet = None, None, None
+            prev_packet = None
         if prev_packet == packet_id:
             # only process new messages
-            return None, None, None
+            return None
         self.lpacket_ids[atc_index] = packet_id
 
         # extract RSSI byte
@@ -92,7 +92,7 @@ def parse_atc(self, data, atc_index, is_ext_packet):
             rssi = -rssi
         device_type = data[atc_index + 1:atc_index + 3]
         try:
-            sensor_type, binary_data = ATC_TYPE_DICT[device_type]
+            sensor_type = ATC_TYPE_DICT[device_type]
         except KeyError:
             if self.report_unknown == "ATC":
                 _LOGGER.info(
@@ -129,15 +129,11 @@ def parse_atc(self, data, atc_index, is_ext_packet):
             "firmware": firmware,
             "data": True,
         }
-        binary = False
-        measuring = False
         xvalue_typecode = data[atc_index - 1:atc_index + 1]
         xnext_point = xdata_point + xdata_length
         xvalue = data[xdata_point:xnext_point]
-        resfunc, tbinary, tmeasuring = atc_dataobject_dict.get(xvalue_typecode, (None, None, None))
+        resfunc = atc_dataobject_dict.get(xvalue_typecode, None)
         if resfunc:
-            binary = binary or tbinary
-            measuring = measuring or tmeasuring
             result.update(resfunc(xvalue))
         else:
             if self.report_unknown == "ATC":
@@ -147,13 +143,12 @@ def parse_atc(self, data, atc_index, is_ext_packet):
                     ''.join('{:02X}'.format(x) for x in atc_mac[:]),
                     data.hex()
                 )
-        binary = binary and binary_data
-        return result, binary, measuring
+        return result
 
     except NoValidError as nve:
         _LOGGER.debug("Invalid data: %s", nve)
 
-    return None, None, None
+    return None
 
 
 class ATCParser:

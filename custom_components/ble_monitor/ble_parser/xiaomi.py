@@ -3,47 +3,49 @@ import logging
 import math
 import struct
 from Cryptodome.Cipher import AES
+import random
 
 _LOGGER = logging.getLogger(__name__)
 
 # Sensors type dictionary
-# {device type code: (device name, binary?)}
+# {device type code: device name}
 XIAOMI_TYPE_DICT = {
-    b'\xAA\x01': ("LYWSDCGQ", False),
-    b'\x47\x03': ("CGG1", False),
-    b'\x48\x0B': ("CGG1-ENCRYPTED", False),
-    b'\x6F\x06': ("CGDK2", False),
-    b'\x5B\x04': ("LYWSD02", False),
-    b'\x5B\x05': ("LYWSD03MMC", False),
-    b'\x76\x05': ("CGD1", False),
-    b'\xd3\x06': ("MHO-C303", False),
-    b'\x87\x03': ("MHO-C401", False),
-    b'\xDF\x02': ("JQJCY01YM", False),
-    b'\x98\x00': ("HHCCJCY01", False),
-    b'\xBC\x03': ("GCLS002", False),
-    b'\x5D\x01': ("HHCCPOT002", False),
-    b'\x0A\x04': ("WX08ZM", True),
-    b'\x8B\x09': ("MCCGQ02HL", True),
-    b'\xD6\x03': ("CGH1", True),
-    b'\x83\x00': ("YM-K1501", True),
-    b'\x13\x01': ("YM-K1501EU", True),
-    b'\x5C\x04': ("V-SK152", True),
-    b'\x63\x08': ("SJWS01LM", True),
-    b'\xF6\x07': ("MJYD02YL", True),
-    b'\xDD\x03': ("MUE4094RT", True),
-    b'\x8D\x0A': ("RTCGQ02LM", True),
-    b'\x83\x0A': ("CGPR1", True),
-    b'\xDB\x00': ("MMC-T201-1", False),
-    b'\x89\x04': ("M1S-T500", False),
-    b'\xBF\x07': ("YLAI003", False),
-    b'\x53\x01': ("YLYK01YL", True),
-    b'\x8E\x06': ("YLYK01YL-FANCL", False),
-    b'\xE6\x04': ("YLYK01YL-VENFAN", False),
-    b'\xB6\x03': ("YLKG07YL/YLKG08YL", False),
+    b'\xAA\x01': "LYWSDCGQ",
+    b'\x47\x03': "CGG1",
+    b'\x48\x0B': "CGG1-ENCRYPTED",
+    b'\x6F\x06': "CGDK2",
+    b'\x5B\x04': "LYWSD02",
+    b'\x5B\x05': "LYWSD03MMC",
+    b'\x76\x05': "CGD1",
+    b'\xd3\x06': "MHO-C303",
+    b'\x87\x03': "MHO-C401",
+    b'\xDF\x02': "JQJCY01YM",
+    b'\x98\x00': "HHCCJCY01",
+    b'\xBC\x03': "GCLS002",
+    b'\x5D\x01': "HHCCPOT002",
+    b'\x0A\x04': "WX08ZM",
+    b'\x8B\x09': "MCCGQ02HL",
+    b'\xD6\x03': "CGH1",
+    b'\x83\x00': "YM-K1501",
+    b'\x13\x01': "YM-K1501EU",
+    b'\x5C\x04': "V-SK152",
+    b'\x63\x08': "SJWS01LM",
+    b'\xF6\x07': "MJYD02YL",
+    b'\xDD\x03': "MUE4094RT",
+    b'\x8D\x0A': "RTCGQ02LM",
+    b'\x83\x0A': "CGPR1",
+    b'\xDB\x00': "MMC-T201-1",
+    b'\x89\x04': "M1S-T500",
+    b'\xBF\x07': "YLAI003",
+    b'\x53\x01': "YLYK01YL",
+    b'\x8E\x06': "YLYK01YL-FANCL",
+    b'\xE6\x04': "YLYK01YL-VENFAN",
+    b'\xBF\x03': "YLYB01YL-BHFRC",
+    b'\xB6\x03': "YLKG07YL/YLKG08YL",
 }
 
 # List of devices with legacy MiBeacon V2/V3 decryption
-LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLYK01YL-FANCL", "YLYK01YL-VENFAN", "YLKG07YL/YLKG08YL"]
+LEGACY_DECRYPT_LIST = ["YLYK01YL", "YLYK01YL-FANCL", "YLYK01YL-VENFAN", "YLYB01YL-BHFRC", "YLKG07YL/YLKG08YL"]
 
 # Structured objects for data conversions
 TH_STRUCT = struct.Struct("<hH")
@@ -166,7 +168,11 @@ def obj0110(xobj):
         "fan remote": fan_remote_command,
         "ventilator fan remote": ven_fan_remote_command,
         "press": press_type,
-        "dimmer": dimmer
+        "dimmer": dimmer,
+        "bathroom heater remote": button,
+        "byte_1": button,
+        "byte_2": value,
+        "byte_3": press
     }
 
     if remote_binary is not None:
@@ -273,9 +279,9 @@ def obj0020(xobj):
         # Body temperature is calculated from the two measured temperatures.
         # Formula is based on approximation based on values inthe app in the range 36.5 - 37.8.
         body_temp = (
-            3.71934 * pow(10, -11) * math.exp(0.69314 * temp1 / 100)
-            - 1.02801 * pow(10, -8) * math.exp(0.53871 * temp2 / 100)
-            + 36.413
+            3.71934 * pow(10, -11) * math.exp(0.69314 * temp1 / 100) - (
+                1.02801 * pow(10, -8) * math.exp(0.53871 * temp2 / 100)
+            ) + 36.413
         )
         return {"temperature": body_temp, "battery": bat}
     else:
@@ -283,28 +289,28 @@ def obj0020(xobj):
 
 
 # Dataobject dictionary
-# {dataObject_id: (converter, binary, measuring)
+# {dataObject_id: (converter}
 xiaomi_dataobject_dict = {
-    b'\x03\x00': (obj0300, True, False),
-    b'\x10\x00': (obj1000, False, True),
-    b'\x0F\x00': (obj0f00, True, True),
-    b'\x01\x10': (obj0110, True, True),
-    b'\x04\x10': (obj0410, False, True),
-    b'\x05\x10': (obj0510, True, True),
-    b'\x06\x10': (obj0610, False, True),
-    b'\x07\x10': (obj0710, True, True),
-    b'\x08\x10': (obj0810, False, True),
-    b'\x09\x10': (obj0910, False, True),
-    b'\x10\x10': (obj1010, False, True),
-    b'\x12\x10': (obj1210, True, False),
-    b'\x13\x10': (obj1310, False, True),
-    b'\x14\x10': (obj1410, True, False),
-    b'\x17\x10': (obj1710, True, False),
-    b'\x18\x10': (obj1810, True, False),
-    b'\x19\x10': (obj1910, True, False),
-    b'\x0A\x10': (obj0a10, True, True),
-    b'\x0D\x10': (obj0d10, False, True),
-    b'\x00\x20': (obj0020, False, True),
+    b'\x03\x00': obj0300,
+    b'\x10\x00': obj1000,
+    b'\x0F\x00': obj0f00,
+    b'\x01\x10': obj0110,
+    b'\x04\x10': obj0410,
+    b'\x05\x10': obj0510,
+    b'\x06\x10': obj0610,
+    b'\x07\x10': obj0710,
+    b'\x08\x10': obj0810,
+    b'\x09\x10': obj0910,
+    b'\x10\x10': obj1010,
+    b'\x12\x10': obj1210,
+    b'\x13\x10': obj1310,
+    b'\x14\x10': obj1410,
+    b'\x17\x10': obj1710,
+    b'\x18\x10': obj1810,
+    b'\x19\x10': obj1910,
+    b'\x0A\x10': obj0a10,
+    b'\x0D\x10': obj0d10,
+    b'\x00\x20': obj0020,
 }
 
 
@@ -363,16 +369,16 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
 
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and self.xiaomi_mac_reversed not in self.whitelist:
-            return None, None, None
+            return None
         self.packet_id = data[xiaomi_index + 7]
         try:
             prev_packet = self.lpacket_ids[self.xiaomi_mac_reversed]
         except KeyError:
             # start with empty first packet
-            prev_packet = None, None, None
+            prev_packet = None
         if prev_packet == self.packet_id:
             # only process new messages
-            return None, None, None
+            return None
         self.lpacket_ids[self.xiaomi_mac_reversed] = self.packet_id
 
         # extract RSSI byte
@@ -383,7 +389,7 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         if rssi > 0:
             rssi = -rssi
         try:
-            sensor_type, binary_data = XIAOMI_TYPE_DICT[self.device_type]
+            sensor_type = XIAOMI_TYPE_DICT[self.device_type]
         except KeyError:
             if self.report_unknown == "Xiaomi":
                 _LOGGER.info(
@@ -403,7 +409,7 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
                 "packet": self.packet_id,
                 "firmware": firmware,
                 "data": False,
-            }, None, None
+            }
         self.xdata_length = 0
         self.xdata_point = 0
 
@@ -457,8 +463,6 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
             "firmware": firmware,
             "data": True,
         }
-        binary = False
-        measuring = False
 
         # loop through parse_xiaomi payload
         # assume that the data may have several values of different types
@@ -481,11 +485,9 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
 
             xnext_point = self.xdata_point + 3 + xvalue_length
             xvalue = data[self.xdata_point + 3:xnext_point]
-            resfunc, tbinary, tmeasuring = xiaomi_dataobject_dict.get(xvalue_typecode, (None, None, None))
+            resfunc = xiaomi_dataobject_dict.get(xvalue_typecode, None)
 
             if resfunc:
-                binary = binary or tbinary
-                measuring = measuring or tmeasuring
                 result.update(resfunc(xvalue))
             else:
                 if self.report_unknown == "Xiaomi":
@@ -500,13 +502,12 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
                 break
             self.xdata_point = xnext_point
 
-        binary = binary and binary_data
-        return result, binary, measuring
+        return result
 
     except NoValidError as nve:
         _LOGGER.debug("Invalid data: %s", nve)
 
-    return None, None, None
+    return None
 
 
 def decrypt_mibeacon_v4_v5(self, data):
