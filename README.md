@@ -162,7 +162,7 @@ Note: The encryption_key parameter is only needed for sensors, for which it is [
 
 #### bt_interface
 
-   (MAC address or list of multiple MAC addresses)(Optional) This parameter is used to select the Bluetooth-interface of your Home Assistant host. When using YAML, a list of available Bluetooth-interfaces available on your system is given in the Home Assistant log during startup of the Integration. If you don't specify a MAC address, by default the first interface of the list will be used. If you want to use multiple interfaces, you can use the following configuration:
+   (MAC address or list of multiple MAC addresses)(Optional) This parameter is used to select the Bluetooth-interface of your Home Assistant host. When using YAML, a list of available Bluetooth-interfaces available on your system is given in the Home Assistant log during startup of the Integration, when you enable the Home Assistant [logger at info-level](https://www.home-assistant.io/integrations/logger/). If you don't specify a MAC address, by default the first interface of the list will be used. If you want to use multiple interfaces, you can use the following configuration:
 
 ```yaml
 ble_monitor:

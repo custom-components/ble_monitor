@@ -240,7 +240,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         # Configuration in YAML
         for key, value in CONFIG_YAML.items():
             config[key] = value
-        _LOGGER.warning("Available Bluetooth interfaces for BLE monitor: %s", BT_MAC_INTERFACES)
+        _LOGGER.info("Available Bluetooth interfaces for BLE monitor: %s", BT_MAC_INTERFACES)
 
         if config[CONF_HCI_INTERFACE]:
             # Configuration of BT interface with hci number
