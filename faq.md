@@ -61,7 +61,7 @@ sudo getcap `readlink -f \`which python3\``
 The command will return the path to python and looks like (can vary based on your python version):
 
 ```shell
-/usr/bin/python3.7 = cap_net_admin,cap_net_raw+eip
+/usr/bin/python3.8 = cap_net_admin,cap_net_raw+eip
 ```
 
 Make sure you first stop Home Assistant and then start Home Assistant again. Restarting Home Assistant is not enough, as the python process does not exit upon restart.
@@ -72,15 +72,28 @@ If you have multiple python versions, make sure it refers to the same version wh
 sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.6
 ```
 
-### How do I find the number of the HCI interface?
+### How do I find the MAC address or the HCI number of the HCI interface?
 
-To find the correct number, run the following command:
+It is advised to configure a MAC address for the HCI interface in stead of a HCI interface number, as it won't change. The HCI interface number can change, e.g. when adding other USB devices. When using configuration in the UI, the available MAC addresses are given in the options menu of the integration. In case you are using configuration in YAML, you can find the MAC address in two ways, in the log of Home Assistant or with a shell command.
+
+To get a log with the available MAC addresses, enable logger in Home Assistant by adding the following lines to `configuration.yaml`:
+
+```yaml
+logger:
+  default: warn
+  logs:
+    custom_components.ble_monitor: info
+```
+
+After a restart, you will find the MAC addresses in the Home Assistant log. 
+
+An alternative is to use the following shell command to find the correct MAC address or interface number number:
 
 ```shell
 hcitool dev
 ```
 
-The command will return the HCI interface number and mac address.
+The command will return the HCI MAC address and interface number.
 
 ```shell
 Devices:
