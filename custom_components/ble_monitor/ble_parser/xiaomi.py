@@ -382,20 +382,21 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         else:
             # for sensors without mac in service data, use the first mac in advertisment
             self.xiaomi_mac_reversed = data[mac_index - 7:mac_index - 1]
+        self.xiaomi_mac = self.xiaomi_mac_reversed[::-1]
 
         # check for MAC presence in whitelist, if needed
-        if self.discovery is False and self.xiaomi_mac_reversed not in self.whitelist:
+        if self.discovery is False and self.xiaomi_mac not in self.whitelist:
             return None
         self.packet_id = data[xiaomi_index + 7]
         try:
-            prev_packet = self.lpacket_ids[self.xiaomi_mac_reversed]
+            prev_packet = self.lpacket_ids[self.xiaomi_mac]
         except KeyError:
             # start with empty first packet
             prev_packet = None
         if prev_packet == self.packet_id:
             # only process new messages
             return None
-        self.lpacket_ids[self.xiaomi_mac_reversed] = self.packet_id
+        self.lpacket_ids[self.xiaomi_mac] = self.packet_id
 
         # extract RSSI byte
         rssi_index = 18 if self.is_ext_packet else self.msg_length - 1
@@ -411,7 +412,7 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
                 _LOGGER.info(
                     "BLE ADV from UNKNOWN Xiaomi sensor: RSSI: %s, MAC: %s, ADV: %s",
                     rssi,
-                    ''.join('{:02X}'.format(x) for x in self.xiaomi_mac_reversed[::-1]),
+                    ''.join('{:02X}'.format(x) for x in self.xiaomi_mac[:]),
                     data.hex()
                 )
             raise NoValidError("Device unkown")
@@ -420,7 +421,7 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         if not (framectrl & 0x4000):
             return {
                 "rssi": rssi,
-                "mac": ''.join('{:02X}'.format(x) for x in self.xiaomi_mac_reversed[::-1]),
+                "mac": ''.join('{:02X}'.format(x) for x in self.xiaomi_mac[:]),
                 "type": sensor_type,
                 "packet": self.packet_id,
                 "firmware": firmware,
@@ -473,7 +474,7 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
 
         result = {
             "rssi": rssi,
-            "mac": ''.join('{:02X}'.format(x) for x in self.xiaomi_mac_reversed[::-1]),
+            "mac": ''.join('{:02X}'.format(x) for x in self.xiaomi_mac[:]),
             "type": sensor_type,
             "packet": self.packet_id,
             "firmware": firmware,
@@ -510,7 +511,7 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
                     _LOGGER.info(
                         "UNKNOWN dataobject from Xiaomi DEVICE: %s, MAC: %s, ADV: %s",
                         sensor_type,
-                        ''.join('{:02X}'.format(x) for x in self.xiaomi_mac_reversed[::-1]),
+                        ''.join('{:02X}'.format(x) for x in self.xiaomi_mac[:]),
                         data.hex()
                     )
 
@@ -533,7 +534,7 @@ def decrypt_mibeacon_v4_v5(self, data):
             raise DecryptionError("Invalid encrypted data length")
         # try to find encryption key for current device
         try:
-            key = self.aeskeys[self.xiaomi_mac_reversed]
+            key = self.aeskeys[self.xiaomi_mac]
             if len(key) != 16:
                 raise DecryptionError("Encryption key should be 16 bytes (32 characters) long")
         except KeyError:
@@ -568,7 +569,7 @@ def decrypt_mibeacon_v4_v5(self, data):
         if decrypted_payload is None:
             _LOGGER.error(
                 "Decryption failed for %s, decrypted payload is None",
-                "".join("{:02X}".format(x) for x in self.xiaomi_mac_reversed[::-1]),
+                "".join("{:02X}".format(x) for x in self.xiaomi_mac[:]),
             )
             raise DecryptionError("Decrypted payload is empty")
 
@@ -592,7 +593,7 @@ def decrypt_mibeacon_legacy(self, data):
             raise DecryptionError("Invalid encrypted data length")
         # try to find encryption key for current device
         try:
-            aeskey = self.aeskeys[self.xiaomi_mac_reversed]
+            aeskey = self.aeskeys[self.xiaomi_mac]
             if len(aeskey) != 12:
                 raise DecryptionError("encryption key should be 12 bytes (24 characters) long")
             key = b"".join([aeskey[0:6], bytes.fromhex("8d3d3c97"), aeskey[6:]])
@@ -627,7 +628,7 @@ def decrypt_mibeacon_legacy(self, data):
         if decrypted_payload is None:
             _LOGGER.error(
                 "Decryption failed for %s, decrypted payload is None",
-                "".join("{:02X}".format(x) for x in self.xiaomi_mac_reversed[::-1]),
+                "".join("{:02X}".format(x) for x in self.xiaomi_mac[:]),
             )
             raise DecryptionError("Decrypted payload is empty")
 

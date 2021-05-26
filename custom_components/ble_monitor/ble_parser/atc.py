@@ -69,19 +69,19 @@ def parse_atc(self, data, atc_index, is_ext_packet):
             raise NoValidError("Invalid MAC address")
 
         # check for MAC presence in whitelist, if needed
-        if self.discovery is False and source_mac_reversed not in self.whitelist:
+        if self.discovery is False and atc_mac not in self.whitelist:
             return None
 
         packet_id = data[atc_index + 16 if is_custom_adv else atc_index + 15]
         try:
-            prev_packet = self.lpacket_ids[atc_index]
+            prev_packet = self.lpacket_ids[atc_mac]
         except KeyError:
             # start with empty first packet
             prev_packet = None
         if prev_packet == packet_id:
             # only process new messages
             return None
-        self.lpacket_ids[atc_index] = packet_id
+        self.lpacket_ids[atc_mac] = packet_id
 
         # extract RSSI byte
         rssi_index = 18 if is_ext_packet else msg_length - 1

@@ -96,9 +96,10 @@ def parse_kegtron(self, data, kegtron_index, is_ext_packet):
         # check for MAC presence in message and in service data
         mac_index = adv_index - 14 if is_ext_packet else adv_index
         kegtron_mac_reversed = data[mac_index - 7:mac_index - 1]
+        kegtron_mac = kegtron_mac_reversed[::-1]
 
         # check for MAC presence in whitelist, if needed
-        if self.discovery is False and kegtron_mac_reversed not in self.whitelist:
+        if self.discovery is False and kegtron_mac not in self.whitelist:
             return None
         packet_id = "no packed id"
 
@@ -126,7 +127,7 @@ def parse_kegtron(self, data, kegtron_index, is_ext_packet):
             raise NoValidError("Invalid data length")
         result = {
             "rssi": rssi,
-            "mac": ''.join('{:02X}'.format(x) for x in kegtron_mac_reversed[::-1]),
+            "mac": ''.join('{:02X}'.format(x) for x in kegtron_mac[:]),
             "type": sensor_type,
             "packet": packet_id,
             "firmware": firmware,
@@ -145,7 +146,7 @@ def parse_kegtron(self, data, kegtron_index, is_ext_packet):
                 _LOGGER.info(
                     "UNKNOWN dataobject from Kegtron DEVICE: %s, MAC: %s, ADV: %s",
                     sensor_type,
-                    ''.join('{:02X}'.format(x) for x in kegtron_mac_reversed[::-1]),
+                    ''.join('{:02X}'.format(x) for x in kegtron_mac[:]),
                     data.hex()
                 )
         return result

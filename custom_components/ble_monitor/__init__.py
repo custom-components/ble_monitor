@@ -429,12 +429,6 @@ class HCIdump(Thread):
     def __init__(self, config, dataqueue):
         """Initiate HCIdump thread."""
 
-        def reverse_mac(rmac):
-            """Change LE order to BE."""
-            if len(rmac) != 12:
-                return None
-            return rmac[10:12] + rmac[8:10] + rmac[6:8] + rmac[4:6] + rmac[2:4] + rmac[0:2]
-
         Thread.__init__(self)
         _LOGGER.debug("HCIdump thread: Init")
         self.dataqueue_bin = dataqueue["binary"]
@@ -461,7 +455,7 @@ class HCIdump(Thread):
             for device in self.config[CONF_DEVICES]:
                 if CONF_ENCRYPTION_KEY in device and device[CONF_ENCRYPTION_KEY]:
                     p_mac = bytes.fromhex(
-                        reverse_mac(device["mac"].replace(":", "")).lower()
+                        device["mac"].replace(":", "").lower()
                     )
                     p_key = bytes.fromhex(device[CONF_ENCRYPTION_KEY].lower())
                     self.aeskeys[p_mac] = p_key
@@ -479,7 +473,7 @@ class HCIdump(Thread):
         self.whitelist = list(dict.fromkeys(self.whitelist))
         _LOGGER.debug("whitelist: [%s]", ", ".join(self.whitelist).upper())
         for i, mac in enumerate(self.whitelist):
-            self.whitelist[i] = bytes.fromhex(reverse_mac(mac.replace(":", "")).lower())
+            self.whitelist[i] = bytes.fromhex(mac.replace(":", "")).lower()
         _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
 
     def process_hci_events(self, data):

@@ -73,11 +73,12 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
         source_mac_reversed = data[mac_index - 7:mac_index - 1]
         if qingping_mac_reversed != source_mac_reversed:
             raise NoValidError("Invalid MAC address")
+        qingping_mac = qingping_mac_reversed[::-1]
 
         # check for MAC presence in whitelist, if needed
-        if self.discovery is False and qingping_mac_reversed not in self.whitelist:
+        if self.discovery is False and qingping_mac not in self.whitelist:
             return None
-        packet_id = "no packed id"
+        packet_id = "no packet id"
 
         # extract RSSI byte
         rssi_index = 18 if is_ext_packet else msg_length - 1
@@ -93,7 +94,7 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
                 _LOGGER.info(
                     "BLE ADV from UNKNOWN Qingping sensor: RSSI: %s, MAC: %s, ADV: %s",
                     rssi,
-                    ''.join('{:02X}'.format(x) for x in qingping_mac_reversed[::-1]),
+                    ''.join('{:02X}'.format(x) for x in qingping_mac[:]),
                     data.hex()
                 )
             raise NoValidError("Device unkown")
@@ -117,7 +118,7 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
             raise NoValidError("Invalid data length")
         result = {
             "rssi": rssi,
-            "mac": ''.join('{:02X}'.format(x) for x in qingping_mac_reversed[::-1]),
+            "mac": ''.join('{:02X}'.format(x) for x in qingping_mac[:]),
             "type": sensor_type,
             "packet": packet_id,
             "firmware": firmware,
@@ -152,7 +153,7 @@ def parse_qingping(self, data, qingping_index, is_ext_packet):
                     _LOGGER.info(
                         "UNKNOWN dataobject from Qingping DEVICE: %s, MAC: %s, ADV: %s",
                         sensor_type,
-                        ''.join('{:02X}'.format(x) for x in qingping_mac_reversed[::-1]),
+                        ''.join('{:02X}'.format(x) for x in qingping_mac[:]),
                         data.hex()
                     )
             if xnext_point > msg_length - 3:
