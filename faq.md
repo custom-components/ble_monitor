@@ -6,7 +6,7 @@
 - [Why is this component called “passive” and what does this mean](#why-is-this-component-called-passive-and-what-does-this-mean)
 - [INSTALLATION ISSUES](#installation-issues)
   - [I get a PermissionError in Home Assistant after the installation](#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade)
-  - [How do I find the number of the HCI interface?](#how-do-i-find-the-number-of-the-hci-interface)
+  - [How do I find MAC address or the HCI number of the HCI interface?](#how-do-i-find-the-mac-address-or-the-hci-number-of-the-hci-interface)
   - [How can I create a battery sensor?](#how-can-i-create-a-battery-sensor)
   - [I get AttributeError: module 'socket' has no attribute 'AF_BLUETOOTH' in Home Assistant after the installation or python upgrade](#i-get-attributeerror-module-socket-has-no-attribute-af_bluetooth-in-home-assistant-after-the-installation-or-python-upgrade)
 - [RECEPTION ISSUES](#reception-issues)
