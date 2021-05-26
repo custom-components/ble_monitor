@@ -5,10 +5,17 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.3.0-beta
+# Changes in 2.4.2-beta
 
-- Add support for Yeelight Ventilator Fan Remote control (YLYK01YL-VENFAN)
-- Fix for additional Bluetooth adapters not being recognized anymore
+- Add final support for Yeelight Bathroom Heater Remote control (YLYB01YL-BHFRC)
+
+# Changes in 2.4.1-beta
+
+- Rewriting BLE parser (part 1)
+
+# Changes in 2.4.0-beta
+
+- Add support for Yeelight Bathroom Heater Remote control (YLYB01YL-BHFRC) (development version)
 
 {% endif %}
 {% if installed or pending_update %}
@@ -86,6 +93,7 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Keg
 |**YLYK01YL**|**Yeelight Remote Control**<br /><br />Broadcasts the remote button being used (`on`, `off`, `color temperature`, `+`, `M`, `-`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Additinally, two binary sensors are generated (one for `short press`, one for `long press`), which is `True` when pressing `on`, `+` or `-` and `False` when pressing `off`. Advertisements are (partly) encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLYK01YL](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLYK01YL.jpg)|
 |**YLYK01YL-FANCL**|**Yeelight Fan Remote Control**<br /><br />Broadcasts the remote button being used (`fan toggle`, `light toggle`, `standard wind speed`, `color temperature`, `natural wind speed`, `brightness`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Advertisements are (partly) encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLYK01YL-FAN](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLYK01YL-FAN.jpg)|
 |**YLYK01YL-VENFAN**|**Yeelight Ventilator Fan Remote Control**<br /><br />Broadcasts the remote button being used (`swing`, `power toggle`, `timer 30 minutes`, `timer 60 seconds`, `strong wind speed`, `low wind speed`) in combination with the type of press (`single press` or `long press`). The state of the remote sensor shows the combination of both, the attributes shows the button being used and the type of press individually. Advertisements are (partly) encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLYK01YL-VENFAN](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLYK01YL-VENFAN.jpg)|
+|**YLYB01YL-BHFRC**|**Yeelight Bathroom Heater Remote Control**<br /><br />Broadcasts the remote button being used (`heat`, `air exchange`, `dry`, `fan`, `swing`, `speed -`, `speed +`, `stop` or `light`) in combination with the type of press (`short press` or `long press`). The state of the remote sensor shows the remote button being pressed, the attributes shows the type of press. Advertisements are (partly) encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLYB01YL-BHFRC](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLYB01YL-BHFRC.jpg)|
 |**YLKG07YL, YLKG08YL**|**Yeelight Rotating Dimmer**<br /><br />Broadcasts the press type (`rotate`, `rotate (presses)`, `short press`, `long press`). For rotation, it reports the rotation direction (`left`, `right`) and how far you rotate (number of `steps`). For `short press` it reports how many times you pressed the dimmer, for `long press` it reports the time (in seconds) you pressed the dimmer. Advertisements are encrypted, you need to set the encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![YLKG07YL_YLKG08YL](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/YLKG07YL_YLKG08YL.png)|
 |**XMTZC01HM, XMTZC04HM**|**Mi Smart Scale 1 / Mi Smart Scale 2**<br /><br />Broadcasts `weight`, `non-stabilized weight` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC04HM.png)|
 |**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `non-stabilized weight`, `impedance` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, muscle mass etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC05HM.png)|
@@ -182,7 +190,7 @@ Note: The encryption_key parameter is only needed for sensors, for which it is [
 
 #### bt_interface
 
-   (MAC address or list of multiple MAC addresses)(Optional) This parameter is used to select the Bluetooth-interface of your Home Assistant host. When using YAML, a list of available Bluetooth-interfaces available on your system is given in the Home Assistant log during startup of the Integration. If you don't specify a MAC address, by default the first interface of the list will be used. If you want to use multiple interfaces, you can use the following configuration:
+   (MAC address or list of multiple MAC addresses)(Optional) This parameter is used to select the Bluetooth-interface of your Home Assistant host. When using YAML, a list of available Bluetooth-interfaces available on your system is given in the Home Assistant log during startup of the Integration, when you enable the Home Assistant [logger at info-level](https://www.home-assistant.io/integrations/logger/). If you don't specify a MAC address, by default the first interface of the list will be used. If you want to use multiple interfaces, you can use the following configuration:
 
 ```yaml
 ble_monitor:
@@ -227,10 +235,6 @@ Data from sensors with other addresses will be ignored. Default value: True
 #### batt_entities
 
    (boolean)(Optional) By default, BLE monitor will generate battery sensors for each device (if supported by the device). If you don't want battery sensors, you can set this option to `False`. Battery information will always be available as a sensor attribute called `battery level`. Default value: True
-
-#### rounding [DEPRECATED]
-
-   (boolean)(Optional) This option has been deprecated from `ble_monitor` 1.0.0. Enable/disable rounding of the average of all measurements taken within the number seconds specified with 'period'. This option is designed to disable rounding and thus keep the full average accuracy. When disabled, the `decimals` option is ignored. Default value: True
 
 #### decimals
 
@@ -313,7 +317,7 @@ ble_monitor:
 
 #### encryption_key
 
-   (string, 24 or 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes) for most devices, only Yeelight YLYK01YL, YLKG07YL and YLKG08YL require a 24 character (= 12 bytes) long key. This is only needed for LYWSD03MMC, CGD1, MCCGQ02HL, YLYK01YL, YLKG07YL, YLKG08YL and MHO-C401 sensors (original firmware only). The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
+   (string, 24 or 32 characters)(Optional) This option is used for sensors broadcasting encrypted advertisements. The encryption key should be 32 characters (= 16 bytes) for most devices (LYWSD03MMC, CGD1, MCCGQ02HL, and MHO-C401 (original firmware only). Only Yeelight YLYK01YL (all types), YLYB01YL-BHFRC, YLKG07YL and YLKG08YL require a 24 character (= 12 bytes) long key. The case of the characters does not matter. The keys below are an example, you need your own key(s)! Information on how to get your key(s) can be found [here](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key). Default value: Empty
 
 ```yaml
 ble_monitor:
