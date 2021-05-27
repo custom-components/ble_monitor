@@ -5,9 +5,14 @@
 
 # NB!: This is a Beta version
 
+# Changes in 2.5.1-beta
+
+- Rewriting BLE parser (part 2) 
+  - Qingping parser rewritten
+
 # Changes in 2.5.0-beta
 
-- Rewriting BLE parser (part 2), 
+- Rewriting BLE parser (part 2) 
   - Kegtron parser rewritten
   - Fixed reversed lists for encryption key and whitelist
 
