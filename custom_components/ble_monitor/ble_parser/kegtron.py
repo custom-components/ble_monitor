@@ -1,6 +1,6 @@
 # Parser for Kegtron BLE advertisements
 import logging
-import struct
+from struct import unpack
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ def parse_kegtron(self, data, source_mac, rssi):
     if msg_length == 31:
         firmware = "Kegtron"
         kegtron_mac = source_mac
-        (sensor_id,) = struct.Struct(">B").unpack(data[10:11])
+        (sensor_id,) = unpack(">B", data[10:11])
         if sensor_id & (1 << 6):
             sensor_type = "Kegtron KT-200"
         else:
@@ -33,7 +33,7 @@ def parse_kegtron(self, data, source_mac, rssi):
 
         xvalue = data[4:]
 
-        (keg_size, vol_start, vol_disp, port, port_name) = struct.Struct(">HHHB20s").unpack(xvalue)
+        (keg_size, vol_start, vol_disp, port, port_name) = unpack(">HHHB20s", xvalue)
 
         if keg_size in KEGTRON_SIZE_DICT:
             keg_size = KEGTRON_SIZE_DICT[keg_size]

@@ -1,180 +1,83 @@
-# Parser for Qingping BLE advertisements
+# Parser for Cleargrass or Qingping BLE advertisements
 import logging
-import struct
+from struct import unpack
 
 _LOGGER = logging.getLogger(__name__)
 
-# Sensors type dictionary
-# {device type code: device name}
-QINGPING_TYPE_DICT = {
-    b'\x08\x01': "CGG1",
-    b'\x08\x07': "CGG1",
-    b'\x08\x09': "CGP1W",
-    b'\x08\x0C': "CGD1",
-}
 
-# Structured objects for data conversions
-TH_STRUCT = struct.Struct("<hH")
-P_STRUCT = struct.Struct("<H")
-
-
-# Advertisement conversion of measurement data
-def obj0104(xobj):
-    if len(xobj) == 4:
-        (temp, humi) = TH_STRUCT.unpack(xobj)
-        return {"temperature": temp / 10, "humidity": humi / 10}
-    else:
-        return {}
-
-
-def obj0201(xobj):
-    return {"battery": xobj[0]}
-
-
-def obj0702(xobj):
-    if len(xobj) == 2:
-        (pres,) = P_STRUCT.unpack(xobj)
-        return {"pressure": pres / 10}
-    else:
-        return {}
-
-
-# Dataobject dictionary
-# {dataObject_id: converter}
-qingping_dataobject_dict = {
-    b'\x01\x04': obj0104,
-    b'\x02\x01': obj0201,
-    b'\x07\x02': obj0702,
-}
-
-
-def parse_qingping(self, data, qingping_index, is_ext_packet):
-    # parse BLE message in Qingping format
-    try:
+def parse_qingping(self, data, source_mac, rssi):
+    # check for adstruc length
+    msg_length = len(data)
+    if msg_length > 12 and data[4] == 0x08:
         firmware = "Qingping"
+        sensor_id = data[5]
+        if sensor_id == 0x01:
+            sensor_type = "CGG1"
+        elif sensor_id == 0x07:
+            sensor_type = "CGG1"
+        elif sensor_id == 0x09:
+            sensor_type = "CGP1W"
+        elif sensor_id == 0x0C:
+            sensor_type = "CGD1"
+        else:
+            sensor_type = None
 
-        # check for no BR/EDR + LE General discoverable mode flags
-        advert_start = 29 if is_ext_packet else 14
-        adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
-        if adv_index == -1:
-            raise NoValidError("Invalid index")
-
-        # check for BTLE msg size
-        msg_length = data[2] + 3
-        if msg_length != len(data):
-            raise NoValidError("Invalid msg size")
-
-        # extract device type
-        device_type = data[qingping_index + 3:qingping_index + 5]
-
-        # check for MAC presence in message and in service data
-        mac_index = adv_index - 14 if is_ext_packet else adv_index
-        qingping_mac_reversed = data[qingping_index + 5:qingping_index + 11]
-        source_mac_reversed = data[mac_index - 7:mac_index - 1]
-        if qingping_mac_reversed != source_mac_reversed:
-            raise NoValidError("Invalid MAC address")
+        qingping_mac_reversed = data[6:12]
         qingping_mac = qingping_mac_reversed[::-1]
 
-        # check for MAC presence in whitelist, if needed
-        if self.discovery is False and qingping_mac not in self.whitelist:
-            return None
-        packet_id = "no packet id"
-
-        # extract RSSI byte
-        rssi_index = 18 if is_ext_packet else msg_length - 1
-        (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
-
-        # strange positive RSSI workaround
-        if rssi > 0:
-            rssi = -rssi
-        try:
-            sensor_type = QINGPING_TYPE_DICT[device_type]
-        except KeyError:
-            if self.report_unknown == "Qingping":
-                _LOGGER.info(
-                    "BLE ADV from UNKNOWN Qingping sensor: RSSI: %s, MAC: %s, ADV: %s",
-                    rssi,
-                    ''.join('{:02X}'.format(x) for x in qingping_mac[:]),
-                    data.hex()
-                )
-            raise NoValidError("Device unkown")
-        xdata_length = 0
-        xdata_point = 0
-
-        # parse_qingping data length = message length
-        #     -all bytes before Qingping UUID
-        #     -3 bytes Qingping UUID + ADtype
-        #     -1 byte rssi
-        #     -2 bytes sensor type
-        #     -6 bytes MAC
-        xdata_length += msg_length - qingping_index - 12
-        if xdata_length < 3:
-            raise NoValidError("Xdata length invalid")
-
-        xdata_point += qingping_index + 11
-
-        # check if parse_qingping data start and length is valid
-        if xdata_length != len(data[xdata_point:-1]):
-            raise NoValidError("Invalid data length")
-        result = {
-            "rssi": rssi,
-            "mac": ''.join('{:02X}'.format(x) for x in qingping_mac[:]),
-            "type": sensor_type,
-            "packet": packet_id,
-            "firmware": firmware,
-            "data": True,
-        }
-
-        # loop through parse_qingping payload
-        # assume that the data may have several values of different types
-        while True:
-            xvalue_typecode = data[xdata_point:xdata_point + 2]
-            try:
-                xvalue_length = data[xdata_point + 1]
-            except ValueError as error:
-                _LOGGER.error("xvalue_length conv. error: %s", error)
-                _LOGGER.error("xdata_point: %s", xdata_point)
-                _LOGGER.error("data: %s", data.hex())
-                result = {}
-                break
-            except IndexError as error:
-                _LOGGER.error("Wrong xdata_point: %s", error)
-                _LOGGER.error("xdata_point: %s", xdata_point)
-                _LOGGER.error("data: %s", data.hex())
-                result = {}
-                break
-            xnext_point = xdata_point + 2 + xvalue_length
-            xvalue = data[xdata_point + 2:xnext_point]
-            resfunc = qingping_dataobject_dict.get(xvalue_typecode, None)
-            if resfunc:
-                result.update(resfunc(xvalue))
-            else:
-                if self.report_unknown == "Qingping":
-                    _LOGGER.info(
-                        "UNKNOWN dataobject from Qingping DEVICE: %s, MAC: %s, ADV: %s",
-                        sensor_type,
-                        ''.join('{:02X}'.format(x) for x in qingping_mac[:]),
-                        data.hex()
+        result = {"rssi": rssi}
+        xdata_point = 14
+        while xdata_point < msg_length:
+            xdata_id = data[xdata_point - 2]
+            xdata_size = data[xdata_point - 1]
+            if xdata_point + xdata_size <= msg_length:
+                if xdata_id == 0x01 and xdata_size == 4:
+                    (temp, humi) = unpack("<hH", data[xdata_point:xdata_point + xdata_size])
+                    result.update({"temperature": temp / 10, "humidity": humi / 10})
+                elif xdata_id == 0x02 and xdata_size == 1:
+                    batt = data[xdata_point]
+                    result.update({"battery": batt})
+                elif xdata_id == 0x07 and xdata_size == 2:
+                    (pres,) = unpack("<H", data[xdata_point:xdata_point + xdata_size])
+                    result.update({"pressure": pres / 10})
+                else:
+                    _LOGGER.debug(
+                        "Unknown data received from Qingping sensor: %s",
+                        data[xdata_point - 2:].hex()
                     )
-            if xnext_point > msg_length - 3:
-                break
-            xdata_point = xnext_point
-        return result
+            xdata_point += xdata_size + 2
+    else:
+        sensor_type = None
+    if sensor_type is None:
+        if self.report_unknown == "Qingping":
+            _LOGGER.info(
+                "BLE ADV from UNKNOWN Qingping SENSOR: RSSI: %s, MAC: %s, ADV: %s",
+                rssi,
+                to_mac(source_mac),
+                data.hex()
+            )
+        return None
 
-    except NoValidError as nve:
-        _LOGGER.debug("Invalid data: %s", nve)
+    # check for MAC presence in message and in service data
+    if qingping_mac != source_mac:
+        _LOGGER.debug("Invalid MAC address for Qingping sensor")
+        return None
 
-    return None
+    # check for MAC presence in whitelist, if needed
+    if self.discovery is False and qingping_mac not in self.whitelist:
+        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(qingping_mac))
+        return None
+
+    result.update({
+        "rssi": rssi,
+        "mac": ''.join('{:02X}'.format(x) for x in qingping_mac[:]),
+        "type": sensor_type,
+        "packet": "no packet id",
+        "firmware": firmware,
+        "data": True
+    })
+    return result
 
 
-class QingpingParser:
-    """Class defining the content of an advertisement of a Qingping sensor."""
-
-    def decode(self, data, qingping_index, is_ext_packet):
-        # Decode Qingping advertisement
-        result = parse_qingping(self, data, qingping_index, is_ext_packet)
-        return result
-
-
-class NoValidError(Exception):
-    pass
+def to_mac(addr: int):
+    return ':'.join('{:02x}'.format(x) for x in addr).upper()

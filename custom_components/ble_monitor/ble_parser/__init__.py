@@ -6,7 +6,7 @@ from .atc import ATCParser
 from .kegtron import parse_kegtron
 from .miscale import XiaomiMiScaleParser
 from .xiaomi import XiaomiMiBeaconParser
-from .qingping import QingpingParser
+from .qingping import parse_qingping
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,11 +47,7 @@ def ble_parser(self, data):
                 # check for service data of supported manufacturers
                 uuid16 = (adstruct[3] << 8) | adstruct[2]
                 if uuid16 == 0xFFF9 or uuid16 == 0xFDCD:  # UUID16 = Cleargrass or Qingping
-                    qingping_index = data.find(b'\x16\xCD\xFD', 15 + 15 if is_ext_packet else 0)
-                    if qingping_index != -1:
-                        return QingpingParser.decode(self, data, qingping_index, is_ext_packet)
-                    else:
-                        return None
+                    return parse_qingping(self, adstruct, mac, rssi)
                 elif uuid16 == 0x181A:  # UUID16 = ATC
                     atc_index = data.find(b'\x16\x1A\x18', 15 + 15 if is_ext_packet else 0)
                     if atc_index != -1:
