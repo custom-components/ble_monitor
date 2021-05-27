@@ -3,7 +3,7 @@ import logging
 import subprocess
 
 from .atc import ATCParser
-from .kegtron import KegtronParser
+from .kegtron import parse_kegtron
 from .miscale import XiaomiMiScaleParser
 from .xiaomi import XiaomiMiBeaconParser
 from .qingping import QingpingParser
@@ -75,11 +75,7 @@ def ble_parser(self, data):
                         return None
             elif adstuct_type == 0xFF:  # AD type 'Manufacturer Specific Data'
                 if adstruct[0] == 0x1E and adstruct[2] == 0xFF and adstruct[3] == 0xFF:
-                    kegtron_index = data.find(b'\x1E\xFF\xFF\xFF', 14 + 15 if is_ext_packet else 0)
-                    if kegtron_index != -1:
-                        return KegtronParser.decode(self, data, kegtron_index, is_ext_packet)
-                    else:
-                        return None
+                    return parse_kegtron(self, adstruct, mac, rssi)
             elif adstuct_type > 0x3D:
                 # AD type not standard
                 if self.report_unknown == "Other":
