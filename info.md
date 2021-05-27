@@ -5,17 +5,11 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.4.2-beta
+# Changes in 2.5.0-beta
 
-- Add final support for Yeelight Bathroom Heater Remote control (YLYB01YL-BHFRC)
-
-# Changes in 2.4.1-beta
-
-- Rewriting BLE parser (part 1)
-
-# Changes in 2.4.0-beta
-
-- Add support for Yeelight Bathroom Heater Remote control (YLYB01YL-BHFRC) (development version)
+- Rewriting BLE parser (part 2), 
+  - Kegtron parser rewritten
+  - Fixed reversed lists for encryption key and whitelist
 
 {% endif %}
 {% if installed or pending_update %}
