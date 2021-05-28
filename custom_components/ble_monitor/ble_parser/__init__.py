@@ -65,7 +65,7 @@ def ble_parser(self, data):
                     miscale_v2_index = data.find(b'\x16\x1B\x18', 15 + 15 if is_ext_packet else 0)
                     if miscale_v1_index != -1:
                         return XiaomiMiScaleParser.decode(self, data, miscale_v1_index, is_ext_packet)
-                    elif miscale_v1_index != -1:
+                    elif miscale_v2_index != -1:
                         return XiaomiMiScaleParser.decode(self, data, miscale_v2_index, is_ext_packet)
                     else:
                         return None
