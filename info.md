@@ -19,11 +19,12 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 2.4.3
+# Changes in 2.5.1
 
-- Add support for Yeelight Bathroom Heater Remote control (YLYB01YL-BHFRC) (development version)
-- Rewriting BLE parser (part 1)
-- Moved available HCI interfaces logging to info level (@tomtoump)
+Rewriting BLE parser (part 2)
+- Qingping parser rewritten
+- Kegtron parser rewritten
+- Changed reversed MAC to normal MAC in lists for encryption key and whitelist
 
 {% endif %}
 
