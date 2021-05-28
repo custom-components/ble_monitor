@@ -3,10 +3,10 @@ import logging
 import subprocess
 
 from .atc import ATCParser
-from .kegtron import KegtronParser
+from .kegtron import parse_kegtron
 from .miscale import XiaomiMiScaleParser
 from .xiaomi import XiaomiMiBeaconParser
-from .qingping import QingpingParser
+from .qingping import parse_qingping
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,11 +47,7 @@ def ble_parser(self, data):
                 # check for service data of supported manufacturers
                 uuid16 = (adstruct[3] << 8) | adstruct[2]
                 if uuid16 == 0xFFF9 or uuid16 == 0xFDCD:  # UUID16 = Cleargrass or Qingping
-                    qingping_index = data.find(b'\x16\xCD\xFD', 15 + 15 if is_ext_packet else 0)
-                    if qingping_index != -1:
-                        return QingpingParser.decode(self, data, qingping_index, is_ext_packet)
-                    else:
-                        return None
+                    return parse_qingping(self, adstruct, mac, rssi)
                 elif uuid16 == 0x181A:  # UUID16 = ATC
                     atc_index = data.find(b'\x16\x1A\x18', 15 + 15 if is_ext_packet else 0)
                     if atc_index != -1:
@@ -75,11 +71,7 @@ def ble_parser(self, data):
                         return None
             elif adstuct_type == 0xFF:  # AD type 'Manufacturer Specific Data'
                 if adstruct[0] == 0x1E and adstruct[2] == 0xFF and adstruct[3] == 0xFF:
-                    kegtron_index = data.find(b'\x1E\xFF\xFF\xFF', 14 + 15 if is_ext_packet else 0)
-                    if kegtron_index != -1:
-                        return KegtronParser.decode(self, data, kegtron_index, is_ext_packet)
-                    else:
-                        return None
+                    return parse_kegtron(self, adstruct, mac, rssi)
             elif adstuct_type > 0x3D:
                 # AD type not standard
                 if self.report_unknown == "Other":
