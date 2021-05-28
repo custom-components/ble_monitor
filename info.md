@@ -19,12 +19,13 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 2.5.1
+# Changes in 2.5.1/2
 
 Rewriting BLE parser (part 2)
 - Qingping parser rewritten
 - Kegtron parser rewritten
 - Changed reversed MAC to normal MAC in lists for encryption key and whitelist
+- Fix Mi Scale v2
 
 {% endif %}
 
