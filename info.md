@@ -15,6 +15,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
+# Changes in 2.6.2
+
+- Fix for not receiving data with discovery disabled
+
 # Changes in 2.6.1
 
 - Rewriting BLE parser (part 3) 

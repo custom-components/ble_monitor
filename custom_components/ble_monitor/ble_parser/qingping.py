@@ -64,7 +64,7 @@ def parse_qingping(self, data, source_mac, rssi):
         return None
 
     # check for MAC presence in whitelist, if needed
-    if self.discovery is False and qingping_mac not in self.whitelist:
+    if self.discovery is False and qingping_mac.lower() not in self.whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(qingping_mac))
         return None
 
