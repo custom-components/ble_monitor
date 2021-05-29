@@ -534,7 +534,7 @@ def decrypt_mibeacon_v4_v5(self, data):
             raise DecryptionError("Invalid encrypted data length")
         # try to find encryption key for current device
         try:
-            key = self.aeskeys[self.xiaomi_mac.lower()]
+            key = self.aeskeys[self.xiaomi_mac]
             if len(key) != 16:
                 raise DecryptionError("Encryption key should be 16 bytes (32 characters) long")
         except KeyError:
@@ -593,7 +593,7 @@ def decrypt_mibeacon_legacy(self, data):
             raise DecryptionError("Invalid encrypted data length")
         # try to find encryption key for current device
         try:
-            aeskey = self.aeskeys[self.xiaomi_mac.lower()]
+            aeskey = self.aeskeys[self.xiaomi_mac]
             if len(aeskey) != 12:
                 raise DecryptionError("encryption key should be 12 bytes (24 characters) long")
             key = b"".join([aeskey[0:6], bytes.fromhex("8d3d3c97"), aeskey[6:]])
