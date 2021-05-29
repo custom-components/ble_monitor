@@ -18,7 +18,10 @@ def ble_parser(self, data):
     # check for no BR/EDR + LE General discoverable mode flags
     adpayload_start = 29 if is_ext_packet else 14
     # https://www.silabs.com/community/wireless/bluetooth/knowledge-base.entry.html/2017/02/10/bluetooth_advertisin-hGsf
-    adpayload_size = data[adpayload_start - 1]
+    try:
+        adpayload_size = data[adpayload_start - 1]
+    except IndexError:
+        return None
     # check for BTLE msg size
     msg_length = data[2] + 3
     if (
