@@ -69,7 +69,7 @@ def parse_atc(self, data, atc_index, is_ext_packet):
             raise NoValidError("Invalid MAC address")
 
         # check for MAC presence in whitelist, if needed
-        if self.discovery is False and atc_mac not in self.whitelist:
+        if self.discovery is False and atc_mac.lower() not in self.whitelist:
             return None
 
         packet_id = data[atc_index + 16 if is_custom_adv else atc_index + 15]
