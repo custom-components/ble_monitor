@@ -4,7 +4,7 @@ import subprocess
 
 from .atc import ATCParser
 from .kegtron import parse_kegtron
-from .miscale import XiaomiMiScaleParser
+from .miscale import parse_miscale
 from .xiaomi import XiaomiMiBeaconParser
 from .qingping import parse_qingping
 
@@ -18,7 +18,10 @@ def ble_parser(self, data):
     # check for no BR/EDR + LE General discoverable mode flags
     adpayload_start = 29 if is_ext_packet else 14
     # https://www.silabs.com/community/wireless/bluetooth/knowledge-base.entry.html/2017/02/10/bluetooth_advertisin-hGsf
-    adpayload_size = data[adpayload_start - 1]
+    try:
+        adpayload_size = data[adpayload_start - 1]
+    except IndexError:
+        return None
     # check for BTLE msg size
     msg_length = data[2] + 3
     if (
@@ -60,15 +63,8 @@ def ble_parser(self, data):
                         return XiaomiMiBeaconParser.decode(self, data, xiaomi_index, is_ext_packet)
                     else:
                         return None
-                elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Miscale
-                    miscale_v1_index = data.find(b'\x16\x1D\x18', 15 + 15 if is_ext_packet else 0)
-                    miscale_v2_index = data.find(b'\x16\x1B\x18', 15 + 15 if is_ext_packet else 0)
-                    if miscale_v1_index != -1:
-                        return XiaomiMiScaleParser.decode(self, data, miscale_v1_index, is_ext_packet)
-                    elif miscale_v2_index != -1:
-                        return XiaomiMiScaleParser.decode(self, data, miscale_v2_index, is_ext_packet)
-                    else:
-                        return None
+                elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Mi Scale
+                    return parse_miscale(self, adstruct, mac, rssi)
             elif adstuct_type == 0xFF:  # AD type 'Manufacturer Specific Data'
                 if adstruct[0] == 0x1E and adstruct[2] == 0xFF and adstruct[3] == 0xFF:
                     return parse_kegtron(self, adstruct, mac, rssi)

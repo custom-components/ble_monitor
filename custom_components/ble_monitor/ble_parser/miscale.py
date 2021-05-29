@@ -1,26 +1,21 @@
 # Parser for Xiaomi Mi Scale BLE advertisements
 import logging
-import struct
+from struct import unpack
 
 _LOGGER = logging.getLogger(__name__)
 
-# Sensors type dictionary
-# {device type code: device name}
-MISCALE_TYPE_DICT = {
-    b'\x1D\x18': "Mi Scale V1",
-    b'\x1B\x18': "Mi Scale V2",
-}
 
-# Structured objects for data conversions
-SCALE_V1_STRUCT = struct.Struct("<BH7x")
-SCALE_V2_STRUCT = struct.Struct("<BB7xHH")
+def parse_miscale(self, data, source_mac, rssi):
+    # check for adstruc length
+    msg_length = len(data)
+    uuid16 = (data[3] << 8) | data[2]
 
+    if msg_length == 14 and uuid16 == 0x181D:  # Mi Scale V1
+        sensor_type = "Mi Scale V1"
+        xvalue = data[4:]
+        (controlByte, weight) = unpack("<BH7x", xvalue)
 
-# Advertisement conversion of measurement data
-def obj1d18(xobj):
-    # MI Scale V1 BLE advertisements
-    if len(xobj) == 10:
-        (controlByte, weight) = SCALE_V1_STRUCT.unpack(xobj)
+        hasImpedance = False
         isStabilized = controlByte & (1 << 5)
         weightRemoved = controlByte & (1 << 7)
 
@@ -34,29 +29,10 @@ def obj1d18(xobj):
             weight = weight / 200
             weight_unit = 'kg'
 
-        if isStabilized:
-            return {
-                "weight": weight,
-                "non-stabilized weight": weight,
-                "weight unit": weight_unit,
-                "weight removed": 0 if weightRemoved == 0 else 1,
-                "stabilized": 0 if isStabilized == 0 else 1
-            }
-        else:
-            return {
-                "non-stabilized weight": weight,
-                "weight unit": weight_unit,
-                "weight removed": 0 if weightRemoved == 0 else 1,
-                "stabilized": 0 if isStabilized == 0 else 1
-            }
-    else:
-        return {}
-
-
-def obj1b18(xobj):
-    # MI Scale V2 BLE advertisements
-    if len(xobj) == 13:
-        (measunit, controlByte, impedance, weight) = SCALE_V2_STRUCT.unpack(xobj)
+    elif msg_length == 17 and uuid16 == 0x181B:  # Mi Scale V2
+        sensor_type = "Mi Scale V2"
+        xvalue = data[4:]
+        (measunit, controlByte, impedance, weight) = unpack("<BB7xHH", xvalue)
         hasImpedance = controlByte & (1 << 1)
         isStabilized = controlByte & (1 << 5)
         weightRemoved = controlByte & (1 << 7)
@@ -77,154 +53,63 @@ def obj1b18(xobj):
             # measurement in unknown unit
             weight = weight / 100
             weight_unit = None
-
-        if isStabilized:
-            if hasImpedance:
-                return {
-                    "weight": weight,
-                    "non-stabilized weight": weight,
-                    "weight unit": weight_unit,
-                    "impedance": impedance,
-                    "weight removed": 0 if weightRemoved == 0 else 1,
-                    "stabilized": 0 if isStabilized == 0 else 1
-                }
-            else:
-                return {
-                    "weight": weight,
-                    "non-stabilized weight": weight,
-                    "weight unit": weight_unit,
-                    "weight removed": 0 if weightRemoved == 0 else 1,
-                    "stabilized": 0 if isStabilized == 0 else 1
-                }
-        else:
-            return {
-                "non-stabilized weight": weight,
-                "weight unit": weight_unit,
-                "weight removed": 0 if weightRemoved == 0 else 1,
-                "stabilized": 0 if isStabilized == 0 else 1
-            }
     else:
-        return {}
+        sensor_type = None
+    if sensor_type is None:
+        if self.report_unknown == "Mi Scale":
+            _LOGGER.info(
+                "BLE ADV from UNKNOWN Mi Scale SENSOR: MAC: %s, ADV: %s",
+                to_mac(source_mac),
+                data.hex()
+            )
+        return None
 
+    result = {
+        "non-stabilized weight": weight,
+        "weight unit": weight_unit,
+        "weight removed": 0 if weightRemoved == 0 else 1,
+        "stabilized": 0 if isStabilized == 0 else 1
+    }
 
-# Dataobject dictionary
-# {dataObject_id: converter}
-miscale_dataobject_dict = {
-    b'\x1B\x18': obj1b18,
-    b'\x1D\x18': obj1d18,
-}
+    if isStabilized and not weightRemoved:
+        result.update({"weight": weight})
 
+    if hasImpedance:
+        result.update({"impedance": impedance})
 
-def parse_miscale(self, data, miscale_index, is_ext_packet):
+    firmware = sensor_type
+    miscale_mac = source_mac
+
+    # Check for duplicate messages
+    packet_id = xvalue.hex()
     try:
-        # parse BLE advertisement in Xiaomi Mi Scale (v1 or v2) format
+        prev_packet = self.lpacket_ids[miscale_mac]
+    except KeyError:
+        # start with empty first packet
+        prev_packet = None
+    if prev_packet == packet_id:
+        # only process new messages
+        return None
+    self.lpacket_ids[miscale_mac] = packet_id
+    if prev_packet is None:
+        # ignore first message after a restart
+        return None
 
-        # check for no BR/EDR + LE General discoverable mode flags
-        advert_start = 29 if is_ext_packet else 14
-        adv_index = data.find(b"\x02\x01\x06", advert_start, 3 + advert_start)
-        if adv_index == -1:
-            raise NoValidError("Invalid index")
+    # check for MAC presence in whitelist, if needed
+    if self.discovery is False and miscale_mac not in self.whitelist:
+        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(miscale_mac))
+        return None
 
-        # check for BTLE msg size
-        msg_length = data[2] + 3
-        if msg_length != len(data):
-            raise NoValidError("Invalid msg size")
-
-        # extract device type
-        device_type = data[miscale_index + 5:miscale_index + 7]
-
-        # check for MAC presence in message and in service data
-        mac_index = adv_index - 14 if is_ext_packet else adv_index
-        miscale_mac_reversed = data[mac_index - 7:mac_index - 1]
-        miscale_mac = miscale_mac_reversed[::-1]
-
-        # check for MAC presence in whitelist, if needed
-        if self.discovery is False and miscale_mac not in self.whitelist:
-            return None
-
-        # extract RSSI byte
-        rssi_index = 18 if is_ext_packet else msg_length - 1
-        (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
-
-        # strange positive RSSI workaround
-        if rssi > 0:
-            rssi = -rssi
-        device_type = data[miscale_index + 1:miscale_index + 3]
-        try:
-            sensor_type = MISCALE_TYPE_DICT[device_type]
-        except KeyError:
-            if self.report_unknown == "Mi Scale":
-                _LOGGER.info(
-                    "BLE ADV from UNKNOWN MI SCALE SENSOR: RSSI: %s, MAC: %s, ADV: %s",
-                    rssi,
-                    ''.join('{:02X}'.format(x) for x in miscale_mac[:]),
-                    data.hex()
-                )
-            raise NoValidError("Device unkown")
-
-        firmware = sensor_type
-
-        # Mi Scale data length = message length
-        # -all bytes before Mi Scale UUID
-        # -3 bytes UUID + ADtype
-        # -1 RSSI (normal, not extended packet only)
-        xdata_length = msg_length - miscale_index - 3 - (0 if is_ext_packet else 1)
-        if xdata_length != (10 if sensor_type == "Mi Scale V1" else 13):
-            raise NoValidError("Xdata length invalid")
-
-        xdata_point = miscale_index + 3
-        xnext_point = xdata_point + xdata_length
-        xvalue = data[xdata_point:xnext_point]
-
-        packet_id = xvalue.hex()
-        try:
-            prev_packet = self.lpacket_ids[miscale_index]
-        except KeyError:
-            # start with empty first packet
-            prev_packet = None
-        if prev_packet == packet_id:
-            # only process new messages
-            return None
-        self.lpacket_ids[miscale_index] = packet_id
-
-        result = {
-            "rssi": rssi,
-            "mac": ''.join('{:02X}'.format(x) for x in miscale_mac[:]),
-            "type": sensor_type,
-            "packet": packet_id,
-            "firmware": firmware,
-            "data": True,
-        }
-
-        xvalue_typecode = data[miscale_index + 1:miscale_index + 3]
-
-        resfunc = miscale_dataobject_dict.get(xvalue_typecode, None)
-        if resfunc:
-            result.update(resfunc(xvalue))
-        else:
-            if self.report_unknown == "Mi Scale":
-                _LOGGER.info(
-                    "UNKNOWN dataobject from Mi Scale DEVICE: %s, MAC: %s, ADV: %s",
-                    sensor_type,
-                    ''.join('{:02X}'.format(x) for x in miscale_mac[:]),
-                    data.hex()
-                )
-        return result
-
-    except NoValidError as nve:
-        _LOGGER.debug("Invalid data: %s", nve)
-
-    return None
+    result.update({
+        "type": sensor_type,
+        "firmware": firmware,
+        "mac": ''.join('{:02X}'.format(x) for x in miscale_mac),
+        "packet": packet_id,
+        "rssi": rssi,
+        "data": True,
+    })
+    return result
 
 
-class XiaomiMiScaleParser:
-    """Class defining the content of an advertisement of a Xiaomi Mi Scale."""
-
-    def decode(self, data, miscale_index, is_ext_packet):
-        # Decode Xiaomi Mi Scale advertisement
-        result = parse_miscale(self, data, miscale_index, is_ext_packet)
-        return result
-
-
-class NoValidError(Exception):
-    pass
+def to_mac(addr: int):
+    return ':'.join('{:02x}'.format(x) for x in addr).upper()

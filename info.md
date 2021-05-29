@@ -5,27 +5,23 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.5.1-beta
+# Changes in 2.6.0-beta
 
-- Rewriting BLE parser (part 2) 
-  - Qingping parser rewritten
-
-# Changes in 2.5.0-beta
-
-- Rewriting BLE parser (part 2) 
-  - Kegtron parser rewritten
-  - Fixed reversed lists for encryption key and whitelist
+- Rewriting BLE parser (part 3) 
+  - MiScale parser rewritten
+  - Ignore old weight measurement of MiScale after HA restart and waking of the scale (with help of @kaibob2)
+  - Ignore weight measurement when stepped of the scale (with help of @kaibob2)
 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 2.5.1/2
+# Changes in 2.6.1
 
-Rewriting BLE parser (part 2)
-- Qingping parser rewritten
-- Kegtron parser rewritten
-- Changed reversed MAC to normal MAC in lists for encryption key and whitelist
-- Fix Mi Scale v2
+- Rewriting BLE parser (part 3) 
+  - MiScale parser rewritten
+  - Ignore old weight measurement of MiScale after HA restart and waking of the scale (with help of @kaibob2)
+  - Ignore weight measurement when stepped of the scale (with help of @kaibob2)
+  - Fix IndexError in the BLE parser
 
 {% endif %}
 
