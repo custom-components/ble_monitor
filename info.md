@@ -15,6 +15,10 @@
 {% endif %}
 {% if installed or pending_update %}
 
+# Changes in 2.6.3
+
+- Fix for encryption key sometimes not found
+
 # Changes in 2.6.2
 
 - Fix for not receiving data with discovery disabled
