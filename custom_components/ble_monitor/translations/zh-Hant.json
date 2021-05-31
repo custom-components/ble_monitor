@@ -37,7 +37,7 @@
       "cannot_change_mac": "MAC 位址無法變更。"
     },
     "abort": {
-      "single_instance_allowed": "BLE monitor 僅允許單一設定。"
+      "single_instance_allowed": "BLE monitor 僅允許一組設定。"
     }
   },
   "options": {
@@ -48,7 +48,7 @@
         "data": {
           "batt_entities": "產生電量實體",
           "devices": "裝置",
-          "discovery": "索",
+          "discovery": "探索",
           "decimals": "小數點位數",
           "period": "掃描間隔",
           "log_spikes": "紀錄日誌",
@@ -64,7 +64,7 @@
         "title": "設定裝置",
         "data": {
           "mac": "MAC 位址（若輸入為「-」進行刪除）",
-          "encryption_key": "密鑰若輸入為「-」進行移除）",
+          "encryption_key": "密鑰（若輸入為「-」進行移除）",
           "temperature_unit": "溫度單位",
           "decimals": "小數點位數",
           "use_median": "使用中位數",
