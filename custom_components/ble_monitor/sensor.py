@@ -541,6 +541,7 @@ class MeasuringSensor(RestoreEntity):
             self._measurements.append(int(data[self._measurement]))
         else:
             self._measurements.append(data[self._measurement])
+        self._device_state_attributes["sensor type"] = data["type"]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
         if batt_attr is not None:

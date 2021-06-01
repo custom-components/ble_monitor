@@ -387,16 +387,6 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and self.xiaomi_mac.lower() not in self.whitelist:
             return None
-        self.packet_id = data[xiaomi_index + 7]
-        try:
-            prev_packet = self.lpacket_ids[self.xiaomi_mac]
-        except KeyError:
-            # start with empty first packet
-            prev_packet = None
-        if prev_packet == self.packet_id:
-            # only process new messages
-            return None
-        self.lpacket_ids[self.xiaomi_mac] = self.packet_id
 
         # extract RSSI byte
         rssi_index = 18 if self.is_ext_packet else self.msg_length - 1
@@ -416,6 +406,41 @@ def parse_xiaomi(self, data, xiaomi_index, is_ext_packet):
                     data.hex()
                 )
             raise NoValidError("Device unkown")
+
+        self.packet_id = data[xiaomi_index + 7]
+        try:
+            prev_packet = self.lpacket_ids[self.xiaomi_mac]
+        except KeyError:
+            # start with empty first packet
+            prev_packet = None
+
+        if sensor_type in ["LYWSD03MMC", "CGG1", "MHO-C401"]:
+            # Check for adv priority and packet_id for sensors that can also send in ATC format
+            adv_priority = 19
+            try:
+                old_adv_priority = self.adv_priority[self.xiaomi_mac]
+            except KeyError:
+                # start with initial adv priority
+                old_adv_priority = 0
+            if adv_priority > old_adv_priority:
+                # always process advertisements with a higher priority
+                self.adv_priority[self.xiaomi_mac] = adv_priority
+            elif adv_priority == old_adv_priority:
+                # only process messages with same priority that have a unique packet id
+                if prev_packet == self.packet_id:
+                    return None
+                else:
+                    pass
+            else:
+                # do not process advertisements with lower priority (ATC advertisements will be used instead)
+                old_adv_priority -= 1
+                self.adv_priority[self.xiaomi_mac] = old_adv_priority
+                return None
+        else:
+            if prev_packet == self.packet_id:
+                # only process messages with highest priority and messages with unique packet id
+                return None
+        self.lpacket_ids[self.xiaomi_mac] = self.packet_id
 
         # check data is present
         if not (framectrl & 0x4000):

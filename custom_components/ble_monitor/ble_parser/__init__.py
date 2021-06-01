@@ -2,7 +2,7 @@
 import logging
 import subprocess
 
-from .atc import ATCParser
+from .atc import parse_atc
 from .kegtron import parse_kegtron
 from .miscale import parse_miscale
 from .xiaomi import XiaomiMiBeaconParser
@@ -52,11 +52,7 @@ def ble_parser(self, data):
                 if uuid16 == 0xFFF9 or uuid16 == 0xFDCD:  # UUID16 = Cleargrass or Qingping
                     return parse_qingping(self, adstruct, mac, rssi)
                 elif uuid16 == 0x181A:  # UUID16 = ATC
-                    atc_index = data.find(b'\x16\x1A\x18', 15 + 15 if is_ext_packet else 0)
-                    if atc_index != -1:
-                        return ATCParser.decode(self, data, atc_index, is_ext_packet)
-                    else:
-                        return None
+                    return parse_atc(self, adstruct, mac, rssi)
                 elif uuid16 == 0xFE95:  # UUID16 = Xiaomi
                     xiaomi_index = data.find(b'\x16\x95\xFE', 15 + 15 if is_ext_packet else 0)
                     if xiaomi_index != -1:

@@ -1,164 +1,180 @@
 # Parser for ATC BLE advertisements
+from Cryptodome.Cipher import AES
 import logging
-import struct
+from struct import unpack
 
 _LOGGER = logging.getLogger(__name__)
 
-# Sensors type dictionary
-# {device type code: device name}
-ATC_TYPE_DICT = {b'\x1A\x18': "LYWSD03MMC"}
 
-# Structured objects for data conversions
-THBV_STRUCT = struct.Struct(">hBBH")
-THVB_STRUCT = struct.Struct("<hHHB")
-
-
-# Advertisement conversion of measurement data
-def objATC_short(xobj):
-    if len(xobj) == 6:
-        (temp, humi, batt, volt) = THBV_STRUCT.unpack(xobj)
-        return {"temperature": temp / 10, "humidity": humi, "voltage": volt / 1000, "battery": batt}
-    else:
-        return {}
-
-
-def objATC_long(xobj):
-    if len(xobj) == 7:
-        (temp, humi, volt, batt) = THVB_STRUCT.unpack(xobj)
-        return {"temperature": temp / 100, "humidity": humi / 100, "voltage": volt / 1000, "battery": batt}
-    else:
-        return {}
-
-
-# Dataobject dictionary
-# {dataObject_id: converter}
-atc_dataobject_dict = {
-    b'\x10\x16': objATC_short,
-    b'\x12\x16': objATC_long,
-}
-
-
-def parse_atc(self, data, atc_index, is_ext_packet):
-    try:
-        # Parse BLE message in ATC format
-        # Check for the atc1441 or custom format
-        is_custom_adv = True if data[atc_index - 1] == 18 else False
-        if is_custom_adv:
-            firmware = "ATC firmware (custom)"
-        else:
-            firmware = "ATC firmware (ATC1441)"
-        # Check for old format (ATC firmware <= 2.8)
-        old_format = True if data.find(b"\x02\x01\x06", atc_index - 4, atc_index - 1) == -1 else False
-
-        # check for BTLE msg size
-        msg_length = data[2] + 3
-        if msg_length != len(data):
-            raise NoValidError("Invalid index")
-
-        # check for MAC presence in message and in service data
-        if is_custom_adv is True:
-            atc_mac_reversed = data[atc_index + 3:atc_index + 9]
-            atc_mac = atc_mac_reversed[::-1]
-        else:
-            atc_mac = data[atc_index + 3:atc_index + 9]
-
-        mac_index = atc_index - (22 if is_ext_packet else 8) - (0 if old_format else 3)
-        source_mac_reversed = data[mac_index:mac_index + 6]
-        source_mac = source_mac_reversed[::-1]
-        if atc_mac != source_mac:
-            raise NoValidError("Invalid MAC address")
-
-        # check for MAC presence in whitelist, if needed
-        if self.discovery is False and atc_mac.lower() not in self.whitelist:
-            return None
-
-        packet_id = data[atc_index + 16 if is_custom_adv else atc_index + 15]
-        try:
-            prev_packet = self.lpacket_ids[atc_mac]
-        except KeyError:
-            # start with empty first packet
-            prev_packet = None
-        if prev_packet == packet_id:
-            # only process new messages
-            return None
-        self.lpacket_ids[atc_mac] = packet_id
-
-        # extract RSSI byte
-        rssi_index = 18 if is_ext_packet else msg_length - 1
-        (rssi,) = struct.unpack("<b", data[rssi_index:rssi_index + 1])
-
-        # strange positive RSSI workaround
-        if rssi > 0:
-            rssi = -rssi
-        device_type = data[atc_index + 1:atc_index + 3]
-        try:
-            sensor_type = ATC_TYPE_DICT[device_type]
-        except KeyError:
-            if self.report_unknown == "ATC":
-                _LOGGER.info(
-                    "BLE ADV from UNKNOWN ATC SENSOR: RSSI: %s, MAC: %s, ADV: %s",
-                    rssi,
-                    ''.join('{:02X}'.format(x) for x in atc_mac[:]),
-                    data.hex()
-                )
-            raise NoValidError("Device unkown")
-
-        # ATC data length = message length
-        # -all bytes before ATC UUID
-        # -3 bytes ATC UUID + ADtype
-        # -6 bytes MAC
-        # -1 Frame packet counter
-        # -1 byte flags (custom adv only)
-        # -1 RSSI (normal, not extended packet only)
-        xdata_length = msg_length - atc_index - (11 if is_custom_adv else 10) - (0 if is_ext_packet else 1)
-        if xdata_length < 6:
-            raise NoValidError("Xdata length invalid")
-
-        xdata_point = atc_index + 9
-
-        # check if parse_atc data start and length is valid
-        xdata_end_offset = (-1 if is_ext_packet else -2) + (-1 if is_custom_adv else 0)
-        if xdata_length != len(data[xdata_point:xdata_end_offset]):
-            raise NoValidError("Invalid data length")
-
+def parse_atc(self, data, source_mac, rssi):
+    # check for adstruc length
+    sensor_type = "ATC"
+    msg_length = len(data)
+    if msg_length == 19:
+        # Parse BLE message in Custom format without encryption
+        firmware = "ATC (Custom)"
+        atc_mac_reversed = data[4:10]
+        atc_mac = atc_mac_reversed[::-1]
+        (temp, humi, volt, batt, packet_id, trg) = unpack("<hHHBBB", data[10:])
         result = {
-            "rssi": rssi,
-            "mac": ''.join('{:02X}'.format(x) for x in atc_mac[:]),
-            "type": sensor_type,
-            "packet": packet_id,
-            "firmware": firmware,
-            "data": True,
+            "temperature": temp / 100,
+            "humidity": humi / 100,
+            "voltage": volt / 1000,
+            "battery": batt,
+            "switch": (trg >> 1) & 1,
+            "opening": (trg ^ 1) & 1,
+            "data": True
         }
-        xvalue_typecode = data[atc_index - 1:atc_index + 1]
-        xnext_point = xdata_point + xdata_length
-        xvalue = data[xdata_point:xnext_point]
-        resfunc = atc_dataobject_dict.get(xvalue_typecode, None)
-        if resfunc:
-            result.update(resfunc(xvalue))
+        adv_priority = 39
+    elif msg_length == 17:
+        # Parse BLE message in ATC format
+        firmware = "ATC (Atc1441)"
+        atc_mac = data[4:10]
+        (temp, humi, batt, volt, packet_id) = unpack(">hBBHB", data[10:])
+        result = {
+            "temperature": temp / 10,
+            "humidity": humi,
+            "voltage": volt / 1000,
+            "battery": batt,
+            "data": True
+        }
+        adv_priority = 29
+    elif msg_length == 15:
+        # Parse BLE message in Custom format with encryption
+        atc_mac = source_mac
+        packet_id = data[4]
+        firmware = "ATC (Custom encrypted)"
+        decrypted_data = decrypt_atc(self, data, atc_mac)
+        if decrypted_data is None:
+            result = {"data": False}
+            adv_priority = 0
         else:
-            if self.report_unknown == "ATC":
-                _LOGGER.info(
-                    "UNKNOWN dataobject from ATC DEVICE: %s, MAC: %s, ADV: %s",
-                    sensor_type,
-                    ''.join('{:02X}'.format(x) for x in atc_mac[:]),
-                    data.hex()
-                )
-        return result
+            (temp, humi, batt, trg) = unpack("<hHBB", decrypted_data)
+            if batt > 100:
+                batt = 100
+            volt = 2.2 + (3.1 - 2.2) * (batt / 100)
+            result = {
+                "temperature": temp / 100,
+                "humidity": humi / 100,
+                "voltage": volt,
+                "battery": batt,
+                "switch": (trg >> 1) & 1,
+                "opening": (trg ^ 1) & 1,
+                "data": True
+            }
+            adv_priority = 39
+    elif msg_length == 12:
+        # Parse BLE message in Atc1441 format with encryption
+        atc_mac = source_mac
+        packet_id = data[4]
+        firmware = "ATC (Atc1441 encrypted)"
+        decrypted_data = decrypt_atc(self, data, atc_mac)
+        if decrypted_data is None:
+            result = {"data": False}
+            adv_priority = 0
+        else:
+            temp = decrypted_data[0] / 2 - 40.0
+            humi = decrypted_data[1] / 2
+            batt = decrypted_data[2] & 0x7f
+            trg = decrypted_data[2] >> 7
+            if batt > 100:
+                batt = 100
+            volt = 2.2 + (3.1 - 2.2) * (batt / 100)
+            result = {
+                "temperature": temp,
+                "humidity": humi,
+                "voltage": volt,
+                "battery": batt,
+                "switch": trg,
+                "data": True
+            }
+            adv_priority = 9
+    else:
+        if self.report_unknown == "ATC":
+            _LOGGER.info(
+                "BLE ADV from UNKNOWN ATC SENSOR: RSSI: %s, MAC: %s, AdStruct: %s",
+                rssi,
+                to_mac(source_mac),
+                data.hex()
+            )
+        return None
 
-    except NoValidError as nve:
-        _LOGGER.debug("Invalid data: %s", nve)
+    # check for MAC presence in whitelist, if needed
+    if self.discovery is False and atc_mac.lower() not in self.whitelist:
+        return None
 
-    return None
+    try:
+        prev_packet = self.lpacket_ids[atc_mac]
+    except KeyError:
+        # start with empty first packet
+        prev_packet = None
+    try:
+        old_adv_priority = self.adv_priority[atc_mac]
+    except KeyError:
+        # start with initial adv priority
+        old_adv_priority = 0
+    if adv_priority > old_adv_priority:
+        # always process advertisements with a higher priority
+        self.adv_priority[atc_mac] = adv_priority
+    elif adv_priority == old_adv_priority:
+        # only process messages with same priority that have a unique packet id
+        if prev_packet == packet_id:
+            return None
+        else:
+            pass
+    else:
+        # do not process advertisements with lower priority
+        old_adv_priority -= 1
+        self.adv_priority[atc_mac] = old_adv_priority
+        return None
+    self.lpacket_ids[atc_mac] = packet_id
+
+    result.update({
+        "rssi": rssi,
+        "mac": ''.join('{:02X}'.format(x) for x in atc_mac),
+        "type": sensor_type,
+        "packet": packet_id,
+        "firmware": firmware
+    })
+
+    return result
 
 
-class ATCParser:
-    """Class defining the content of an advertisement of a sensor with ATC firmware."""
+def decrypt_atc(self, data, atc_mac):
+    # try to find encryption key for current device
+    try:
+        key = self.aeskeys[atc_mac.lower()]
+        if len(key) != 16:
+            _LOGGER.error("Encryption key should be 16 bytes (32 characters) long")
+    except KeyError:
+        # no encryption key found
+        _LOGGER.error("No encryption key found for ATC sensor with MAC: %s", to_mac(atc_mac))
+        return None
+    # prepare the data for decryption
+    nonce = b"".join([atc_mac[::-1], data[:5]])
+    cipherpayload = data[5:-4]
+    aad = b"\x11"
+    token = data[-4:]
+    cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
+    cipher.update(aad)
+    # decrypt the data
+    try:
+        decrypted_payload = cipher.decrypt_and_verify(cipherpayload, token)
+    except ValueError as error:
+        _LOGGER.error("Decryption failed: %s", error)
+        _LOGGER.error("token: %s", token.hex())
+        _LOGGER.error("nonce: %s", nonce.hex())
+        _LOGGER.error("encrypted_payload: %s", cipherpayload.hex())
+        return None
+    if decrypted_payload is None:
+        _LOGGER.error(
+            "Decryption failed for %s, decrypted payload is None",
+            to_mac(atc_mac),
+        )
+        return None
 
-    def decode(self, data, atc_index, is_ext_packet):
-        # Decode ATC advertisement
-        result = parse_atc(self, data, atc_index, is_ext_packet)
-        return result
+    return decrypted_payload
 
 
-class NoValidError(Exception):
-    pass
+def to_mac(addr: int):
+    return ':'.join('{:02x}'.format(x) for x in addr).upper()
