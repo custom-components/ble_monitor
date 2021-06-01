@@ -15,21 +15,12 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 2.6.3
+# Changes in 2.7.1
 
-- Fix for encryption key sometimes not found
-
-# Changes in 2.6.2
-
-- Fix for not receiving data with discovery disabled
-
-# Changes in 2.6.1
-
-- Rewriting BLE parser (part 3) 
-  - MiScale parser rewritten
-  - Ignore old weight measurement of MiScale after HA restart and waking of the scale (with help of @kaibob2)
-  - Ignore weight measurement when stepped of the scale (with help of @kaibob2)
-  - Fix IndexError in the BLE parser
+- Rewriting BLE parser (part 4) 
+  - ATC parser rewritten
+  - Support for ATC sensors with encryption enabled
+  - Automatically use advertisements with the highest accuracy when sending all advertisement formats with ATC firmware
 
 {% endif %}
 

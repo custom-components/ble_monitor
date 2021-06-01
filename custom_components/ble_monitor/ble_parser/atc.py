@@ -22,7 +22,8 @@ def parse_atc(self, data, source_mac, rssi):
             "voltage": volt / 1000,
             "battery": batt,
             "switch": (trg >> 1) & 1,
-            "opening": (trg ^ 1) & 1
+            "opening": (trg ^ 1) & 1,
+            "data": True
         }
         adv_priority = 39
     elif msg_length == 17:
@@ -34,7 +35,8 @@ def parse_atc(self, data, source_mac, rssi):
             "temperature": temp / 10,
             "humidity": humi,
             "voltage": volt / 1000,
-            "battery": batt
+            "battery": batt,
+            "data": True
         }
         adv_priority = 29
     elif msg_length == 15:
@@ -44,20 +46,23 @@ def parse_atc(self, data, source_mac, rssi):
         firmware = "ATC (Custom encrypted)"
         decrypted_data = decrypt_atc(self, data, atc_mac)
         if decrypted_data is None:
-            return None
-        (temp, humi, batt, trg) = unpack("<hHBB", decrypted_data)
-        if batt > 100:
-            batt = 100
-        volt = 2.2 + (3.1 - 2.2) * (batt / 100)
-        result = {
-            "temperature": temp / 100,
-            "humidity": humi / 100,
-            "voltage": volt,
-            "battery": batt,
-            "switch": (trg >> 1) & 1,
-            "opening": (trg ^ 1) & 1
-        }
-        adv_priority = 39
+            result = {"data": False}
+            adv_priority = 0
+        else:
+            (temp, humi, batt, trg) = unpack("<hHBB", decrypted_data)
+            if batt > 100:
+                batt = 100
+            volt = 2.2 + (3.1 - 2.2) * (batt / 100)
+            result = {
+                "temperature": temp / 100,
+                "humidity": humi / 100,
+                "voltage": volt,
+                "battery": batt,
+                "switch": (trg >> 1) & 1,
+                "opening": (trg ^ 1) & 1,
+                "data": True
+            }
+            adv_priority = 39
     elif msg_length == 12:
         # Parse BLE message in Atc1441 format with encryption
         atc_mac = source_mac
@@ -65,22 +70,25 @@ def parse_atc(self, data, source_mac, rssi):
         firmware = "ATC (Atc1441 encrypted)"
         decrypted_data = decrypt_atc(self, data, atc_mac)
         if decrypted_data is None:
-            return None
-        temp = decrypted_data[0] / 2 - 40.0
-        humi = decrypted_data[1] / 2
-        batt = decrypted_data[2] & 0x7f
-        trg = decrypted_data[2] >> 7
-        if batt > 100:
-            batt = 100
-        volt = 2.2 + (3.1 - 2.2) * (batt / 100)
-        result = {
-            "temperature": temp,
-            "humidity": humi,
-            "voltage": volt,
-            "battery": batt,
-            "switch": trg
-        }
-        adv_priority = 9
+            result = {"data": False}
+            adv_priority = 0
+        else:
+            temp = decrypted_data[0] / 2 - 40.0
+            humi = decrypted_data[1] / 2
+            batt = decrypted_data[2] & 0x7f
+            trg = decrypted_data[2] >> 7
+            if batt > 100:
+                batt = 100
+            volt = 2.2 + (3.1 - 2.2) * (batt / 100)
+            result = {
+                "temperature": temp,
+                "humidity": humi,
+                "voltage": volt,
+                "battery": batt,
+                "switch": trg,
+                "data": True
+            }
+            adv_priority = 9
     else:
         if self.report_unknown == "ATC":
             _LOGGER.info(
@@ -126,8 +134,7 @@ def parse_atc(self, data, source_mac, rssi):
         "mac": ''.join('{:02X}'.format(x) for x in atc_mac),
         "type": sensor_type,
         "packet": packet_id,
-        "firmware": firmware,
-        "data": True
+        "firmware": firmware
     })
 
     return result
