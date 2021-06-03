@@ -8,7 +8,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def parse_atc(self, data, source_mac, rssi):
     # check for adstruc length
-    sensor_type = "ATC"
+    device_type = "ATC"
     msg_length = len(data)
     if msg_length == 19:
         # Parse BLE message in Custom format without encryption
@@ -92,7 +92,7 @@ def parse_atc(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "ATC":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN ATC SENSOR: RSSI: %s, MAC: %s, AdStruct: %s",
+                "BLE ADV from UNKNOWN ATC DEVICE: RSSI: %s, MAC: %s, AdStruct: %s",
                 rssi,
                 to_mac(source_mac),
                 data.hex()
@@ -132,7 +132,7 @@ def parse_atc(self, data, source_mac, rssi):
     result.update({
         "rssi": rssi,
         "mac": ''.join('{:02X}'.format(x) for x in atc_mac),
-        "type": sensor_type,
+        "type": device_type,
         "packet": packet_id,
         "firmware": firmware
     })
@@ -148,7 +148,7 @@ def decrypt_atc(self, data, atc_mac):
             _LOGGER.error("Encryption key should be 16 bytes (32 characters) long")
     except KeyError:
         # no encryption key found
-        _LOGGER.error("No encryption key found for ATC sensor with MAC: %s", to_mac(atc_mac))
+        _LOGGER.error("No encryption key found for ATC device with MAC: %s", to_mac(atc_mac))
         return None
     # prepare the data for decryption
     nonce = b"".join([atc_mac[::-1], data[:5]])
@@ -161,13 +161,13 @@ def decrypt_atc(self, data, atc_mac):
     try:
         decrypted_payload = cipher.decrypt_and_verify(cipherpayload, token)
     except ValueError as error:
-        _LOGGER.error("Decryption failed: %s", error)
-        _LOGGER.error("token: %s", token.hex())
-        _LOGGER.error("nonce: %s", nonce.hex())
-        _LOGGER.error("encrypted_payload: %s", cipherpayload.hex())
+        _LOGGER.warning("Decryption failed: %s", error)
+        _LOGGER.debug("token: %s", token.hex())
+        _LOGGER.debug("nonce: %s", nonce.hex())
+        _LOGGER.debug("encrypted_payload: %s", cipherpayload.hex())
         return None
     if decrypted_payload is None:
-        _LOGGER.error(
+        _LOGGER.warning(
             "Decryption failed for %s, decrypted payload is None",
             to_mac(atc_mac),
         )

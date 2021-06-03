@@ -11,7 +11,7 @@ def parse_miscale(self, data, source_mac, rssi):
     uuid16 = (data[3] << 8) | data[2]
 
     if msg_length == 14 and uuid16 == 0x181D:  # Mi Scale V1
-        sensor_type = "Mi Scale V1"
+        device_type = "Mi Scale V1"
         xvalue = data[4:]
         (controlByte, weight) = unpack("<BH7x", xvalue)
 
@@ -30,7 +30,7 @@ def parse_miscale(self, data, source_mac, rssi):
             weight_unit = 'kg'
 
     elif msg_length == 17 and uuid16 == 0x181B:  # Mi Scale V2
-        sensor_type = "Mi Scale V2"
+        device_type = "Mi Scale V2"
         xvalue = data[4:]
         (measunit, controlByte, impedance, weight) = unpack("<BB7xHH", xvalue)
         hasImpedance = controlByte & (1 << 1)
@@ -54,11 +54,11 @@ def parse_miscale(self, data, source_mac, rssi):
             weight = weight / 100
             weight_unit = None
     else:
-        sensor_type = None
-    if sensor_type is None:
+        device_type = None
+    if device_type is None:
         if self.report_unknown == "Mi Scale":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Mi Scale SENSOR: MAC: %s, ADV: %s",
+                "BLE ADV from UNKNOWN Mi Scale DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -77,7 +77,7 @@ def parse_miscale(self, data, source_mac, rssi):
     if hasImpedance:
         result.update({"impedance": impedance})
 
-    firmware = sensor_type
+    firmware = device_type
     miscale_mac = source_mac
 
     # Check for duplicate messages
@@ -101,7 +101,7 @@ def parse_miscale(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "type": sensor_type,
+        "type": device_type,
         "firmware": firmware,
         "mac": ''.join('{:02X}'.format(x) for x in miscale_mac),
         "packet": packet_id,

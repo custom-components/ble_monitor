@@ -5,7 +5,7 @@ import subprocess
 from .atc import parse_atc
 from .kegtron import parse_kegtron
 from .miscale import parse_miscale
-from .xiaomi import XiaomiMiBeaconParser
+from .xiaomi import parse_xiaomi
 from .qingping import parse_qingping
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,11 +54,7 @@ def ble_parser(self, data):
                 elif uuid16 == 0x181A:  # UUID16 = ATC
                     return parse_atc(self, adstruct, mac, rssi)
                 elif uuid16 == 0xFE95:  # UUID16 = Xiaomi
-                    xiaomi_index = data.find(b'\x16\x95\xFE', 15 + 15 if is_ext_packet else 0)
-                    if xiaomi_index != -1:
-                        return XiaomiMiBeaconParser.decode(self, data, xiaomi_index, is_ext_packet)
-                    else:
-                        return None
+                    return parse_xiaomi(self, adstruct, mac, rssi)
                 elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Mi Scale
                     return parse_miscale(self, adstruct, mac, rssi)
             elif adstuct_type == 0xFF:  # AD type 'Manufacturer Specific Data'

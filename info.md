@@ -5,12 +5,11 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.7.0-beta
+# Changes in 2.8.0-beta
 
-- Rewriting BLE parser (part 4) 
-  - ATC parser rewritten
-  - Support for ATC sensors with encryption enabled
-  - Automatically use advertisements with the highest accuracy when sending all advertisement formats with ATC firmware
+- Rewriting BLE parser (part 5) 
+  - Xiaomi parser rewritten (based on the work of @pvvx)
+  - Firmware attribute now shows the MiBeacon version being used by the device
 
 {% endif %}
 {% if installed or pending_update %}

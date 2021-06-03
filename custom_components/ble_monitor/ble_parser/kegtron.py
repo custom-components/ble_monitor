@@ -25,11 +25,11 @@ def parse_kegtron(self, data, source_mac, rssi):
     if msg_length == 31:
         firmware = "Kegtron"
         kegtron_mac = source_mac
-        (sensor_id,) = unpack(">B", data[10:11])
-        if sensor_id & (1 << 6):
-            sensor_type = "Kegtron KT-200"
+        (device_id,) = unpack(">B", data[10:11])
+        if device_id & (1 << 6):
+            device_type = "Kegtron KT-200"
         else:
-            sensor_type = "Kegtron KT-100"
+            device_type = "Kegtron KT-100"
 
         xvalue = data[4:]
 
@@ -72,7 +72,7 @@ def parse_kegtron(self, data, source_mac, rssi):
             return None
 
         result.update({
-            "type": sensor_type,
+            "type": device_type,
             "firmware": firmware,
             "mac": ''.join('{:02X}'.format(x) for x in kegtron_mac),
             "packet": "no packet id",

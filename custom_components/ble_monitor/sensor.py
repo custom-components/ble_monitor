@@ -681,7 +681,7 @@ class HumiditySensor(MeasuringSensor):
         self._device_class = DEVICE_CLASS_HUMIDITY
         # LYWSD03MMC / MHO-C401 "jagged" humidity workaround
         if devtype in ('LYWSD03MMC', 'MHO-C401'):
-            if self._device_firmware == "Xiaomi (MiBeacon)" or self._device_firmware == "Xiaomi (MiBeacon V4/V5 encrypted)":
+            if self._device_firmware[0:6] == "Xiaomi":
                 self._jagged = True
 
 
