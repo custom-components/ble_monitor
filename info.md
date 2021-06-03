@@ -5,6 +5,10 @@
 
 # NB!: This is a Beta version
 
+# Changes in 2.8.1-beta
+
+- Fix for old sensors without firmware
+
 # Changes in 2.8.0-beta
 
 - Rewriting BLE parser (part 5) 
