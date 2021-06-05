@@ -165,7 +165,7 @@ MEASUREMENT_DICT = {
     'YLAI003'           : [["button", "battery"], []],
     'YLYK01YL'          : [["remote"], ["remote binary"]],
     'YLYK01YL-FANCL'    : [["fan remote"], []],
-    'YLYK01YL-VENFAN'   : [["byte_1"], []],
+    'YLYK01YL-VENFAN'   : [["ventilator fan remote"], []],
     'YLYB01YL-BHFRC'    : [["bathroom heater remote"], []],
     'YLKG07YL/YLKG08YL' : [["dimmer"], []],
     'ATC'               : [["temperature", "humidity", "battery", "voltage"], []],

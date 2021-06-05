@@ -10,17 +10,17 @@ def parse_qingping(self, data, source_mac, rssi):
     msg_length = len(data)
     if msg_length > 12 and data[4] == 0x08:
         firmware = "Qingping"
-        sensor_id = data[5]
-        if sensor_id == 0x01:
-            sensor_type = "CGG1"
-        elif sensor_id == 0x07:
-            sensor_type = "CGG1"
-        elif sensor_id == 0x09:
-            sensor_type = "CGP1W"
-        elif sensor_id == 0x0C:
-            sensor_type = "CGD1"
+        device_id = data[5]
+        if device_id == 0x01:
+            device_type = "CGG1"
+        elif device_id == 0x07:
+            device_type = "CGG1"
+        elif device_id == 0x09:
+            device_type = "CGP1W"
+        elif device_id == 0x0C:
+            device_type = "CGD1"
         else:
-            sensor_type = None
+            device_type = None
 
         qingping_mac_reversed = data[6:12]
         qingping_mac = qingping_mac_reversed[::-1]
@@ -42,16 +42,16 @@ def parse_qingping(self, data, source_mac, rssi):
                     result.update({"pressure": pres / 10})
                 else:
                     _LOGGER.debug(
-                        "Unknown data received from Qingping sensor: %s",
+                        "Unknown data received from Qingping device: %s",
                         data[xdata_point - 2:].hex()
                     )
             xdata_point += xdata_size + 2
     else:
-        sensor_type = None
-    if sensor_type is None:
+        device_type = None
+    if device_type is None:
         if self.report_unknown == "Qingping":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Qingping SENSOR: RSSI: %s, MAC: %s, ADV: %s",
+                "BLE ADV from UNKNOWN Qingping DEVICE: RSSI: %s, MAC: %s, ADV: %s",
                 rssi,
                 to_mac(source_mac),
                 data.hex()
@@ -60,7 +60,7 @@ def parse_qingping(self, data, source_mac, rssi):
 
     # check for MAC presence in message and in service data
     if qingping_mac != source_mac:
-        _LOGGER.debug("Invalid MAC address for Qingping sensor")
+        _LOGGER.debug("Invalid MAC address for Qingping device")
         return None
 
     # check for MAC presence in whitelist, if needed
@@ -71,7 +71,7 @@ def parse_qingping(self, data, source_mac, rssi):
     result.update({
         "rssi": rssi,
         "mac": ''.join('{:02X}'.format(x) for x in qingping_mac[:]),
-        "type": sensor_type,
+        "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,
         "data": True
