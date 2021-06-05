@@ -18,12 +18,11 @@
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 2.7.1
+# Changes in 2.8.1
 
-- Rewriting BLE parser (part 4) 
-  - ATC parser rewritten
-  - Support for ATC sensors with encryption enabled
-  - Automatically use advertisements with the highest accuracy when sending all advertisement formats with ATC firmware
+- Rewriting BLE parser (part 5) 
+  - Xiaomi parser rewritten (based on the work of @pvvx)
+  - Firmware attribute now shows the MiBeacon version being used by the device
 
 {% endif %}
 
