@@ -133,7 +133,6 @@ ble_monitor:
   discovery: True
   active_scan: False
   report_unknown: False
-  batt_entities: False
   decimals: 1
   period: 60
   log_spikes: False
