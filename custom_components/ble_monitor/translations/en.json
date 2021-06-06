@@ -26,7 +26,7 @@
           "decimals": "Number of decimals",
           "use_median": "Use median",
           "restore_state": "Restore state",
-          "reset_timer": "Motion sensor reset timer (in seconds, 0 = use sensor messages only)"
+          "reset_timer": "Reset timer (in seconds, 0 = off)"
         }
       }  
     },
@@ -67,7 +67,7 @@
           "decimals": "Number of decimals",
           "use_median": "Use median",
           "restore_state": "Restore state",
-          "reset_timer": "Motion sensor reset timer (in seconds, 0 = use sensor messages only)"
+          "reset_timer": "Reset timer (in seconds, 0 = off)"
         }
       }  
     },

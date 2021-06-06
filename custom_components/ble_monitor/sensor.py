@@ -678,7 +678,9 @@ class ButtonSensor(MeasuringSensor):
         """Update."""
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self._device_state_attributes["last button press"] = self._state
-        async_call_later(self.hass, 1, self.reset_state)
+        if self._reset_timer > 0:
+            _LOGGER.debug("Reset timer for button sensor is set to: %i seconds", self._reset_timer)
+            async_call_later(self.hass, self._reset_timer, self.reset_state)
         self.rssi_values.clear()
         self.pending_update = False
 
@@ -872,9 +874,18 @@ class DimmerSensor(MeasuringSensor):
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
 
+    def reset_state(self, event=None):
+        """Reset state of the sensor."""
+        self._state = "no press"
+        self.schedule_update_ha_state(False)
+
     async def async_update(self):
         """Update."""
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        self._device_state_attributes["last dimmer press"] = self._state
+        if self._reset_timer > 0:
+            _LOGGER.debug("Reset timer for dimmer sensor is set to: %i seconds", self._reset_timer)
+            async_call_later(self.hass, self._reset_timer, self.reset_state)
         self.rssi_values.clear()
         self.pending_update = False
 
