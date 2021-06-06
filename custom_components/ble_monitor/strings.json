@@ -5,7 +5,6 @@
         "title": "Passive BLE Monitor",
         "description": "Setup of your BLE monitor configuration",
         "data": {
-          "batt_entities": "Generate battery entities",
           "devices": "Devices",
           "discovery": "Discovery",
           "decimals": "Number of decimals",
@@ -46,7 +45,6 @@
         "title": "Passive BLE Monitor options",
         "description": "Scanning will be restarted after pressing 'SUBMIT'",
         "data": {
-          "batt_entities": "Generate battery entities",
           "devices": "Devices",
           "discovery": "Discovery",
           "decimals": "Number of decimals",

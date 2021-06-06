@@ -60,12 +60,19 @@ def parse_kegtron(self, data, source_mac, rssi):
         result = {
             "keg size": keg_size,
             "volume start": vol_start / 1000,
-            "volume dispensed": vol_disp / 1000,
             "port state": port_state,
             "port index": port_index,
             "port count": port_count,
             "port name": port_name
         }
+
+        if port_index == 1:
+            result.update({"volume dispensed port 1": vol_disp / 1000})
+        elif port_index == 2:
+            result.update({"volume dispensed port 2": vol_disp / 1000})
+        else:
+            return None
+
         # check for MAC presence in whitelist, if needed
         if self.discovery is False and kegtron_mac.lower() not in self.whitelist:
             _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(kegtron_mac))

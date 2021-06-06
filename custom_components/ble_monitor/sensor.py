@@ -37,7 +37,6 @@ from .const import (
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
-    CONF_BATT_ENTITIES,
     CONF_RESTORE_STATE,
     CONF_DEVICE_DECIMALS,
     CONF_DEVICE_USE_MEDIAN,
@@ -50,7 +49,8 @@ from .const import (
     DEFAULT_DEVICE_RESET_TIMER,
     KETTLES,
     MANUFACTURER_DICT,
-    MMTS_DICT,
+    MEASUREMENT_DICT,
+    SENSOR_DICT,
     DOMAIN,
 )
 
@@ -84,78 +84,20 @@ class BLEupdater():
         self.dataqueue = blemonitor.dataqueue["measuring"].async_q
         self.config = blemonitor.config
         self.period = self.config[CONF_PERIOD]
-        self.log_spikes = self.config[CONF_LOG_SPIKES]
-        self.batt_entities = self.config[CONF_BATT_ENTITIES]
         self.add_entities = add_entities
         _LOGGER.debug("BLE sensors updater initialized")
 
     async def async_run(self, hass):
         """Entities updater loop."""
 
-        def temperature_limit(config, mac, temp):
-            """Set limits for temperature measurement in °C or °F."""
-            fmac = ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
-
-            if config[CONF_DEVICES]:
-                for device in config[CONF_DEVICES]:
-                    if fmac in device["mac"].upper():
-                        if CONF_TEMPERATURE_UNIT in device:
-                            if device[CONF_TEMPERATURE_UNIT] == TEMP_FAHRENHEIT:
-                                temp_fahrenheit = temp * 9 / 5 + 32
-                                return temp_fahrenheit
-                        break
-            return temp
-
         async def async_add_sensor(mac, sensortype, firmware):
-            t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, re_i, fr_i, vr_i, br_i, di_i, w_i, nw_i, im_i, vd_i, to_i, v_i, b_i = MMTS_DICT[sensortype][0]
+            device_sensors = MEASUREMENT_DICT[sensortype][0]
             if mac not in sensors_by_mac:
                 sensors = []
-                if t_i != 9:
-                    sensors.insert(t_i, TemperatureSensor(self.config, mac, sensortype, firmware))
-                if h_i != 9:
-                    sensors.insert(h_i, HumiditySensor(self.config, mac, sensortype, firmware))
-                if m_i != 9:
-                    sensors.insert(m_i, MoistureSensor(self.config, mac, sensortype, firmware))
-                if p_i != 9:
-                    sensors.insert(p_i, PressureSensor(self.config, mac, sensortype, firmware))
-                if c_i != 9:
-                    sensors.insert(c_i, ConductivitySensor(self.config, mac, sensortype, firmware))
-                if i_i != 9:
-                    sensors.insert(i_i, IlluminanceSensor(self.config, mac, sensortype, firmware))
-                if f_i != 9:
-                    sensors.insert(f_i, FormaldehydeSensor(self.config, mac, sensortype, firmware))
-                if cn_i != 9:
-                    sensors.insert(cn_i, ConsumableSensor(self.config, mac, sensortype, firmware))
-                if bu_i != 9:
-                    sensors.insert(bu_i, ButtonSensor(self.config, mac, sensortype, firmware))
-                if re_i != 9:
-                    sensors.insert(re_i, RemoteSensor(self.config, mac, sensortype, firmware))
-                if fr_i != 9:
-                    sensors.insert(fr_i, FanRemoteSensor(self.config, mac, sensortype, firmware))
-                if vr_i != 9:
-                    sensors.insert(vr_i, VentilatorFanRemoteSensor(self.config, mac, sensortype, firmware))
-                if br_i != 9:
-                    sensors.insert(br_i, BathroomHeaterRemoteSensor(self.config, mac, sensortype, firmware))
-                if di_i != 9:
-                    sensors.insert(di_i, DimmerSensor(self.config, mac, sensortype, firmware))
-                if w_i != 9:
-                    sensors.insert(w_i, WeightSensor(self.config, mac, sensortype, firmware))
-                if nw_i != 9:
-                    sensors.insert(nw_i, NonStabilizedWeightSensor(self.config, mac, sensortype, firmware))
-                if im_i != 9:
-                    sensors.insert(im_i, ImpedanceSensor(self.config, mac, sensortype, firmware))
-                if vd_i != 9:
-                    port = 1
-                    sensors.insert(vd_i, VolumeDispensedSensor(self.config, mac, sensortype, port, firmware))
-                    if sensortype == "Kegtron KT-200":
-                        port = 2
-                        sensors.insert(vd_i + 1, VolumeDispensedSensor(self.config, mac, sensortype, port, firmware))
-                if to_i != 9:
-                    sensors.insert(to_i, ToothbrushModeSensor(self.config, mac, sensortype, firmware))
-                if self.batt_entities and (v_i != 9):
-                    sensors.insert(v_i, VoltageSensor(self.config, mac, sensortype, firmware))
-                if self.batt_entities and (b_i != 9):
-                    sensors.insert(b_i, BatterySensor(self.config, mac, sensortype, firmware))
+                for sensor in device_sensors:
+                    sensors.insert(device_sensors.index(sensor), globals()[SENSOR_DICT[sensor]](
+                        self.config, mac, sensortype, firmware)
+                    )
                 if len(sensors) != 0:
                     sensors_by_mac[mac] = sensors
                     self.add_entities(sensors)
@@ -215,164 +157,36 @@ class BLEupdater():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                t_i, h_i, m_i, p_i, c_i, i_i, f_i, cn_i, bu_i, re_i, fr_i, vr_i, br_i, di_i, w_i, nw_i, im_i, vd_i, to_i, v_i, b_i = MMTS_DICT[sensortype][0]
+                device_sensors = MEASUREMENT_DICT[sensortype][0]
+                meas_type = MEASUREMENT_DICT[sensortype][2]
                 sensors = await async_add_sensor(mac, sensortype, firmware)
 
                 if data["data"] is False:
                     data = None
                     continue
 
-                # store found readings per device
-                # battery sensors and battery attribute
-                if (b_i != 9):
+                # battery attribute
+                if "battery" in device_sensors:
                     if "battery" in data:
                         batt[mac] = int(data["battery"])
                         batt_attr = batt[mac]
-                        if self.batt_entities:
-                            sensors[b_i].collect(data)
                     else:
                         try:
                             batt_attr = batt[mac]
                         except KeyError:
                             batt_attr = None
-                # measuring sensors
-                if "temperature" in data and (t_i != 9):
-                    # schedule an immediate update of kettle temperature
-                    if sensortype in KETTLES:
-                        entity = sensors[t_i]
+
+                # store found readings per device
+                for measurement in device_sensors:
+                    if measurement in data:
+                        entity = sensors[device_sensors.index(measurement)]
                         entity.collect(data, batt_attr)
-                        if entity.ready_for_update is True:
-                            entity.rssi_values = rssi[mac].copy()
-                            entity.async_schedule_update_ha_state(True)
-                            rssi[mac].clear()
-                            entity.pending_update = False
-                    else:
-                        if (
-                            temperature_limit(
-                                self.config, mac, CONF_TMAX
-                            ) >= data["temperature"] >= temperature_limit(self.config, mac, CONF_TMIN)
-                        ):
-                            sensors[t_i].collect(data, batt_attr)
-                        elif self.log_spikes:
-                            _LOGGER.error(
-                                "Temperature spike: %s (%s)",
-                                data["temperature"],
-                                mac,
-                            )
-                if "humidity" in data and (h_i != 9):
-                    if CONF_HMAX >= data["humidity"] >= CONF_HMIN:
-                        sensors[h_i].collect(data, batt_attr)
-                    elif self.log_spikes:
-                        _LOGGER.error(
-                            "Humidity spike: %s (%s)",
-                            data["humidity"],
-                            mac,
-                        )
-                if "conductivity" in data and (c_i != 9):
-                    sensors[c_i].collect(data, batt_attr)
-                if "pressure" in data and (p_i != 9):
-                    sensors[p_i].collect(data, batt_attr)
-                if "moisture" in data and (m_i != 9):
-                    sensors[m_i].collect(data, batt_attr)
-                if "illuminance" in data and (i_i != 9):
-                    sensors[i_i].collect(data, batt_attr)
-                if "formaldehyde" in data and (f_i != 9):
-                    sensors[f_i].collect(data, batt_attr)
-                if "consumable" in data and (cn_i != 9):
-                    sensors[cn_i].collect(data, batt_attr)
-                if "press" in data and (bu_i != 9):
-                    button = sensors[bu_i]
-                    # schedule an immediate update of button sensors
-                    button.collect(data, batt_attr)
-                    if button.ready_for_update is True:
-                        button.rssi_values = rssi[mac].copy()
-                        button.async_schedule_update_ha_state(True)
-                        button.pending_update = False
-                if "remote" in data and (re_i != 9):
-                    remote = sensors[re_i]
-                    # schedule an immediate update of remote sensors
-                    remote.collect(data, batt_attr)
-                    if remote.ready_for_update is True:
-                        remote.rssi_values = rssi[mac].copy()
-                        remote.async_schedule_update_ha_state(True)
-                        remote.pending_update = False
-                if "fan remote" in data and (fr_i != 9):
-                    fan_remote = sensors[fr_i]
-                    # schedule an immediate update of fan remote sensors
-                    fan_remote.collect(data, batt_attr)
-                    if fan_remote.ready_for_update is True:
-                        fan_remote.rssi_values = rssi[mac].copy()
-                        fan_remote.async_schedule_update_ha_state(True)
-                        fan_remote.pending_update = False
-                if "ventilator fan remote" in data and (vr_i != 9):
-                    ven_fan_remote = sensors[vr_i]
-                    # schedule an immediate update of ventilator fan remote sensors
-                    ven_fan_remote.collect(data, batt_attr)
-                    if ven_fan_remote.ready_for_update is True:
-                        ven_fan_remote.rssi_values = rssi[mac].copy()
-                        ven_fan_remote.async_schedule_update_ha_state(True)
-                        ven_fan_remote.pending_update = False
-                if "bathroom heater remote" in data and (br_i != 9):
-                    bathroom_heater_remote = sensors[br_i]
-                    # schedule an immediate update of bathroom heater remote sensors
-                    bathroom_heater_remote.collect(data, batt_attr)
-                    if bathroom_heater_remote.ready_for_update is True:
-                        bathroom_heater_remote.rssi_values = rssi[mac].copy()
-                        bathroom_heater_remote.async_schedule_update_ha_state(True)
-                        bathroom_heater_remote.pending_update = False
-                if "dimmer" in data and (di_i != 9):
-                    dimmer = sensors[di_i]
-                    # schedule an immediate update of dimmer sensors
-                    dimmer.collect(data, batt_attr)
-                    if dimmer.ready_for_update is True:
-                        dimmer.rssi_values = rssi[mac].copy()
-                        dimmer.async_schedule_update_ha_state(True)
-                        dimmer.pending_update = False
-                if "weight" in data and (w_i != 9):
-                    weight = sensors[w_i]
-                    # schedule an immediate update of weight sensors
-                    weight.collect(data, batt_attr)
-                    if weight.ready_for_update is True:
-                        weight.rssi_values = rssi[mac].copy()
-                        weight.async_schedule_update_ha_state(True)
-                        weight.pending_update = False
-                if "non-stabilized weight" in data and (nw_i != 9):
-                    non_stabilized_weight = sensors[nw_i]
-                    # schedule an immediate update of non-stabilized weight sensors
-                    non_stabilized_weight.collect(data, batt_attr)
-                    if non_stabilized_weight.ready_for_update is True:
-                        non_stabilized_weight.rssi_values = rssi[mac].copy()
-                        non_stabilized_weight.async_schedule_update_ha_state(True)
-                        non_stabilized_weight.pending_update = False
-                if "impedance" in data and (im_i != 9):
-                    impedance = sensors[im_i]
-                    # schedule an immediate update of impedance sensors
-                    impedance.collect(data, batt_attr)
-                    if impedance.ready_for_update is True:
-                        impedance.rssi_values = rssi[mac].copy()
-                        impedance.async_schedule_update_ha_state(True)
-                        impedance.pending_update = False
-                if "volume dispensed" in data and (vd_i != 9):
-                    port = data["port index"]
-                    vd_i = vd_i + port - 1
-                    volume_dispensed = sensors[vd_i]
-                    # schedule an immediate update of kegtron volume dispensed sensors
-                    volume_dispensed.collect(data, batt_attr)
-                    if volume_dispensed.ready_for_update is True:
-                        volume_dispensed.rssi_values = rssi[mac].copy()
-                        volume_dispensed.async_schedule_update_ha_state(True)
-                        volume_dispensed.pending_update = False
-                if "toothbrush mode" in data and (to_i != 9):
-                    toothbrushmode = sensors[to_i]
-                    # schedule an immediate update of toothbrush mode sensors
-                    toothbrushmode.collect(data, batt_attr)
-                    if toothbrushmode.ready_for_update is True:
-                        toothbrushmode.rssi_values = rssi[mac].copy()
-                        toothbrushmode.async_schedule_update_ha_state(True)
-                        toothbrushmode.pending_update = False
-                if self.batt_entities:
-                    if "voltage" in data and (v_i != 9):
-                        sensors[v_i].collect(data, batt_attr)
+                        if meas_type == "instant":
+                            # instant measurements are updated instantly
+                            if entity.ready_for_update is True:
+                                entity.rssi_values = rssi[mac].copy()
+                                entity.async_schedule_update_ha_state(True)
+                                entity.pending_update = False
                 data = None
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
@@ -430,6 +244,9 @@ class MeasuringSensor(RestoreEntity):
         self._use_median = self._device_settings["use median"]
         self._restore_state = self._device_settings["restore state"]
         self._reset_timer = self._device_settings["reset timer"]
+        self._lower_temp_limit = self.temperature_limit(config, mac, CONF_TMIN)
+        self._upper_temp_limit = self.temperature_limit(config, mac, CONF_TMAX)
+        self._log_spikes = config[CONF_LOG_SPIKES]
         self._err = None
 
     async def async_added_to_hass(self):
@@ -532,11 +349,36 @@ class MeasuringSensor(RestoreEntity):
         """Force update."""
         return True
 
+    def temperature_limit(self, config, mac, temp):
+        """Set limits for temperature measurement in °C or °F."""
+        fmac = ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
+        if config[CONF_DEVICES]:
+            for device in config[CONF_DEVICES]:
+                if fmac in device["mac"].upper():
+                    if CONF_TEMPERATURE_UNIT in device:
+                        if device[CONF_TEMPERATURE_UNIT] == TEMP_FAHRENHEIT:
+                            temp_fahrenheit = temp * 9 / 5 + 32
+                            return temp_fahrenheit
+                    break
+        return temp
+
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
         if self.enabled is False:
             self.pending_update = False
             return
+        if "temperature" in data:
+            if not self._lower_temp_limit <= data["temperature"] <= self._upper_temp_limit:
+                if self._log_spikes:
+                    _LOGGER.error("Temperature spike: %s (%s)", data["temperature"], self._mac)
+                self.pending_update = False
+                return
+        if "humidity" in data:
+            if not CONF_HMIN <= data["humidity"] <= CONF_HMAX:
+                if self._log_spikes:
+                    _LOGGER.error("Humidity spike: %s (%s)", data["humidity"], self._mac)
+                self.pending_update = False
+                return
         if self._jagged is True:
             self._measurements.append(int(data[self._measurement]))
         else:
@@ -804,7 +646,7 @@ class ButtonSensor(MeasuringSensor):
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
-        self._measurement = "press"
+        self._measurement = "button"
         self._name = "ble button {}".format(self._device_name)
         self._unique_id = "bu_" + self._device_name
         self._unit_of_measurement = None
@@ -847,7 +689,7 @@ class RemoteSensor(MeasuringSensor):
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
-        self._press = "press"
+        self._button = "button"
         self._remote = "remote"
         self._name = "ble remote {}".format(self._device_name)
         self._unique_id = "re_" + self._device_name
@@ -864,11 +706,11 @@ class RemoteSensor(MeasuringSensor):
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self._press] + " " + data[self._remote]
+        self._state = data[self._button] + " " + data[self._remote]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
         self._device_state_attributes["last remote button pressed"] = data["remote"]
-        self._device_state_attributes["last type of press"] = data["press"]
+        self._device_state_attributes["last type of press"] = data["button"]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
@@ -886,7 +728,7 @@ class FanRemoteSensor(MeasuringSensor):
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
-        self._press = "press"
+        self._button = "button"
         self._fan_remote = "fan remote"
         self._name = "ble fan remote {}".format(self._device_name)
         self._unique_id = "fr_" + self._device_name
@@ -903,11 +745,11 @@ class FanRemoteSensor(MeasuringSensor):
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self._press] + " " + data[self._fan_remote]
+        self._state = data[self._button] + " " + data[self._fan_remote]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
         self._device_state_attributes["last remote button pressed"] = data["fan remote"]
-        self._device_state_attributes["last type of press"] = data["press"]
+        self._device_state_attributes["last type of press"] = data["button"]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
@@ -925,7 +767,7 @@ class VentilatorFanRemoteSensor(MeasuringSensor):
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
-        self._press = "press"
+        self._button = "button"
         self._ven_fan_remote = "ventilator fan remote"
         self._name = "ble ventilator fan remote {}".format(self._device_name)
         self._unique_id = "vr_" + self._device_name
@@ -942,11 +784,11 @@ class VentilatorFanRemoteSensor(MeasuringSensor):
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self._press] + " " + data[self._ven_fan_remote]
+        self._state = data[self._button] + " " + data[self._ven_fan_remote]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
         self._device_state_attributes["last remote button pressed"] = data["ventilator fan remote"]
-        self._device_state_attributes["last type of press"] = data["press"]
+        self._device_state_attributes["last type of press"] = data["button"]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
@@ -964,7 +806,7 @@ class BathroomHeaterRemoteSensor(MeasuringSensor):
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
-        self._press = "press"
+        self._button = "button"
         self._bathroom_heater_remote = "bathroom heater remote"
         self._name = "ble bathroom heater remote {}".format(self._device_name)
         self._unique_id = "br_" + self._device_name
@@ -985,7 +827,7 @@ class BathroomHeaterRemoteSensor(MeasuringSensor):
         self._state = data[self._bathroom_heater_remote]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
-        self._device_state_attributes["last type of press"] = data[self._press]
+        self._device_state_attributes["last type of press"] = data[self._button]
         self._device_state_attributes["last remote button pressed"] = data["bathroom heater remote"]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
@@ -1004,7 +846,7 @@ class DimmerSensor(MeasuringSensor):
     def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
-        self._press = "press"
+        self._button = "button"
         self._dimmer = "dimmer"
         self._name = "ble dimmer {}".format(self._device_name)
         self._unique_id = "di_" + self._device_name
@@ -1021,11 +863,11 @@ class DimmerSensor(MeasuringSensor):
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self._press] + " " + data[self._dimmer]
+        self._state = data[self._button] + " " + data[self._dimmer]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
         self._device_state_attributes["dimmer value"] = data[self._dimmer]
-        self._device_state_attributes["last type of press"] = data[self._press]
+        self._device_state_attributes["last type of press"] = data[self._button]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
@@ -1158,13 +1000,9 @@ class ImpedanceSensor(MeasuringSensor):
 class VolumeDispensedSensor(MeasuringSensor):
     """Representation of a Kegtron Volume dispensed sensor."""
 
-    def __init__(self, config, mac, devtype, port, firmware):
+    def __init__(self, config, mac, devtype, firmware):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
-        self._measurement = "volume dispensed"
-        self._port = port
-        self._name = "ble volume dispensed port {} {}".format(self._port, self._device_name)
-        self._unique_id = "vd_" + str(self._port) + "_" + self._device_name
         self._unit_of_measurement = "L"
         self._device_class = None
 
@@ -1193,6 +1031,28 @@ class VolumeDispensedSensor(MeasuringSensor):
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self.rssi_values.clear()
         self.pending_update = False
+
+
+class VolumeDispensedPort1Sensor(VolumeDispensedSensor):
+    """Representation of a Kegtron Volume dispensed port 1 sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "volume dispensed port 1"
+        self._name = "ble volume dispensed port 1 {}".format(self._device_name)
+        self._unique_id = "vd_1_" + self._device_name
+
+
+class VolumeDispensedPort2Sensor(VolumeDispensedSensor):
+    """Representation of a Kegtron Volume dispensed port 2 sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "volume dispensed port 2"
+        self._name = "ble volume dispensed port 2 {}".format(self._device_name)
+        self._unique_id = "vd_2_" + self._device_name
 
 
 class ToothbrushModeSensor(MeasuringSensor):

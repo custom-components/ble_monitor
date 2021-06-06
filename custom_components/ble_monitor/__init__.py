@@ -111,6 +111,7 @@ CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.All(
             cv.deprecated(CONF_ROUNDING),
+            cv.deprecated(CONF_BATT_ENTITIES),
             vol.Schema(
                 {
                     vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.positive_int,

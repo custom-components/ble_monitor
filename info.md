@@ -5,15 +5,14 @@
 
 # NB!: This is a Beta version
 
-# Changes in 2.8.1-beta
+# Changes in 2.9.0-beta
 
-- Fix for old sensors without firmware
-
-# Changes in 2.8.0-beta
-
-- Rewriting BLE parser (part 5) 
-  - Xiaomi parser rewritten (based on the work of @pvvx)
-  - Firmware attribute now shows the MiBeacon version being used by the device
+- Add support for Qingping Bluetooth clock (CGC1)
+  - This device (most likely) requires an encryption key. If you have information about update frequency, encryption key requirement, and/or a log with `report_unknown: "qingping"`, we can improve the documentation and implement qingping format support without encryption. Please open an issue if you want to help us with this information.
+- Rewriting sensor and binary sensor (part 6) 
+  - Optimization of the code to make it easier to add future sensors
+- Removal of the generate battery entities option. 
+  - The option `batt_entities` has been removed (it will display a warning if still in your YAML configuration). BLE monitor will, from now on, always generate the battery and/or voltage entities. HA has built in functionality to disable these sensors.
 
 {% endif %}
 {% if installed or pending_update %}
@@ -68,6 +67,7 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Keg
 |**CGDK2**|**Qingping Temp & RH Monitor Lite**<br /><br />Round body, E-Ink, broadcasts temperature, humidity and battery level, about 1 readings per 10 minute, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![CGDK2](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/CGDK2.png)|
 |**LYWSD02**|**Xiaomi Temperature and Humidity sensor**<br /><br />Rectangular body, E-Ink, broadcasts temperature, humidity and battery level (battery level is available for firmware version 1.1.2_00085 and later), about 20 readings per minute.|![LYWSD02](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/LYWSD02.jpeg)|
 |**LYWSD03MMC**|**Xiaomi Hygro thermometer**<br /><br />Small square body, segment LCD, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour (original firmware). With the original firmware, advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option.<br /><br />`ble_monitor` also supports custom ATC firmware (both the firmware by `ATC1441`, available [here](https://github.com/atc1441/ATC_MiThermometer), and the improved firmware by `pvvx` available [here](https://github.com/pvvx/ATC_MiThermometer)). Both custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent. Broadcast interval can be set by the user and encryption can be used as an option. BLE monitor will automatically use the advertisement type with the highest accuracy, when setting the firmware to broadcast all advertisement types.|![LYWSD03MMC](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/LYWSD03MMC.jpg)|
+|**CGC1**|**Qingping bluetooth clock**<br /><br />Alarm clock, broadcasts temperature, humidity and (most likely) battery level (we do not have accurate periodicity information yet). The sensor sends BLE advertisements in Xiaomi MiBeacon format and Qingping format, but only MiBeacon format is supported currently. Xiaomi MiBeacon advertisements are most likely encrypted, if you want to receive both advertisements, you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.<br /><br />Note. If you have information about update frequency, encryption key requirement, and/or a log with `report_unknown: "qingping"`, we can improve the documentation and implement qingping format support without encryption. Please open an issue with this information.|![CGC1](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/CGC1.jpg)|
 |**CGD1**|**Qingping Cleargrass CGD1 alarm clock**<br /><br />Segment LCD, broadcasts temperature and humidity (once in about 10 minutes), and battery level (we do not have accurate periodicity information yet). The sensor sends BLE advertisements in Xiaomi MiBeacon format and Qingping format. Qingping advertisements are not encrypted. Xiaomi MiBeacon advertisements are encrypted, if you want to receive both advertisements, you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.|![CGD1](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/CGD1.jpg)|
 |**CGP1W**|**Qingping Cleargrass indoor weather station with Atmospheric pressure measurement**<br /><br />Broadcasts temperature, humidity, air pressure and and battery level (we do not have accurate periodicity information yet).|![CGP1W](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/CGP1W.jpg)|
 |**MHO-C303**|**Alarm clock**<br /><br />Rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute.|![MHO-C303](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/MHO-C303.png)|
@@ -160,7 +160,6 @@ ble_monitor:
   discovery: True
   active_scan: False
   report_unknown: False
-  batt_entities: False
   decimals: 1
   period: 60
   log_spikes: False
@@ -231,9 +230,9 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
 
-#### batt_entities
+#### batt_entities [DEPRECATED]
 
-   (boolean)(Optional) By default, BLE monitor will generate battery sensors for each device (if supported by the device). If you don't want battery sensors, you can set this option to `False`. Battery information will always be available as a sensor attribute called `battery level`. Default value: True
+   (boolean)(Optional) This option is deprecated, please remove from your configuration. 
 
 #### decimals
 
