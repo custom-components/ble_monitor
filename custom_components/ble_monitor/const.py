@@ -140,6 +140,7 @@ MEASUREMENT_DICT = {
     'Mi Scale V2'       : [["weight", "non-stabilized weight", "impedance"], ["weight removed"], "instant"],
     'Kegtron KT-100'    : [["volume dispensed port 1"], [], "instant"],
     'Kegtron KT-200'    : [["volume dispensed port 1", "volume dispensed port 2"], [], "instant"],
+    'Thermoplus'        : [["temperature", "humidity", "battery", "voltage"], [], "averaging"],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -185,4 +186,5 @@ MANUFACTURER_DICT = {
     'Mi Scale V2'       : 'Xiaomi',
     'Kegtron KT-100'    : 'Kegtron',
     'Kegtron KT-200'    : 'Kegtron',
+    'Thermoplus'        : 'Thermoplus',
 }

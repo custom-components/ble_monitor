@@ -7,6 +7,7 @@ from .kegtron import parse_kegtron
 from .miscale import parse_miscale
 from .xiaomi import parse_xiaomi
 from .qingping import parse_qingping
+from .thermoplus import parse_thermoplus
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,8 +59,10 @@ def ble_parser(self, data):
                 elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Mi Scale
                     return parse_miscale(self, adstruct, mac, rssi)
             elif adstuct_type == 0xFF:  # AD type 'Manufacturer Specific Data'
-                if adstruct[0] == 0x1E and adstruct[2] == 0xFF and adstruct[3] == 0xFF:
+                if adstruct[0] == 0x1E and adstruct[2] == 0xFF and adstruct[3] == 0xFF:  # Kegtron
                     return parse_kegtron(self, adstruct, mac, rssi)
+                if adstruct[0] == 0x15 and adstruct[2] == 0x11:  # Thermoplus
+                    return parse_thermoplus(self, adstruct, mac, rssi)
             elif adstuct_type > 0x3D:
                 # AD type not standard
                 if self.report_unknown == "Other":
