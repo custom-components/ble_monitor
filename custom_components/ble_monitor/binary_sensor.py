@@ -9,6 +9,7 @@ from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_MOTION,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_POWER,
+    DEVICE_CLASS_SMOKE,
 )
 
 try:
@@ -510,3 +511,15 @@ class WeightRemovedBinarySensor(SwitchingSensor):
     def icon(self):
         """Return the icon of the sensor."""
         return "mdi:weight"
+
+
+class SmokeDetectorBinarySensor(SwitchingSensor):
+    """Representation of a Smoke Detector Binary Sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "smoke detector"
+        self._name = "ble smoke detector {}".format(self._device_name)
+        self._unique_id = "sd_" + self._device_name
+        self._device_class = DEVICE_CLASS_SMOKE

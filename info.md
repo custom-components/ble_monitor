@@ -5,7 +5,27 @@
 
 # NB!: This is a Beta version
 
-# BREAKING CHANGES in 2.9.1-beta
+
+# Changes in 3.1.0-beta
+
+- Added support for Xiaomi Honeywell smoke detector (Bluetooth) (JTYJGD03MI)
+- Added support for Thermoplus thermo/hygrometer sensors (smart hygrometer, lanyard hygrometer and mini hygrometer)
+
+{% endif %}
+{% if installed or pending_update %}
+
+# Changes in 3.0.1
+
+Please note there are breaking changes in 3.0.0. 
+
+- Fix for non-stabilized weight sensor that was broken
+
+
+# BREAKING CHANGES in 3.0.0
+
+This release has some breaking changes for some devices, so please read carefully. 
+
+**Yeelight dimmer and Yeelight smart switch**
 
 The following sensors will have a breaking change in this release. Please verify your configuration settings.
 
@@ -14,23 +34,16 @@ The following sensors will have a breaking change in this release. Please verify
 
 It is advised for all sensors to change the `reset_timer` to a relatively short period, e.g. 1 second.
 
-# Changes in 2.9.0-beta
-
-- Add support for Qingping Bluetooth clock (CGC1)
-  - This device (most likely) requires an encryption key. If you have information about update frequency, encryption key requirement, and/or a log with `report_unknown: "qingping"`, we can improve the documentation and implement qingping format support without encryption. Please open an issue if you want to help us with this information.
-- Rewriting sensor and binary sensor (part 6) 
-  - Optimization of the code to make it easier to add future sensors
+**Battery entities**
 - Removal of the generate battery entities option. 
   - The option `batt_entities` has been removed (it will display a warning if still in your YAML configuration). BLE monitor will, from now on, always generate the battery and/or voltage entities. HA has built in functionality to disable these sensors.
 
-{% endif %}
-{% if installed or pending_update %}
+**New sensor: Qingping Bluetooth clock (CGC1)**
+  - This device (most likely) requires an encryption key. If you have information about update frequency, encryption key requirement, and/or a log with `report_unknown: "qingping"`, we can improve the documentation and implement qingping format support without encryption. Please open an issue if you want to help us with this information.
 
-# Changes in 2.8.1
-
-- Rewriting BLE parser (part 5) 
-  - Xiaomi parser rewritten (based on the work of @pvvx)
-  - Firmware attribute now shows the MiBeacon version being used by the device
+**Other changes**
+- Rewriting sensor and binary sensor (part 6) 
+  - Optimization of the code to make it easier to add future sensors
 
 {% endif %}
 
@@ -81,7 +94,8 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtro
 |**CGP1W**|**Qingping Cleargrass indoor weather station with Atmospheric pressure measurement**<br /><br />Broadcasts temperature, humidity, air pressure and and battery level (we do not have accurate periodicity information yet).|![CGP1W](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/CGP1W.jpg)|
 |**MHO-C303**|**Alarm clock**<br /><br />Rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute.|![MHO-C303](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/MHO-C303.png)|
 |**MHO-C401**|**Alarm clock**<br /><br />Small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.<br /><br />`ble_monitor`  also supports custom ATC firmware available [here](https://github.com/pvvx/ATC_MiThermometer). Custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent. Broadcast interval can be set by the user and encryption can be used as an option. BLE monitor will automatically use the advertisement type with the highest accuracy, when setting the firmware to broadcast all advertisement types.|![MHO-C401](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/MHO-C401.jpg)|
-|**JQJCY01YM**|**Xiaomi Honeywell Formaldehyde Sensor**<br /><br />OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute.|![supported sensors](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/JQJCY01YM.jpg)|
+|**JQJCY01YM**|**Xiaomi Honeywell Formaldehyde Sensor**<br /><br />OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute.|![JQJCY01YM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/JQJCY01YM.jpg)|
+|**JTYJGD03MI**|**Xiaomi Honeywell Smoke Detector (Bluetooth)**<br /><br />Smoke detector, broadcasts smoke detected, button press and bettery level|![JTYJGD03MI](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/JTYJGD03MI.jpg)|
 |**HHCCJCY01**|**MiFlora plant sensor**<br /><br />Broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1.|![HHCCJCY01](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/HHCCJCY01.jpg)|
 |**GCLS002**|**VegTrug Grow Care Garden**<br /><br />Similar to MiFlora HHCCJCY01.|![GCLS002](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/GCLS002.png)|
 |**HHCCPOT002**|**FlowerPot, RoPot**<br /><br />Broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6.|![HHCCPOT002](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/HHCCPOT002.jpg)|
@@ -106,9 +120,9 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtro
 |**XMTZC01HM, XMTZC04HM**|**Mi Smart Scale 1 / Mi Smart Scale 2**<br /><br />Broadcasts `weight`, `non-stabilized weight` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC04HM.png)|
 |**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `non-stabilized weight`, `impedance` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, muscle mass etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/XMTZC05HM.png)|
 |**Kegtron KT-100, KT-200**|**Kegtron KT-100 / KT-200**<br /><br />Broadcasts `volume dispensed` for each port and port attributes (`keg size`, `start volume`, `state`, `index` and `port name`. Kegtron devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![Kegtron](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/kegtron.jpg)|
-|**Thermoplus**|**Smart Hygrometer**<br /><br />Rounded square body, LCD screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.||
-|**Thermoplus**|**Lanyard Hygrometer**<br /><br />Rounded square body, no screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.||
-|**Thermoplus**|**Mini Hygrometer**<br /><br />Round body, no screen, is also sold under different brands, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.||
+|**Thermoplus**|**Smart Hygrometer**<br /><br />Rounded square body, LCD screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![smart Hygrometer](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Thermoplus_smart_hygrometer.jpg)|
+|**Thermoplus**|**Lanyard Hygrometer**<br /><br />Square body, no screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![lanyard Hygrometer](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Thermoplus_lanyard_hygrometer.jpg)|
+|**Thermoplus**|**Mini Hygrometer**<br /><br />Round body, no screen, is also sold under different brands, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![mini hygrometer](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Thermoplus_mini_hygrometer.jpg)|
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 

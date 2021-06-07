@@ -78,7 +78,7 @@ SENSOR_DICT = {
     "volume dispensed port 1": "VolumeDispensedPort1Sensor",
     "volume dispensed port 2": "VolumeDispensedPort2Sensor",
     "voltage":                 "VoltageSensor",
-    "battery":                 "BatterySensor"
+    "battery":                 "BatterySensor",
 }
 
 
@@ -92,6 +92,7 @@ BINARY_SENSOR_DICT = {
     "moisture":                "MoistureBinarySensor",
     "motion":                  "MotionBinarySensor",
     "weight removed":          "WeightRemovedBinarySensor",
+    "smoke detector":          "SmokeDetectorBinarySensor",
 }
 
 
@@ -129,6 +130,7 @@ MEASUREMENT_DICT = {
     'MHO-C401'          : [["temperature", "humidity", "battery"], [], "averaging"],
     'MHO-C303'          : [["temperature", "humidity", "battery"], [], "averaging"],
     'JQJCY01YM'         : [["temperature", "humidity", "battery", "formaldehyde"], [], "averaging"],
+    'JTYJGD03MI'        : [["button", "battery"], ["smoke detector"], "instant"],
     'YLAI003'           : [["button", "battery"], [], "instant"],
     'YLYK01YL'          : [["remote"], ["remote single press", "remote long press"], "instant"],
     'YLYK01YL-FANCL'    : [["fan remote"], [], "instant"],
@@ -175,6 +177,7 @@ MANUFACTURER_DICT = {
     'MHO-C401'          : 'Miaomiaoce',
     'MHO-C303'          : 'Miaomiaoce',
     'JQJCY01YM'         : 'Honeywell',
+    'JTYJGD03MI'        : 'Honeywell',
     'YLAI003'           : 'Yeelight',
     'YLYK01YL'          : 'Yeelight',
     'YLYK01YL-FANCL'    : 'Yeelight',
