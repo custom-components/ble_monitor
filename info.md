@@ -26,6 +26,13 @@ It is advised for all sensors to change the `reset_timer` to a relatively short 
 {% endif %}
 {% if installed or pending_update %}
 
+# Changes in 3.0.1
+
+Please note there are breaking changes in 3.0.0. 
+
+- Fix for non-stabilized weight sensor that was broken
+
+
 # BREAKING CHANGES in 3.0.0
 
 This release has some breaking changes for some devices, so please read carefully. 
