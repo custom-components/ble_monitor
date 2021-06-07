@@ -10,21 +10,13 @@ _LOGGER = logging.getLogger(__name__)
 # {device type code: device name}
 XIAOMI_TYPE_DICT = {
     0x01AA: "LYWSDCGQ",
-    0x0347: "CGG1",
-    0x0B48: "CGG1-ENCRYPTED",
-    0x066F: "CGDK2",
     0x045B: "LYWSD02",
     0x055B: "LYWSD03MMC",
-    0x0576: "CGD1",
-    0x06d3: "MHO-C303",
-    0x0387: "MHO-C401",
-    0x02DF: "JQJCY01YM",
     0x0098: "HHCCJCY01",
     0x03BC: "GCLS002",
     0x015D: "HHCCPOT002",
     0x040A: "WX08ZM",
     0x098B: "MCCGQ02HL",
-    0x03D6: "CGH1",
     0x0083: "YM-K1501",
     0x0113: "YM-K1501EU",
     0x045C: "V-SK152",
@@ -32,9 +24,18 @@ XIAOMI_TYPE_DICT = {
     0x07F6: "MJYD02YL",
     0x03DD: "MUE4094RT",
     0x0A8D: "RTCGQ02LM",
-    0x0A83: "CGPR1",
     0x00DB: "MMC-T201-1",
     0x0489: "M1S-T500",
+    0x0C3C: "CGC1",
+    0x0576: "CGD1",
+    0x066F: "CGDK2",
+    0x0347: "CGG1",
+    0x0B48: "CGG1-ENCRYPTED",
+    0x03D6: "CGH1",
+    0x0A83: "CGPR1",
+    0x06d3: "MHO-C303",
+    0x0387: "MHO-C401",
+    0x02DF: "JQJCY01YM",
     0x07BF: "YLAI003",
     0x0153: "YLYK01YL",
     0x068E: "YLYK01YL-FANCL",
@@ -81,13 +82,13 @@ def obj000f(xobj):
 def obj1001(xobj):
     if len(xobj) == 3:
         (button, value, press) = BUTTON_STRUCT.unpack(xobj)
-        # RTCGQ02LM:            press_type
-        # YLAI003:              press_type
+        # RTCGQ02LM:            button
+        # YLAI003:              button
         # YLYK01YL:             remote_command and remote_binary
-        # YLYK01YL-FANRC:       fan_remote_command, press_type
-        # YLYK01YL-VENFAN:      ven_fan_remote_command, press_type
-        # YLYB01YL-BHFRC:       bathroom_remote_command, press_type
-        # YLKG07YL/YLKG08YL:    press_type, dimmer
+        # YLYK01YL-FANRC:       fan_remote_command, button
+        # YLYK01YL-VENFAN:      ven_fan_remote_command, button
+        # YLYB01YL-BHFRC:       bathroom_remote_command, button
+        # YLKG07YL/YLKG08YL:    button, dimmer
 
         # remote command and remote binary
         remote_command = None
@@ -180,12 +181,15 @@ def obj1001(xobj):
             "fan remote": fan_remote_command,
             "ventilator fan remote": ven_fan_remote_command,
             "bathroom heater remote": bathroom_remote_command,
-            "press": press_type,
+            "button": press_type,
             "dimmer": dimmer,
         }
 
         if remote_binary is not None:
-            result["remote binary"] = remote_binary
+            if press_type == "single press":
+                result["remote single press"] = remote_binary
+            else:
+                result["remote long press"] = remote_binary
 
         return result
 

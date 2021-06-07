@@ -5,7 +5,6 @@
         "title": "Passive BLE Monitor",
         "description": "設定 BLE monitor 選項",
         "data": {
-          "batt_entities": "產生電量實體",
           "devices": "裝置",
           "discovery": "探索",
           "decimals": "小數點位數",
@@ -46,7 +45,6 @@
         "title": "Passive BLE Monitor 選項",
         "description": "於按下「傳送後」將會重新開始掃描",
         "data": {
-          "batt_entities": "產生電量實體",
           "devices": "裝置",
           "discovery": "探索",
           "decimals": "小數點位數",
