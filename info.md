@@ -5,7 +5,6 @@
 
 # NB!: This is a Beta version
 
-
 # Changes in 3.1.0-beta
 
 - Added support for Xiaomi Honeywell smoke detector (Bluetooth) (JTYJGD03MI)
