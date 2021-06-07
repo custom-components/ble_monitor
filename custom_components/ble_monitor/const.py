@@ -72,7 +72,7 @@ SENSOR_DICT = {
     "bathroom heater remote":  "BathroomHeaterRemoteSensor",
     "dimmer":                  "DimmerSensor",
     "weight":                  "WeightSensor",
-    "non-stabilized Weight":   "NonStabilizedWeightSensor",
+    "non-stabilized weight":   "NonStabilizedWeightSensor",
     "impedance":               "ImpedanceSensor",
     "toothbrush mode":         "ToothbrushModeSensor",
     "volume dispensed port 1": "VolumeDispensedPort1Sensor",
