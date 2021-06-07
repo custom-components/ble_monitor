@@ -26,11 +26,30 @@ It is advised for all sensors to change the `reset_timer` to a relatively short 
 {% endif %}
 {% if installed or pending_update %}
 
-# Changes in 2.8.1
+# BREAKING CHANGES in 3.0.0
 
-- Rewriting BLE parser (part 5) 
-  - Xiaomi parser rewritten (based on the work of @pvvx)
-  - Firmware attribute now shows the MiBeacon version being used by the device
+This release has some breaking changes for some devices, so please read carefully. 
+
+**Yeelight dimmer and Yeelight smart switch**
+
+The following sensors will have a breaking change in this release. Please verify your configuration settings.
+
+- YLAI003: The time after which the sensor state returns to `no press` has been changed from a fixed value of 1 second to the time that can be set with the `reset_timer` option (default 35 seconds). 
+- YLKG07YL, YLKG08YL: The sensor state will now return to `no press` after the time that is set with the `reset_timer` option (default 35 seconds). If you don't want this, you can return to the old behavior by setting the `reset_timer` to 0 seconds. 
+
+It is advised for all sensors to change the `reset_timer` to a relatively short period, e.g. 1 second.
+
+**Battery entities**
+- Removal of the generate battery entities option. 
+  - The option `batt_entities` has been removed (it will display a warning if still in your YAML configuration). BLE monitor will, from now on, always generate the battery and/or voltage entities. HA has built in functionality to disable these sensors.
+
+**New sensor: Qingping Bluetooth clock (CGC1)**
+  - This device (most likely) requires an encryption key. If you have information about update frequency, encryption key requirement, and/or a log with `report_unknown: "qingping"`, we can improve the documentation and implement qingping format support without encryption. Please open an issue if you want to help us with this information.
+
+**Other changes**
+- Rewriting sensor and binary sensor (part 6) 
+  - Optimization of the code to make it easier to add future sensors
+
 
 {% endif %}
 
