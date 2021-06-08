@@ -46,10 +46,10 @@ def ble_parser(self, data):
             adstruct = data[adpayload_start:adpayload_start + adstuct_size]
             # https://www.bluetooth.com/specifications/assigned-numbers/generic-access-profile/
             adstuct_type = adstruct[1]
-            # AD type 'UUI16' https://www.bluetooth.com/specifications/assigned-numbers/
             if adstuct_type == 0x16 and adstuct_size > 4:
-                # check for service data of supported manufacturers
+                # AD type 'UUI16' https://www.bluetooth.com/specifications/assigned-numbers/
                 uuid16 = (adstruct[3] << 8) | adstruct[2]
+                # check for service data of supported manufacturers
                 if uuid16 == 0xFFF9 or uuid16 == 0xFDCD:  # UUID16 = Cleargrass or Qingping
                     return parse_qingping(self, adstruct, mac, rssi)
                 elif uuid16 == 0x181A:  # UUID16 = ATC
@@ -58,10 +58,14 @@ def ble_parser(self, data):
                     return parse_xiaomi(self, adstruct, mac, rssi)
                 elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Mi Scale
                     return parse_miscale(self, adstruct, mac, rssi)
-            elif adstuct_type == 0xFF:  # AD type 'Manufacturer Specific Data'
-                if adstruct[0] == 0x1E and adstruct[2] == 0xFF and adstruct[3] == 0xFF:  # Kegtron
+            elif adstuct_type == 0xFF:
+                # AD type 'Manufacturer Specific Data' with company identifier 
+                # https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers/
+                comp_id = (adstruct[3] << 8) | adstruct[2]
+                # check for service data of supported companies
+                if adstruct[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
                     return parse_kegtron(self, adstruct, mac, rssi)
-                if adstruct[0] == 0x15 and (adstruct[2] == 0x10 or adstruct[2] == 0x11):  # Thermoplus
+                if adstruct[0] == 0x15 and (comp_id == 0x0010 or comp_id == 0x0011):  # Thermoplus
                     return parse_thermoplus(self, adstruct, mac, rssi)
             elif adstuct_type > 0x3D:
                 # AD type not standard
