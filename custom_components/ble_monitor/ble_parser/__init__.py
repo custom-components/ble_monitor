@@ -61,7 +61,7 @@ def ble_parser(self, data):
             elif adstuct_type == 0xFF:  # AD type 'Manufacturer Specific Data'
                 if adstruct[0] == 0x1E and adstruct[2] == 0xFF and adstruct[3] == 0xFF:  # Kegtron
                     return parse_kegtron(self, adstruct, mac, rssi)
-                if adstruct[0] == 0x15 and adstruct[2] == 0x11:  # Thermoplus
+                if adstruct[0] == 0x15 and (adstruct[2] == 0x10 or adstruct[2] == 0x11):  # Thermoplus
                     return parse_thermoplus(self, adstruct, mac, rssi)
             elif adstuct_type > 0x3D:
                 # AD type not standard

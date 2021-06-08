@@ -5,10 +5,14 @@
 
 # NB!: This is a Beta version
 
+# Changes in 3.1.1-beta
+
+- Added support for Thermoplus thermo/hygrometer sensors (lanyard hygrometer and mini hygrometer)
+
 # Changes in 3.1.0-beta
 
 - Added support for Xiaomi Honeywell smoke detector (Bluetooth) (JTYJGD03MI)
-- Added support for Thermoplus thermo/hygrometer sensors (smart hygrometer, lanyard hygrometer and mini hygrometer)
+- Added support for Thermoplus thermo/hygrometer sensors (smart hygrometer)
 
 {% endif %}
 {% if installed or pending_update %}

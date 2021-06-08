@@ -9,8 +9,14 @@ def parse_thermoplus(self, data, source_mac, rssi):
     # check for adstruc length
     msg_length = len(data)
     if msg_length == 22:
+        device_id = data[2]
+        if device_id == 0x10:
+            device_type = "Lanyard/mini hygrometer"
+        elif device_id == 0x11:
+            device_type = "Smart hygrometer"
+        else:
+            device_type = None
         firmware = "Thermoplus"
-        device_type = "Thermoplus"
 
         thermoplus_mac_reversed = data[6:12]
         thermoplus_mac = thermoplus_mac_reversed[::-1]
@@ -34,8 +40,9 @@ def parse_thermoplus(self, data, source_mac, rssi):
             "humidity": humi / 16,
             "battery": batt
         }
-
     else:
+        device_type = None
+    if device_type is None:
         if self.report_unknown == "Thermoplus":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Thermoplus DEVICE: RSSI: %s, MAC: %s, ADV: %s",
