@@ -143,7 +143,7 @@ def parse_atc(self, data, source_mac, rssi):
 def decrypt_atc(self, data, atc_mac):
     # try to find encryption key for current device
     try:
-        key = self.aeskeys[atc_mac.lower()]
+        key = self.aeskeys[atc_mac]
         if len(key) != 16:
             _LOGGER.error("Encryption key should be 16 bytes (32 characters) long")
     except KeyError:
