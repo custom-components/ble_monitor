@@ -137,7 +137,7 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(
                         CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
                     ): vol.In(
-                        ["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Other", False]
+                        ["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Thermoplus", "Other", False]
                     ),
                 }
             )

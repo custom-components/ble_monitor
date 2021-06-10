@@ -36,6 +36,7 @@ XIAOMI_TYPE_DICT = {
     0x06d3: "MHO-C303",
     0x0387: "MHO-C401",
     0x02DF: "JQJCY01YM",
+    0x0997: "JTYJGD03MI",
     0x07BF: "YLAI003",
     0x0153: "YLYK01YL",
     0x068E: "YLYK01YL-FANCL",
@@ -81,7 +82,7 @@ def obj000f(xobj):
 
 def obj1001(xobj):
     if len(xobj) == 3:
-        (button, value, press) = BUTTON_STRUCT.unpack(xobj)
+        (button_type, value, press) = BUTTON_STRUCT.unpack(xobj)
         # RTCGQ02LM:            button
         # YLAI003:              button
         # YLYK01YL:             remote_command and remote_binary
@@ -89,6 +90,7 @@ def obj1001(xobj):
         # YLYK01YL-VENFAN:      ven_fan_remote_command, button
         # YLYB01YL-BHFRC:       bathroom_remote_command, button
         # YLKG07YL/YLKG08YL:    button, dimmer
+        # JTYJGD03MI:           button
 
         # remote command and remote binary
         remote_command = None
@@ -97,47 +99,47 @@ def obj1001(xobj):
         bathroom_remote_command = None
         remote_binary = None
 
-        if button == 0:
+        if button_type == 0:
             remote_command = "on"
             fan_remote_command = "fan toggle"
             ven_fan_remote_command = "swing"
             bathroom_remote_command = "stop"
             remote_binary = 1
-        elif button == 1:
+        elif button_type == 1:
             remote_command = "off"
             fan_remote_command = "light toggle"
             ven_fan_remote_command = "power toggle"
             bathroom_remote_command = "air exchange"
             remote_binary = 0
-        elif button == 2:
+        elif button_type == 2:
             remote_command = "sun"
             fan_remote_command = "wind speed"
             ven_fan_remote_command = "timer 60 minutes"
             bathroom_remote_command = "fan"
             remote_binary = None
-        elif button == 3:
+        elif button_type == 3:
             remote_command = "+"
             fan_remote_command = "brightness min"
             ven_fan_remote_command = "strong wind speed"
             bathroom_remote_command = "speed +"
             remote_binary = 1
-        elif button == 4:
+        elif button_type == 4:
             remote_command = "m"
             fan_remote_command = "wind mode"
             ven_fan_remote_command = "timer 30 minutes"
             bathroom_remote_command = "speed -"
             remote_binary = None
-        elif button == 5:
+        elif button_type == 5:
             remote_command = "-"
             fan_remote_command = "brightness min"
             ven_fan_remote_command = "low wind speed"
             bathroom_remote_command = "dry"
             remote_binary = 1
-        elif button == 6:
+        elif button_type == 6:
             bathroom_remote_command = "light toggle"
-        elif button == 7:
+        elif button_type == 7:
             bathroom_remote_command = "swing"
-        elif button == 8:
+        elif button_type == 8:
             bathroom_remote_command = "heat"
 
         # press type and dimmer
@@ -151,26 +153,26 @@ def obj1001(xobj):
         elif press == 2:
             press_type = "long press"
         elif press == 3:
-            if button == 0:
+            if button_type == 0:
                 press_type = "short press"
                 dimmer = str(value) + " x"
-            if button == 1:
+            if button_type == 1:
                 press_type = "long press"
                 dimmer = str(value) + " seconds"
         elif press == 4:
-            if button == 0:
+            if button_type == 0:
                 if value <= 127:
                     press_type = "rotate right"
                     dimmer = str(value) + " step(s)"
                 else:
                     press_type = "rotate left"
                     dimmer = str(256 - value) + " step(s)"
-            elif button <= 127:
+            elif button_type <= 127:
                 press_type = "rotate right (pressed)"
-                dimmer = str(button) + " step(s)"
+                dimmer = str(button_type) + " step(s)"
             else:
                 press_type = "rotate left (pressed)"
-                dimmer = str(256 - button) + " step(s)"
+                dimmer = str(256 - button_type) + " step(s)"
         elif press == 5:
             press_type = "short press"
         elif press == 6:
@@ -255,6 +257,10 @@ def obj1013(xobj):
 
 def obj1014(xobj):
     return {"moisture": xobj[0]}
+
+
+def obj1015(xobj):
+    return {"smoke detector": xobj[0]}
 
 
 def obj1017(xobj):

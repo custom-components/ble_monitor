@@ -1,6 +1,6 @@
 # Passive BLE Monitor integration
 
-### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Kegtron sensors
+### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron and Thermoplus sensors
 
 <!-- TOC -->
 
@@ -31,7 +31,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## SUPPORTED SENSORS
 
-This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Kegtron** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.  
+This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron and Thermoplus** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
 
 |Name|Description|Picture|
 |---|---|---|
@@ -45,7 +45,8 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Keg
 |**CGP1W**|**Qingping Cleargrass indoor weather station with Atmospheric pressure measurement**<br /><br />Broadcasts temperature, humidity, air pressure and and battery level (we do not have accurate periodicity information yet).|![CGP1W](/pictures/CGP1W.jpg)|
 |**MHO-C303**|**Alarm clock**<br /><br />Rectangular body, E-Ink, broadcasts temperature, humidity and battery level, about 20 readings per minute.|![MHO-C303](/pictures/MHO-C303.png)|
 |**MHO-C401**|**Alarm clock**<br /><br />Small square body, E-Ink display, broadcasts temperature and humidity once in about 10 minutes and battery level once in an hour, advertisements are encrypted, therefore you need to set the key in your configuration, see for instructions the [encryption_key](#encryption_key) option.<br /><br />`ble_monitor`  also supports custom ATC firmware available [here](https://github.com/pvvx/ATC_MiThermometer). Custom firmware's broadcast temperature, humidity, battery voltage and battery level in percent. Broadcast interval can be set by the user and encryption can be used as an option. BLE monitor will automatically use the advertisement type with the highest accuracy, when setting the firmware to broadcast all advertisement types.|![MHO-C401](/pictures/MHO-C401.jpg)|
-|**JQJCY01YM**|**Xiaomi Honeywell Formaldehyde Sensor**<br /><br />OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute.|![supported sensors](/pictures/JQJCY01YM.jpg)|
+|**JQJCY01YM**|**Xiaomi Honeywell Formaldehyde Sensor**<br /><br />OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute.|![JQJCY01YM](/pictures/JQJCY01YM.jpg)|
+|**JTYJGD03MI**|**Xiaomi Honeywell Smoke Detector (Bluetooth)**<br /><br />Smoke detector, broadcasts smoke detected, button press and bettery level. Only the Bluetooth model is supported|![JTYJGD03MI](/pictures/JTYJGD03MI.png)|
 |**HHCCJCY01**|**MiFlora plant sensor**<br /><br />Broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1.|![HHCCJCY01](/pictures/HHCCJCY01.jpg)|
 |**GCLS002**|**VegTrug Grow Care Garden**<br /><br />Similar to MiFlora HHCCJCY01.|![GCLS002](/pictures/GCLS002.png)|
 |**HHCCPOT002**|**FlowerPot, RoPot**<br /><br />Broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6.|![HHCCPOT002](/pictures/HHCCPOT002.jpg)|
@@ -70,6 +71,9 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale and Keg
 |**XMTZC01HM, XMTZC04HM**|**Mi Smart Scale 1 / Mi Smart Scale 2**<br /><br />Broadcasts `weight`, `non-stabilized weight` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533) https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533?u=ernst |![XMTZC05HM](/pictures/XMTZC04HM.png)|
 |**XMTZC02HM, XMTZC05HM, NUN4049CN**|**Mi Body Composition Scale 2 / Mi Body Fat Scale**<br /><br />Broadcasts `weight`, `non-stabilized weight`, `impedance` and `weight removed`. The `weight` is only reported after the scale is stabilized, while the `non-stabilized weight` is reporting all weight measurements. For additional data like BMI, viscaral fat, muscle mass etc. you can use e.g. the [bodymiscale](https://github.com/dckiller51/bodymiscale) custom integration. If you want to split your measurements into different persons, you can use [this template sensor](https://community.home-assistant.io/t/integrating-xiaomi-mi-scale/9972/533)|![XMTZC05HM](/pictures/XMTZC05HM.png)|
 |**Kegtron KT-100, KT-200**|**Kegtron KT-100 / KT-200**<br /><br />Broadcasts `volume dispensed` for each port and port attributes (`keg size`, `start volume`, `state`, `index` and `port name`. Kegtron devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![Kegtron](/pictures/kegtron.jpg)|
+|**Thermoplus**|**Smart Hygrometer**<br /><br />Rounded square body, LCD screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![smart Hygrometer](/pictures/Thermoplus_smart_hygrometer.jpg)|
+|**Thermoplus**|**Lanyard Hygrometer**<br /><br />Square body, no screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![lanyard Hygrometer](/pictures/Thermoplus_lanyard_hygrometer.jpg)|
+|**Thermoplus**|**Mini Hygrometer**<br /><br />Round body, no screen, is also sold under different brands, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![mini hygrometer](/pictures/Thermoplus_mini_hygrometer.jpg)|
   
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
@@ -237,7 +241,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### report_unknown
 
-   (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `Xiaomi`, `Qingping`, `ATC`, `Mi Scale` or `Kegtron`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+   (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Thermoplus`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron` or `Thermoplus`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
 
 ### Configuration parameters at device level
@@ -350,7 +354,9 @@ ble_monitor:
 
 #### reset_timer
 
-   (possitive integer)(Optional) This option sets the time (in seconds) after which a motion sensor is reset to `motion clear`. After each `motion detected` advertisement, the timer starts counting down again. Note that the sensor also sends advertisements itself that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. In a future release we will filter out messages, if they do not correspond to the setting in `ble_monitor`. Default value: 35
+   (possitive integer)(Optional) This option sets the time (in seconds) after which a sensor is reset to `motion clear` (motion sensors) or `no press` (button and dimmer sensors). After each `motion detected` advertisement or `button/dimmer press`, the timer starts counting down again. Setting this option to 0 seconds will turn this resetting behavior off. 
+   
+   Note that motion sensors also sends advertisements themselves that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. For button and dimmer sensors, it is advised to set the `reset_timer` to 1 second. Default value: 35
 
 ```yaml
 ble_monitor:
