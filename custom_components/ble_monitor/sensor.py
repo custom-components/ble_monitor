@@ -44,6 +44,8 @@ from .const import (
     CONF_DEVICE_RESET_TIMER,
     CONF_TMIN,
     CONF_TMAX,
+    CONF_TMIN_KETTLES,
+    CONF_TMAX_KETTLES,
     CONF_HMIN,
     CONF_HMAX,
     DEFAULT_DEVICE_RESET_TIMER,
@@ -183,10 +185,11 @@ class BLEupdater():
                         entity.collect(data, batt_attr)
                         if meas_type == "instant":
                             # instant measurements are updated instantly
-                            if entity.ready_for_update is True:
-                                entity.rssi_values = rssi[mac].copy()
-                                entity.async_schedule_update_ha_state(True)
-                                entity.pending_update = False
+                            if entity.pending_update is True:
+                                if entity.ready_for_update is True:
+                                    entity.rssi_values = rssi[mac].copy()
+                                    entity.async_schedule_update_ha_state(True)
+                                    entity.pending_update = False
                 data = None
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
@@ -458,44 +461,13 @@ class MeasuringSensor(BaseSensor):
         self._jagged = False
         self._fmdh_dec = 0
         self._use_median = self._device_settings["use median"]
-        self._lower_temp_limit = self.temperature_limit(config, mac, CONF_TMIN)
-        self._upper_temp_limit = self.temperature_limit(config, mac, CONF_TMAX)
-        self._log_spikes = config[CONF_LOG_SPIKES]
-
-    def temperature_limit(self, config, mac, temp):
-        """Set limits for temperature measurement in °C or °F."""
-        fmac = ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
-        if config[CONF_DEVICES]:
-            for device in config[CONF_DEVICES]:
-                if fmac in device["mac"].upper():
-                    if CONF_TEMPERATURE_UNIT in device:
-                        if device[CONF_TEMPERATURE_UNIT] == TEMP_FAHRENHEIT:
-                            temp_fahrenheit = temp * 9 / 5 + 32
-                            return temp_fahrenheit
-                    break
-        return temp
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
         if self.enabled is False:
             self.pending_update = False
             return
-        if "temperature" in data:
-            if not self._lower_temp_limit <= data["temperature"] <= self._upper_temp_limit:
-                if self._log_spikes:
-                    _LOGGER.error("Temperature spike: %s (%s)", data["temperature"], self._mac)
-                self.pending_update = False
-                return
-        if "humidity" in data:
-            if not CONF_HMIN <= data["humidity"] <= CONF_HMAX:
-                if self._log_spikes:
-                    _LOGGER.error("Humidity spike: %s (%s)", data["humidity"], self._mac)
-                self.pending_update = False
-                return
-        if self._jagged is True:
-            self._measurements.append(int(data[self._measurement]))
-        else:
-            self._measurements.append(data[self._measurement])
+        self._measurements.append(data[self._measurement])
         self._device_state_attributes["sensor type"] = data["type"]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
@@ -551,6 +523,43 @@ class TemperatureSensor(MeasuringSensor):
         self._unit_of_measurement = self._device_settings["temperature unit"]
         self._device_class = DEVICE_CLASS_TEMPERATURE
 
+        self._temp_min = CONF_TMIN_KETTLES if devtype in KETTLES else CONF_TMIN
+        self._temp_max = CONF_TMAX_KETTLES if devtype in KETTLES else CONF_TMAX
+        self._lower_temp_limit = self.temperature_limit(config, mac, self._temp_min)
+        self._upper_temp_limit = self.temperature_limit(config, mac, self._temp_max)
+        self._log_spikes = config[CONF_LOG_SPIKES]
+
+    def temperature_limit(self, config, mac, temp):
+        """Set limits for temperature measurement in °C or °F."""
+        fmac = ':'.join(mac[i:i + 2] for i in range(0, len(mac), 2))
+        if config[CONF_DEVICES]:
+            for device in config[CONF_DEVICES]:
+                if fmac in device["mac"].upper():
+                    if CONF_TEMPERATURE_UNIT in device:
+                        if device[CONF_TEMPERATURE_UNIT] == TEMP_FAHRENHEIT:
+                            temp_fahrenheit = temp * 9 / 5 + 32
+                            return temp_fahrenheit
+                    break
+        return temp
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
+        if not self._lower_temp_limit <= data["temperature"] <= self._upper_temp_limit:
+            if self._log_spikes:
+                _LOGGER.error("Temperature spike: %s (%s)", data["temperature"], self._mac)
+            self.pending_update = False
+            return
+        self._measurements.append(data[self._measurement])
+        self._device_state_attributes["sensor type"] = data["type"]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
+
 
 class HumiditySensor(MeasuringSensor):
     """Representation of a Humidity sensor."""
@@ -568,6 +577,27 @@ class HumiditySensor(MeasuringSensor):
             if self._device_firmware is not None:
                 if self._device_firmware[0:6] == "Xiaomi":
                     self._jagged = True
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
+        if not CONF_HMIN <= data["humidity"] <= CONF_HMAX:
+            if self._log_spikes:
+                _LOGGER.error("Humidity spike: %s (%s)", data["humidity"], self._mac)
+            self.pending_update = False
+            return
+        if self._jagged is True:
+            self._measurements.append(int(data[self._measurement]))
+        else:
+            self._measurements.append(data[self._measurement])
+        self._device_state_attributes["sensor type"] = data["type"]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
 
 
 class MoistureSensor(MeasuringSensor):
@@ -1040,6 +1070,20 @@ class BaseRemoteSensor(InstantUpdateSensor):
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
+
+    def reset_state(self, event=None):
+        """Reset state of the sensor."""
+        self._state = "no press"
+        self.schedule_update_ha_state(False)
+
+    async def async_update(self):
+        """Update."""
+        self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        if self._reset_timer > 0:
+            _LOGGER.debug("Reset timer is set to: %i seconds", self._reset_timer)
+            async_call_later(self.hass, self._reset_timer, self.reset_state)
+        self.rssi_values.clear()
+        self.pending_update = False
 
 
 class RemoteSensor(BaseRemoteSensor):
