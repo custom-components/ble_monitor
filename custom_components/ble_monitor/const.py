@@ -52,33 +52,41 @@ AES128KEY32_REGEX = "(?i)^[A-F0-9]{32}$"
 # Sensor measurement limits to exclude erroneous spikes from the results (temperature in °C)
 CONF_TMIN = -40.0
 CONF_TMAX = 60.0
+CONF_TMIN_KETTLES = -20.0
+CONF_TMAX_KETTLES = 120.0
 CONF_HMIN = 0.0
 CONF_HMAX = 99.9
 
 # Dictionary with the available sensors
 SENSOR_DICT = {
-    "temperature":             "TemperatureSensor",
-    "humidity":                "HumiditySensor",
-    "moisture":                "MoistureSensor",
-    "pressure":                "PressureSensor",
-    "conductivity":            "ConductivitySensor",
-    "illuminance":             "IlluminanceSensor",
-    "formaldehyde":            "FormaldehydeSensor",
-    "consumable":              "ConsumableSensor",
-    "button":                  "ButtonSensor",
-    "remote":                  "RemoteSensor",
-    "fan remote":              "FanRemoteSensor",
-    "ventilator fan remote":   "VentilatorFanRemoteSensor",
-    "bathroom heater remote":  "BathroomHeaterRemoteSensor",
-    "dimmer":                  "DimmerSensor",
-    "weight":                  "WeightSensor",
-    "non-stabilized weight":   "NonStabilizedWeightSensor",
-    "impedance":               "ImpedanceSensor",
-    "toothbrush mode":         "ToothbrushModeSensor",
-    "volume dispensed port 1": "VolumeDispensedPort1Sensor",
-    "volume dispensed port 2": "VolumeDispensedPort2Sensor",
-    "voltage":                 "VoltageSensor",
-    "battery":                 "BatterySensor",
+    "temperature":              "TemperatureSensor",
+    "humidity":                 "HumiditySensor",
+    "moisture":                 "MoistureSensor",
+    "pressure":                 "PressureSensor",
+    "conductivity":             "ConductivitySensor",
+    "illuminance":              "IlluminanceSensor",
+    "formaldehyde":             "FormaldehydeSensor",
+    "consumable":               "ConsumableSensor",
+    "button":                   "ButtonSensor",
+    "remote":                   "RemoteSensor",
+    "fan remote":               "FanRemoteSensor",
+    "ventilator fan remote":    "VentilatorFanRemoteSensor",
+    "bathroom heater remote":   "BathroomHeaterRemoteSensor",
+    "dimmer":                   "DimmerSensor",
+    "weight":                   "WeightSensor",
+    "non-stabilized weight":    "NonStabilizedWeightSensor",
+    "impedance":                "ImpedanceSensor",
+    "toothbrush mode":          "ToothbrushModeSensor",
+    "volume dispensed port 1":  "VolumeDispensedPort1Sensor",
+    "volume dispensed port 2":  "VolumeDispensedPort2Sensor",
+    "voltage":                  "VoltageSensor",
+    "battery":                  "BatterySensor",
+    "one btn switch":           "SingleSwitchSensor",
+    "two btn switch left":      "DoubleSwitchLeftSensor",
+    "two btn switch right":     "DoubleSwitchRightSensor",
+    "three btn switch left":    "TripleSwitchLeftSensor",
+    "three btn switch middle":  "TripleSwitchMiddleSensor",
+    "three btn switch right":   "TripleSwitchRightSensor",
 }
 
 
@@ -131,6 +139,9 @@ MEASUREMENT_DICT = {
     'MHO-C303'                : [["temperature", "humidity", "battery"], [], "averaging"],
     'JQJCY01YM'               : [["temperature", "humidity", "battery", "formaldehyde"], [], "averaging"],
     'JTYJGD03MI'              : [["button", "battery"], ["smoke detector"], "instant"],
+    'K9B-1BTN'                : [["one btn switch"], [], "instant"],
+    'K9B-2BTN'                : [["two btn switch left", "two btn switch right"], [], "instant"],
+    'K9B-3BTN'                : [["three btn switch left", "three btn switch middle", "three btn switch right"], [], "instant"],
     'YLAI003'                 : [["button", "battery"], [], "instant"],
     'YLYK01YL'                : [["remote"], ["remote single press", "remote long press"], "instant"],
     'YLYK01YL-FANCL'          : [["fan remote"], [], "instant"],
@@ -185,6 +196,9 @@ MANUFACTURER_DICT = {
     'YLYK01YL-VENFAN'         : 'Yeelight',
     'YLYB01YL-BHFRC'          : 'Yeelight',
     'YLKG07YL/YLKG08YL'       : 'Yeelight',
+    'K9B-1BTN'                : 'Linptech',
+    'K9B-2BTN'                : 'Linptech',
+    'K9B-3BTN'                : 'Linptech',
     'ATC'                     : 'ATC',
     'Mi Scale V1'             : 'Xiaomi',
     'Mi Scale V2'             : 'Xiaomi',

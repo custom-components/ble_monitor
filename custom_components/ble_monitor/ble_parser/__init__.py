@@ -59,7 +59,7 @@ def ble_parser(self, data):
                 elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Mi Scale
                     return parse_miscale(self, adstruct, mac, rssi)
             elif adstuct_type == 0xFF:
-                # AD type 'Manufacturer Specific Data' with company identifier 
+                # AD type 'Manufacturer Specific Data' with company identifier
                 # https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers/
                 comp_id = (adstruct[3] << 8) | adstruct[2]
                 # check for service data of supported companies

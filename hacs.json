@@ -1,5 +1,6 @@
 {
   "name": "Passive BLE monitor integration (Xiaomi Mijia BLE MiBeacon monitor)",
   "domains": "ble_monitor",
-  "iot_class": "local push"
+  "iot_class": "local push",
+  "render_readme": true
 }
