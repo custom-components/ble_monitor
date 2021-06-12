@@ -155,6 +155,7 @@ MEASUREMENT_DICT = {
     'Kegtron KT-200'          : [["volume dispensed port 1", "volume dispensed port 2"], [], "instant"],
     'Smart hygrometer'        : [["temperature", "humidity", "battery", "voltage"], [], "averaging"],
     'Lanyard/mini hygrometer' : [["temperature", "humidity", "battery", "voltage"], [], "averaging"],
+    'H5074'                   : [["temperature", "humidity", "battery"], [], "averaging"],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -206,4 +207,5 @@ MANUFACTURER_DICT = {
     'Kegtron KT-200'          : 'Kegtron',
     'Smart hygrometer'        : 'Thermoplus',
     'Lanyard/mini hygrometer' : 'Thermoplus',
+    'H5074'                   : 'Govee',
 }
