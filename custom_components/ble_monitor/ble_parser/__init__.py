@@ -68,8 +68,8 @@ def ble_parser(self, data):
                     return parse_kegtron(self, adstruct, mac, rssi)
                 if adstruct[0] == 0x15 and (comp_id == 0x0010 or comp_id == 0x0011):  # Thermoplus
                     return parse_thermoplus(self, adstruct, mac, rssi)
-                if adstruct[0] == 0x0A and comp_id == 0xEC88:  # Govee
-                    return parse_govee(self, adstruct, mac, rssi)
+                # if adstruct[0] == 0x0A and comp_id == 0xEC88:  # Govee
+                    # return parse_govee(self, adstruct, mac, rssi)
             elif adstuct_type > 0x3D:
                 # AD type not standard
                 if self.report_unknown == "Other":
