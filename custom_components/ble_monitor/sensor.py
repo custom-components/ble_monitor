@@ -185,7 +185,7 @@ class BLEupdater():
                     if measurement in data:
                         entity = sensors[device_sensors.index(measurement)]
                         entity.collect(data, batt_attr)
-                        if meas_type == "instant":
+                        if meas_type == "instant" or ts_now - ts_start < timedelta(seconds=self.period):
                             # instant measurements are updated instantly
                             if entity.pending_update is True:
                                 if entity.ready_for_update is True:
