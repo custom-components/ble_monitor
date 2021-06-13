@@ -194,9 +194,7 @@ class BLEupdater():
                                     entity.pending_update = False
                 data = None
             ts_now = dt_util.now()
-            if ts_now - ts_last < timedelta(seconds=self.period) and ts_now - ts_start > timedelta(
-                seconds=self.period
-            ):
+            if ts_now - ts_last < timedelta(seconds=self.period):
                 continue
             ts_last = ts_now
             # restarting scanner
