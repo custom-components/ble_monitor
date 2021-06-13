@@ -97,8 +97,9 @@ class BLEupdater():
             if mac not in sensors_by_mac:
                 sensors = []
                 for sensor in device_sensors:
-                    sensors.insert(device_sensors.index(sensor), globals()[SENSOR_DICT[sensor]](
-                        self.config, mac, sensortype, firmware)
+                    sensors.insert(
+                        device_sensors.index(sensor),
+                        globals()[SENSOR_DICT[sensor]](self.config, mac, sensortype, firmware),
                     )
                 if len(sensors) != 0:
                     sensors_by_mac[mac] = sensors
@@ -115,6 +116,7 @@ class BLEupdater():
         ble_adv_cnt = 0
         ts_last = dt_util.now()
         ts_now = ts_last
+        ts_start = ts_last
         data = None
         await asyncio.sleep(0)
 
@@ -192,7 +194,9 @@ class BLEupdater():
                                     entity.pending_update = False
                 data = None
             ts_now = dt_util.now()
-            if ts_now - ts_last < timedelta(seconds=self.period):
+            if ts_now - ts_last < timedelta(seconds=self.period) and ts_now - ts_start > timedelta(
+                seconds=self.period
+            ):
                 continue
             ts_last = ts_now
             # restarting scanner
