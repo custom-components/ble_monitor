@@ -438,6 +438,7 @@ class HCIdump(Thread):
         self._joining = False
         self.evt_cnt = 0
         self.lpacket_ids = {}
+        self.movements_list = {}
         self.adv_priority = {}
         self.config = config
         self._interfaces = config[CONF_HCI_INTERFACE]
