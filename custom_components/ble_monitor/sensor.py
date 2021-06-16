@@ -93,7 +93,9 @@ class BLEupdater():
         """Entities updater loop."""
 
         async def async_add_sensor(mac, sensortype, firmware):
-            device_sensors = MEASUREMENT_DICT[sensortype][0]
+            averaging_sensors = MEASUREMENT_DICT[sensortype][0]
+            instant_sensors = MEASUREMENT_DICT[sensortype][1]
+            device_sensors = averaging_sensors + instant_sensors
             if mac not in sensors_by_mac:
                 sensors = []
                 for sensor in device_sensors:
@@ -161,10 +163,10 @@ class BLEupdater():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                device_sensors = MEASUREMENT_DICT[sensortype][0]
-                meas_type = MEASUREMENT_DICT[sensortype][2]
+                averaging_sensors = MEASUREMENT_DICT[sensortype][0]
+                instant_sensors = MEASUREMENT_DICT[sensortype][1]
+                device_sensors = averaging_sensors + instant_sensors
                 sensors = await async_add_sensor(mac, sensortype, firmware)
-
                 if data["data"] is False:
                     data = None
                     continue
@@ -185,7 +187,7 @@ class BLEupdater():
                     if measurement in data:
                         entity = sensors[device_sensors.index(measurement)]
                         entity.collect(data, batt_attr)
-                        if meas_type == "instant" or ts_now - ts_start < timedelta(seconds=self.period):
+                        if measurement in instant_sensors or ts_now - ts_start < timedelta(seconds=self.period):
                             # instant measurements are updated instantly
                             if entity.pending_update is True:
                                 if entity.ready_for_update is True:
@@ -233,6 +235,7 @@ class BaseSensor(RestoreEntity):
     # |  |--BatterySensor
     # |--InstantUpdateSensor
     # |  |--ConsumableSensor
+    # |  |--AccelerationSensor
     # |  |--ToothbrushModeSensor
     # |  |--WeightSensor
     # |  |--NonStabilizedWeightSensor
@@ -747,6 +750,40 @@ class InstantUpdateSensor(BaseSensor):
         self._device_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self.rssi_values.clear()
         self.pending_update = False
+
+
+class AccelerationSensor(InstantUpdateSensor):
+    """Representation of a Acceleration sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "acceleration"
+        self._name = "ble acceleration {}".format(self._device_name)
+        self._unique_id = "ac_" + self._device_name
+        self._unit_of_measurement = "mG"
+        self._device_class = None
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:axis-arrow"
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
+        self._state = data[self._measurement]
+        self._device_state_attributes["sensor type"] = data["type"]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
+        self._device_state_attributes["acceleration x"] = data["acceleration_x"]
+        self._device_state_attributes["acceleration y"] = data["acceleration_y"]
+        self._device_state_attributes["acceleration z"] = data["acceleration_z"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
 
 
 class ConsumableSensor(InstantUpdateSensor):
