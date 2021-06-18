@@ -488,8 +488,10 @@ class HCIdump(Thread):
         if msg:
             measurements = list(msg.keys())
             device_type = msg["type"]
-            measuring = any(x in measurements for x in MEASUREMENT_DICT[device_type][0])
-            binary = any(x in measurements for x in MEASUREMENT_DICT[device_type][1])
+            sensor_list = MEASUREMENT_DICT[device_type][0] + MEASUREMENT_DICT[device_type][1]
+            binary_list = MEASUREMENT_DICT[device_type][2]
+            measuring = any(x in measurements for x in sensor_list)
+            binary = any(x in measurements for x in binary_list)
             if binary == measuring:
                 self.dataqueue_bin.sync_q.put_nowait(msg)
                 self.dataqueue_meas.sync_q.put_nowait(msg)
