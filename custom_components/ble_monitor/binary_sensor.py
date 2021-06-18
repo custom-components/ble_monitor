@@ -79,7 +79,7 @@ class BLEupdaterBinary():
         """Entities updater loop."""
 
         async def async_add_binary_sensor(mac, sensortype, firmware):
-            device_sensors = MEASUREMENT_DICT[sensortype][1]
+            device_sensors = MEASUREMENT_DICT[sensortype][2]
             if mac not in sensors_by_mac:
                 sensors = []
                 for sensor in device_sensors:
@@ -146,7 +146,7 @@ class BLEupdaterBinary():
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
-                device_sensors = MEASUREMENT_DICT[sensortype][1]
+                device_sensors = MEASUREMENT_DICT[sensortype][2]
                 sensors = await async_add_binary_sensor(mac, sensortype, firmware)
 
                 if data["data"] is False:

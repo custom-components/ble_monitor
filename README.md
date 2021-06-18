@@ -1,6 +1,6 @@
 # Passive BLE Monitor integration
 
-### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron and Thermoplus sensors
+### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus and Ruuvitag sensors
 
 <!-- TOC -->
 
@@ -31,7 +31,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## SUPPORTED SENSORS
 
-This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron and Thermoplus** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
+This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus and Ruuvitag** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
 
 |Name|Description|Picture|
 |---|---|---|
@@ -75,6 +75,7 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtro
 |**Thermoplus**|**Smart Hygrometer**<br /><br />Rounded square body, LCD screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![smart Hygrometer](/pictures/Thermoplus_smart_hygrometer.jpg)|
 |**Thermoplus**|**Lanyard Hygrometer**<br /><br />Square body, no screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![lanyard Hygrometer](/pictures/Thermoplus_lanyard_hygrometer.jpg)|
 |**Thermoplus**|**Mini Hygrometer**<br /><br />Round body, no screen, is also sold under different brands, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![mini hygrometer](/pictures/Thermoplus_mini_hygrometer.jpg)|
+|**Ruuvitag**|****<br /><br />Round body. Broadcasts temperature, humidity, air pressure, battery voltage, battery level, motion and acceleration. If some of these sensors are not updating, make sure you use the latest firmware (v5 or above). `motion detected` is reported in HA when the motion counter is increased between two advertisements. You can use the [reset_timer](#reset_timer) option to set the time after which the motion sensor will return to `motion clear`, but it might be overruled by the advertisements from the sensor. This device has not been tested yet, please confirm if it is working by creating an issue on github.|![ruuvitag](/pictures/ruuvitag.jpg)|
   
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
