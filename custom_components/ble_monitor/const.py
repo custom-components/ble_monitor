@@ -151,7 +151,7 @@ MEASUREMENT_DICT = {
     'YLKG07YL/YLKG08YL'       : [[], ["dimmer"], []],
     'ATC'                     : [["temperature", "humidity", "battery", "voltage"], [], []],
     'Mi Scale V1'             : [[], ["weight", "non-stabilized weight"], ["weight removed"]],
-    'Mi Scale V2'             : [[], [], ["weight", "non-stabilized weight", "impedance"], ["weight removed"]],
+    'Mi Scale V2'             : [[], ["weight", "non-stabilized weight", "impedance"], ["weight removed"]],
     'Kegtron KT-100'          : [[], ["volume dispensed port 1"], []],
     'Kegtron KT-200'          : [[], ["volume dispensed port 1", "volume dispensed port 2"], []],
     'Smart hygrometer'        : [["temperature", "humidity", "battery", "voltage"], [], []],
