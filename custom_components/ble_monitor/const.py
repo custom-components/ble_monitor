@@ -4,7 +4,6 @@ DOMAIN = "ble_monitor"
 PLATFORMS = ["binary_sensor", "sensor"]
 
 # Configuration options
-CONF_ROUNDING = "rounding"
 CONF_DECIMALS = "decimals"
 CONF_PERIOD = "period"
 CONF_LOG_SPIKES = "log_spikes"
@@ -25,7 +24,6 @@ CONFIG_IS_FLOW = "is_flow"
 SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
 
 # Default values for configuration options
-DEFAULT_ROUNDING = True
 DEFAULT_DECIMALS = 1
 DEFAULT_PERIOD = 60
 DEFAULT_LOG_SPIKES = False
@@ -151,13 +149,13 @@ MEASUREMENT_DICT = {
     'YLKG07YL/YLKG08YL'       : [[], ["dimmer"], []],
     'ATC'                     : [["temperature", "humidity", "battery", "voltage"], [], []],
     'Mi Scale V1'             : [[], ["weight", "non-stabilized weight"], ["weight removed"]],
-    'Mi Scale V2'             : [[], [], ["weight", "non-stabilized weight", "impedance"], ["weight removed"]],
+    'Mi Scale V2'             : [[], ["weight", "non-stabilized weight", "impedance"], ["weight removed"]],
     'Kegtron KT-100'          : [[], ["volume dispensed port 1"], []],
     'Kegtron KT-200'          : [[], ["volume dispensed port 1", "volume dispensed port 2"], []],
     'Smart hygrometer'        : [["temperature", "humidity", "battery", "voltage"], [], []],
     'Lanyard/mini hygrometer' : [["temperature", "humidity", "battery", "voltage"], [], []],
     'H5074'                   : [["temperature", "humidity", "battery"], [], []],
-    'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery"], ["acceleration"], ["motion"]],
+    'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage"], ["acceleration"], ["motion"]],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')

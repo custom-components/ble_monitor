@@ -8,7 +8,7 @@ from .kegtron import parse_kegtron
 from .miscale import parse_miscale
 from .xiaomi import parse_xiaomi
 from .qingping import parse_qingping
-# from .ruuvitag import parse_ruuvitag
+from .ruuvitag import parse_ruuvitag
 from .thermoplus import parse_thermoplus
 
 _LOGGER = logging.getLogger(__name__)
@@ -60,8 +60,8 @@ def ble_parser(self, data):
                     return parse_xiaomi(self, adstruct, mac, rssi)
                 elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Mi Scale
                     return parse_miscale(self, adstruct, mac, rssi)
-                # elif uuid16 == 0xFEAA:  # UUID16 = Ruuvitag V2/V4
-                #     return parse_ruuvitag(self, data, mac, rssi)
+                elif uuid16 == 0xFEAA:  # UUID16 = Ruuvitag V2/V4
+                    return parse_ruuvitag(self, data, mac, rssi)
             elif adstuct_type == 0xFF:
                 # AD type 'Manufacturer Specific Data' with company identifier
                 # https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers/
@@ -73,8 +73,8 @@ def ble_parser(self, data):
                     return parse_thermoplus(self, adstruct, mac, rssi)
                 # if adstruct[0] == 0x0A and comp_id == 0xEC88:  # Govee
                     # return parse_govee(self, adstruct, mac, rssi)
-                # if comp_id == 0x0499:  # Ruuvitag V3/V5
-                #     return parse_ruuvitag(self, data, mac, rssi)
+                if comp_id == 0x0499:  # Ruuvitag V3/V5
+                    return parse_ruuvitag(self, data, mac, rssi)
             elif adstuct_type > 0x3D:
                 # AD type not standard
                 if self.report_unknown == "Other":
