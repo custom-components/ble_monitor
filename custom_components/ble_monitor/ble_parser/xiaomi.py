@@ -188,24 +188,24 @@ def obj1001(xobj):
         elif press == 3:
             if button_type == 0:
                 button_press_type = "short press"
-                dimmer = str(value) + " x"
+                dimmer = value
             if button_type == 1:
                 button_press_type = "long press"
-                dimmer = str(value) + " seconds"
+                dimmer = value
         elif press == 4:
             if button_type == 0:
                 if value <= 127:
                     button_press_type = "rotate right"
-                    dimmer = str(value) + " step(s)"
+                    dimmer = value
                 else:
                     button_press_type = "rotate left"
-                    dimmer = str(256 - value) + " step(s)"
+                    dimmer = 256 - value
             elif button_type <= 127:
                 button_press_type = "rotate right (pressed)"
-                dimmer = str(button_type) + " step(s)"
+                dimmer = button_type
             else:
                 button_press_type = "rotate left (pressed)"
-                dimmer = str(256 - button_type) + " step(s)"
+                dimmer = 256 - button_type
         elif press == 5:
             button_press_type = "short press"
         elif press == 6:

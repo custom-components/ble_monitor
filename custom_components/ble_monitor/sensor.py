@@ -1070,7 +1070,7 @@ class DimmerSensor(SwitchSensor):
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self._button] + " " + data[self._dimmer]
+        self._state = data[self._button] + " " + str(data[self._dimmer]) + " steps"
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
         self._device_state_attributes["dimmer value"] = data[self._dimmer]
