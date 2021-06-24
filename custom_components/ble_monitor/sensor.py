@@ -778,9 +778,9 @@ class AccelerationSensor(InstantUpdateSensor):
         self._device_state_attributes["sensor type"] = data["type"]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
-        self._device_state_attributes["acceleration x"] = data["acceleration_x"]
-        self._device_state_attributes["acceleration y"] = data["acceleration_y"]
-        self._device_state_attributes["acceleration z"] = data["acceleration_z"]
+        self._device_state_attributes["acceleration x"] = data["acceleration x"]
+        self._device_state_attributes["acceleration y"] = data["acceleration y"]
+        self._device_state_attributes["acceleration z"] = data["acceleration z"]
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
