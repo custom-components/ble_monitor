@@ -62,7 +62,7 @@ def ble_parser(self, data):
                 elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Mi Scale
                     return parse_miscale(self, adstruct, mac, rssi)
                 elif uuid16 == 0xFEAA:  # UUID16 = Ruuvitag V2/V4
-                    return parse_ruuvitag(self, data, mac, rssi)
+                    return parse_ruuvitag(self, adstruct, mac, rssi)
             elif adstuct_type == 0xFF:
                 # AD type 'Manufacturer Specific Data' with company identifier
                 # https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers/
@@ -75,7 +75,7 @@ def ble_parser(self, data):
                 # if adstruct[0] == 0x0A and comp_id == 0xEC88:  # Govee
                     # return parse_govee(self, adstruct, mac, rssi)
                 if comp_id == 0x0499:  # Ruuvitag V3/V5
-                    return parse_ruuvitag(self, data, mac, rssi)
+                    return parse_ruuvitag(self, adstruct, mac, rssi)
                 if adstruct[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
                     return parse_brifit(self, adstruct, mac, rssi)
             elif adstuct_type > 0x3D:
