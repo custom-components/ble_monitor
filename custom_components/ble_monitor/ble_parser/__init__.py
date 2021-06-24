@@ -3,6 +3,7 @@ import logging
 import subprocess
 
 from .atc import parse_atc
+from .brifit import parse_brifit
 from .govee import parse_govee
 from .kegtron import parse_kegtron
 from .miscale import parse_miscale
@@ -75,6 +76,8 @@ def ble_parser(self, data):
                     # return parse_govee(self, adstruct, mac, rssi)
                 if comp_id == 0x0499:  # Ruuvitag V3/V5
                     return parse_ruuvitag(self, data, mac, rssi)
+                if adstruct[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
+                    return parse_brifit(self, adstruct, mac, rssi)
             elif adstuct_type > 0x3D:
                 # AD type not standard
                 if self.report_unknown == "Other":

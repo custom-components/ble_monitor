@@ -154,6 +154,7 @@ MEASUREMENT_DICT = {
     'Kegtron KT-200'          : [[], ["volume dispensed port 1", "volume dispensed port 2"], []],
     'Smart hygrometer'        : [["temperature", "humidity", "battery", "voltage"], [], []],
     'Lanyard/mini hygrometer' : [["temperature", "humidity", "battery", "voltage"], [], []],
+    'T201'                    : [["temperature", "humidity", "battery", "voltage"], [], []],
     'H5074'                   : [["temperature", "humidity", "battery"], [], []],
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage"], ["acceleration"], ["motion"]],
 }
@@ -207,6 +208,7 @@ MANUFACTURER_DICT = {
     'Kegtron KT-200'          : 'Kegtron',
     'Smart hygrometer'        : 'Thermoplus',
     'Lanyard/mini hygrometer' : 'Thermoplus',
+    'T201'                    : 'Brifit',
     'H5074'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
 }
