@@ -26,7 +26,6 @@ from homeassistant.helpers.entity_registry import (
 
 from .ble_parser import ble_parser, hci_get_mac
 from .const import (
-    DEFAULT_ROUNDING,
     DEFAULT_DECIMALS,
     DEFAULT_PERIOD,
     DEFAULT_LOG_SPIKES,
@@ -40,7 +39,6 @@ from .const import (
     DEFAULT_DEVICE_USE_MEDIAN,
     DEFAULT_DEVICE_RESTORE_STATE,
     DEFAULT_DEVICE_RESET_TIMER,
-    CONF_ROUNDING,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
@@ -110,11 +108,9 @@ DEVICE_SCHEMA = vol.Schema(
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.All(
-            cv.deprecated(CONF_ROUNDING),
             cv.deprecated(CONF_BATT_ENTITIES),
             vol.Schema(
                 {
-                    vol.Optional(CONF_ROUNDING, default=DEFAULT_ROUNDING): cv.positive_int,
                     vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
                     vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
                     vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
@@ -137,7 +133,7 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(
                         CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
                     ): vol.In(
-                        ["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Thermoplus", "Govee", "Other", False]
+                        ["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Thermoplus", "Brifit", "Govee", "Ruuvitag", "Other", False]
                     ),
                 }
             )

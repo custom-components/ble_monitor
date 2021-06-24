@@ -4,7 +4,6 @@ DOMAIN = "ble_monitor"
 PLATFORMS = ["binary_sensor", "sensor"]
 
 # Configuration options
-CONF_ROUNDING = "rounding"
 CONF_DECIMALS = "decimals"
 CONF_PERIOD = "period"
 CONF_LOG_SPIKES = "log_spikes"
@@ -25,7 +24,6 @@ CONFIG_IS_FLOW = "is_flow"
 SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
 
 # Default values for configuration options
-DEFAULT_ROUNDING = True
 DEFAULT_DECIMALS = 1
 DEFAULT_PERIOD = 60
 DEFAULT_LOG_SPIKES = False
@@ -156,8 +154,9 @@ MEASUREMENT_DICT = {
     'Kegtron KT-200'          : [[], ["volume dispensed port 1", "volume dispensed port 2"], []],
     'Smart hygrometer'        : [["temperature", "humidity", "battery", "voltage"], [], []],
     'Lanyard/mini hygrometer' : [["temperature", "humidity", "battery", "voltage"], [], []],
+    'T201'                    : [["temperature", "humidity", "battery", "voltage"], [], []],
     'H5074'                   : [["temperature", "humidity", "battery"], [], []],
-    'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery"], ["acceleration"], ["motion"]],
+    'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage"], ["acceleration"], ["motion"]],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -209,6 +208,7 @@ MANUFACTURER_DICT = {
     'Kegtron KT-200'          : 'Kegtron',
     'Smart hygrometer'        : 'Thermoplus',
     'Lanyard/mini hygrometer' : 'Thermoplus',
+    'T201'                    : 'Brifit',
     'H5074'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
 }

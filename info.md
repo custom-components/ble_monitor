@@ -3,7 +3,7 @@
 
 # Passive BLE Monitor integration
 
-### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus and Ruuvitag sensors
+### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus Brifit and Ruuvitag sensors
 
 <!-- TOC -->
 
@@ -34,7 +34,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## SUPPORTED SENSORS
 
-This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus and Ruuvitag** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
+This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Brifit and Ruuvitag** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
 
 |Name|Description|Picture|
 |---|---|---|
@@ -77,7 +77,9 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtro
 |**Kegtron KT-100, KT-200**|**Kegtron KT-100 / KT-200**<br /><br />Broadcasts `volume dispensed` for each port and port attributes (`keg size`, `start volume`, `state`, `index` and `port name`. Kegtron devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![Kegtron](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/kegtron.jpg)|
 |**Thermoplus**|**Smart Hygrometer**<br /><br />Rounded square body, LCD screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![smart Hygrometer](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Thermoplus_smart_hygrometer.jpg)|
 |**Thermoplus**|**Lanyard Hygrometer**<br /><br />Square body, no screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![lanyard Hygrometer](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Thermoplus_lanyard_hygrometer.jpg)|
-|**Thermoplus**|**Mini Hygrometer**<br /><br />Round body, no screen, is also sold under different brands, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery levels.|![mini hygrometer](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Thermoplus_mini_hygrometer.jpg)|
+|**Thermoplus**|**Mini Hygrometer**<br /><br />Round body, no screen, is also sold under different brands, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![mini hygrometer](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Thermoplus_mini_hygrometer.jpg)|
+|**T201**|**Brifit Thermometer Hygrometer**<br /><br />Square body, no screen, is also sold under different brands, e.g. Oria. Broadcasts temperature, humidity and battery level, about 80 readings per minute.|![T201](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/T201.jpg)|
+|**Ruuvitag**|**Ruuvitag**<br /><br />Round body. Broadcasts temperature, humidity, air pressure, battery voltage, battery level, motion and acceleration. If some of these sensors are not updating, make sure you use the latest firmware (v5). `motion detected` is reported in HA when the motion counter is increased between two advertisements. You can use the [reset_timer](#reset_timer) option to set the time after which the motion sensor will return to `motion clear`, but it might be overruled by the advertisements from the sensor. This device has not been tested yet, please confirm if it is working by reporting your findings [here](https://github.com/custom-components/ble_monitor/issues/410).|![ruuvitag](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/ruuvitag.jpg)|
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
