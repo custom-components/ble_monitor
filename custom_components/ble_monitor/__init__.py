@@ -485,7 +485,7 @@ class HCIdump(Thread):
             measurements = list(msg.keys())
             device_type = msg["type"]
             sensor_list = MEASUREMENT_DICT[device_type][0] + MEASUREMENT_DICT[device_type][1]
-            binary_list = MEASUREMENT_DICT[device_type][2]
+            binary_list = MEASUREMENT_DICT[device_type][2] + ["battery"]
             measuring = any(x in measurements for x in sensor_list)
             binary = any(x in measurements for x in binary_list)
             if binary == measuring:
