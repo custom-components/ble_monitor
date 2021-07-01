@@ -167,7 +167,7 @@ class BLEupdaterBinary():
                             batt_attr = batt[mac]
                         except KeyError:
                             batt_attr = None
-                # schedule an immediate update of remote binary sensors
+                # schedule an immediate update of binary sensors
                 for measurement in device_sensors:
                     if measurement in data:
                         entity = sensors[device_sensors.index(measurement)]

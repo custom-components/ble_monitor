@@ -26,9 +26,10 @@
           "decimals": "Number of decimals",
           "use_median": "Use median",
           "restore_state": "Restore state",
-          "reset_timer": "Reset timer (in seconds, 0 = off)"
+          "reset_timer": "Reset timer (in seconds, 0 = off)",
+          "track_device": "Track device"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
@@ -67,7 +68,8 @@
           "decimals": "Number of decimals",
           "use_median": "Use median",
           "restore_state": "Restore state",
-          "reset_timer": "Reset timer (in seconds, 0 = off)"
+          "reset_timer": "Reset timer (in seconds, 0 = off)",
+          "track_device": "Track device"
         }
       }  
     },

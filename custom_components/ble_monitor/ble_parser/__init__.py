@@ -42,6 +42,7 @@ def ble_parser(self, data):
         rssi = rssi - 256
     # MAC address
     mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+    sensor_data = None
 
     while adpayload_size > 1:
         adstuct_size = data[adpayload_start] + 1
@@ -54,38 +55,60 @@ def ble_parser(self, data):
                 uuid16 = (adstruct[3] << 8) | adstruct[2]
                 # check for service data of supported manufacturers
                 if uuid16 == 0xFFF9 or uuid16 == 0xFDCD:  # UUID16 = Cleargrass or Qingping
-                    return parse_qingping(self, adstruct, mac, rssi)
+                    sensor_data = parse_qingping(self, adstruct, mac, rssi)
+                    break
                 elif uuid16 == 0x181A:  # UUID16 = ATC
-                    return parse_atc(self, adstruct, mac, rssi)
+                    sensor_data = parse_atc(self, adstruct, mac, rssi)
+                    break
                 elif uuid16 == 0xFE95:  # UUID16 = Xiaomi
-                    return parse_xiaomi(self, adstruct, mac, rssi)
+                    sensor_data = parse_xiaomi(self, adstruct, mac, rssi)
+                    break
                 elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Mi Scale
-                    return parse_miscale(self, adstruct, mac, rssi)
+                    sensor_data = parse_miscale(self, adstruct, mac, rssi)
+                    break
                 elif uuid16 == 0xFEAA:  # UUID16 = Ruuvitag V2/V4
-                    return parse_ruuvitag(self, adstruct, mac, rssi)
+                    sensor_data = parse_ruuvitag(self, adstruct, mac, rssi)
+                    break
             elif adstuct_type == 0xFF:
                 # AD type 'Manufacturer Specific Data' with company identifier
                 # https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers/
                 comp_id = (adstruct[3] << 8) | adstruct[2]
                 # check for service data of supported companies
                 if adstruct[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
-                    return parse_kegtron(self, adstruct, mac, rssi)
+                    sensor_data = parse_kegtron(self, adstruct, mac, rssi)
+                    break
                 if adstruct[0] == 0x15 and (comp_id == 0x0010 or comp_id == 0x0011):  # Thermoplus
-                    return parse_thermoplus(self, adstruct, mac, rssi)
+                    sensor_data = parse_thermoplus(self, adstruct, mac, rssi)
+                    break
                 # if adstruct[0] == 0x0A and comp_id == 0xEC88:  # Govee
-                    # return parse_govee(self, adstruct, mac, rssi)
+                    # sensor_data = parse_govee(self, adstruct, mac, rssi)
                 if comp_id == 0x0499:  # Ruuvitag V3/V5
-                    return parse_ruuvitag(self, adstruct, mac, rssi)
+                    sensor_data = parse_ruuvitag(self, adstruct, mac, rssi)
+                    break
                 if adstruct[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
-                    return parse_brifit(self, adstruct, mac, rssi)
+                    sensor_data = parse_brifit(self, adstruct, mac, rssi)
+                    break
             elif adstuct_type > 0x3D:
                 # AD type not standard
                 if self.report_unknown == "Other":
                     _LOGGER.info("Unknown advertisement received: %s", data.hex())
-                return None
+                sensor_data = None
+            else:
+                sensor_data = None
         adpayload_size -= adstuct_size
         adpayload_start += adstuct_size
-    return None
+
+    # check for monitored device trackers
+    if mac.lower() in self.trackerlist:
+        tracker_data = {
+            "is connected": True,
+            "mac": ''.join('{:02X}'.format(x) for x in mac),
+            "rssi": rssi,
+        }
+    else:
+        tracker_data = None
+
+    return sensor_data, tracker_data
 
 
 def hci_get_mac(interface_list=[0]):

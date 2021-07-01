@@ -31,12 +31,12 @@ from .const import (
     DEFAULT_DEVICE_USE_MEDIAN,
     DEFAULT_DEVICE_RESTORE_STATE,
     DEFAULT_DEVICE_RESET_TIMER,
+    DEFAULT_DEVICE_TRACK,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
     CONF_ACTIVE_SCAN,
-    CONF_HCI_INTERFACE,
     CONF_BT_INTERFACE,
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
@@ -45,6 +45,7 @@ from .const import (
     CONF_DEVICE_USE_MEDIAN,
     CONF_DEVICE_RESTORE_STATE,
     CONF_DEVICE_RESET_TIMER,
+    CONF_DEVICE_TRACK,
     CONFIG_IS_FLOW,
     DOMAIN,
     MAC_REGEX,
@@ -86,6 +87,9 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(
             CONF_DEVICE_RESET_TIMER, default=DEFAULT_DEVICE_RESET_TIMER
         ): cv.positive_int,
+        vol.Optional(
+            CONF_DEVICE_TRACK, default=DEFAULT_DEVICE_TRACK
+        ): cv.boolean,
     }
 )
 
@@ -230,6 +234,10 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                             CONF_DEVICE_RESET_TIMER,
                             default=user_input[CONF_DEVICE_RESET_TIMER],
                         ): cv.positive_int,
+                        vol.Optional(
+                            CONF_DEVICE_TRACK,
+                            default=user_input[CONF_DEVICE_TRACK],
+                        ): cv.boolean,
                     }
                 )
                 return self.async_show_form(
@@ -284,6 +292,12 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     if self._sel_device.get(CONF_DEVICE_RESET_TIMER)
                     else DEFAULT_DEVICE_RESET_TIMER
                 ): cv.positive_int,
+                vol.Optional(
+                    CONF_DEVICE_TRACK,
+                    default=self._sel_device.get(CONF_DEVICE_TRACK)
+                    if self._sel_device.get(CONF_DEVICE_TRACK)
+                    else DEFAULT_DEVICE_TRACK
+                ): cv.boolean,
             }
         )
 

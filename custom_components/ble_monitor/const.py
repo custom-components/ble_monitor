@@ -1,7 +1,7 @@
 """Constants for the Passive BLE monitor integration."""
 
 DOMAIN = "ble_monitor"
-PLATFORMS = ["binary_sensor", "sensor"]
+PLATFORMS = ["binary_sensor", "device_tracker", "sensor"]
 
 # Configuration options
 CONF_DECIMALS = "decimals"
@@ -19,6 +19,7 @@ CONF_DEVICE_DECIMALS = "decimals"
 CONF_DEVICE_USE_MEDIAN = "use_median"
 CONF_DEVICE_RESTORE_STATE = "restore_state"
 CONF_DEVICE_RESET_TIMER = "reset_timer"
+CONF_DEVICE_TRACK = "track_device"
 CONFIG_IS_FLOW = "is_flow"
 
 SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
@@ -37,6 +38,7 @@ DEFAULT_DEVICE_DECIMALS = "default"
 DEFAULT_DEVICE_USE_MEDIAN = "default"
 DEFAULT_DEVICE_RESTORE_STATE = "default"
 DEFAULT_DEVICE_RESET_TIMER = 35
+DEFAULT_DEVICE_TRACK = False
 
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"

@@ -39,6 +39,7 @@ from .const import (
     DEFAULT_DEVICE_USE_MEDIAN,
     DEFAULT_DEVICE_RESTORE_STATE,
     DEFAULT_DEVICE_RESET_TIMER,
+    DEFAULT_DEVICE_TRACK,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
@@ -54,6 +55,7 @@ from .const import (
     CONF_DEVICE_USE_MEDIAN,
     CONF_DEVICE_RESTORE_STATE,
     CONF_DEVICE_RESET_TIMER,
+    CONF_DEVICE_TRACK,
     CONFIG_IS_FLOW,
     DOMAIN,
     PLATFORMS,
@@ -102,6 +104,9 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(
             CONF_DEVICE_RESET_TIMER, default=DEFAULT_DEVICE_RESET_TIMER
         ): cv.positive_int,
+        vol.Optional(
+            CONF_DEVICE_TRACK, default=DEFAULT_DEVICE_TRACK
+        ): cv.boolean,
     }
 )
 
@@ -376,6 +381,7 @@ class BLEmonitor:
         self.dataqueue = {
             "binary": janus.Queue(),
             "measuring": janus.Queue(),
+            "tracker": janus.Queue(),
         }
         self.config = config
         self.dumpthread = None
@@ -398,6 +404,7 @@ class BLEmonitor:
         """Stop HCIdump thread(s)."""
         self.dataqueue["binary"].sync_q.put_nowait(None)
         self.dataqueue["measuring"].sync_q.put_nowait(None)
+        self.dataqueue["tracker"].sync_q.put_nowait(None)
         result = True
         if self.dumpthread is None:
             _LOGGER.debug("BLE monitor stopped")
@@ -430,6 +437,7 @@ class HCIdump(Thread):
         _LOGGER.debug("HCIdump thread: Init")
         self.dataqueue_bin = dataqueue["binary"]
         self.dataqueue_meas = dataqueue["measuring"]
+        self.dataqueue_tracker = dataqueue["tracker"]
         self._event_loop = None
         self._joining = False
         self.evt_cnt = 0
@@ -442,6 +450,7 @@ class HCIdump(Thread):
         self.discovery = True
         self.aeskeys = {}
         self.whitelist = []
+        self.trackerlist = []
         self.report_unknown = False
         if self.config[CONF_REPORT_UNKNOWN]:
             self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
@@ -462,6 +471,7 @@ class HCIdump(Thread):
                     continue
         _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(self.aeskeys))
 
+        # prepare whitelist to speedup parser
         if isinstance(self.config[CONF_DISCOVERY], bool) and self.config[CONF_DISCOVERY] is False:
             self.discovery = False
             if self.config[CONF_DEVICES]:
@@ -475,27 +485,41 @@ class HCIdump(Thread):
             self.whitelist[i] = bytes.fromhex(mac.replace(":", "")).lower()
         _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
 
+        # prepare device tracker list to speedup parser
+        if self.config[CONF_DEVICES]:
+            for device in self.config[CONF_DEVICES]:
+                if CONF_DEVICE_TRACK in device and device[CONF_DEVICE_TRACK]:
+                    track_mac = bytes.fromhex(
+                        device["mac"].replace(":", "")
+                    )
+                    self.trackerlist.append(track_mac.lower())
+                else:
+                    continue
+        _LOGGER.debug("%s device tracker(s) being monitored.", len(self.trackerlist))
+
     def process_hci_events(self, data):
         """Parse HCI events."""
         self.evt_cnt += 1
         if len(data) < 12:
             return
-        msg = ble_parser(self, data)
-        if msg:
-            measurements = list(msg.keys())
-            device_type = msg["type"]
+        sensor_msg, tracker_msg = ble_parser(self, data)
+        if sensor_msg:
+            measurements = list(sensor_msg.keys())
+            device_type = sensor_msg["type"]
             sensor_list = MEASUREMENT_DICT[device_type][0] + MEASUREMENT_DICT[device_type][1]
             binary_list = MEASUREMENT_DICT[device_type][2] + ["battery"]
             measuring = any(x in measurements for x in sensor_list)
             binary = any(x in measurements for x in binary_list)
             if binary == measuring:
-                self.dataqueue_bin.sync_q.put_nowait(msg)
-                self.dataqueue_meas.sync_q.put_nowait(msg)
+                self.dataqueue_bin.sync_q.put_nowait(sensor_msg)
+                self.dataqueue_meas.sync_q.put_nowait(sensor_msg)
             else:
                 if binary is True:
-                    self.dataqueue_bin.sync_q.put_nowait(msg)
+                    self.dataqueue_bin.sync_q.put_nowait(sensor_msg)
                 if measuring is True:
-                    self.dataqueue_meas.sync_q.put_nowait(msg)
+                    self.dataqueue_meas.sync_q.put_nowait(sensor_msg)
+        if tracker_msg:
+            self.dataqueue_tracker.sync_q.put_nowait(tracker_msg)
 
     def run(self):
         """Run HCIdump thread."""
