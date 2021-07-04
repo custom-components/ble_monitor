@@ -40,6 +40,8 @@ from .const import (
     DEFAULT_DEVICE_RESTORE_STATE,
     DEFAULT_DEVICE_RESET_TIMER,
     DEFAULT_DEVICE_TRACK,
+    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
+    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
@@ -57,6 +59,8 @@ from .const import (
     CONF_DEVICE_RESET_TIMER,
     CONF_DEVICE_TRACK,
     CONFIG_IS_FLOW,
+    CONF_DEVICE_TRACKER_SCAN_INTERVAL,
+    CONF_DEVICE_TRACKER_CONSIDER_HOME,
     DOMAIN,
     PLATFORMS,
     MAC_REGEX,
@@ -107,6 +111,12 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(
             CONF_DEVICE_TRACK, default=DEFAULT_DEVICE_TRACK
         ): cv.boolean,
+        vol.Optional(
+            CONF_DEVICE_TRACKER_SCAN_INTERVAL, default=DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL
+        ): cv.positive_int,
+        vol.Optional(
+            CONF_DEVICE_TRACKER_CONSIDER_HOME, default=DEFAULT_DEVICE_TRACKER_CONSIDER_HOME
+        ): cv.positive_int,
     }
 )
 

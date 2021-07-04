@@ -32,6 +32,8 @@ from .const import (
     DEFAULT_DEVICE_RESTORE_STATE,
     DEFAULT_DEVICE_RESET_TIMER,
     DEFAULT_DEVICE_TRACK,
+    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
+    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
@@ -46,6 +48,8 @@ from .const import (
     CONF_DEVICE_RESTORE_STATE,
     CONF_DEVICE_RESET_TIMER,
     CONF_DEVICE_TRACK,
+    CONF_DEVICE_TRACKER_SCAN_INTERVAL,
+    CONF_DEVICE_TRACKER_CONSIDER_HOME,
     CONFIG_IS_FLOW,
     DOMAIN,
     MAC_REGEX,
@@ -90,6 +94,12 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(
             CONF_DEVICE_TRACK, default=DEFAULT_DEVICE_TRACK
         ): cv.boolean,
+        vol.Optional(
+            CONF_DEVICE_TRACKER_SCAN_INTERVAL, default=DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL
+        ): cv.positive_int,
+        vol.Optional(
+            CONF_DEVICE_TRACKER_CONSIDER_HOME, default=DEFAULT_DEVICE_TRACKER_CONSIDER_HOME
+        ): cv.positive_int,
     }
 )
 
@@ -238,6 +248,14 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                             CONF_DEVICE_TRACK,
                             default=user_input[CONF_DEVICE_TRACK],
                         ): cv.boolean,
+                        vol.Optional(
+                            CONF_DEVICE_TRACKER_SCAN_INTERVAL,
+                            default=user_input[CONF_DEVICE_TRACKER_SCAN_INTERVAL],
+                        ): cv.positive_int,
+                        vol.Optional(
+                            CONF_DEVICE_TRACKER_CONSIDER_HOME,
+                            default=user_input[CONF_DEVICE_TRACKER_CONSIDER_HOME],
+                        ): cv.positive_int,
                     }
                 )
                 return self.async_show_form(
@@ -298,6 +316,18 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     if self._sel_device.get(CONF_DEVICE_TRACK)
                     else DEFAULT_DEVICE_TRACK
                 ): cv.boolean,
+                vol.Optional(
+                    CONF_DEVICE_TRACKER_SCAN_INTERVAL,
+                    default=self._sel_device.get(CONF_DEVICE_TRACKER_SCAN_INTERVAL)
+                    if self._sel_device.get(CONF_DEVICE_TRACKER_SCAN_INTERVAL)
+                    else DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL
+                ): cv.positive_int,
+                vol.Optional(
+                    CONF_DEVICE_TRACKER_CONSIDER_HOME,
+                    default=self._sel_device.get(CONF_DEVICE_TRACKER_CONSIDER_HOME)
+                    if self._sel_device.get(CONF_DEVICE_TRACKER_CONSIDER_HOME)
+                    else DEFAULT_DEVICE_TRACKER_CONSIDER_HOME
+                ): cv.positive_int,
             }
         )
 
