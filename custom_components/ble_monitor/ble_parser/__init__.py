@@ -7,6 +7,7 @@ from .brifit import parse_brifit
 from .govee import parse_govee
 from .kegtron import parse_kegtron
 from .miscale import parse_miscale
+from .inode import parse_inode
 from .xiaomi import parse_xiaomi
 from .qingping import parse_qingping
 from .ruuvitag import parse_ruuvitag
@@ -87,6 +88,9 @@ def ble_parser(self, data):
                     break
                 if adstruct[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
                     sensor_data = parse_brifit(self, adstruct, mac, rssi)
+                    break
+                if adstruct[0] == 0x0E and adstruct[3] == 0x82:  # iNode
+                    sensor_data = parse_inode(self, adstruct, mac, rssi)
                     break
             elif adstuct_type > 0x3D:
                 # AD type not standard

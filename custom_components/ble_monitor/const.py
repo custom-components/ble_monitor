@@ -84,6 +84,8 @@ SENSOR_DICT = {
     "toothbrush mode":          "ToothbrushModeSensor",
     "volume dispensed port 1":  "VolumeDispensedPort1Sensor",
     "volume dispensed port 2":  "VolumeDispensedPort2Sensor",
+    "energy":                   "EnergySensor",
+    "power" :                   "PowerSensor",
     "voltage":                  "VoltageSensor",
     "battery":                  "BatterySensor",
     "one btn switch":           "SingleSwitchSensor",
@@ -163,6 +165,7 @@ MEASUREMENT_DICT = {
     'T201'                    : [["temperature", "humidity", "battery", "voltage"], [], []],
     'H5074'                   : [["temperature", "humidity", "battery"], [], []],
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage"], ["acceleration"], ["motion"]],
+    'iNode Energy Meter'      : [["energy", "power", "battery", "voltage"], [], []],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -217,4 +220,5 @@ MANUFACTURER_DICT = {
     'T201'                    : 'Brifit',
     'H5074'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
+    'iNode Energy Meter'      : 'iNode',
 }
