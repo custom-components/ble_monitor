@@ -577,6 +577,7 @@ class HumiditySensor(MeasuringSensor):
         self._unique_id = "h_" + self._device_name
         self._unit_of_measurement = PERCENTAGE
         self._device_class = DEVICE_CLASS_HUMIDITY
+        self._log_spikes = config[CONF_LOG_SPIKES]
         # LYWSD03MMC / MHO-C401 "jagged" humidity workaround
         if devtype in ('LYWSD03MMC', 'MHO-C401'):
             if self._device_firmware is not None:
