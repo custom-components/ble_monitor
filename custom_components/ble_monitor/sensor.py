@@ -235,8 +235,6 @@ class BaseSensor(RestoreEntity):
     # |  |--ConductivitySensor
     # |  |--IlluminanceSensor
     # |  |--FormaldehydeSensor
-    # |  |--EnergySensor
-    # |  |--PowerSensor
     # |  |--VoltageSensor
     # |  |--BatterySensor
     # |--InstantUpdateSensor
@@ -246,6 +244,8 @@ class BaseSensor(RestoreEntity):
     # |  |--WeightSensor
     # |  |--NonStabilizedWeightSensor
     # |  |--ImpedanceSensor
+    # |  |--EnergySensor
+    # |  |--PowerSensor
     # |  |--SwitchSensor
     # |  |  |--SingleSwitchSensor
     # |  |  |--DoubleSwitchLeftSensor
@@ -690,70 +690,6 @@ class FormaldehydeSensor(MeasuringSensor):
         return "mdi:chemical-weapon"
 
 
-class EnergySensor(MeasuringSensor):
-    """Representation of an Energy sensor."""
-
-    def __init__(self, config, mac, devtype, firmware):
-        """Initialize the sensor."""
-        super().__init__(config, mac, devtype, firmware)
-        self._measurement = "energy"
-        self._name = "ble energy {}".format(self._device_name)
-        self._unique_id = "e_" + self._device_name
-        self._device_class = DEVICE_CLASS_ENERGY
-
-    def collect(self, data, batt_attr=None):
-        """Measurements collector."""
-        if self.enabled is False:
-            self.pending_update = False
-            return
-        self._measurements.append(data[self._measurement])
-        self._device_state_attributes["sensor type"] = data["type"]
-        self._device_state_attributes["last packet id"] = data["packet"]
-        self._device_state_attributes["firmware"] = data["firmware"]
-        if "energy unit" in data:
-            self._unit_of_measurement = data["energy unit"]
-        else:
-            self._unit_of_measurement = ENERGY_KILO_WATT_HOUR
-        if "constant" in data:
-            self._device_state_attributes["constant"] = data["constant"]
-        if "light level" in data:
-            self._device_state_attributes["light level"] = data["light level"]
-        if batt_attr is not None:
-            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
-        self.pending_update = True
-
-
-class PowerSensor(MeasuringSensor):
-    """Representation of a Power sensor."""
-
-    def __init__(self, config, mac, devtype, firmware):
-        """Initialize the sensor."""
-        super().__init__(config, mac, devtype, firmware)
-        self._measurement = "power"
-        self._name = "ble power {}".format(self._device_name)
-        self._unique_id = "pow_" + self._device_name
-        self._device_class = DEVICE_CLASS_POWER
-
-    def collect(self, data, batt_attr=None):
-        """Measurements collector."""
-        if self.enabled is False:
-            self.pending_update = False
-            return
-        self._measurements.append(data[self._measurement])
-        self._device_state_attributes["sensor type"] = data["type"]
-        self._device_state_attributes["last packet id"] = data["packet"]
-        self._device_state_attributes["firmware"] = data["firmware"]
-        if "power unit" in data:
-            self._unit_of_measurement = data["power unit"]
-        else:
-            self._unit_of_measurement = POWER_KILO_WATT
-        if "constant" in data:
-            self._device_state_attributes["constant"] = data["constant"]
-        if batt_attr is not None:
-            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
-        self.pending_update = True
-
-
 class VoltageSensor(MeasuringSensor):
     """Representation of a Voltage sensor."""
 
@@ -979,6 +915,70 @@ class ImpedanceSensor(InstantUpdateSensor):
     def icon(self):
         """Return the icon of the sensor."""
         return "mdi:omega"
+
+
+class EnergySensor(InstantUpdateSensor):
+    """Representation of an Energy sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "energy"
+        self._name = "ble energy {}".format(self._device_name)
+        self._unique_id = "e_" + self._device_name
+        self._device_class = DEVICE_CLASS_ENERGY
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
+        self._state = data[self._measurement]
+        self._device_state_attributes["sensor type"] = data["type"]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
+        if "energy unit" in data:
+            self._unit_of_measurement = data["energy unit"]
+        else:
+            self._unit_of_measurement = ENERGY_KILO_WATT_HOUR
+        if "constant" in data:
+            self._device_state_attributes["constant"] = data["constant"]
+        if "light level" in data:
+            self._device_state_attributes["light level"] = data["light level"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
+
+
+class PowerSensor(InstantUpdateSensor):
+    """Representation of a Power sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "power"
+        self._name = "ble power {}".format(self._device_name)
+        self._unique_id = "pow_" + self._device_name
+        self._device_class = DEVICE_CLASS_POWER
+
+    def collect(self, data, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False:
+            self.pending_update = False
+            return
+        self._state = data[self._measurement]
+        self._device_state_attributes["sensor type"] = data["type"]
+        self._device_state_attributes["last packet id"] = data["packet"]
+        self._device_state_attributes["firmware"] = data["firmware"]
+        if "power unit" in data:
+            self._unit_of_measurement = data["power unit"]
+        else:
+            self._unit_of_measurement = POWER_KILO_WATT
+        if "constant" in data:
+            self._device_state_attributes["constant"] = data["constant"]
+        if batt_attr is not None:
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
+        self.pending_update = True
 
 
 class SwitchSensor(InstantUpdateSensor):

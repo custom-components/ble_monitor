@@ -165,7 +165,7 @@ MEASUREMENT_DICT = {
     'T201'                    : [["temperature", "humidity", "battery", "voltage"], [], []],
     'H5074'                   : [["temperature", "humidity", "battery"], [], []],
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage"], ["acceleration"], ["motion"]],
-    'iNode Energy Meter'      : [["energy", "power", "battery", "voltage"], [], []],
+    'iNode Energy Meter'      : [["battery", "voltage"], ["energy", "power"], []],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')

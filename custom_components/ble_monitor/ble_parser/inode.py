@@ -11,27 +11,28 @@ def parse_inode(self, data, source_mac, rssi):
     firmware = "iNode"
     inode_mac = source_mac
     device_id = data[3]
+    xvalue = data[4:]
     result = {"firmware": firmware}
     if msg_length == 15 and device_id == 0x82:
         device_type = "iNode Energy Meter"
-        (rawAvg, rawSum, options, batteryAndLight, weekDayData) = unpack("<HIHBH", data[4:])
+        (rawAvg, rawSum, options, batteryAndLight, weekDayData) = unpack("<HIHBH", xvalue)
         # Average of previous minute (avg) and sum (sum)
         unit = (options >> 14) & 3
         constant = options & 0x3FFF
         if unit == 0:
-            avgUnit = "kWh"
-            sumUnit = "kW"
+            powerUnit = "W"
+            energyUnit = "kWh"
             constant = constant if constant > 0 else 100
         elif unit == 1:
-            avgUnit = "m3"
-            sumUnit = "m3"
+            powerUnit = "m3"
+            energyUnit = "m3"
             constant = constant if constant > 0 else 1000
         else:
-            avgUnit = "cnt"
-            sumUnit = "cnt"
+            powerUnit = "cnt"
+            energyUnit = "cnt"
             constant = constant if constant > 0 else 1
-        avg = 60 * rawAvg / constant
-        sum = rawSum / constant
+        power = 1000 * 60 * rawAvg / constant
+        energy = rawSum / constant
 
         # Battery in % and voltage level in V
         battery = (batteryAndLight >> 4) & 0x0F
@@ -50,10 +51,10 @@ def parse_inode(self, data, source_mac, rssi):
 
         result.update(
             {
-                "energy": avg,
-                "energy unit": avgUnit,
-                "power": sum,
-                "power unit": sumUnit,
+                "energy": energy,
+                "energy unit": energyUnit,
+                "power": power,
+                "power unit": powerUnit,
                 "constant": constant,
                 "battery": batteryLevel,
                 "voltage": batteryVoltage,
@@ -72,6 +73,21 @@ def parse_inode(self, data, source_mac, rssi):
             )
         return None
 
+    # Check for duplicate messages
+    packet_id = xvalue.hex()
+    try:
+        prev_packet = self.lpacket_ids[inode_mac]
+    except KeyError:
+        # start with empty first packet
+        prev_packet = None
+    if prev_packet == packet_id:
+        # only process new messages
+        return None
+    self.lpacket_ids[inode_mac] = packet_id
+    if prev_packet is None:
+        # ignore first message after a restart
+        return None
+
     # check for MAC presence in whitelist, if needed
     if self.discovery is False and inode_mac.lower() not in self.whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(inode_mac))
@@ -81,7 +97,7 @@ def parse_inode(self, data, source_mac, rssi):
         "rssi": rssi,
         "mac": ''.join('{:02X}'.format(x) for x in inode_mac[:]),
         "type": device_type,
-        "packet": "no packet id",
+        "packet": packet_id,
         "firmware": firmware,
         "data": True
     })
