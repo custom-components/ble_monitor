@@ -138,7 +138,10 @@ class BLEupdater():
                     mac = mac.replace(":", "")
                     sensortype = dev.model
                     firmware = dev.sw_version
-                    sensors = await async_add_sensor(mac, sensortype, firmware)
+                    if sensortype and firmware:
+                        sensors = await async_add_sensor(mac, sensortype, firmware)
+                    else:
+                        continue
                 else:
                     pass
         else:
@@ -927,13 +930,14 @@ class EnergySensor(InstantUpdateSensor):
         self._name = "ble energy {}".format(self._device_name)
         self._unique_id = "e_" + self._device_name
         self._device_class = DEVICE_CLASS_ENERGY
+        self._rdecimals = self._device_settings["decimals"]
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self._measurement]
+        self._state = round(data[self._measurement], self._rdecimals)
         self._device_state_attributes["sensor type"] = data["type"]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]
@@ -960,13 +964,14 @@ class PowerSensor(InstantUpdateSensor):
         self._name = "ble power {}".format(self._device_name)
         self._unique_id = "pow_" + self._device_name
         self._device_class = DEVICE_CLASS_POWER
+        self._rdecimals = self._device_settings["decimals"]
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self._measurement]
+        self._state = round(data[self._measurement], self._rdecimals)
         self._device_state_attributes["sensor type"] = data["type"]
         self._device_state_attributes["last packet id"] = data["packet"]
         self._device_state_attributes["firmware"] = data["firmware"]

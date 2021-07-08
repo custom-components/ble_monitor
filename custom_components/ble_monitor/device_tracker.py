@@ -139,7 +139,10 @@ class BLEupdaterTracker():
                     entity = trackers[0]
                     entity.data_update(data)
                     if entity.pending_update is True:
-                        entity.async_schedule_update_ha_state(True)
+                        try:
+                            entity.async_schedule_update_ha_state(True)
+                        except AttributeError:
+                            continue
                 data = None
             ts_now = dt_util.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
@@ -168,10 +171,8 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
         self._device_name = self._device_settings["name"]
         self._name = "ble tracker {}".format(self._device_name)
         self._state = None
-        # self._is_connected = False
         self._extra_state_attributes = {}
         self._unique_id = "ble_tracker_" + self._device_name
-        # self._measurement = "is connected"
         self._restore_state = self._device_settings["restore state"]
         self._scan_interval = self._device_settings["scan interval"]
         self._consider_home = self._device_settings["consider home"]
