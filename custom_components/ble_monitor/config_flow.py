@@ -31,12 +31,14 @@ from .const import (
     DEFAULT_DEVICE_USE_MEDIAN,
     DEFAULT_DEVICE_RESTORE_STATE,
     DEFAULT_DEVICE_RESET_TIMER,
+    DEFAULT_DEVICE_TRACK,
+    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
+    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_USE_MEDIAN,
     CONF_ACTIVE_SCAN,
-    CONF_HCI_INTERFACE,
     CONF_BT_INTERFACE,
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
@@ -45,6 +47,9 @@ from .const import (
     CONF_DEVICE_USE_MEDIAN,
     CONF_DEVICE_RESTORE_STATE,
     CONF_DEVICE_RESET_TIMER,
+    CONF_DEVICE_TRACK,
+    CONF_DEVICE_TRACKER_SCAN_INTERVAL,
+    CONF_DEVICE_TRACKER_CONSIDER_HOME,
     CONFIG_IS_FLOW,
     DOMAIN,
     MAC_REGEX,
@@ -86,6 +91,15 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(
             CONF_DEVICE_RESET_TIMER, default=DEFAULT_DEVICE_RESET_TIMER
         ): cv.positive_int,
+        vol.Optional(
+            CONF_DEVICE_TRACK, default=DEFAULT_DEVICE_TRACK
+        ): cv.boolean,
+        vol.Optional(
+            CONF_DEVICE_TRACKER_SCAN_INTERVAL, default=DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL
+        ): cv.positive_int,
+        vol.Optional(
+            CONF_DEVICE_TRACKER_CONSIDER_HOME, default=DEFAULT_DEVICE_TRACKER_CONSIDER_HOME
+        ): cv.positive_int,
     }
 )
 
@@ -106,7 +120,7 @@ DOMAIN_SCHEMA = vol.Schema(
         ),
         vol.Optional(
             CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): vol.In(
-            ["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Thermoplus", "Brifit", "Govee", "Ruuvitag", "Other", False]
+            ["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Thermoplus", "Brifit", "Govee", "Ruuvitag", "iNode", "Other", False]
         ),
     }
 )
@@ -230,6 +244,18 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                             CONF_DEVICE_RESET_TIMER,
                             default=user_input[CONF_DEVICE_RESET_TIMER],
                         ): cv.positive_int,
+                        vol.Optional(
+                            CONF_DEVICE_TRACK,
+                            default=user_input[CONF_DEVICE_TRACK],
+                        ): cv.boolean,
+                        vol.Optional(
+                            CONF_DEVICE_TRACKER_SCAN_INTERVAL,
+                            default=user_input[CONF_DEVICE_TRACKER_SCAN_INTERVAL],
+                        ): cv.positive_int,
+                        vol.Optional(
+                            CONF_DEVICE_TRACKER_CONSIDER_HOME,
+                            default=user_input[CONF_DEVICE_TRACKER_CONSIDER_HOME],
+                        ): cv.positive_int,
                     }
                 )
                 return self.async_show_form(
@@ -283,6 +309,24 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     default=self._sel_device.get(CONF_DEVICE_RESET_TIMER)
                     if self._sel_device.get(CONF_DEVICE_RESET_TIMER)
                     else DEFAULT_DEVICE_RESET_TIMER
+                ): cv.positive_int,
+                vol.Optional(
+                    CONF_DEVICE_TRACK,
+                    default=self._sel_device.get(CONF_DEVICE_TRACK)
+                    if self._sel_device.get(CONF_DEVICE_TRACK)
+                    else DEFAULT_DEVICE_TRACK
+                ): cv.boolean,
+                vol.Optional(
+                    CONF_DEVICE_TRACKER_SCAN_INTERVAL,
+                    default=self._sel_device.get(CONF_DEVICE_TRACKER_SCAN_INTERVAL)
+                    if self._sel_device.get(CONF_DEVICE_TRACKER_SCAN_INTERVAL)
+                    else DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL
+                ): cv.positive_int,
+                vol.Optional(
+                    CONF_DEVICE_TRACKER_CONSIDER_HOME,
+                    default=self._sel_device.get(CONF_DEVICE_TRACKER_CONSIDER_HOME)
+                    if self._sel_device.get(CONF_DEVICE_TRACKER_CONSIDER_HOME)
+                    else DEFAULT_DEVICE_TRACKER_CONSIDER_HOME
                 ): cv.positive_int,
             }
         )
@@ -403,7 +447,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     default=self.config_entry.options.get(
                         CONF_REPORT_UNKNOWN, DEFAULT_REPORT_UNKNOWN
                     ),
-                ): vol.In(["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Thermoplus", "Brifit", "Govee", "Ruuvitag", "Other", False]),
+                ): vol.In(["Xiaomi", "Qingping", "ATC", "Mi Scale", "Kegtron", "Thermoplus", "Brifit", "Govee", "Ruuvitag", "iNode", "Other", False]),
             }
         )
         return self._show_user_form("init", options_schema, errors or {})

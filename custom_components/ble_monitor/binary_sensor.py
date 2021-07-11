@@ -116,7 +116,10 @@ class BLEupdaterBinary():
                     mac = mac.replace(":", "")
                     sensortype = dev.model
                     firmware = dev.sw_version
-                    sensors = await async_add_binary_sensor(mac, sensortype, firmware)
+                    if sensortype and firmware:
+                        sensors = await async_add_binary_sensor(mac, sensortype, firmware)
+                    else:
+                        continue
                 else:
                     pass
         else:
@@ -167,7 +170,7 @@ class BLEupdaterBinary():
                             batt_attr = batt[mac]
                         except KeyError:
                             batt_attr = None
-                # schedule an immediate update of remote binary sensors
+                # schedule an immediate update of binary sensors
                 for measurement in device_sensors:
                     if measurement in data:
                         entity = sensors[device_sensors.index(measurement)]

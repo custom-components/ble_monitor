@@ -22,17 +22,20 @@
         "data": {
           "mac": "MAC address",
           "encryption_key": "Encryption key",
-          "temperature_unit": "Temperature unit",
+          "temperature_unit": "Temperature unit [temperature sensors only]",
           "decimals": "Number of decimals",
           "use_median": "Use median",
           "restore_state": "Restore state",
-          "reset_timer": "Reset timer (in seconds, 0 = off)"
+          "reset_timer": "Reset timer (in seconds, 0 = off)",
+          "track_device": "Track device",
+          "tracker_scan_interval": "Device tracker scan interval (in seconds)",
+          "consider_home": "Device tracker consider home interval (in seconds)"
         }
       }  
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
-      "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for YLKG08YL).",
+      "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for Yeelight sensors).",
       "cannot_change_mac": "MAC address cannot be changed."
     },
     "abort": {
@@ -67,17 +70,20 @@
           "decimals": "Number of decimals",
           "use_median": "Use median",
           "restore_state": "Restore state",
-          "reset_timer": "Reset timer (in seconds, 0 = off)"
+          "reset_timer": "Reset timer (in seconds, 0 = off)",
+          "track_device": "Track device",
+          "tracker_scan_interval": "Device tracker scan interval (in seconds)",
+          "consider_home": "Device tracker consider home interval (in seconds)"
         }
       }  
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
-      "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for YLKG08YL).",
+      "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for for Yeelight sensors).",
       "cannot_change_mac": "MAC address cannot be changed."
     },
     "abort": {
-      "not_in_use": "You have configured BLE monitor in YAML. Please change your options in YAML"
+      "not_in_use": "You have configured BLE monitor in YAML. Please change your options in YAML."
     }
   }
 }

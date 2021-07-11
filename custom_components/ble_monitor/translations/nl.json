@@ -1,0 +1,89 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Passive BLE Monitor",
+        "description": "Instellen van BLE monitor configuration",
+        "data": {
+          "devices": "Apparaten",
+          "discovery": "Discovery",
+          "decimals": "Aantal decimalen",
+          "period": "Periode",
+          "log_spikes": "Log uitschieters",
+          "use_median": "Gebruik mediaan",
+          "active_scan": "Active scan",
+          "bt_interface": "MAC adres Bluetooth interface",
+          "report_unknown": "Rapporteer onbekende apparaten",
+          "restore_state": "Herstel staat na herstart"
+        }
+      },
+      "add_device": {
+        "title": "Apparaat toevoegen",
+        "data": {
+          "mac": "MAC adres",
+          "encryption_key": "Encryptie sleutel",
+          "temperature_unit": "Temperatuur eenheid",
+          "decimals": "Aantal decimalen",
+          "use_median": "Gebruik mediaan",
+          "restore_state": "Herstel staat na herstart",
+          "reset_timer": "Reset timer (in seconden, 0 = uit)",
+          "track_device": "Track apparaat",
+          "tracker_scan_interval": "Device tracker scan interval (in seconden)",
+          "consider_home": "Device tracker beschouw thuis interval (in seconden)"
+        }
+      }  
+    },
+    "error": {
+      "invalid_mac": "MAC adres dient opgegeven te worden in de vorm 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_key": "Encryptie sleutel dient 32 hexadecimale karakters te hebben (24 voor Yeelight sensoren).",
+      "cannot_change_mac": "MAC adres kan niet veranderd worden."
+    },
+    "abort": {
+      "single_instance_allowed": "Slechts één instantie van BLE monitor is toegestaan."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Passive BLE Monitor",
+        "description": "Instellen van BLE monitor configuration",
+        "data": {
+          "devices": "Apparaten",
+          "discovery": "Discovery",
+          "decimals": "Aantal decimalen",
+          "period": "Periode",
+          "log_spikes": "Log uitschieters",
+          "use_median": "Gebruik mediaan",
+          "active_scan": "Active scan",
+          "bt_interface": "MAC adres Bluetooth interface",
+          "report_unknown": "Rapporteer onbekende apparaten",
+          "restore_state": "Herstel staat na herstart",
+          "not_in_use": "YAML is gebruikt, pas je instellingen aan in YAML"
+        }
+      },
+      "add_device": {
+        "title": "Configureer apparaat",
+        "data": {
+          "mac": "MAC adres",
+          "encryption_key": "Encryptie sleutel",
+          "temperature_unit": "Temperatuur eenheid",
+          "decimals": "Aantal decimalen",
+          "use_median": "Gebruik mediaan",
+          "restore_state": "Herstel staat na herstart",
+          "reset_timer": "Reset timer (in seconden, 0 = uit)",
+          "track_device": "Track apparaat",
+          "tracker_scan_interval": "Device tracker scan interval (in seconden)",
+          "consider_home": "Device tracker beschouw thuis interval (in seconden)"
+        }
+      }  
+    },
+    "error": {
+      "invalid_mac": "MAC adres dient opgegeven te worden in de vorm 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_key": "Encryptie sleutel dient 32 hexadecimale karakters te hebben (24 voor Yeelight sensoren).",
+      "cannot_change_mac": "MAC adres kan niet veranderd worden."
+    },
+    "abort": {
+      "not_in_use": "Je hebt BLE monitor in YAML geconfigureerd. Pas je instellingen aan in YAML."
+    }
+  }
+}

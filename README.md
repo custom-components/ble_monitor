@@ -1,11 +1,12 @@
 # Passive BLE Monitor integration
 
-### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Brifit and Ruuvitag sensors
+### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Brifit, Ruuvitag and iNode sensors and device tracking
 
 <!-- TOC -->
 
 - [INTRODUCTION](#introduction)
 - [SUPPORTED SENSORS](#supported-sensors)
+- [DEVICE TRACKER](#device-tracker)
 - [HOW TO INSTALL](#how-to-install)
   - [1. Grant permissions for Python to have rootless access to the HCI interface](#1-grant-permissions-for-python-to-have-rootless-access-to-the-hci-interface)
   - [2. Install the custom integration](#2-install-the-custom-integration)
@@ -27,11 +28,11 @@
 
 ## INTRODUCTION
 
-This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration that is available in Home Assistant and supports much more sensors than the build in integration. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously). Read more in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean).
+This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration, the [Bluetooth Tracker](https://www.home-assistant.io/integrations/bluetooth_tracker/) integration and the [Bluetooth LE Tracker](https://www.home-assistant.io/integrations/bluetooth_le_tracker/) integration that are available in Home Assistant. BLE monitor supports much more sensors than the build in integration. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously). Read more in the  [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean). BLE monitor also has the possibility to track BLE devices based on its (static) MAC address. It will listen to incoming BLE advertisements for the devices that you have chosen to track. 
 
 ## SUPPORTED SENSORS
 
-This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Brifit and Ruuvitag** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
+This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Brifit, Ruuvitag and iNode** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
 
 |Name|Description|Picture|
 |---|---|---|
@@ -76,11 +77,16 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtro
 |**Thermoplus**|**Lanyard Hygrometer**<br /><br />Square body, no screen, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![lanyard Hygrometer](/pictures/Thermoplus_lanyard_hygrometer.jpg)|
 |**Thermoplus**|**Mini Hygrometer**<br /><br />Round body, no screen, is also sold under different brands, e.g. Brifit, Oria. Broadcasts temperature, humidity and battery level.|![mini hygrometer](/pictures/Thermoplus_mini_hygrometer.jpg)|
 |**T201**|**Brifit Thermometer Hygrometer**<br /><br />Square body, no screen, is also sold under different brands, e.g. Oria. Broadcasts temperature, humidity and battery level, about 80 readings per minute.|![T201](/pictures/T201.jpg)|
-|**Ruuvitag**|**Ruuvitag**<br /><br />Round body. Broadcasts temperature, humidity, air pressure, battery voltage, battery level, motion and acceleration. If some of these sensors are not updating, make sure you use the latest firmware (v5). `motion detected` is reported in HA when the motion counter is increased between two advertisements. You can use the [reset_timer](#reset_timer) option to set the time after which the motion sensor will return to `motion clear`, but it might be overruled by the advertisements from the sensor. This device has not been tested yet, please confirm if it is working by reporting your findings [here](https://github.com/custom-components/ble_monitor/issues/410).|![ruuvitag](/pictures/ruuvitag.jpg)|
+|**Ruuvitag**|**Ruuvitag**<br /><br />Round body. Broadcasts temperature, humidity, air pressure, battery voltage, battery level, motion and acceleration. If some of these sensors are not updating, make sure you use the latest firmware (v5). `motion detected` is reported in HA when the motion counter is increased between two advertisements. You can use the [reset_timer](#reset_timer) option to set the time after which the motion sensor will return to `motion clear`, but it might be overruled by the advertisements from the sensor.|![ruuvitag](/pictures/ruuvitag.jpg)|
+|**iNode Energy Meter**|**iNode Energy Meter**<br /><br />Energy meter based on pulse measuring. Broadcasts energy, power, battery and voltage. Energy and power are calculated based on the formula's as given in the [documentation](https://docs.google.com/document/d/1hcBpZ1RSgHRL6wu4SlTq2bvtKSL5_sFjXMu_HRyWZiQ/edit#heading=h.l38j4be9ejx7). The `constant` factor that is used for these calculations as well as the light level are given in the energy sensor attributes. Advertisements are broadcasted every 1 a 2 seconds, but the measurement data is only changed once a minute.|![iNode_Energy_Meter](/pictures/iNode_Energy_Meter.png)|
   
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
 **Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
+
+## DEVICE TRACKER
+
+This integration is also capable of tracking Bluetooth devices, as long as it is using a static MAC address (public or random static (lifetime) address). To track a device, add the [mac](#mac) address of the device to track under the [devices](#devices) option and enable the option [track_device](#track_device). The tracker will listen to every advertisement that is send by the device. As this can be quite often, an [tracker_scan_interval](#tracker_scan_interval) can be set to reduce the number of state updates in Home Assistant (default 20 seconds). When no advertisments are received anymore, the device tracker entity state will turn to `Away` after the set [consider_home](#consider_home) interval (default 180 seconds).
 
 ## HOW TO INSTALL
 
@@ -110,7 +116,7 @@ Alternatively, you can install it manually. Just copy paste the content of the `
 
 ### 3. Add your sensors to the MiHome app if you haven’t already
 
-Many Xiaomi ecosystem sensors (maybe all) do not broadcast BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first. Some sensors also support alternative firmware, which doesn't need to be paired to MiHome.
+Many Xiaomi ecosystem sensors do not broadcast BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first. Some sensors also support alternative ATC firmware, which doesn't need to be paired to MiHome.
 
 ### 4. Configure the integration
 
@@ -118,13 +124,13 @@ There are two ways to configure the integration and your devices (sensors), in t
 
 #### 4a. Configuration in the User Interface
 
-Make sure you restart Home Assistant after the installation in HACS. After the restart, go to **Configuration** in the side menu in Home Assistant and select **Integrations**. Click on **Add Integrations** in the bottom right corner and search for **Passive BLE Monitor** to install. This will open the configuration menu with the default settings. The options are explained in the [configuration parameters](#configuration-parameters) section below and can also be changed later in the options menu. After a few seconds, the sensors should be added to your Home Assistant automatically. Note that the actual measurements require at least one [period](#period) to become visible.
+Make sure you restart Home Assistant after the installation in HACS. After the restart, go to **Configuration** in the side menu in Home Assistant and select **Integrations**. Click on **Add Integrations** in the bottom right corner and search for **Passive BLE Monitor** to install. This will open the configuration menu with the default settings. The options are explained in the [configuration parameters](#configuration-parameters) section below and can also be changed later in the options menu. Depending on the sensor, the sensors should be added to your Home Assistant automatically within a few seconds till 10 minutes.
 
-  ![Integration setup](/pictures/configuration_screen.png)
+  ![Integration setup](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/configuration_screen.png)
 
 #### 4b. Configuration in YAML
 
-Alternatively, you can add the configuration in `configuration.yaml` as explained below. The options are the same as in the UI and are explained in the [configuration parameters](#configuration-parameters) section below. After adding your initial configuration to your YAML file, or applying a configuration change in YAML, a restart is required to load the new configuration. After a few minutes, the sensors should be changed/added to your Home Assistant automatically (at least one [period](#period) required).
+Alternatively, you can add the configuration in `configuration.yaml` as explained below. The options are the same as in the UI and are explained in the [configuration parameters](#configuration-parameters) section below. After adding your initial configuration to your YAML file, or applying a configuration change in YAML, a restart is required to load the new configuration. Depending on the sensor, the sensors should be added to your Home Assistant automatically within a few seconds till 10 minutes.
 
 An example of `configuration.yaml` with the minimum configuration is:
 
@@ -146,6 +152,7 @@ ble_monitor:
   use_median: False
   restore_state: False
   devices:
+    # sensor
     - mac: 'A4:C1:38:2F:86:6C'
       name: 'Livingroom'
       encryption_key: '217C568CF5D22808DA20181502D84C1B'
@@ -158,6 +165,11 @@ ble_monitor:
       temperature_unit: F
     - mac: 'B4:7C:8D:6D:4C:D3'
       reset_timer: 35
+    # device tracker
+    - mac: 'D4:3C:2D:4A:3C:D5'
+      track_device: True
+      tracker_scan_interval: 20
+      consider_home: 180
 ```
 
 Note: The encryption_key parameter is only needed for sensors, for which it is [pointed](#supported-sensors) that their messages are encrypted.
@@ -244,18 +256,18 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### report_unknown
 
-   (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Thermoplus`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron` or `Thermoplus`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+   (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Thermoplus`, `Brifit`, `Govee`, `Ruuvitag`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Thermoplus`, `Brifit`, `Govee` or `Ruuvitag`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
 
 ### Configuration parameters at device level
 
 #### devices
 
-   (Optional) The devices option is used for setting options at the level of the device and/or if you want to whitelist certain sensors with the `discovery` option. Note that if you use the `devices` option, the `mac` option is also required.
+   (Optional) The devices option is used for setting options at the level of the device and/or if you want to whitelist certain sensors with the `discovery` option. For tracking devices, it is mandatory to specify your devices to be tracked. Note that if you use the `devices` option, the `mac` option is also required.
 
 ### Configuration in the User Interface
 
-   To add a device, open the options menu of the integration and select **Add Device** in the device drop down menu and click on Submit. You can modify existing configured devices in a similar way, by selecting your device in the same drop down menu and clicking on Submit. Both will show the following form.
+   To add a device, open the options menu of the integration and look for the `mac` of your device in the devices drop down menu. Most sensors are automatically added to the drop down menu. If it isn't shown or if you want to add a device to be tracked, select **Add Device** in the device drop down menu and click on Submit. You can modify existing configured devices in a similar way, by selecting your device in the same drop down menu and clicking on Submit. Both will show the following form.
 
   ![device setup](/pictures/device_screen.png)
 
@@ -266,6 +278,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 ```yaml
 ble_monitor:
   devices:
+    # sensors
     - mac: 'A4:C1:38:2F:86:6C'
       name: 'Livingroom'
       encryption_key: '217C568CF5D22808DA20181502D84C1B'
@@ -275,17 +288,22 @@ ble_monitor:
       restore_state: default
     - mac: 'C4:3C:4D:6B:4F:F3'
       reset_timer: 35
+    # device trackers
+    - mac: 'D4:3C:2D:4A:3C:D5'
+      track_device: True
+      tracker_scan_interval: 20
+      consider_home: 180
 ```
 
 #### mac
 
-   (string)(Required) The `mac` option (`MAC address` in the UI) is used to identify your sensor device based on its mac-address. This allows you to define other additional options for this specific sensor device and/or to whitelist it with the `discovery` option. You can find the MAC address in the attributes of your sensor (`Developers Tools` --> `States`). For deleting devices see the instructions [below](#deleting-devices-and-sensors).
+   (string)(Required) The `mac` option (`MAC address` in the UI) is used to identify your device based on its mac-address. This allows you to define other additional options for this specific device, to track it and/or to whitelist it with the `discovery` option. You can find the MAC address in the attributes of your sensor (`Developers Tools` --> `States`). For deleting devices see the instructions [below](#deleting-devices-and-sensors).
 
 #### name
 
-   When using configuration in the User Interface, you can modify the device name by opening your device, via configuration, integrations and clicking on devices on the BLE monitor tile. Select the device you want to change the name of and click on the cogwheel in the topright corner, where you can change the name. You will get a question wether you want to rename the individual sensor entities of this device as well (normally, it is advised to do this).
+   When using configuration in the User Interface, you can modify the device name by opening your device, via configuration, integrations and clicking on devices on the BLE monitor tile. Select the device you want to change the name of and click on the cogwheel in the topright corner, where you can change the name. You will get a question wether you want to rename the individual entities of this device as well (normally, it is advised to do this).
 
-   (string)(Optional) When using YAML, you can use the `name` option to link a device name and sensor name to the mac-address of the sensor device. Using this option (or changing a name) will create new sensor entities. The old data won't be transfered to the new sensor. The old sensor entities can be safely deleted afterwards, but this has to be done manually at the moment, see the instructions [below](#deleting-devices-and-sensors). The sensors are named with the following convention: `sensor.ble_sensortype_device_name` (e.g. `sensor.ble_temperature_livingroom`) in stead of the default `ble_sensortype_mac` (e.g. `sensor.ble_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. Default value: Empty
+   (string)(Optional) When using YAML, you can use the `name` option to link a device name and sensor name to the mac-address of the device. Using this option (or changing a name) will create new sensor/tracker entities. The old data won't be transfered to the new sensor/tracker. The old sensor/tracker entities can be safely deleted afterwards, but this has to be done manually at the moment, see the instructions [below](#deleting-devices-and-sensors). The sensors/trackers are named with the following convention: `sensor.ble_sensortype_device_name` (e.g. `sensor.ble_temperature_livingroom`) in stead of the default `ble_sensortype_mac` (e.g. `sensor.ble_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. Default value: Empty
 
 ```yaml
 ble_monitor:
@@ -368,19 +386,42 @@ ble_monitor:
       reset_timer: 35
 ```
 
+#### track_device
+
+   (boolean)(Optional) Enabling this option will create a device tracker in Home Assistant. The device tracker will be `Home` as long as it receives data and will move to `Away` after no data is received anymore for more that the set period with [consider_home](#consider_home). Note that your device should have a fixed MAC address to be able to track. Default value: False
+
+
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      track_device: True
+      tracker_scan_interval: 20
+      consider_home: 180
+```
+
+#### tracker_scan_interval
+
+   (positive integer)(Optional) To reduce the state updates in Home Assistant and not spam your Home Assistant, it is advised to set a scan interval. After a BLE advertisement is received and the state has been updated, Home Assistant Scan will not update the state during the set interval to safe resources. The setting is in seconds. Default value: 20
+
+#### consider_home
+
+   (positive integer)(Optional) This option sets the period with no data after which the device tracker is considered to be away. The setting is in seconds. Default value: 180
+
+
 ### Deleting devices and sensors
 
-Removing devices can be done by removing the corresponding lines in your `configuration.yaml`. In the UI, you can delete devices by typing `-` in the `MAC address` field. Note that if the [discovery](#discovery) option is set to `True` they will be discovered automatically again.
+Removing devices can be done by removing the corresponding lines in your `configuration.yaml`. In the UI, you can delete devices by typing `-` in the `MAC address` field. Note that if the [discovery](#discovery) option is set to `True` sensors will be discovered automatically again.
 
-Unfortunately, old devices and sensor entities are not entirely deleted by this, they will still be visible, but will be `unavailable` after a restart. The same applies for changing a name of an existing device in YAML, the sensor entities with the old name will still remain visible, but with an `unavailable` state after a restart. To completely remove these left overs, follow the following steps.
+Unfortunately, old devices and entities are not entirely deleted by this, they will still be visible, but will be `unavailable` after a restart. The same applies for changing a name of an existing device in YAML, the entities with the old name will still remain visible, but with an `unavailable` state after a restart. To completely remove these left overs, follow the following steps.
 
 #### 1. Remove old entities
 
-First, delete the old entities, by going to **configuration**, **integrations** and selecting **devices** in the BLE monitor tile. Select the device with old entities and select each unavailable sensor, to delete it manually. If the delete button isn't visible, you will have to restart Home Assistant to unload the entities. Make sure all old sensor entities are deleted before going to the next step.
+First, delete the old entities, by going to **configuration**, **integrations** and selecting **devices** in the BLE monitor tile. Select the device with old entities and select each unavailable entity, to delete it manually. If the delete button isn't visible, you will have to restart Home Assistant to unload the entities. Make sure all old entities are deleted before going to the next step.
 
 #### 2. Remove old devices
 
-If the sensor doesn't have any sensor entities anymore, you can delete the device as well. Unfortunately, Home Assistant doesn't have an delete option to remove the old device. To overcome this problem, we have created a `service` to help you solve this. Go to **developer tools**, **services** and select the `ble_monitor.cleanup_entries` service. Click on **Call service** and the device should be gone. If not, you probably haven't deleted all sensor entities (go to step 1).
+If the device doesn't have any entities anymore, you can delete the device as well. Unfortunately, Home Assistant doesn't have an delete option to remove the old device. To overcome this problem, we have created a `service` to help you solve this. Go to **developer tools**, **services** and select the `ble_monitor.cleanup_entries` service. Click on **Call service** and the device should be gone. If not, you probably haven't deleted all entities (go to step 1).
 
 ## FREQUENTLY ASKED QUESTIONS
 
