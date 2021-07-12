@@ -8,7 +8,6 @@ _LOGGER = logging.getLogger(__name__)
 def decode_temps(packet_value: int) -> float:
     """Decode potential negative temperatures."""
     # https://github.com/Thrilleratplay/GoveeWatcher/issues/2
-    print(packet_value / 10000)
     if packet_value & 0x800000:
         return float((packet_value ^ 0x800000) / -100)
     return float(packet_value / 10000)
@@ -30,7 +29,7 @@ def parse_govee(self, data, source_mac, rssi):
         batt = int(data[8])
         result.update({"temperature": temp, "humidity": humi, "battery": batt})
     elif msg_length == 10 and device_id == 0x0001:
-        device_type = "H5101/H5102"
+        device_type = "H5101/H5102/H5177"
         packet_5101_5102 = data[6:9].hex()
         packet = int(packet_5101_5102, 16)
         temp = decode_temps(packet)
