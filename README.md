@@ -28,7 +28,7 @@
 
 ## INTRODUCTION
 
-This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration, the [Bluetooth Tracker](https://www.home-assistant.io/integrations/bluetooth_tracker/) integration and the [Bluetooth LE Tracker](https://www.home-assistant.io/integrations/bluetooth_le_tracker/) integration that are available in Home Assistant. BLE monitor supports much more sensors than the build in integration. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously). Read more in the  [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean). BLE monitor also has the possibility to track BLE devices based on its (static) MAC address. It will listen to incoming BLE advertisements for the devices that you have chosen to track. 
+This custom component is an alternative for the standard build in [mitemp_bt](https://www.home-assistant.io/integrations/mitemp_bt/) integration, the [Bluetooth Tracker](https://www.home-assistant.io/integrations/bluetooth_tracker/) integration and the [Bluetooth LE Tracker](https://www.home-assistant.io/integrations/bluetooth_le_tracker/) integration that are available in Home Assistant. BLE monitor supports much more sensors than the build in integration. Unlike the original `mitemp_bt` integration, which is getting its data by polling the device with a default five-minute interval, this custom component is parsing the Bluetooth Low Energy packets payload that is constantly emitted by the sensor. The packets payload may contain temperature/humidity/battery and other data. Advantage of this integration is that it doesn't affect the battery as much as the built-in integration. It also solves connection issues some people have with the standard integration (due to passivity and the ability to collect data from multiple bt-interfaces simultaneously). Read more in the  [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#why-is-this-component-called-passive-and-what-does-it-mean). BLE monitor also has the possibility to track BLE devices based on its (static) MAC address. It will listen to incoming BLE advertisements for the devices that you have chosen to track.
 
 ## SUPPORTED SENSORS
 
@@ -79,7 +79,15 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtro
 |**T201**|**Brifit Thermometer Hygrometer**<br /><br />Square body, no screen, is also sold under different brands, e.g. Oria. Broadcasts temperature, humidity and battery level, about 80 readings per minute.|![T201](/pictures/T201.jpg)|
 |**Ruuvitag**|**Ruuvitag**<br /><br />Round body. Broadcasts temperature, humidity, air pressure, battery voltage, battery level, motion and acceleration. If some of these sensors are not updating, make sure you use the latest firmware (v5). `motion detected` is reported in HA when the motion counter is increased between two advertisements. You can use the [reset_timer](#reset_timer) option to set the time after which the motion sensor will return to `motion clear`, but it might be overruled by the advertisements from the sensor.|![ruuvitag](/pictures/ruuvitag.jpg)|
 |**iNode Energy Meter**|**iNode Energy Meter**<br /><br />Energy meter based on pulse measuring. Broadcasts energy, power, battery and voltage. Energy and power are calculated based on the formula's as given in the [documentation](https://docs.google.com/document/d/1hcBpZ1RSgHRL6wu4SlTq2bvtKSL5_sFjXMu_HRyWZiQ/edit#heading=h.l38j4be9ejx7). The `constant` factor that is used for these calculations as well as the light level are given in the energy sensor attributes. Advertisements are broadcasted every 1 a 2 seconds, but the measurement data is only changed once a minute.|![iNode_Energy_Meter](/pictures/iNode_Energy_Meter.png)|
-  
+| **H5051** |**Govee H5051 Thermometer Hygrometer (BLE only)**<br/><br/>Oval body, LCD screen.  Broadcasts temperature, humidity and battery level.<br/>**NOTE:** Requires *Active scan* enabled|![H5051](/pictures/Govee_H5051.jpg)|
+| **H5072** |**Govee H5075 Thermometer Hygrometer**<br/><br/>Oval body, LCD screen.  Broadcasts temperature, humidity and battery level.<br/>**NOTE:** Requires *Active scan* enabled|![H5072](/pictures/Govee_H5072.jpg)|
+| **H5074** |**Govee H5074 Thermometer Hygrometer**<br/><br/>Square body, no screen.  Broadcasts temperature, humidity and battery level.<br/>**NOTE:** Requires *Active scan* enabled|![H5074](/pictures/Govee_H5074.jpg)|
+| **H5075** |**Govee H5075 Thermometer Hygrometer**<br/><br/>Rounded square body, LCD screen.  Broadcasts temperature, humidity and battery level.<br/>**NOTE:** Requires *Active scan* enabled|![H5075](/pictures/Govee_H5075.jpg)|
+| **H5101, H5102** |**Govee H5101/Govee H5102 Thermometer Hygrometer**<br/><br/>Rounded square body, LCD screen.  Broadcasts temperature, humidity and battery level.|![H5101/H5102](/pictures/Govee_H5101_H5102.jpg)|
+| **H5177** |**Govee H5177 Thermometer Hygrometer**<br/><br/>Rounded square body, Backlight LCD Touchscreen.  Broadcasts temperature, humidity and battery level.<br/>**NOTE:** Requires *Active scan* enabled|![H5177](/pictures/Govee_H5177.jpg)|
+| **H5179** |**Govee H5179 Thermometer Hygrometer (BLE only)**<br/><br/>Square body, no screen.  Broadcasts temperature, humidity and battery level.<br/>**NOTE:** Requires *Active scan* enabled|![H5179](/pictures/Govee_H5179.png)|
+
+
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
 **Do you want to request support for a new sensor? In the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) you can read instructions how to request support for other sensors.**
@@ -225,7 +233,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### batt_entities [DEPRECATED]
 
-   (boolean)(Optional) This option is deprecated, please remove from your configuration. 
+   (boolean)(Optional) This option is deprecated, please remove from your configuration.
 
 #### decimals
 
@@ -240,18 +248,18 @@ Data from sensors with other addresses will be ignored. Default value: True
 #### log_spikes
 
    (boolean)(Optional) Puts information about each erroneous spike in the Home Assistant log. Default value: False
-  
+
    *There are reports (pretty rare) that some sensors tend to sometimes produce erroneous values that differ markedly from the actual ones. Therefore, if you see inexplicable sharp peaks or dips on the temperature or humidity graph, I recommend that you enable this option so that you can see in the log which values were qualified as erroneous. The component discards values that exceeds the sensor’s measurement capabilities. These discarded values are given in the log records when this option is enabled. If erroneous values are within the measurement capabilities (-40..60°C and 0..100%H), there are no messages in the log. If your sensor is showing this, there is no other choice but to calculate the average as the median (next option).*
 
 #### use_median
 
    (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the mean values in any case are present as the sensor state attributes. This setting can be overruled with for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
-  
+
    *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
 
 #### restore_state
 
-   (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors. If your [devices](#devices) are configured with a [mac](#mac) address, they will restore immediately after a restart of Home Assistant to the state right before the restart. If you didn't configure your [devices](#devices), the state will be restored upon the first BLE advertisement being received. 
+   (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors. If your [devices](#devices) are configured with a [mac](#mac) address, they will restore immediately after a restart of Home Assistant to the state right before the restart. If you didn't configure your [devices](#devices), the state will be restored upon the first BLE advertisement being received.
    with `restore_state` set to `False`, the integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. For measuring sensors like temperature sensors, this option can be safely set to `True`. It is also possible to overrule this setting for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
 
 #### report_unknown
@@ -375,8 +383,8 @@ ble_monitor:
 
 #### reset_timer
 
-   (possitive integer)(Optional) This option sets the time (in seconds) after which a sensor is reset to `motion clear` (motion sensors) or `no press` (button and dimmer sensors). After each `motion detected` advertisement or `button/dimmer press`, the timer starts counting down again. Setting this option to 0 seconds will turn this resetting behavior off. 
-   
+   (possitive integer)(Optional) This option sets the time (in seconds) after which a sensor is reset to `motion clear` (motion sensors) or `no press` (button and dimmer sensors). After each `motion detected` advertisement or `button/dimmer press`, the timer starts counting down again. Setting this option to 0 seconds will turn this resetting behavior off.
+
    Note that motion sensors also sends advertisements themselves that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. For button and dimmer sensors, it is advised to set the `reset_timer` to 1 second. Default value: 35
 
 ```yaml
