@@ -8,7 +8,6 @@ _LOGGER = logging.getLogger(__name__)
 def decode_temps(packet_value: int) -> float:
     """Decode potential negative temperatures."""
     # https://github.com/Thrilleratplay/GoveeWatcher/issues/2
-    print(packet_value / 10000)
     if packet_value & 0x800000:
         return float((packet_value ^ 0x800000) / -100)
     return float(packet_value / 10000)
