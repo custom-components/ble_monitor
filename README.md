@@ -1,7 +1,8 @@
 # Passive BLE Monitor integration
 
-### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Brifit, Ruuvitag and iNode sensors and device tracking
+### BLE Monitor for Xiaomi MiBeacon, Xiaomi Scale, Qingping, ATC, Govee, Kegtron, Thermoplus, Brifit, Ruuvitag and iNode sensors and device tracking
 
+### Table of content
 <!-- TOC -->
 
 - [INTRODUCTION](#introduction)
@@ -442,6 +443,7 @@ Credits and big thanks should be given to:
 
 - [@Magalex](https://community.home-assistant.io/u/Magalex) and [@Ernst](https://community.home-assistant.io/u/Ernst) for the component creation, development, and support.
 - [@koying](https://github.com/koying) for implementing the configuration in the user interface.
+- [@Thrilleratplay](https://github.com/Thrilleratplay) for the Govee sensor support
 - [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) for the idea and the first code.
 
 ## FORUM
