@@ -26,7 +26,7 @@ def ble_parser(self, data):
     try:
         adpayload_size = data[adpayload_start - 1]
     except IndexError:
-        return None
+        return None, None
     # check for BTLE msg size
     msg_length = data[2] + 3
     if (
@@ -34,7 +34,7 @@ def ble_parser(self, data):
             adpayload_start + adpayload_size + (0 if is_ext_packet else 1)
         )
     ):
-        return None
+        return None, None
     # extract RSSI byte
     rssi_index = 18 if is_ext_packet else msg_length - 1
     rssi = data[rssi_index]
