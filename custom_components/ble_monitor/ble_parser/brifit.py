@@ -18,7 +18,6 @@ def parse_brifit(self, data, source_mac, rssi):
 
         brifit_mac = data[6:12]
         xvalue = data[12:19]
-        print(xvalue.hex())
         (volt, temp, humi, batt) = unpack(">hHHB", xvalue)
         result = {
             "temperature": temp / 100,

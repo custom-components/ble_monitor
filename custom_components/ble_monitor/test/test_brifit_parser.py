@@ -30,7 +30,6 @@ class TestBrifit(unittest.TestCase):
 
     @classmethod
     def setUpClass(TestBrifit):
-        # cls.attribute1 = some_expensive_computation()
         TestBrifit.lpacket_ids = {}
         TestBrifit.movements_list = {}
         TestBrifit.adv_priority = {}
