@@ -9,5 +9,17 @@
     "python.linting.pydocstyleArgs": ["--max-line-length=120"],
     "python.linting.pylintEnabled": true,
     "python.linting.pycodestyleEnabled": true,
-    "python.linting.pycodestyleArgs": ["--max-line-length=120"]
+    "python.linting.pycodestyleArgs": [
+        "--max-line-length=120"
+    ],
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./custom_components",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.unittestEnabled": true
 }
