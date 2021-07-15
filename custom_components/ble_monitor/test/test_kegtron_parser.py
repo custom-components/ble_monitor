@@ -1,41 +1,18 @@
 """The tests for the kegtron ble_parser."""
-import importlib
-from pathlib import Path
 import unittest
-import sys
-
-
-def import_parents(level=1):
-    global __package__
-    file = Path(__file__).resolve()
-    parent, top = file.parent, file.parents[level]
-
-    sys.path.append(str(top))
-    try:
-        sys.path.remove(str(parent))
-    except ValueError:
-        pass
-
-    __package__ = '.'.join(parent.parts[len(top.parts):])
-    importlib.import_module(__package__)
-
-
-if __name__ == '__main__' and __package__ is None:
-    import_parents(level=2)
-
 from ble_monitor.ble_parser import ble_parser
 
 
 class TestKegtron(unittest.TestCase):
 
     @classmethod
-    def setUpClass(TestKegtron):
-        TestKegtron.lpacket_ids = {}
-        TestKegtron.movements_list = {}
-        TestKegtron.adv_priority = {}
-        TestKegtron.trackerlist = []
-        TestKegtron.report_unknown = "other"
-        TestKegtron.discovery = True
+    def setUpClass(cls):
+        cls.lpacket_ids = {}
+        cls.movements_list = {}
+        cls.adv_priority = {}
+        cls.trackerlist = []
+        cls.report_unknown = "other"
+        cls.discovery = True
 
     def test_kegtron_kt100(self):
         """Test kegtron parser for KT-100."""

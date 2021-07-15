@@ -21,10 +21,7 @@ def import_parents(level=1):
 
 if __name__ == '__main__' and __package__ is None:
     import_parents(level=2)
-
-
-if __name__ == "__main__":
-    dir = "../test"
-    suite = unittest.defaultTestLoader.discover(dir, pattern='test_*.py')
+    start_dir = "../test"
+    suite = unittest.defaultTestLoader.discover(start_dir=start_dir, pattern='test_*.py')
     runner = unittest.TextTestRunner()
     runner.run(suite)
