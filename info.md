@@ -3,8 +3,10 @@
 
 # Passive BLE Monitor integration
 
-### BLE Monitor for Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Brifit, Ruuvitag and iNode sensors and device tracking
+### BLE Monitor for Xiaomi MiBeacon, Xiaomi Scale, Qingping, ATC (custom firmware), Govee, Kegtron, Thermoplus, Brifit, Ruuvitag, iNode sensors and Bluetooth device tracking
 
+
+### Table of content
 <!-- TOC -->
 
 - [INTRODUCTION](https://github.com/custom-components/ble_monitor#introduction)
@@ -82,6 +84,13 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtro
 |**T201**|**Brifit Thermometer Hygrometer**<br /><br />Square body, no screen, is also sold under different brands, e.g. Oria. Broadcasts temperature, humidity and battery level, about 80 readings per minute.|![T201](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/T201.jpg)|
 |**Ruuvitag**|**Ruuvitag**<br /><br />Round body. Broadcasts temperature, humidity, air pressure, battery voltage, battery level, motion and acceleration. If some of these sensors are not updating, make sure you use the latest firmware (v5). `motion detected` is reported in HA when the motion counter is increased between two advertisements. You can use the [reset_timer](#reset_timer) option to set the time after which the motion sensor will return to `motion clear`, but it might be overruled by the advertisements from the sensor. This device has not been tested yet, please confirm if it is working by reporting your findings [here](https://github.com/custom-components/ble_monitor/issues/410).|![ruuvitag](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/ruuvitag.jpg)|
 |**iNode Energy Meter**|**iNode Energy Meter**<br /><br />Energy meter based on pulse measuring. Broadcasts energy, power, battery and voltage. Energy and power are calculated based on the formula's as given in the [documentation](https://docs.google.com/document/d/1hcBpZ1RSgHRL6wu4SlTq2bvtKSL5_sFjXMu_HRyWZiQ/edit#heading=h.l38j4be9ejx7). The `constant` factor that is used for these calculations as well as the light level are given in the energy sensor attributes. Advertisements are broadcasted every 1 a 2 seconds, but the measurement data is only changed once a minute.|![iNode_Energy_Meter](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/iNode_Energy_Meter.png)|
+| **H5051** |**Govee H5051 Thermometer Hygrometer (BLE only)**<br/><br/>Oval body, LCD screen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5051](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Govee_H5051.jpg)|
+| **H5072** |**Govee H5075 Thermometer Hygrometer**<br/><br/>Oval body, LCD screen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5072](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Govee_H5072.jpg)|
+| **H5074** |**Govee H5074 Thermometer Hygrometer**<br/><br/>Square body, no screen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5074](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Govee_H5074.jpg)|
+| **H5075** |**Govee H5075 Thermometer Hygrometer**<br/><br/>Rounded square body, LCD screen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5075](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Govee_H5075.jpg)|
+| **H5101, H5102** |**Govee H5101/Govee H5102 Thermometer Hygrometer**<br/><br/>Rounded square body, LCD screen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5101/H5102](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Govee_H5101_H5102.jpg)|
+| **H5177** |**Govee H5177 Thermometer Hygrometer**<br/><br/>Rounded square body, Backlight LCD Touchscreen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5177](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Govee_H5177.jpg)|
+| **H5179** |**Govee H5179 Thermometer Hygrometer (BLE only)**<br/><br/>Square body, no screen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5179](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Govee_H5179.png)|
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
@@ -430,6 +439,7 @@ Credits and big thanks should be given to:
 
 - [@Magalex](https://community.home-assistant.io/u/Magalex) and [@Ernst](https://community.home-assistant.io/u/Ernst) for the component creation, development, and support.
 - [@koying](https://github.com/koying) for implementing the configuration in the user interface.
+- [@Thrilleratplay](https://github.com/Thrilleratplay) for the Govee sensor support
 - [@tsymbaliuk](https://community.home-assistant.io/u/tsymbaliuk) for the idea and the first code.
 
 ## FORUM
