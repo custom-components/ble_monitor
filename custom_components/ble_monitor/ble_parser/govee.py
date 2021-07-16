@@ -5,6 +5,14 @@ from struct import unpack
 _LOGGER = logging.getLogger(__name__)
 
 
+def decode_temps(packet_value: int) -> float:
+    """Decode potential negative temperatures."""
+    # https://github.com/Thrilleratplay/GoveeWatcher/issues/2
+    if packet_value & 0x800000:
+        return float((packet_value ^ 0x800000) / -100)
+    return float(packet_value / 10000)
+
+
 def parse_govee(self, data, source_mac, rssi):
     # check for adstruc length
     msg_length = len(data)
@@ -12,11 +20,30 @@ def parse_govee(self, data, source_mac, rssi):
     govee_mac = source_mac
     device_id = (data[3] << 8) | data[2]
     result = {"firmware": firmware}
-    if msg_length == 11 and device_id == 0xEC88:
-        device_type = "H5074"
+    if msg_length == 10 and device_id == 0xEC88:
+        device_type = "H5072/H5075"
+        packet_5072_5075 = data[5:8].hex()
+        packet = int(packet_5072_5075, 16)
+        temp = decode_temps(packet)
+        humi = float((packet % 1000) / 10)
+        batt = int(data[8])
+        result.update({"temperature": temp, "humidity": humi, "battery": batt})
+    elif msg_length == 10 and device_id == 0x0001:
+        device_type = "H5101/H5102/H5177"
+        packet_5101_5102 = data[6:9].hex()
+        packet = int(packet_5101_5102, 16)
+        temp = decode_temps(packet)
+        humi = float((packet % 1000) / 10)
+        batt = int(data[9])
+        result.update({"temperature": temp, "humidity": humi, "battery": batt})
+    elif msg_length == 11 and device_id == 0xEC88:
+        device_type = "H5051/H5074"
         (temp, humi, batt) = unpack("<hHB", data[5:10])
         result.update({"temperature": temp / 100, "humidity": humi / 100, "battery": batt})
-    # Other govee devices to be added here
+    elif msg_length == 11 and device_id == 0x8801:
+        device_type = "H5179"
+        (temp, humi, batt) = unpack("<hHB", data[2:7])
+        result.update({"temperature": temp / 100, "humidity": humi / 100, "battery": batt})
     else:
         if self.report_unknown == "Govee":
             _LOGGER.info(
