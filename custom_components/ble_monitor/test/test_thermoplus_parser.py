@@ -1,18 +1,18 @@
 """The tests for the Thermoplus ble_parser."""
-import unittest
+import pytest
 from ble_monitor.ble_parser import ble_parser
 
 
-class TestThermoplus(unittest.TestCase):
+class TestThermoplus:
 
-    @classmethod
-    def setUpClass(cls):
-        cls.lpacket_ids = {}
-        cls.movements_list = {}
-        cls.adv_priority = {}
-        cls.trackerlist = []
-        cls.report_unknown = "other"
-        cls.discovery = True
+    @pytest.fixture(autouse=True)
+    def _init_ble_monitor(self):
+        self.lpacket_ids = {}
+        self.movements_list = {}
+        self.adv_priority = {}
+        self.trackerlist = []
+        self.report_unknown = "other"
+        self.discovery = True
 
     def test_thermoplus_smart_hygrometer(self):
         """Test thermoplus Smart hygrometer parser."""
@@ -20,16 +20,16 @@ class TestThermoplus(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Thermoplus")
-        self.assertEqual(sensor_msg["type"], "Smart hygrometer")
-        self.assertEqual(sensor_msg["mac"], "068800001627")
-        self.assertEqual(sensor_msg["packet"], "no packet id")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 24.9375)
-        self.assertEqual(sensor_msg["humidity"], 58.0625)
-        self.assertEqual(sensor_msg["voltage"], 3.132)
-        self.assertEqual(sensor_msg["battery"], 100)
-        self.assertEqual(sensor_msg["rssi"], -56)
+        assert sensor_msg["firmware"] == "Thermoplus"
+        assert sensor_msg["type"] == "Smart hygrometer"
+        assert sensor_msg["mac"] == "068800001627"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 24.9375
+        assert sensor_msg["humidity"] == 58.0625
+        assert sensor_msg["voltage"] == 3.132
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["rssi"] == -56
 
     def test_thermoplus_Lanyard_mini_hygrometer(self):
         """Test thermoplus Lanyard/mini hygrometer parser."""
@@ -37,17 +37,14 @@ class TestThermoplus(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Thermoplus")
-        self.assertEqual(sensor_msg["type"], "Lanyard/mini hygrometer")
-        self.assertEqual(sensor_msg["mac"], "70F100000EDC")
-        self.assertEqual(sensor_msg["packet"], "no packet id")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 24.0625)
-        self.assertEqual(sensor_msg["humidity"], 45.4375)
-        self.assertEqual(sensor_msg["voltage"], 2.922)
-        self.assertEqual(sensor_msg["battery"], 92.2)
-        self.assertEqual(sensor_msg["rssi"], -78)
+        assert sensor_msg["firmware"] == "Thermoplus"
+        assert sensor_msg["type"] == "Lanyard/mini hygrometer"
+        assert sensor_msg["mac"] == "70F100000EDC"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 24.0625
+        assert sensor_msg["humidity"] == 45.4375
+        assert sensor_msg["voltage"] == 2.922
+        assert sensor_msg["battery"] == 92.2
+        assert sensor_msg["rssi"] == -78
 
-
-if __name__ == '__main__':
-    unittest.main()

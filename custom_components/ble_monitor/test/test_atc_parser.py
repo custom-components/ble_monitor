@@ -1,18 +1,18 @@
 """The tests for the ATC ble_parser."""
-import unittest
+import pytest
 from ble_monitor.ble_parser import ble_parser
 
 
-class TestATC(unittest.TestCase):
+class TestATC:
 
-    @classmethod
-    def setUpClass(cls):
-        cls.lpacket_ids = {}
-        cls.movements_list = {}
-        cls.adv_priority = {}
-        cls.trackerlist = []
-        cls.report_unknown = "other"
-        cls.discovery = True
+    @pytest.fixture(autouse=True)
+    def _init_ble_monitor(self):
+        self.lpacket_ids = {}
+        self.movements_list = {}
+        self.adv_priority = {}
+        self.trackerlist = []
+        self.report_unknown = "other"
+        self.discovery = True
 
     def test_atc_atc1441(self):
         """Test ATC parser for ATC 1441 format."""
@@ -20,16 +20,16 @@ class TestATC(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "ATC (Atc1441)")
-        self.assertEqual(sensor_msg["type"], "ATC")
-        self.assertEqual(sensor_msg["mac"], "A4C1380283F4")
-        self.assertEqual(sensor_msg["packet"], 25)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 16.2)
-        self.assertEqual(sensor_msg["humidity"], 47)
-        self.assertEqual(sensor_msg["voltage"], 3.064)
-        self.assertEqual(sensor_msg["battery"], 95)
-        self.assertEqual(sensor_msg["rssi"], -33)
+        assert sensor_msg["firmware"] == "ATC (Atc1441)"
+        assert sensor_msg["type"] == "ATC"
+        assert sensor_msg["mac"] == "A4C1380283F4"
+        assert sensor_msg["packet"] == 25
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 16.2
+        assert sensor_msg["humidity"] == 47
+        assert sensor_msg["voltage"] == 3.064
+        assert sensor_msg["battery"] == 95
+        assert sensor_msg["rssi"] == -33
 
     def test_atc_atc1441_ext(self):
         """Test ATC parser for ATC 1441 format (extended advertisement)."""
@@ -37,16 +37,16 @@ class TestATC(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "ATC (Atc1441)")
-        self.assertEqual(sensor_msg["type"], "ATC")
-        self.assertEqual(sensor_msg["mac"], "A4C138BC7C4E")
-        self.assertEqual(sensor_msg["packet"], 32)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 25.8)
-        self.assertEqual(sensor_msg["humidity"], 40)
-        self.assertEqual(sensor_msg["voltage"], 2.919)
-        self.assertEqual(sensor_msg["battery"], 79)
-        self.assertEqual(sensor_msg["rssi"], -71)
+        assert sensor_msg["firmware"] == "ATC (Atc1441)"
+        assert sensor_msg["type"] == "ATC"
+        assert sensor_msg["mac"] == "A4C138BC7C4E"
+        assert sensor_msg["packet"] == 32
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 25.8
+        assert sensor_msg["humidity"] == 40
+        assert sensor_msg["voltage"] == 2.919
+        assert sensor_msg["battery"] == 79
+        assert sensor_msg["rssi"] == -71
 
     def test_atc_custom(self):
         """Test ATC parser for ATC custom format."""
@@ -54,16 +54,16 @@ class TestATC(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "ATC (Custom)")
-        self.assertEqual(sensor_msg["type"], "ATC")
-        self.assertEqual(sensor_msg["mac"], "A4C1380283F4")
-        self.assertEqual(sensor_msg["packet"], 247)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 17.05)
-        self.assertEqual(sensor_msg["humidity"], 44.57)
-        self.assertEqual(sensor_msg["voltage"], 2.998)
-        self.assertEqual(sensor_msg["battery"], 88)
-        self.assertEqual(sensor_msg["rssi"], -34)
+        assert sensor_msg["firmware"] == "ATC (Custom)"
+        assert sensor_msg["type"] == "ATC"
+        assert sensor_msg["mac"] == "A4C1380283F4"
+        assert sensor_msg["packet"] == 247
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 17.05
+        assert sensor_msg["humidity"] == 44.57
+        assert sensor_msg["voltage"] == 2.998
+        assert sensor_msg["battery"] == 88
+        assert sensor_msg["rssi"] == -34
 
     def test_atc_custom_v2_9(self):
         """Test ATC parser for ATC custom format (firmware version 2.9 and above)."""
@@ -71,16 +71,16 @@ class TestATC(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "ATC (Custom)")
-        self.assertEqual(sensor_msg["type"], "ATC")
-        self.assertEqual(sensor_msg["mac"], "A4C1388D18B2")
-        self.assertEqual(sensor_msg["packet"], 32)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 20.91)
-        self.assertEqual(sensor_msg["humidity"], 44.96)
-        self.assertEqual(sensor_msg["voltage"], 2.807)
-        self.assertEqual(sensor_msg["battery"], 67)
-        self.assertEqual(sensor_msg["rssi"], -62)
+        assert sensor_msg["firmware"] == "ATC (Custom)"
+        assert sensor_msg["type"] == "ATC"
+        assert sensor_msg["mac"] == "A4C1388D18B2"
+        assert sensor_msg["packet"] == 32
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 20.91
+        assert sensor_msg["humidity"] == 44.96
+        assert sensor_msg["voltage"] == 2.807
+        assert sensor_msg["battery"] == 67
+        assert sensor_msg["rssi"] == -62
 
     def test_atc_custom_ext(self):
         """Test ATC parser for ATC custom format (extended format)."""
@@ -88,16 +88,16 @@ class TestATC(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "ATC (Custom)")
-        self.assertEqual(sensor_msg["type"], "ATC")
-        self.assertEqual(sensor_msg["mac"], "A4C13863378B")
-        self.assertEqual(sensor_msg["packet"], 18)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 25.1)
-        self.assertEqual(sensor_msg["humidity"], 41.15)
-        self.assertEqual(sensor_msg["voltage"], 2.943)
-        self.assertEqual(sensor_msg["battery"], 82)
-        self.assertEqual(sensor_msg["rssi"], -70)
+        assert sensor_msg["firmware"] == "ATC (Custom)"
+        assert sensor_msg["type"] == "ATC"
+        assert sensor_msg["mac"] == "A4C13863378B"
+        assert sensor_msg["packet"] == 18
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 25.1
+        assert sensor_msg["humidity"] == 41.15
+        assert sensor_msg["voltage"] == 2.943
+        assert sensor_msg["battery"] == 82
+        assert sensor_msg["rssi"] == -70
 
     def test_atc_custom_encrypted(self):
         """Test ATC parser for ATC custom format (encrypted)."""
@@ -115,17 +115,13 @@ class TestATC(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "ATC (Custom encrypted)")
-        self.assertEqual(sensor_msg["type"], "ATC")
-        self.assertEqual(sensor_msg["mac"], "A4C1388D18B2")
-        self.assertEqual(sensor_msg["packet"], 17)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 23.45)
-        self.assertEqual(sensor_msg["humidity"], 41.73)
-        self.assertEqual(sensor_msg["voltage"], 2.749)
-        self.assertEqual(sensor_msg["battery"], 61)
-        self.assertEqual(sensor_msg["rssi"], -30)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert sensor_msg["firmware"] == "ATC (Custom encrypted)"
+        assert sensor_msg["type"] == "ATC"
+        assert sensor_msg["mac"] == "A4C1388D18B2"
+        assert sensor_msg["packet"] == 17
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 23.45
+        assert sensor_msg["humidity"] == 41.73
+        assert sensor_msg["voltage"] == 2.749
+        assert sensor_msg["battery"] == 61
+        assert sensor_msg["rssi"] == -30

@@ -1,18 +1,18 @@
 """The tests for the Xiaomi ble_parser."""
-import unittest
+import pytest
 from ble_monitor.ble_parser import ble_parser
 
 
-class TestXiaomi(unittest.TestCase):
+class TestXiaomi:
 
-    @classmethod
-    def setUpClass(cls):
-        cls.lpacket_ids = {}
-        cls.movements_list = {}
-        cls.adv_priority = {}
-        cls.trackerlist = []
-        cls.report_unknown = "other"
-        cls.discovery = True
+    @pytest.fixture(autouse=True)
+    def _init_ble_monitor(self):
+        self.lpacket_ids = {}
+        self.movements_list = {}
+        self.adv_priority = {}
+        self.trackerlist = []
+        self.report_unknown = "other"
+        self.discovery = True
 
     def test_Xiaomi_LYWSDCGQ(self):
         """Test Xiaomi parser for LYWSDCGQ."""
@@ -26,14 +26,14 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V2)")
-        self.assertEqual(sensor_msg["type"], "LYWSDCGQ")
-        self.assertEqual(sensor_msg["mac"], "582D34359321")
-        self.assertEqual(sensor_msg["packet"], 218)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 25.4)
-        self.assertEqual(sensor_msg["humidity"], 58.4)
-        self.assertEqual(sensor_msg["rssi"], -60)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V2)"
+        assert sensor_msg["type"] == "LYWSDCGQ"
+        assert sensor_msg["mac"] == "582D34359321"
+        assert sensor_msg["packet"] == 218
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 25.4
+        assert sensor_msg["humidity"] == 58.4
+        assert sensor_msg["rssi"] == -60
 
     def test_Xiaomi_CGG1(self):
         """Test Xiaomi parser for CGG1."""
@@ -55,13 +55,13 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V5 encrypted)")
-        self.assertEqual(sensor_msg["type"], "CGDK2")
-        self.assertEqual(sensor_msg["mac"], "582D34122089")
-        self.assertEqual(sensor_msg["packet"], 7)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 22.6)
-        self.assertEqual(sensor_msg["rssi"], -81)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "CGDK2"
+        assert sensor_msg["mac"] == "582D34122089"
+        assert sensor_msg["packet"] == 7
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 22.6
+        assert sensor_msg["rssi"] == -81
 
 
     def test_Xiaomi_LYWSD02(self):
@@ -79,14 +79,14 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V3)")
-        self.assertEqual(sensor_msg["type"], "LYWSD03MMC")
-        self.assertEqual(sensor_msg["mac"], "A4C138B4944C")
-        self.assertEqual(sensor_msg["packet"], 3)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 27.2)
-        self.assertEqual(sensor_msg["humidity"], 49.0)
-        self.assertEqual(sensor_msg["rssi"], -49)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
+        assert sensor_msg["type"] == "LYWSD03MMC"
+        assert sensor_msg["mac"] == "A4C138B4944C"
+        assert sensor_msg["packet"] == 3
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 27.2
+        assert sensor_msg["humidity"] == 49.0
+        assert sensor_msg["rssi"] == -49
 
     def test_Xiaomi_LYWSD03MMC_encrypted(self):
         """Test Xiaomi parser for LYWSD03MMC with encryption."""
@@ -105,13 +105,13 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V5 encrypted)")
-        self.assertEqual(sensor_msg["type"], "LYWSD03MMC")
-        self.assertEqual(sensor_msg["mac"], "A4C1380283F4")
-        self.assertEqual(sensor_msg["packet"], 80)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["humidity"], 46.7)
-        self.assertEqual(sensor_msg["rssi"], -30)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "LYWSD03MMC"
+        assert sensor_msg["mac"] == "A4C1380283F4"
+        assert sensor_msg["packet"] == 80
+        assert sensor_msg["data"]
+        assert sensor_msg["humidity"] == 46.7
+        assert sensor_msg["rssi"] == -30
 
     def test_Xiaomi_CGC1(self):
         """Test Xiaomi parser for CGC1."""
@@ -146,12 +146,12 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V2)")
-        self.assertEqual(sensor_msg["type"], "HHCCJCY01")
-        self.assertEqual(sensor_msg["mac"], "C47C8D6B4FF3")
-        self.assertEqual(sensor_msg["packet"], 18)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["rssi"], -87)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V2)"
+        assert sensor_msg["type"] == "HHCCJCY01"
+        assert sensor_msg["mac"] == "C47C8D6B4FF3"
+        assert sensor_msg["packet"] == 18
+        assert sensor_msg["data"]
+        assert sensor_msg["rssi"] == -87
 
     def test_Xiaomi_GCLS002(self):
         """Test Xiaomi parser for GCLS002."""
@@ -192,14 +192,14 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V3)")
-        self.assertEqual(sensor_msg["type"], "MUE4094RT")
-        self.assertEqual(sensor_msg["mac"], "DE70E8B2390C")
-        self.assertEqual(sensor_msg["packet"], 36)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["motion"], 1)
-        self.assertEqual(sensor_msg["motion timer"], 1)
-        self.assertEqual(sensor_msg["rssi"], -58)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
+        assert sensor_msg["type"] == "MUE4094RT"
+        assert sensor_msg["mac"] == "DE70E8B2390C"
+        assert sensor_msg["packet"] == 36
+        assert sensor_msg["data"]
+        assert sensor_msg["motion"] == 1
+        assert sensor_msg["motion timer"] == 1
+        assert sensor_msg["rssi"] == -58
 
     def test_Xiaomi_RTCGQ02LM(self):
         """Test Xiaomi parser for RTCGQ02LM with wrong encryption key."""
@@ -218,12 +218,12 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V5 encrypted)")
-        self.assertEqual(sensor_msg["type"], "RTCGQ02LM")
-        self.assertEqual(sensor_msg["mac"], "54EF44E0C40F")
-        self.assertEqual(sensor_msg["packet"], 23)
-        self.assertFalse(sensor_msg["data"])
-        self.assertEqual(sensor_msg["rssi"], -69)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "RTCGQ02LM"
+        assert sensor_msg["mac"] == "54EF44E0C40F"
+        assert sensor_msg["packet"] == 23
+        assert sensor_msg["data"] is False
+        assert sensor_msg["rssi"] == -69
 
     def test_Xiaomi_CGPR1(self):
         """Test Xiaomi parser for CGPR1."""
@@ -240,14 +240,14 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V2)")
-        self.assertEqual(sensor_msg["type"], "MMC-T201-1")
-        self.assertEqual(sensor_msg["mac"], "0081F9DD6FC1")
-        self.assertEqual(sensor_msg["packet"], 111)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 36.87199806168224)
-        self.assertEqual(sensor_msg["battery"], 81)
-        self.assertEqual(sensor_msg["rssi"], -79)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V2)"
+        assert sensor_msg["type"] == "MMC-T201-1"
+        assert sensor_msg["mac"] == "0081F9DD6FC1"
+        assert sensor_msg["packet"] == 111
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 36.87199806168224
+        assert sensor_msg["battery"] == 81
+        assert sensor_msg["rssi"] == -79
 
     def test_Xiaomi_M1S_T500(self):
         """Test Xiaomi parser for M1S-T500."""
@@ -261,13 +261,13 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V3)")
-        self.assertEqual(sensor_msg["type"], "M1S-T500")
-        self.assertEqual(sensor_msg["mac"], "E67143175B11")
-        self.assertEqual(sensor_msg["packet"], 55)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["toothbrush mode"], 3)
-        self.assertEqual(sensor_msg["rssi"], -36)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
+        assert sensor_msg["type"] == "M1S-T500"
+        assert sensor_msg["mac"] == "E67143175B11"
+        assert sensor_msg["packet"] == 55
+        assert sensor_msg["data"]
+        assert sensor_msg["toothbrush mode"] == 3
+        assert sensor_msg["rssi"] == -36
 
     def test_Xiaomi_YLAI003(self):
         """Test Xiaomi parser for YLAI003."""
@@ -301,14 +301,14 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V3 encrypted)")
-        self.assertEqual(sensor_msg["type"], "YLKG07YL/YLKG08YL")
-        self.assertEqual(sensor_msg["mac"], "F82441C5988B")
-        self.assertEqual(sensor_msg["packet"], 210)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["dimmer"], 1)
-        self.assertEqual(sensor_msg["button"], "short press")
-        self.assertEqual(sensor_msg["rssi"], -34)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3 encrypted)"
+        assert sensor_msg["type"] == "YLKG07YL/YLKG08YL"
+        assert sensor_msg["mac"] == "F82441C5988B"
+        assert sensor_msg["packet"] == 210
+        assert sensor_msg["data"]
+        assert sensor_msg["dimmer"] == 1
+        assert sensor_msg["button"] == "short press"
+        assert sensor_msg["rssi"] == -34
 
     def test_Xiaomi_YLKG07YL_rotate(self):
         """Test Xiaomi parser for YLKG07YL, YLKG08YL while rotating dimmer."""
@@ -327,18 +327,14 @@ class TestXiaomi(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Xiaomi (MiBeacon V3 encrypted)")
-        self.assertEqual(sensor_msg["type"], "YLKG07YL/YLKG08YL")
-        self.assertEqual(sensor_msg["mac"], "F82441C5988B")
-        self.assertEqual(sensor_msg["packet"], 54)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["dimmer"], 1)
-        self.assertEqual(sensor_msg["button"], "rotate left")
-        self.assertEqual(sensor_msg["rssi"], -17)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3 encrypted)"
+        assert sensor_msg["type"] == "YLKG07YL/YLKG08YL"
+        assert sensor_msg["mac"] == "F82441C5988B"
+        assert sensor_msg["packet"] == 54
+        assert sensor_msg["data"]
+        assert sensor_msg["dimmer"] == 1
+        assert sensor_msg["button"] == "rotate left"
+        assert sensor_msg["rssi"] == -17
 
     def test_Xiaomi_K9B(self):
         """Test Xiaomi parser for K9B."""
-
-
-if __name__ == '__main__':
-    unittest.main()

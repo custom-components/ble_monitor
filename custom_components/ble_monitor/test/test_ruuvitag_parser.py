@@ -1,18 +1,18 @@
 """The tests for the Ruuvitag ble_parser."""
-import unittest
+import pytest
 from ble_monitor.ble_parser import ble_parser
 
 
-class TestRuuviTag(unittest.TestCase):
+class TestRuuviTag:
 
-    @classmethod
-    def setUpClass(cls):
-        cls.lpacket_ids = {}
-        cls.movements_list = {}
-        cls.adv_priority = {}
-        cls.trackerlist = []
-        cls.report_unknown = "other"
-        cls.discovery = True
+    @pytest.fixture(autouse=True)
+    def _init_ble_monitor(self):
+        self.lpacket_ids = {}
+        self.movements_list = {}
+        self.adv_priority = {}
+        self.trackerlist = []
+        self.report_unknown = "other"
+        self.discovery = True
 
     def test_ruuvitag_v2(self):
         """Test ruuvitag v2 parser."""
@@ -20,15 +20,15 @@ class TestRuuviTag(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Ruuvitag V2")
-        self.assertEqual(sensor_msg["type"], "Ruuvitag")
-        self.assertEqual(sensor_msg["mac"], "F4A574891657")
-        self.assertEqual(sensor_msg["packet"], "no packet id")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 24.0)
-        self.assertEqual(sensor_msg["humidity"], 30.0)
-        self.assertEqual(sensor_msg["pressure"], 995.03)
-        self.assertEqual(sensor_msg["rssi"], -51)
+        assert sensor_msg["firmware"] == "Ruuvitag V2"
+        assert sensor_msg["type"] == "Ruuvitag"
+        assert sensor_msg["mac"] == "F4A574891657"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 24.0
+        assert sensor_msg["humidity"] == 30.0
+        assert sensor_msg["pressure"] == 995.03
+        assert sensor_msg["rssi"] == -51
 
     def test_ruuvitag_v3(self):
         """Test ruuvitag v3 parser."""
@@ -36,21 +36,21 @@ class TestRuuviTag(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Ruuvitag V3")
-        self.assertEqual(sensor_msg["type"], "Ruuvitag")
-        self.assertEqual(sensor_msg["mac"], "CDD4FA527AF2")
-        self.assertEqual(sensor_msg["packet"], "no packet id")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 26.3)
-        self.assertEqual(sensor_msg["humidity"], 20.5)
-        self.assertEqual(sensor_msg["pressure"], 1027.66)
-        self.assertEqual(sensor_msg["acceleration"], 2118.6958252660997)
-        self.assertEqual(sensor_msg["acceleration x"], -1000)
-        self.assertEqual(sensor_msg["acceleration y"], -1726)
-        self.assertEqual(sensor_msg["acceleration z"], 714)
-        self.assertEqual(sensor_msg["voltage"], 2.899)
-        self.assertEqual(sensor_msg["battery"], 89.9)
-        self.assertEqual(sensor_msg["rssi"], -98)
+        assert sensor_msg["firmware"] == "Ruuvitag V3"
+        assert sensor_msg["type"] == "Ruuvitag"
+        assert sensor_msg["mac"] == "CDD4FA527AF2"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 26.3
+        assert sensor_msg["humidity"] == 20.5
+        assert sensor_msg["pressure"] == 1027.66
+        assert sensor_msg["acceleration"] == 2118.6958252660997
+        assert sensor_msg["acceleration x"] == -1000
+        assert sensor_msg["acceleration y"] == -1726
+        assert sensor_msg["acceleration z"] == 714
+        assert sensor_msg["voltage"] == 2.899
+        assert sensor_msg["battery"] == 89.9
+        assert sensor_msg["rssi"] == -98
 
     def test_ruuvitag_v4(self):
         """Test ruuvitag v4 parser."""
@@ -58,15 +58,15 @@ class TestRuuviTag(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Ruuvitag V4")
-        self.assertEqual(sensor_msg["type"], "Ruuvitag")
-        self.assertEqual(sensor_msg["mac"], "D01ED337C4C4")
-        self.assertEqual(sensor_msg["packet"], "no packet id")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 24.0)
-        self.assertEqual(sensor_msg["humidity"], 50.0)
-        self.assertEqual(sensor_msg["pressure"], 1019.0)
-        self.assertEqual(sensor_msg["rssi"], -104)
+        assert sensor_msg["firmware"] == "Ruuvitag V4"
+        assert sensor_msg["type"] == "Ruuvitag"
+        assert sensor_msg["mac"] == "D01ED337C4C4"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 24.0
+        assert sensor_msg["humidity"] == 50.0
+        assert sensor_msg["pressure"] == 1019.0
+        assert sensor_msg["rssi"] == -104
 
     def test_ruuvitag_v5(self):
         """Test ruuvitag v5 parser."""
@@ -81,25 +81,21 @@ class TestRuuviTag(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Ruuvitag V5")
-        self.assertEqual(sensor_msg["type"], "Ruuvitag")
-        self.assertEqual(sensor_msg["mac"], "CDD4FA527AF2")
-        self.assertEqual(sensor_msg["packet"], 10675)
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 25.01)
-        self.assertEqual(sensor_msg["humidity"], 61.04)
-        self.assertEqual(sensor_msg["pressure"], 1004.16)
-        self.assertEqual(sensor_msg["acceleration"], 1044.9956937710317)
-        self.assertEqual(sensor_msg["acceleration x"], -28)
-        self.assertEqual(sensor_msg["acceleration y"], -36)
-        self.assertEqual(sensor_msg["acceleration z"], 1044)
-        self.assertEqual(sensor_msg["voltage"], 3.181)
-        self.assertEqual(sensor_msg["battery"], 100)
-        self.assertEqual(sensor_msg["tx power"], 4)
-        self.assertEqual(sensor_msg["motion"], 1)
-        self.assertEqual(sensor_msg["motion timer"], 1)
-        self.assertEqual(sensor_msg["rssi"], -68)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert sensor_msg["firmware"] == "Ruuvitag V5"
+        assert sensor_msg["type"] == "Ruuvitag"
+        assert sensor_msg["mac"] == "CDD4FA527AF2"
+        assert sensor_msg["packet"] == 10675
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 25.01
+        assert sensor_msg["humidity"] == 61.04
+        assert sensor_msg["pressure"] == 1004.16
+        assert sensor_msg["acceleration"] == 1044.9956937710317
+        assert sensor_msg["acceleration x"] == -28
+        assert sensor_msg["acceleration y"] == -36
+        assert sensor_msg["acceleration z"] == 1044
+        assert sensor_msg["voltage"] == 3.181
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["tx power"] == 4
+        assert sensor_msg["motion"] == 1
+        assert sensor_msg["motion timer"] == 1
+        assert sensor_msg["rssi"] == -68

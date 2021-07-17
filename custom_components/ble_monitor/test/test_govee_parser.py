@@ -1,18 +1,18 @@
 """The tests for the Govee ble_parser."""
-import unittest
+import pytest
 from ble_monitor.ble_parser import ble_parser
 
 
-class TestGovee(unittest.TestCase):
+class TestGovee:
 
-    @classmethod
-    def setUpClass(cls):
-        cls.lpacket_ids = {}
-        cls.movements_list = {}
-        cls.adv_priority = {}
-        cls.trackerlist = []
-        cls.report_unknown = "other"
-        cls.discovery = True
+    @pytest.fixture(autouse=True)
+    def _init_ble_monitor(self):
+        self.lpacket_ids = {}
+        self.movements_list = {}
+        self.adv_priority = {}
+        self.trackerlist = []
+        self.report_unknown = "other"
+        self.discovery = True
 
     def test_Govee_H5074(self):
         """Test Govee H5074 parser."""
@@ -20,15 +20,15 @@ class TestGovee(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Govee")
-        self.assertEqual(sensor_msg["type"], "H5051/H5074")
-        self.assertEqual(sensor_msg["mac"], "E0121D61BBAA")
-        self.assertEqual(sensor_msg["packet"], "no packet id")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 19.28)
-        self.assertEqual(sensor_msg["humidity"], 44.92)
-        self.assertEqual(sensor_msg["battery"], 100)
-        self.assertEqual(sensor_msg["rssi"], -90)
+        assert sensor_msg["firmware"] == "Govee"
+        assert sensor_msg["type"] == "H5051/H5074"
+        assert sensor_msg["mac"] == "E0121D61BBAA"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 19.28
+        assert sensor_msg["humidity"] == 44.92
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["rssi"] == -90
 
     def test_Govee_H5102(self):
         """Test Govee H5102 parser."""
@@ -36,15 +36,15 @@ class TestGovee(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Govee")
-        self.assertEqual(sensor_msg["type"], "H5101/H5102/H5177")
-        self.assertEqual(sensor_msg["mac"], "E1121D61BBAA")
-        self.assertEqual(sensor_msg["packet"], "no packet id")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 24.8577)
-        self.assertEqual(sensor_msg["humidity"], 57.7)
-        self.assertEqual(sensor_msg["battery"], 100)
-        self.assertEqual(sensor_msg["rssi"], -86)
+        assert sensor_msg["firmware"] == "Govee"
+        assert sensor_msg["type"] == "H5101/H5102/H5177"
+        assert sensor_msg["mac"] == "E1121D61BBAA"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 24.8577
+        assert sensor_msg["humidity"] == 57.7
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["rssi"] == -86
 
     def test_Govee_H5075(self):
         """Test Govee H5075 parser."""
@@ -52,15 +52,15 @@ class TestGovee(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Govee")
-        self.assertEqual(sensor_msg["type"], "H5072/H5075")
-        self.assertEqual(sensor_msg["mac"], "A4C13861BBAA")
-        self.assertEqual(sensor_msg["packet"], "no packet id")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["temperature"], 20.5149)
-        self.assertEqual(sensor_msg["humidity"], 14.9)
-        self.assertEqual(sensor_msg["battery"], 100)
-        self.assertEqual(sensor_msg["rssi"], -86)
+        assert sensor_msg["firmware"] == "Govee"
+        assert sensor_msg["type"] == "H5072/H5075"
+        assert sensor_msg["mac"] == "A4C13861BBAA"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 20.5149
+        assert sensor_msg["humidity"] == 14.9
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["rssi"] == -86
 
 
 if __name__ == '__main__':

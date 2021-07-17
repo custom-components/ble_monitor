@@ -1,18 +1,18 @@
 """The tests for the Mi Scale ble_parser."""
-import unittest
+import pytest
 from ble_monitor.ble_parser import ble_parser
 
 
-class TestMiscale(unittest.TestCase):
+class TestMiscale:
 
-    @classmethod
-    def setUpClass(cls):
-        cls.lpacket_ids = {}
-        cls.movements_list = {}
-        cls.adv_priority = {}
-        cls.trackerlist = []
-        cls.report_unknown = "other"
-        cls.discovery = True
+    @pytest.fixture(autouse=True)
+    def _init_ble_monitor(self):
+        self.lpacket_ids = {}
+        self.movements_list = {}
+        self.adv_priority = {}
+        self.trackerlist = []
+        self.report_unknown = "other"
+        self.discovery = True
 
     def test_miscale_v1(self):
         """Test Mi Scale v1 parser."""
@@ -26,16 +26,16 @@ class TestMiscale(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Mi Scale V1")
-        self.assertEqual(sensor_msg["type"], "Mi Scale V1")
-        self.assertEqual(sensor_msg["mac"], "C8478CC09589")
-        self.assertEqual(sensor_msg["packet"], "a22044b20701010a1a15")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["non-stabilized weight"], 87.2)
-        self.assertEqual(sensor_msg["weight unit"], "kg")
-        self.assertEqual(sensor_msg["weight removed"], 1)
-        self.assertEqual(sensor_msg["stabilized"], 1)
-        self.assertEqual(sensor_msg["rssi"], -59)
+        assert sensor_msg["firmware"] == "Mi Scale V1"
+        assert sensor_msg["type"] == "Mi Scale V1"
+        assert sensor_msg["mac"] == "C8478CC09589"
+        assert sensor_msg["packet"] == "a22044b20701010a1a15"
+        assert sensor_msg["data"]
+        assert sensor_msg["non-stabilized weight"] == 87.2
+        assert sensor_msg["weight unit"] == "kg"
+        assert sensor_msg["weight removed"] == 1
+        assert sensor_msg["stabilized"] == 1
+        assert sensor_msg["rssi"] == -59
 
     def test_miscale_v1_ext(self):
         """Test Mi Scale v1 parser (extended advertisement)."""
@@ -49,16 +49,16 @@ class TestMiscale(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Mi Scale V1")
-        self.assertEqual(sensor_msg["type"], "Mi Scale V1")
-        self.assertEqual(sensor_msg["mac"], "C8478CC09589")
-        self.assertEqual(sensor_msg["packet"], "821400e507040b101708")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["non-stabilized weight"], 0.1)
-        self.assertEqual(sensor_msg["weight unit"], "kg")
-        self.assertEqual(sensor_msg["weight removed"], 1)
-        self.assertEqual(sensor_msg["stabilized"], 0)
-        self.assertEqual(sensor_msg["rssi"], -57)
+        assert sensor_msg["firmware"] == "Mi Scale V1"
+        assert sensor_msg["type"] == "Mi Scale V1"
+        assert sensor_msg["mac"] == "C8478CC09589"
+        assert sensor_msg["packet"] == "821400e507040b101708"
+        assert sensor_msg["data"]
+        assert sensor_msg["non-stabilized weight"] == 0.1
+        assert sensor_msg["weight unit"] == "kg"
+        assert sensor_msg["weight removed"] == 1
+        assert sensor_msg["stabilized"] == 0
+        assert sensor_msg["rssi"] == -57
 
     def test_miscale_v1_ext_weight(self):
         """Test Mi Scale v1 parser (extended advertisement) with stabilized weight."""
@@ -72,17 +72,17 @@ class TestMiscale(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Mi Scale V1")
-        self.assertEqual(sensor_msg["type"], "Mi Scale V1")
-        self.assertEqual(sensor_msg["mac"], "C8478CC09589")
-        self.assertEqual(sensor_msg["packet"], "229e43e507040b101301")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["non-stabilized weight"], 86.55)
-        self.assertEqual(sensor_msg["weight unit"], "kg")
-        self.assertEqual(sensor_msg["weight removed"], 0)
-        self.assertEqual(sensor_msg["stabilized"], 1)
-        self.assertEqual(sensor_msg["weight"], 86.55)
-        self.assertEqual(sensor_msg["rssi"], -70)
+        assert sensor_msg["firmware"] == "Mi Scale V1"
+        assert sensor_msg["type"] == "Mi Scale V1"
+        assert sensor_msg["mac"] == "C8478CC09589"
+        assert sensor_msg["packet"] == "229e43e507040b101301"
+        assert sensor_msg["data"]
+        assert sensor_msg["non-stabilized weight"] == 86.55
+        assert sensor_msg["weight unit"] == "kg"
+        assert sensor_msg["weight removed"] == 0
+        assert sensor_msg["stabilized"] == 1
+        assert sensor_msg["weight"] == 86.55
+        assert sensor_msg["rssi"] == -70
 
     def test_miscale_v2(self):
         """Test Mi Scale v2 parser."""
@@ -96,16 +96,16 @@ class TestMiscale(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Mi Scale V2")
-        self.assertEqual(sensor_msg["type"], "Mi Scale V2")
-        self.assertEqual(sensor_msg["mac"], "DFDE448214EF")
-        self.assertEqual(sensor_msg["packet"], "0204b207010112101a0000a852")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["non-stabilized weight"], 105.8)
-        self.assertEqual(sensor_msg["weight unit"], "kg")
-        self.assertEqual(sensor_msg["weight removed"], 0)
-        self.assertEqual(sensor_msg["stabilized"], 0)
-        self.assertEqual(sensor_msg["rssi"], -82)
+        assert sensor_msg["firmware"] == "Mi Scale V2"
+        assert sensor_msg["type"] == "Mi Scale V2"
+        assert sensor_msg["mac"] == "DFDE448214EF"
+        assert sensor_msg["packet"] == "0204b207010112101a0000a852"
+        assert sensor_msg["data"]
+        assert sensor_msg["non-stabilized weight"] == 105.8
+        assert sensor_msg["weight unit"] == "kg"
+        assert sensor_msg["weight removed"] == 0
+        assert sensor_msg["stabilized"] == 0
+        assert sensor_msg["rssi"] == -82
 
 
     def test_miscale_v2_impedance(self):
@@ -120,18 +120,17 @@ class TestMiscale(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Mi Scale V2")
-        self.assertEqual(sensor_msg["type"], "Mi Scale V2")
-        self.assertEqual(sensor_msg["mac"], "DFDE448214EF")
-        self.assertEqual(sensor_msg["packet"], "02a6b20701011201128c01a852")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["non-stabilized weight"], 105.8)
-        self.assertEqual(sensor_msg["weight unit"], "kg")
-        self.assertEqual(sensor_msg["weight removed"], 1)
-        self.assertEqual(sensor_msg["stabilized"], 1)
-        self.assertEqual(sensor_msg["impedance"], 396)
-        self.assertEqual(sensor_msg["rssi"], -66)
-
+        assert sensor_msg["firmware"] == "Mi Scale V2"
+        assert sensor_msg["type"] == "Mi Scale V2"
+        assert sensor_msg["mac"] == "DFDE448214EF"
+        assert sensor_msg["packet"] == "02a6b20701011201128c01a852"
+        assert sensor_msg["data"]
+        assert sensor_msg["non-stabilized weight"] == 105.8
+        assert sensor_msg["weight unit"] == "kg"
+        assert sensor_msg["weight removed"] == 1
+        assert sensor_msg["stabilized"] == 1
+        assert sensor_msg["impedance"] == 396
+        assert sensor_msg["rssi"] == -66
 
 if __name__ == '__main__':
     unittest.main()

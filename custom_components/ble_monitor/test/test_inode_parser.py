@@ -1,18 +1,18 @@
 """The tests for the iNode ble_parser."""
-import unittest
+import pytest
 from ble_monitor.ble_parser import ble_parser
 
 
-class TestInode(unittest.TestCase):
+class TestInode:
 
-    @classmethod
-    def setUpClass(cls):
-        cls.lpacket_ids = {}
-        cls.movements_list = {}
-        cls.adv_priority = {}
-        cls.trackerlist = []
-        cls.report_unknown = "other"
-        cls.discovery = True
+    @pytest.fixture(autouse=True)
+    def _init_ble_monitor(self):
+        self.lpacket_ids = {}
+        self.movements_list = {}
+        self.adv_priority = {}
+        self.trackerlist = []
+        self.report_unknown = "other"
+        self.discovery = True
 
     def test_inode_energy_meter(self):
         """Test inode parser for iNode Energy Monitor."""
@@ -26,22 +26,22 @@ class TestInode(unittest.TestCase):
 
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "iNode")
-        self.assertEqual(sensor_msg["type"], "iNode Energy Meter")
-        self.assertEqual(sensor_msg["mac"], "00126F6D3A47")
-        self.assertEqual(sensor_msg["packet"], "0400cfe40000dc05b0ed10")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["energy"], 39.05)
-        self.assertEqual(sensor_msg["energy unit"], "kWh")
-        self.assertEqual(sensor_msg["power"], 160.0)
-        self.assertEqual(sensor_msg["power unit"], "W")
-        self.assertEqual(sensor_msg["constant"], 1500)
-        self.assertEqual(sensor_msg["battery"], 100)
-        self.assertEqual(sensor_msg["voltage"], 2.88)
-        self.assertEqual(sensor_msg["light level"], 0.0)
-        self.assertEqual(sensor_msg["week day"], 0)
-        self.assertEqual(sensor_msg["week day total"], 4333)
-        self.assertEqual(sensor_msg["rssi"], -91)
+        assert sensor_msg["firmware"] == "iNode"
+        assert sensor_msg["type"] == "iNode Energy Meter"
+        assert sensor_msg["mac"] == "00126F6D3A47"
+        assert sensor_msg["packet"] == "0400cfe40000dc05b0ed10"
+        assert sensor_msg["data"]
+        assert sensor_msg["energy"] == 39.05
+        assert sensor_msg["energy unit"] == "kWh"
+        assert sensor_msg["power"] == 160.0
+        assert sensor_msg["power unit"] == "W"
+        assert sensor_msg["constant"] == 1500
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["voltage"] == 2.88
+        assert sensor_msg["light level"] == 0.0
+        assert sensor_msg["week day"] == 0
+        assert sensor_msg["week day total"] == 4333
+        assert sensor_msg["rssi"] == -91
 
 
 if __name__ == '__main__':

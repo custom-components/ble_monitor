@@ -1,18 +1,18 @@
 """The tests for the kegtron ble_parser."""
-import unittest
+import pytest
 from ble_monitor.ble_parser import ble_parser
 
 
-class TestKegtron(unittest.TestCase):
+class TestKegtron:
 
-    @classmethod
-    def setUpClass(cls):
-        cls.lpacket_ids = {}
-        cls.movements_list = {}
-        cls.adv_priority = {}
-        cls.trackerlist = []
-        cls.report_unknown = "other"
-        cls.discovery = True
+    @pytest.fixture(autouse=True)
+    def _init_ble_monitor(self):
+        self.lpacket_ids = {}
+        self.movements_list = {}
+        self.adv_priority = {}
+        self.trackerlist = []
+        self.report_unknown = "other"
+        self.discovery = True
 
     def test_kegtron_kt100(self):
         """Test kegtron parser for KT-100."""
@@ -20,19 +20,19 @@ class TestKegtron(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Kegtron")
-        self.assertEqual(sensor_msg["type"], "Kegtron KT-100")
-        self.assertEqual(sensor_msg["mac"], "D0CF5E5C9B75")
-        self.assertEqual(sensor_msg["packet"], "no packet id")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["keg size"], "Corny (5.0 gal)")
-        self.assertEqual(sensor_msg["volume start"], 5.0)
-        self.assertEqual(sensor_msg["port state"], "configured")
-        self.assertEqual(sensor_msg["port index"], 1)
-        self.assertEqual(sensor_msg["port count"], "Single port device")
-        self.assertEqual(sensor_msg["port name"], "Single Port")
-        self.assertEqual(sensor_msg["volume dispensed port 1"], 0.738)
-        self.assertEqual(sensor_msg["rssi"], -82)
+        assert sensor_msg["firmware"] == "Kegtron"
+        assert sensor_msg["type"] == "Kegtron KT-100"
+        assert sensor_msg["mac"] == "D0CF5E5C9B75"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["keg size"] == "Corny (5.0 gal)"
+        assert sensor_msg["volume start"] == 5.0
+        assert sensor_msg["port state"] == "configured"
+        assert sensor_msg["port index"] == 1
+        assert sensor_msg["port count"] == "Single port device"
+        assert sensor_msg["port name"] == "Single Port"
+        assert sensor_msg["volume dispensed port 1"] == 0.738
+        assert sensor_msg["rssi"] == -82
 
     def test_kegtron_kt200(self):
         """Test kegtron parser for KT-200."""
@@ -40,19 +40,19 @@ class TestKegtron(unittest.TestCase):
         data = bytes(bytearray.fromhex(data_string))
         sensor_msg, tracker_msg = ble_parser(self, data)
 
-        self.assertEqual(sensor_msg["firmware"], "Kegtron")
-        self.assertEqual(sensor_msg["type"], "Kegtron KT-200")
-        self.assertEqual(sensor_msg["mac"], "D0CF5E5C9B75")
-        self.assertEqual(sensor_msg["packet"], "no packet id")
-        self.assertTrue(sensor_msg["data"])
-        self.assertEqual(sensor_msg["keg size"], "Corny (5.0 gal)")
-        self.assertEqual(sensor_msg["volume start"], 5.0)
-        self.assertEqual(sensor_msg["port state"], "configured")
-        self.assertEqual(sensor_msg["port index"], 2)
-        self.assertEqual(sensor_msg["port count"], "Dual port device")
-        self.assertEqual(sensor_msg["port name"], "2nd Port")
-        self.assertEqual(sensor_msg["volume dispensed port 2"], 0.738)
-        self.assertEqual(sensor_msg["rssi"], -81)
+        assert sensor_msg["firmware"] == "Kegtron"
+        assert sensor_msg["type"] == "Kegtron KT-200"
+        assert sensor_msg["mac"] == "D0CF5E5C9B75"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["keg size"] == "Corny (5.0 gal)"
+        assert sensor_msg["volume start"] == 5.0
+        assert sensor_msg["port state"] == "configured"
+        assert sensor_msg["port index"] == 2
+        assert sensor_msg["port count"] == "Dual port device"
+        assert sensor_msg["port name"] == "2nd Port"
+        assert sensor_msg["volume dispensed port 2"] == 0.738
+        assert sensor_msg["rssi"] == -81
 
 
 if __name__ == '__main__':
