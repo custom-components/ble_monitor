@@ -10,24 +10,35 @@ on:
     branches: [ tests ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.7]
-
+  validate:
+    runs-on: "ubuntu-latest"
+    name: Validate HACS
     steps:
-      - uses: actions/checkout@v1
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
-        with:
-          python-version: ${{ matrix.python-version }}
+        - uses: "actions/checkout@v2"
 
+        - name: HACS validation
+          uses: "hacs/action@main"
+          with:
+            category: "integration"
+            ignore: brands
+
+        - name: Hassfest validation
+          uses: "home-assistant/actions/hassfest@master"
+
+  tests:
+    runs-on: "ubuntu-latest"
+    name: Run tests
+    steps:
+      - name: Check out code from GitHub
+        uses: "actions/checkout@v2"
+      - name: Setup Python
+        uses: "actions/setup-python@v1"
+        with:
+          python-version: "3.8"
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements_tests.txt
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements_test.txt
       - name: Run pytest
         run: |
-          pytest
+          pytest test
