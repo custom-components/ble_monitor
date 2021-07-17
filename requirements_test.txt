@@ -9,7 +9,6 @@ codecov
 coverage>=5.2.0,<=5.3.0
 mypy
 pytest-cov
-pytest-homeassistant-custom-component
 typing-extensions==3.7.4.1
 
 # BLE montitor requirements
