@@ -11,3 +11,6 @@ mypy
 pytest-cov
 pytest-homeassistant-custom-component
 typing-extensions==3.7.4.1
+pycryptodomex==3.10.1
+janus==0.6.1
+aioblescan==0.2.8
