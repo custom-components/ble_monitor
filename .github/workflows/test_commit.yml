@@ -25,20 +25,24 @@ jobs:
         - name: Hassfest validation
           uses: "home-assistant/actions/hassfest@master"
 
-  tests:
-    runs-on: "ubuntu-latest"
-    name: Run tests
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.9]
+
     steps:
-      - name: Check out code from GitHub
-        uses: "actions/checkout@v1"
-      - name: Setup Python
-        uses: "actions/setup-python@v1"
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
         with:
-          python-version: "3.8"
+          python-version: ${{ matrix.python-version }}
+
       - name: Install dependencies
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements_test.txt
+          python -m pip install --upgrade pip
+          pip install -r requirements.test.txt
       - name: Run pytest
         run: |
           pytest
