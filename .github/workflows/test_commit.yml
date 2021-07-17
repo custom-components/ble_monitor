@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 unittest
+        python -m pip install pycryptodomex==3.10.1 janus==0.6.1 aioblescan==0.2.8
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with unittests
       run: |
