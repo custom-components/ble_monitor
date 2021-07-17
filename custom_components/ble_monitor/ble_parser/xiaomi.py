@@ -420,7 +420,6 @@ def parse_xiaomi(self, data, source_mac, rssi):
             return None
     else:
         xiaomi_mac = source_mac
-        xiaomi_mac_reversed = source_mac[::-1]
 
     # determine the device type
     device_id = data[6] + (data[7] << 8)
