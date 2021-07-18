@@ -9,7 +9,7 @@ on:
 jobs:
   validate:
     runs-on: "ubuntu-latest"
-    name: Validate HACS
+    name: Validate HACS and Hassfest
     steps:
         - uses: "actions/checkout@v2"
 
