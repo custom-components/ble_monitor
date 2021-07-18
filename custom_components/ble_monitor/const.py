@@ -163,7 +163,10 @@ MEASUREMENT_DICT = {
     'Smart hygrometer'        : [["temperature", "humidity", "battery", "voltage"], [], []],
     'Lanyard/mini hygrometer' : [["temperature", "humidity", "battery", "voltage"], [], []],
     'T201'                    : [["temperature", "humidity", "battery", "voltage"], [], []],
-    'H5074'                   : [["temperature", "humidity", "battery"], [], []],
+    'H5072/H5075'             : [["temperature", "humidity", "battery"], [], []],
+    'H5101/H5102/H5177'       : [["temperature", "humidity", "battery"], [], []],
+    'H5051/H5074'             : [["temperature", "humidity", "battery"], [], []],
+    'H5179'                   : [["temperature", "humidity", "battery"], [], []],
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage"], ["acceleration"], ["motion"]],
     'iNode Energy Meter'      : [["battery", "voltage"], ["energy", "power"], []],
 }
@@ -218,7 +221,10 @@ MANUFACTURER_DICT = {
     'Smart hygrometer'        : 'Thermoplus',
     'Lanyard/mini hygrometer' : 'Thermoplus',
     'T201'                    : 'Brifit',
-    'H5074'                   : 'Govee',
+    'H5072/H5075'             : 'Govee',
+    'H5101/H5102/H5177'       : 'Govee',
+    'H5051/H5074'             : 'Govee',
+    'H5179'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
     'iNode Energy Meter'      : 'iNode',
 }
