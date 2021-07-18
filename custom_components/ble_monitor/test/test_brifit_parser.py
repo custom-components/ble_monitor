@@ -6,10 +6,6 @@ from ble_monitor.ble_parser import ble_parser
 class TestBrifit:
 
     @pytest.fixture(autouse=True)
-    def auto_enable_custom_integrations(enable_custom_integrations):
-        yield
-
-    @pytest.fixture(autouse=True)
     def _init_ble_monitor(self):
         self.lpacket_ids = {}
         self.movements_list = {}

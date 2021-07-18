@@ -1,1 +1,1 @@
-# Testing of BLE monitor
+# Tests for BLE monitor
