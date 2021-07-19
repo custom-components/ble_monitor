@@ -23,7 +23,7 @@ class TestInode:
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "0400cfe40000dc05b0ed20"
-
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "iNode"
@@ -42,7 +42,3 @@ class TestInode:
         assert sensor_msg["week day"] == 0
         assert sensor_msg["week day total"] == 4333
         assert sensor_msg["rssi"] == -91
-
-
-if __name__ == '__main__':
-    unittest.main()

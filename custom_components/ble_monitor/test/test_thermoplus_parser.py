@@ -18,6 +18,7 @@ class TestThermoplus:
         """Test thermoplus Smart hygrometer parser."""
         data_string = "043e29020100002716000088061d0201060302f0ff15ff110000002716000088063c0c8f01a103b9d70300c8"
         data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "Thermoplus"
@@ -35,6 +36,7 @@ class TestThermoplus:
         """Test thermoplus Lanyard/mini hygrometer parser."""
         data_string = "043e2902010000dc0e0000f1701d0201060302f0ff15ff10000000dc0e0000f1706a0b8101d70283270500b2"
         data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "Thermoplus"
@@ -47,4 +49,3 @@ class TestThermoplus:
         assert sensor_msg["voltage"] == 2.922
         assert sensor_msg["battery"] == 92.2
         assert sensor_msg["rssi"] == -78
-

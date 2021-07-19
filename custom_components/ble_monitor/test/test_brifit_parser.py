@@ -18,6 +18,7 @@ class TestBrifit:
         """Test brifit parser."""
         data_string = "043E2B0201000085B07438C1A41F05095432303102010614FF55AA0101A4C13874B08501070A1D10F064000100D6"
         data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"], "Brifit"
@@ -30,7 +31,3 @@ class TestBrifit:
         assert sensor_msg["voltage"], 2.63
         assert sensor_msg["battery"], 100
         assert sensor_msg["rssi"], -42
-
-
-if __name__ == '__main__':
-    unittest.main()

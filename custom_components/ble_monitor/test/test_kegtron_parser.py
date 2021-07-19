@@ -18,6 +18,7 @@ class TestKegtron:
         """Test kegtron parser for KT-100."""
         data_string = "043e2b02010400759b5c5ecfd01f1effffff49ef138802e20153696e676c6520506f7274000000000000000000ae"
         data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "Kegtron"
@@ -38,6 +39,7 @@ class TestKegtron:
         """Test kegtron parser for KT-200."""
         data_string = "043e2b02010400759b5c5ecfd01f1effffff49ef138802e251326e6420506f7274000000000000000000000000af"
         data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "Kegtron"
@@ -53,7 +55,3 @@ class TestKegtron:
         assert sensor_msg["port name"] == "2nd Port"
         assert sensor_msg["volume dispensed port 2"] == 0.738
         assert sensor_msg["rssi"] == -81
-
-
-if __name__ == '__main__':
-    unittest.main()

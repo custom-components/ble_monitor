@@ -23,7 +23,7 @@ class TestMiscale:
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
-
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "Mi Scale V1"
@@ -46,7 +46,7 @@ class TestMiscale:
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
-
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "Mi Scale V1"
@@ -69,7 +69,7 @@ class TestMiscale:
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
-
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "Mi Scale V1"
@@ -93,7 +93,7 @@ class TestMiscale:
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
-
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "Mi Scale V2"
@@ -107,7 +107,6 @@ class TestMiscale:
         assert sensor_msg["stabilized"] == 0
         assert sensor_msg["rssi"] == -82
 
-
     def test_miscale_v2_impedance(self):
         """Test Mi Scale v2 parser."""
         data_string = "043e2402010001ef148244dedf1802010603021b1810161b1802a6b20701011201128c01a852be"
@@ -117,7 +116,7 @@ class TestMiscale:
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
-
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "Mi Scale V2"
@@ -131,6 +130,3 @@ class TestMiscale:
         assert sensor_msg["stabilized"] == 1
         assert sensor_msg["impedance"] == 396
         assert sensor_msg["rssi"] == -66
-
-if __name__ == '__main__':
-    unittest.main()

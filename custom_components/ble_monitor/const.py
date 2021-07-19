@@ -64,7 +64,9 @@ CONF_HMAX = 99.9
 # Dictionary with the available sensors
 SENSOR_DICT = {
     "temperature":              "TemperatureSensor",
+    "temperature outdoor":      "TemperatureOutdoorSensor",
     "humidity":                 "HumiditySensor",
+    "humidity outdoor":         "HumidityOutdoorSensor",
     "moisture":                 "MoistureSensor",
     "pressure":                 "PressureSensor",
     "conductivity":             "ConductivitySensor",
@@ -166,6 +168,7 @@ MEASUREMENT_DICT = {
     'H5072/H5075'             : [["temperature", "humidity", "battery"], [], []],
     'H5101/H5102/H5177'       : [["temperature", "humidity", "battery"], [], []],
     'H5051/H5074'             : [["temperature", "humidity", "battery"], [], []],
+    'H5178'                   : [["temperature", "temperature outdoor", "humidity", "humidity outdoor", "battery"], [], []],
     'H5179'                   : [["temperature", "humidity", "battery"], [], []],
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage"], ["acceleration"], ["motion"]],
     'iNode Energy Meter'      : [["battery", "voltage"], ["energy", "power"], []],
@@ -224,6 +227,7 @@ MANUFACTURER_DICT = {
     'H5072/H5075'             : 'Govee',
     'H5101/H5102/H5177'       : 'Govee',
     'H5051/H5074'             : 'Govee',
+    'H5178'                   : 'Govee',
     'H5179'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
     'iNode Energy Meter'      : 'iNode',

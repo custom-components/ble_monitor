@@ -80,13 +80,10 @@ def ble_parser(self, data):
                 if adstruct[0] == 0x15 and (comp_id == 0x0010 or comp_id == 0x0011):  # Thermoplus
                     sensor_data = parse_thermoplus(self, adstruct, mac, rssi)
                     break
-                if adstruct[0] == 0x0A and comp_id == 0xEC88:  # Govee H5051/H5074
+                if (adstruct[0] == 0x09 or adstruct[0] == 0x0A) and comp_id == 0xEC88:  # Govee H5051/H5072/H5074/H5075
                     sensor_data = parse_govee(self, adstruct, mac, rssi)
                     break
-                if adstruct[0] == 0x09 and comp_id == 0xEC88:  # Govee H5072/H5075
-                    sensor_data = parse_govee(self, adstruct, mac, rssi)
-                    break
-                if adstruct[0] == 0x09 and comp_id == 0x0001:  # Govee H5101/H5102/H5177
+                if (adstruct[0] == 0x09 or adstruct[0] == 0x0A) and comp_id == 0x0001:  # Govee H5101/H5102/H5177/H5178
                     sensor_data = parse_govee(self, adstruct, mac, rssi)
                     break
                 if adstruct[0] == 0x0A and comp_id == 0x8801:  # Govee H5179

@@ -18,6 +18,7 @@ class TestATC:
         """Test ATC parser for ATC 1441 format."""
         data_string = "043e1d02010000f4830238c1a41110161a18a4c1380283f400a22f5f0bf819df"
         data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "ATC (Atc1441)"
@@ -35,6 +36,7 @@ class TestATC:
         """Test ATC parser for ATC 1441 format (extended advertisement)."""
         data_string = "043E2B0D011300004E7CBC38C1A40100FF7FB90000000000000000001110161A18A4C138BC7C4E0102284F0B6720"
         data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "ATC (Atc1441)"
@@ -52,6 +54,7 @@ class TestATC:
         """Test ATC parser for ATC custom format."""
         data_string = "043e1f02010000f4830238c1a41312161a18f4830238c1a4a9066911b60b58f70dde"
         data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "ATC (Custom)"
@@ -69,6 +72,7 @@ class TestATC:
         """Test ATC parser for ATC custom format (firmware version 2.9 and above)."""
         data_string = "043E2202010000B2188D38C1A41602010612161A18B2188D38C1A42B089011F70A43200FC2"
         data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "ATC (Custom)"
@@ -86,6 +90,7 @@ class TestATC:
         """Test ATC parser for ATC custom format (extended format)."""
         data_string = "043E300D011300008B376338C1A40100FF7FBA0000000000000000001602010612161A188B376338C1A4CE0913107F0B521204"
         data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "ATC (Custom)"
@@ -112,7 +117,7 @@ class TestATC:
         p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
         p_key = bytes.fromhex(aeskey.lower())
         self.aeskeys[p_mac] = p_key
-
+        # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "ATC (Custom encrypted)"
