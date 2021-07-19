@@ -228,15 +228,17 @@ The BLE advertisements from some devices are encrypted. To decrypt these message
 Get the encryption key with a python script called [Xiaomi Cloud Token Extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). The script logs in on the Xiaomi Cloud (password of your Xiaomi account is required) and extracts information. You will get a list of all devices that are added to the MiHome app. Look for your sensor in the list and copy the `BLE KEY`. If the key ends with `FFFFFFFF`, the sensor does not require an encryption key. This method works on Windows (use the exe file) as well as Linux (or any platform that runs python).
 
 
-**2. TelinkFlasher (LYWSD03MMC sensors only)**
+**2. TelinkFlasher (WebBluetooth)**
 
-Get the encryption key with the online tool on the [TelinkFlasher website](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html).
+Get the encryption key with the online tool on the [TelinkFlasher website](https://atc1441.github.io/Temp_universal_mi_activate.html). This lets you activate devices without ever touching Xiaomi servers.
+
+Note that even though most functionality there (flashing) is only for LYWSD03MMC sensors, this particular version of the page has been modified to allow activation of any device.
 
 ![Telink Flasher](/pictures/Telink_flasher_website.png)
 
-- Keep the sensor close to the mobile phone (Android only) or PC.
+- Keep the sensor close to the mobile phone (use Chromium-based browsers on Android, try [WebBLE](https://apps.apple.com/us/app/webble/id1193531073) on iOS) or PC.
 - Make sure that the bluetooth is enabled.
-- Using your browser, navigate to [this page](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html).
+- Using your browser, navigate to [this page](https://atc1441.github.io/Temp_universal_mi_activate.html).
 - If using Linux: Ensure you enabled "experimental web platform features". Therefore copy the according link (i.e. chrome://flags/#enable-experimental-web-platform-features for Chrome), open a new browser tab, paste the copied URL. Now sten the Experimental Web Platform features flag to Enabled. Then restart the browser.
 - Now, click the [Connect] button (1) and wait until it shows "Connected." See the Log section at the bottom. Choose the according target device (i.e. LYWSD03MMC) to pair.
 - Once connected, click the [Do Activation] button (2) and wait until the "Mi Bind Key" (3) shows the information.
