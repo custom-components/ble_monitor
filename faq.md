@@ -236,10 +236,10 @@ Note that even though most functionality there (flashing) is only for LYWSD03MMC
 
 ![Telink Flasher](/pictures/Telink_flasher_website.png)
 
-- Keep the sensor close to the mobile phone (use Chromium-based browsers on Android, try [WebBLE](https://apps.apple.com/us/app/webble/id1193531073) on iOS) or PC.
+- Keep the sensor close to the mobile phone (use Chromium-based browsers on Android, try [WebBLE](https://apps.apple.com/us/app/webble/id1193531073) (paid app) on iOS) or use a PC.
 - Make sure that the bluetooth is enabled.
 - Using your browser, navigate to [this page](https://atc1441.github.io/Temp_universal_mi_activate.html).
-- If using Linux: Ensure you enabled "experimental web platform features". Therefore copy the according link (i.e. chrome://flags/#enable-experimental-web-platform-features for Chrome), open a new browser tab, paste the copied URL. Now sten the Experimental Web Platform features flag to Enabled. Then restart the browser.
+- If using Linux: Ensure you enabled "experimental web platform features". Therefore copy the according link (i.e. chrome://flags/#enable-experimental-web-platform-features for Chrome), open a new browser tab, paste the copied URL. Now set the Experimental Web Platform features flag to Enabled and restart the browser.
 - Now, click the [Connect] button (1) and wait until it shows "Connected." See the Log section at the bottom. Choose the according target device (i.e. LYWSD03MMC) to pair.
 - Once connected, click the [Do Activation] button (2) and wait until the "Mi Bind Key" (3) shows the information.
 
