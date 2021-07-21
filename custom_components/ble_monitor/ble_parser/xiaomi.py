@@ -367,6 +367,7 @@ xiaomi_dataobject_dict = {
     0x1012: obj1012,
     0x1013: obj1013,
     0x1014: obj1014,
+    0x1015: obj1015,
     0x1017: obj1017,
     0x1018: obj1018,
     0x1019: obj1019,
