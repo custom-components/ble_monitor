@@ -130,8 +130,55 @@ class TestXiaomi:
     def test_Xiaomi_JQJCY01YM1(self):
         """Test Xiaomi parser for JQJCY01YM."""
 
-    def test_Xiaomi_JTYJGD03MI(self):
+    def test_Xiaomi_JTYJGD03MI_smoke(self):
         """Test Xiaomi parser for JTYJGD03MI."""
+        data_string = "043e2902010000bc9ce344ef541d020106191695fe5859970966bc9ce344ef5401081205000000715ebe90cb"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "5b51a7c91cde6707c9ef18dfda143a58"
+        self.aeskeys = {}
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        self.lpacket_ids[mac] = "1"
+        # pylint: disable=unused-variable
+        sensor_msg, tracker_msg = ble_parser(self, data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "JTYJGD03MI"
+        assert sensor_msg["mac"] == "54EF44E39CBC"
+        assert sensor_msg["packet"] == 102
+        assert sensor_msg["data"]
+        assert sensor_msg["smoke detector"] == 1
+        assert sensor_msg["rssi"] == -53
+
+    def test_Xiaomi_JTYJGD03MI_press(self):
+        """Test Xiaomi parser for JTYJGD03MI."""
+        data_string = "043e2b02010000bc9ce344ef541f0201061b1695fe5859970964bc9ce344ef5422206088fd000000003a148fb3cb"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "5b51a7c91cde6707c9ef18dfda143a58"
+        self.aeskeys = {}
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        self.lpacket_ids[mac] = "1"
+        # pylint: disable=unused-variable
+        sensor_msg, tracker_msg = ble_parser(self, data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "JTYJGD03MI"
+        assert sensor_msg["mac"] == "54EF44E39CBC"
+        assert sensor_msg["packet"] == 100
+        assert sensor_msg["data"]
+        assert sensor_msg["button"] == "single press"
+        assert sensor_msg["rssi"] == -53
 
     def test_Xiaomi_HHCCJCY01(self):
         """Test Xiaomi parser for HHCCJCY01."""
@@ -149,6 +196,7 @@ class TestXiaomi:
         assert sensor_msg["type"] == "HHCCJCY01"
         assert sensor_msg["mac"] == "C47C8D6B4FF3"
         assert sensor_msg["packet"] == 18
+        assert sensor_msg["temperature"] == 19.6
         assert sensor_msg["data"]
         assert sensor_msg["rssi"] == -87
 

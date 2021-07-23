@@ -65,20 +65,38 @@ class TestGovee:
         assert sensor_msg["battery"] == 100
         assert sensor_msg["rssi"] == -86
 
-    def test_Govee_H5178(self):
+    def test_Govee_H5178_sensor_0(self):
         """Test Govee H5178 parser."""
-        data_string = "043e2c02010000aabb611d12e1200d09475648353130325f43423942030388ec0201050aff010001010103cb0164aa"
+        data_string = "043E2B0201000045C5DF38C1A41F0A09423531373843353435030388EC0201050CFF010001010003A00F640000BF"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         sensor_msg, tracker_msg = ble_parser(self, data)
 
         assert sensor_msg["firmware"] == "Govee"
         assert sensor_msg["type"] == "H5178"
-        assert sensor_msg["mac"] == "E1121D61BBAA"
+        assert sensor_msg["mac"] == "A4C138DFC545"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature outdoor"] == 24.8577
-        assert sensor_msg["humidity outdoor"] == 57.7
+        assert sensor_msg["temperature"] == 23.7583
+        assert sensor_msg["humidity"] == 58.3
+        assert sensor_msg["sensor id"] == 0
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["rssi"] == -65
+
+    def test_Govee_H5178_sensor_1(self):
+        """Test Govee H5178 parser."""
+        data_string = "043E2B0201000045C5DF38C1A41F0A09423531373843353435030388EC0201050CFF010001010102FC87640002BF"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        sensor_msg, tracker_msg = ble_parser(self, data)
+
+        assert sensor_msg["firmware"] == "Govee"
+        assert sensor_msg["type"] == "H5178"
+        assert sensor_msg["mac"] == "A4C138DFC545"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature outdoor"] == 19.5719
+        assert sensor_msg["humidity outdoor"] == 71.9
         assert sensor_msg["sensor id"] == 1
         assert sensor_msg["battery"] == 100
-        assert sensor_msg["rssi"] == -86
+        assert sensor_msg["rssi"] == -65

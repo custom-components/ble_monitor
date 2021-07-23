@@ -40,7 +40,7 @@ def parse_govee(self, data, source_mac, rssi):
         device_type = "H5051/H5074"
         (temp, humi, batt) = unpack("<hHB", data[5:10])
         result.update({"temperature": temp / 100, "humidity": humi / 100, "battery": batt})
-    elif msg_length == 11 and device_id == 0x0001:
+    elif msg_length == 13 and device_id == 0x0001:
         device_type = "H5178"
         packet_5178 = data[7:10].hex()
         packet = int(packet_5178, 16)
