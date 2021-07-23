@@ -2,9 +2,9 @@ name: Test BLE monitor
 
 on:
   push:
-    branches: [ tests ]
+    branches: [ master ]
   pull_request:
-    branches: [ tests ]
+    branches: [ master ]
 
 jobs:
   validate:
