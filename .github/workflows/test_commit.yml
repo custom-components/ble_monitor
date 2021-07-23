@@ -1,0 +1,39 @@
+name: Test BLE monitor
+
+on:
+  push:
+    branches: [ tests ]
+  pull_request:
+    branches: [ tests ]
+
+jobs:
+  validate:
+    runs-on: "ubuntu-latest"
+    name: Validate HACS and Hassfest
+    steps:
+        - uses: "actions/checkout@v2"
+
+        - name: HACS validation
+          uses: "hacs/action@main"
+          with:
+            category: "integration"
+            ignore: brands
+
+        - name: Hassfest validation
+          uses: "home-assistant/actions/hassfest@master"
+
+  tests:
+    runs-on: "ubuntu-latest"
+    name: Run tests
+    steps:
+      - name: Check out code from GitHub
+        uses: "actions/checkout@v2"
+      - name: Setup Python
+        uses: "actions/setup-python@v1"
+        with:
+          python-version: "3.9"
+      - name: Install requirements
+        run: python3 -m pip install -r requirements_test.txt
+      - name: Run pytest
+        run: |
+          pytest

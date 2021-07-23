@@ -1,6 +1,5 @@
 """Parser for BLE advertisements used by Passive BLE monitor integration."""
 import logging
-import subprocess
 
 from .atc import parse_atc
 from .brifit import parse_brifit
@@ -90,6 +89,9 @@ def ble_parser(self, data):
                 if adstruct[0] == 0x09 and comp_id == 0x0001:  # Govee H5101/H5102/H5177
                     sensor_data = parse_govee(self, adstruct, mac, rssi)
                     break
+                if adstruct[0] == 0x0C and comp_id == 0x0001:  # Govee H5178
+                    sensor_data = parse_govee(self, adstruct, mac, rssi)
+                    break
                 if adstruct[0] == 0x0A and comp_id == 0x8801:  # Govee H5179
                     sensor_data = parse_govee(self, adstruct, mac, rssi)
                     break
@@ -123,22 +125,3 @@ def ble_parser(self, data):
         tracker_data = None
 
     return sensor_data, tracker_data
-
-
-def hci_get_mac(interface_list=[0]):
-    # Get dict of available bluetooth interfaces, returns hci and mac
-    btaddress_dict = {}
-    output = subprocess.run(["hciconfig"], stdout=subprocess.PIPE).stdout.decode("utf-8")
-
-    for interface in interface_list:
-        hci_id = "hci{}".format(interface)
-        try:
-            btaddress_dict[interface] = (
-                output.split("{}:".format(hci_id))[1]
-                .split("BD Address: ")[1]
-                .split(" ")[0]
-                .strip()
-            )
-        except IndexError:
-            pass
-    return btaddress_dict

@@ -45,7 +45,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                         "temperature": temperature,
                         "pressure": round((pres + 50000) / 100, 2),
                         "firmware": "Ruuvitag V" + str(version),
-                        "packet_id": "no packet id",
+                        "packet": "no packet id",
                         "data": True,
                     }
                 )
@@ -90,7 +90,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                         "acceleration z": accz,
                         "voltage": volt / 1000,
                         "firmware": "Ruuvitag V3",
-                        "packet_id": "no packet id",
+                        "packet": "no packet id",
                         "data": True,
                     }
                 )

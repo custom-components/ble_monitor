@@ -24,7 +24,7 @@ from homeassistant.helpers.entity_registry import (
     async_entries_for_device,
 )
 
-from .ble_parser import ble_parser, hci_get_mac
+from .ble_parser import ble_parser
 from .const import (
     DEFAULT_DECIMALS,
     DEFAULT_PERIOD,
@@ -70,23 +70,18 @@ from .const import (
     SERVICE_CLEANUP_ENTRIES,
 )
 
+from .bt_helpers import (
+    BT_INTERFACES,
+    BT_HCI_INTERFACES,
+    BT_MAC_INTERFACES,
+    DEFAULT_BT_INTERFACE,
+    DEFAULT_HCI_INTERFACE,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_YAML = {}
 UPDATE_UNLISTENER = None
-
-try:
-    BT_INTERFACES = hci_get_mac([0, 1, 2, 3])
-    BT_HCI_INTERFACES = list(BT_INTERFACES.keys())
-    BT_MAC_INTERFACES = list(BT_INTERFACES.values())
-    DEFAULT_BT_INTERFACE = list(BT_INTERFACES.items())[0][1]
-    DEFAULT_HCI_INTERFACE = list(BT_INTERFACES.items())[0][0]
-except IndexError:
-    DEFAULT_BT_INTERFACE = '00:00:00:00:00:00'
-    DEFAULT_HCI_INTERFACE = 0
-    BT_HCI_INTERFACES = [0]
-    BT_MAC_INTERFACES = ['00:00:00:00:00:00']
-    _LOGGER.warning("No Bluetooth interface found. Make sure Bluetooth is installed on your system")
 
 DEVICE_SCHEMA = vol.Schema(
     {

@@ -367,6 +367,7 @@ xiaomi_dataobject_dict = {
     0x1012: obj1012,
     0x1013: obj1013,
     0x1014: obj1014,
+    0x1015: obj1015,
     0x1017: obj1017,
     0x1018: obj1018,
     0x1019: obj1019,
@@ -420,7 +421,6 @@ def parse_xiaomi(self, data, source_mac, rssi):
             return None
     else:
         xiaomi_mac = source_mac
-        xiaomi_mac_reversed = source_mac[::-1]
 
     # determine the device type
     device_id = data[6] + (data[7] << 8)

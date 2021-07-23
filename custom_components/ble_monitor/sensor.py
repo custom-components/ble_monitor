@@ -232,7 +232,9 @@ class BaseSensor(RestoreEntity):
     # BaseSensor
     # |--MeasuringSensor
     # |  |--TemperatureSensor
+    # |  |--TemperatureOutdoorSensor
     # |  |--HumiditySensor
+    # |  |--HumidityOutdoorSensor
     # |  |--MoistureSensor
     # |  |--PressureSensor
     # |  |--ConductivitySensor
@@ -563,9 +565,9 @@ class TemperatureSensor(MeasuringSensor):
         if self.enabled is False:
             self.pending_update = False
             return
-        if not self._lower_temp_limit <= data["temperature"] <= self._upper_temp_limit:
+        if not self._lower_temp_limit <= data[self._measurement] <= self._upper_temp_limit:
             if self._log_spikes:
-                _LOGGER.error("Temperature spike: %s (%s)", data["temperature"], self._mac)
+                _LOGGER.error("Temperature spike: %s (%s)", data[self._measurement], self._mac)
             self.pending_update = False
             return
         self._measurements.append(data[self._measurement])
@@ -575,6 +577,23 @@ class TemperatureSensor(MeasuringSensor):
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
+
+
+class TemperatureOutdoorSensor(TemperatureSensor):
+    """Representation of an outdoor temperature sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "temperature outdoor"
+        self._name = "ble temperature outdoor {}".format(self._device_name)
+        self._unique_id = "t_outdoor_" + self._device_name
+        self._unit_of_measurement = self._device_settings["temperature unit"]
+        self._device_class = DEVICE_CLASS_TEMPERATURE
+
+        self._lower_temp_limit = self.temperature_limit(config, mac, self._temp_min)
+        self._upper_temp_limit = self.temperature_limit(config, mac, self._temp_max)
+        self._log_spikes = config[CONF_LOG_SPIKES]
 
 
 class HumiditySensor(MeasuringSensor):
@@ -600,9 +619,9 @@ class HumiditySensor(MeasuringSensor):
         if self.enabled is False:
             self.pending_update = False
             return
-        if not CONF_HMIN <= data["humidity"] <= CONF_HMAX:
+        if not CONF_HMIN <= data[self._measurement] <= CONF_HMAX:
             if self._log_spikes:
-                _LOGGER.error("Humidity spike: %s (%s)", data["humidity"], self._mac)
+                _LOGGER.error("Humidity spike: %s (%s)", data[self._measurement], self._mac)
             self.pending_update = False
             return
         if self._jagged is True:
@@ -615,6 +634,20 @@ class HumiditySensor(MeasuringSensor):
         if batt_attr is not None:
             self._device_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
+
+
+class HumidityOutdoorSensor(HumiditySensor):
+    """Representation of an Outdoor Humidity sensor."""
+
+    def __init__(self, config, mac, devtype, firmware):
+        """Initialize the sensor."""
+        super().__init__(config, mac, devtype, firmware)
+        self._measurement = "humidity outdoor"
+        self._name = "ble humidity outdoor {}".format(self._device_name)
+        self._unique_id = "h_outdoor_" + self._device_name
+        self._unit_of_measurement = PERCENTAGE
+        self._device_class = DEVICE_CLASS_HUMIDITY
+        self._log_spikes = config[CONF_LOG_SPIKES]
 
 
 class MoistureSensor(MeasuringSensor):
