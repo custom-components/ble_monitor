@@ -68,9 +68,9 @@ def parse_govee(self, data, source_mac, rssi):
             )
         else:
             _LOGGER.debug("Unknown sensor id for Govee H5178, please report to the developers, data: %s", data.hex())
-    elif msg_length == 11 and device_id == 0x8801:
+    elif msg_length == 13 and device_id == 0x8801:
         device_type = "H5179"
-        (temp, humi, batt) = unpack("<hHB", data[2:7])
+        (temp, humi, batt) = unpack("<hHB", data[8:13])
         result.update({"temperature": temp / 100, "humidity": humi / 100, "battery": batt})
     else:
         if self.report_unknown == "Govee":

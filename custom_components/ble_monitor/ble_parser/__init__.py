@@ -92,7 +92,7 @@ def ble_parser(self, data):
                 if adstruct[0] == 0x0C and comp_id == 0x0001:  # Govee H5178
                     sensor_data = parse_govee(self, adstruct, mac, rssi)
                     break
-                if adstruct[0] == 0x0A and comp_id == 0x8801:  # Govee H5179
+                if adstruct[0] == 0x0C and comp_id == 0x8801:  # Govee H5179
                     sensor_data = parse_govee(self, adstruct, mac, rssi)
                     break
                 if comp_id == 0x0499:  # Ruuvitag V3/V5
