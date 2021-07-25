@@ -104,12 +104,9 @@ def ble_parser(self, data):
                 if adstruct[0] == 0x0E and adstruct[3] == 0x82:  # iNode
                     sensor_data = parse_inode(self, adstruct, mac, rssi)
                     break
-            elif adstuct_type > 0x3D:
-                # AD type not standard
+            else:
                 if self.report_unknown == "Other":
                     _LOGGER.info("Unknown advertisement received: %s", data.hex())
-                sensor_data = None
-            else:
                 sensor_data = None
         adpayload_size -= adstuct_size
         adpayload_start += adstuct_size
