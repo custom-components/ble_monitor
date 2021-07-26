@@ -172,6 +172,8 @@ MEASUREMENT_DICT = {
     'H5179'                   : [["temperature", "humidity", "battery"], [], []],
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage"], ["acceleration"], ["motion"]],
     'iNode Energy Meter'      : [["battery", "voltage"], ["energy", "power"], []],
+    'Blue Puck T'             : [["temperature"], [], []],
+    'Blue Puck RHT'           : [["temperature", "humidity"], [], []],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -231,4 +233,6 @@ MANUFACTURER_DICT = {
     'H5179'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
     'iNode Energy Meter'      : 'iNode',
+    'Blue Puck T'             : 'Teltonika',
+    'Blue Puck RHT'           : 'Teltonika',
 }

@@ -185,7 +185,7 @@ class TestXiaomi:
         data_string = "043e2802010000f34f6b8d7cc41c020106030295fe141695fe7120980012f34f6b8d7cc40d041002c400a9"
         data = bytes(bytearray.fromhex(data_string))
 
-        # get the mac to fill in an initial packet id and movement
+        # get the mac to fill in an initial packet id
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
@@ -201,7 +201,24 @@ class TestXiaomi:
         assert sensor_msg["rssi"] == -87
 
     def test_Xiaomi_GCLS002(self):
-        """Test Xiaomi parser for GCLS002."""
+        """Test Xiaomi parser for GCLS002 / HHCCJCY09."""
+        data_string = "043E28020100003E596D8D7CC41C020106030295FE141695FE7120BC03CD3E596D8D7CC40D0410023C01A8"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # get the mac to fill in an initial packet id
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        self.lpacket_ids[mac] = "1"
+        # pylint: disable=unused-variable
+        sensor_msg, tracker_msg = ble_parser(self, data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V2)"
+        assert sensor_msg["type"] == "GCLS002"
+        assert sensor_msg["mac"] == "C47C8D6D593E"
+        assert sensor_msg["packet"] == 205
+        assert sensor_msg["temperature"] == 31.6
+        assert sensor_msg["data"]
+        assert sensor_msg["rssi"] == -88
 
     def test_Xiaomi_HHCCPOT002(self):
         """Test Xiaomi parser for HHCCPOT002."""

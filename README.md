@@ -1,6 +1,20 @@
 # Passive BLE Monitor integration
 
-### BLE Monitor for Xiaomi MiBeacon, Xiaomi Scale, Qingping, ATC, Govee, Kegtron, Thermoplus, Brifit, Ruuvitag and iNode sensors and device tracking
+### BLE Monitor for BLE sensors and device tracking
+
+Supported sensor brands
+- ATC (custom firmware for Xiaomi/Qingping sensors)
+- Brifit
+- Govee
+- iNode sensors
+- Kegtron
+- Qingping
+- Ruuvitag
+- Teltonika
+- Thermoplus
+- Xiaomi MiBeacon
+- Xiaomi Scale
+
 
 ### Table of content
 <!-- TOC -->
@@ -33,7 +47,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## SUPPORTED SENSORS
 
-This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Govee, Kegtron, Thermoplus, Brifit, Ruuvitag and iNode** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
+This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Govee, Kegtron, Thermoplus, Teltronika, Brifit, Ruuvitag and iNode** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
 
 |Name|Description|Picture|
 |---|---|---|
@@ -50,7 +64,7 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Govee,
 |**JQJCY01YM**|**Xiaomi Honeywell Formaldehyde Sensor**<br /><br />OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute.|![JQJCY01YM](/pictures/JQJCY01YM.jpg)|
 |**JTYJGD03MI**|**Xiaomi Honeywell Smoke Detector (Bluetooth)**<br /><br />Smoke detector, broadcasts smoke detected, button press and battery level. Only the Bluetooth model is supported|![JTYJGD03MI](/pictures/JTYJGD03MI.png)|
 |**HHCCJCY01**|**MiFlora plant sensor**<br /><br />Broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1.|![HHCCJCY01](/pictures/HHCCJCY01.jpg)|
-|**GCLS002**|**VegTrug Grow Care Garden**<br /><br />Similar to MiFlora HHCCJCY01.|![GCLS002](/pictures/GCLS002.png)|
+|**GCLS002 / HHCCJCY09**|**VegTrug Grow Care Garden / Flower Care Max**<br /><br />Similar to MiFlora HHCCJCY01.|![GCLS002](/pictures/GCLS002.png)|
 |**HHCCPOT002**|**FlowerPot, RoPot**<br /><br />Broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6.|![HHCCPOT002](/pictures/HHCCPOT002.jpg)|
 |**WX08ZM**|**Xiaomi Mija Mosquito Repellent**<br /><br />Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute.|![WX08ZM](/pictures/WX08ZM.jpg)
 |**MCCGQ02HL**|**Xiaomi Mijia Window/Door Sensor 2**<br /><br />Broadcasts opening state, light state and battery level. Advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Battery level is only send once in approximately 24 hours.|![MCCGQ02HL](/pictures/MCCGQ02HL.png)|
@@ -88,6 +102,8 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Govee,
 | **H5177** |**Govee H5177 Thermometer Hygrometer**<br/><br/>Rounded square body, Backlight LCD Touchscreen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5177](/pictures/Govee_H5177.jpg)|
 | **H5178** |**Govee H5178 Indoor/Outdoor Thermometer Hygrometer**<br/><br/>Rounded square body, Backlight LCD Touchscreen with additional rounded rectangular remote sensor for outdoor measurements. Broadcasts temperature, humidity and battery level for both sensors.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5178](/pictures/Govee_H5178.png)|
 | **H5179** |**Govee H5179 Thermometer Hygrometer (BLE only)**<br/><br/>Square body, no screen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5179](/pictures/Govee_H5179.png)|
+| **Blue Puck T** |*Teltonika Blue Puck T**<br/><br/>Round puck, no screen.  Broadcasts temperature.|![Blue Puck T](/pictures/Teltonika_blue_puck_T.png)|
+| **Blue Puck RHT** |*Teltonika Blue Puck RHT**<br/><br/>Round puck, no screen.  Broadcasts temperature and humidity.|![Blue Puck RHT](/pictures/Teltonika_blue_puck_RHT.png)|
 
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
