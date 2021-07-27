@@ -10,6 +10,7 @@ from .inode import parse_inode
 from .xiaomi import parse_xiaomi
 from .qingping import parse_qingping
 from .ruuvitag import parse_ruuvitag
+from .teltonika import parse_teltonika
 from .thermoplus import parse_thermoplus
 
 _LOGGER = logging.getLogger(__name__)
@@ -68,6 +69,10 @@ def ble_parser(self, data):
                     break
                 elif uuid16 == 0xFEAA:  # UUID16 = Ruuvitag V2/V4
                     sensor_data = parse_ruuvitag(self, adstruct, mac, rssi)
+                    break
+                elif uuid16 == 0x2A6E or uuid16 == 0x2A6F:  # UUID16 = Teltonika
+                    # Teltonika can contain multiple sevice data payloads in one advertisement
+                    sensor_data = parse_teltonika(self, data[adpayload_start:], mac, rssi)
                     break
             elif adstuct_type == 0xFF:
                 # AD type 'Manufacturer Specific Data' with company identifier

@@ -3,8 +3,20 @@
 
 # Passive BLE Monitor integration
 
-### BLE Monitor for Xiaomi MiBeacon, Xiaomi Scale, Qingping, ATC (custom firmware), Govee, Kegtron, Thermoplus, Brifit, Ruuvitag, iNode sensors and Bluetooth device tracking
+### BLE Monitor for BLE sensors and device tracking
 
+Supported sensor brands
+- ATC (custom firmware for Xiaomi/Qingping sensors)
+- Brifit
+- Govee
+- iNode sensors
+- Kegtron
+- Qingping
+- Ruuvitag
+- Teltonika
+- Thermoplus
+- Xiaomi MiBeacon
+- Xiaomi Scale
 
 ### Table of content
 <!-- TOC -->
@@ -37,7 +49,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## SUPPORTED SENSORS
 
-This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Brifit, Ruuvitag and iNode** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
+This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Teltonika, Brifit, Ruuvitag and iNode** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
 
 |Name|Description|Picture|
 |---|---|---|
@@ -54,7 +66,7 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtro
 |**JQJCY01YM**|**Xiaomi Honeywell Formaldehyde Sensor**<br /><br />OLED display, broadcasts temperature, humidity, formaldehyde (mg/m³) and battery level, about 50 messages per minute.|![JQJCY01YM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/JQJCY01YM.jpg)|
 |**JTYJGD03MI**|**Xiaomi Honeywell Smoke Detector (Bluetooth)**<br /><br />Smoke detector, broadcasts smoke detected, button press and battery level|![JTYJGD03MI](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/JTYJGD03MI.png)|
 |**HHCCJCY01**|**MiFlora plant sensor**<br /><br />Broadcasts temperature, moisture, illuminance, conductivity, 1 reading per minute, no battery info with firmware v3.2.1.|![HHCCJCY01](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/HHCCJCY01.jpg)|
-|**GCLS002**|**VegTrug Grow Care Garden**<br /><br />Similar to MiFlora HHCCJCY01.|![GCLS002](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/GCLS002.png)|
+|**GCLS002 / HHCCJCY09**|**VegTrug Grow Care Garden / Flower Care Max**<br /><br />Similar to MiFlora HHCCJCY01.|![GCLS002](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/GCLS002.png)|
 |**HHCCPOT002**|**FlowerPot, RoPot**<br /><br />Broadcasts moisture and conductivity, 2 readings per minute, no battery info with firmware v1.2.6.|![HHCCPOT002](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/HHCCPOT002.jpg)|
 |**WX08ZM**|**Xiaomi Mija Mosquito Repellent**<br /><br />Smart version, broadcasts switch state, tablet resource, battery level, about 50 messages per minute.|![WX08ZM](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/WX08ZM.jpg)
 |**MCCGQ02HL**|**Xiaomi Mijia Window/Door Sensor 2**<br /><br />Broadcasts opening state, light state and battery level. Advertisements are encrypted, therefore you need to set an encryption key in your configuration, see for instructions the [encryption_key](#encryption_key) option. Battery level is only send once in approximately 24 hours.|![MCCGQ02HL](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/MCCGQ02HL.png)|
@@ -92,6 +104,8 @@ This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtro
 | **H5177** |**Govee H5177 Thermometer Hygrometer**<br/><br/>Rounded square body, Backlight LCD Touchscreen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5177](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Govee_H5177.jpg)|
 | **H5178** |**Govee H5178 Indoor/Outdoor Thermometer Hygrometer**<br/><br/>Rounded square body, Backlight LCD Touchscreen with additional rounded rectangular remote sensor for outdoor measurements. Broadcasts temperature, humidity and battery level for both sensors.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5178](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Govee_H5178.png)|
 | **H5179** |**Govee H5179 Thermometer Hygrometer (BLE only)**<br/><br/>Square body, no screen.  Broadcasts temperature, humidity and battery level.  Govee devices only send data with the option [active_scan](#active_scan) set to `True`, so make sure you change this setting, as the default is `False`|![H5179](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Govee_H5179.png)|
+| **Blue Puck T** |**Teltonika Blue Puck T**<br/><br/>Round puck, no screen.  Broadcasts temperature.|![Blue Puck T](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Teltonika_blue_puck_T.png)|
+| **Blue Puck RHT** |**Teltonika Blue Puck RHT**<br/><br/>Round puck, no screen.  Broadcasts temperature and humidity.|![Blue Puck RHT](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/Teltonika_blue_puck_RHT.png)|
 
 *The amount of actually received data is highly dependent on the reception conditions (like distance and electromagnetic ambiance), readings numbers are indicated for good RSSI (Received Signal Strength Indicator) of about -75 till -70dBm.*
 
@@ -270,7 +284,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### report_unknown
 
-   (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Thermoplus`, `Brifit`, `Govee`, `Ruuvitag`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Thermoplus`, `Brifit`, `Govee` or `Ruuvitag`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+   (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Thermoplus`, `Brifit`, `Govee`, `Ruuvitag`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `ATC`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `Teltonika`, `Thermoplus` or `Xiaomi`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
 ### Configuration parameters at device level
 
