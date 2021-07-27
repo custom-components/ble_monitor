@@ -49,7 +49,7 @@ This custom component is an alternative for the standard build in [mitemp_bt](ht
 
 ## SUPPORTED SENSORS
 
-This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Teltronika, Brifit, Ruuvitag and iNode** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
+This integration supports **Xiaomi MiBeacon, Qingping, ATC, Xiaomi Scale, Kegtron, Thermoplus, Teltonika, Brifit, Ruuvitag and iNode** sensors at the moment. Support for additional sensors can be requested by opening an [issue](https://github.com/custom-components/ble_monitor/issues). Check the [Frequently Asked Questions (FAQ) page](https://github.com/custom-components/ble_monitor/blob/kegtron-v2/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation) on how to provide usefull information for adding new sensors.
 
 |Name|Description|Picture|
 |---|---|---|
@@ -284,7 +284,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 #### report_unknown
 
-   (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Thermoplus`, `Brifit`, `Govee`, `Ruuvitag`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Thermoplus`, `Brifit`, `Govee` or `Ruuvitag`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+   (`Xiaomi`, `Qingping`, `ATC`, `Mi Scale`, `Kegtron`, `Thermoplus`, `Brifit`, `Govee`, `Ruuvitag`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](#supported-sensors). If you set this parameter to `ATC`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `Teltonika`, `Thermoplus` or `Xiaomi`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](https://github.com/custom-components/ble_monitor/blob/master/faq.md#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
 
 ### Configuration parameters at device level
 
