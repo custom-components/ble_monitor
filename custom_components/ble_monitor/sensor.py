@@ -19,7 +19,6 @@ from homeassistant.const import (
     PRESSURE_HPA,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
-    VOLT,
     ATTR_BATTERY_LEVEL,
     CONF_DEVICES,
     CONF_NAME,
@@ -31,6 +30,10 @@ try:
     from homeassistant.const import PERCENTAGE
 except ImportError:
     from homeassistant.const import UNIT_PERCENTAGE as PERCENTAGE
+try:
+    from homeassistant.const import ELECTRIC_POTENTIAL_VOLT
+except ImportError:
+    from homeassistant.const import VOLT as ELECTRIC_POTENTIAL_VOLT
 
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
@@ -735,7 +738,7 @@ class VoltageSensor(MeasuringSensor):
         self._measurement = "voltage"
         self._name = "ble voltage {}".format(self._device_name)
         self._unique_id = "v_" + self._device_name
-        self._unit_of_measurement = VOLT
+        self._unit_of_measurement = ELECTRIC_POTENTIAL_VOLT
         self._device_class = DEVICE_CLASS_VOLTAGE
 
 
