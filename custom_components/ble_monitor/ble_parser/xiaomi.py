@@ -457,8 +457,9 @@ def parse_xiaomi(self, data, source_mac, rssi):
     elif frctrl_auth_mode == 2:
         sinfo += ', Standard certification'
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and xiaomi_mac.lower() not in self.whitelist:
+    # check for MAC presence in sensor whitelist, if needed
+    if self.discovery is False and xiaomi_mac.lower() not in self.sensor_whitelist:
+        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(xiaomi_mac))
         return None
 
     # check for unique packet_id and advertisement priority
@@ -482,7 +483,10 @@ def parse_xiaomi(self, data, source_mac, rssi):
         elif adv_priority == prev_adv_priority:
             # only process messages with same priority that have a unique packet id
             if prev_packet == packet_id:
-                return None
+                if self.filter_duplicates is True:
+                    return None
+                else:
+                    pass
             else:
                 pass
         else:
@@ -492,8 +496,9 @@ def parse_xiaomi(self, data, source_mac, rssi):
             return None
     else:
         if prev_packet == packet_id:
-            # only process messages with highest priority and messages with unique packet id
-            return None
+            if self.filter_duplicates is True:
+                # only process messages with highest priority and messages with unique packet id
+                return None
     self.lpacket_ids[xiaomi_mac] = packet_id
 
     # check for capability byte present

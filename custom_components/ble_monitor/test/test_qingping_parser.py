@@ -1,25 +1,26 @@
 """The tests for the Qingping ble_parser."""
 import pytest
-from ble_monitor.ble_parser import ble_parser
+from ble_monitor.ble_parser import BleParser
 
 
 class TestQingping:
 
-    @pytest.fixture(autouse=True)
-    def _init_ble_monitor(self):
-        self.lpacket_ids = {}
-        self.movements_list = {}
-        self.adv_priority = {}
-        self.trackerlist = []
-        self.report_unknown = "other"
-        self.discovery = True
+    # @pytest.fixture(autouse=True)
+    # def _init_ble_monitor(self):
+    #     self.lpacket_ids = {}
+    #     self.movements_list = {}
+    #     self.adv_priority = {}
+    #     self.trackerlist = []
+    #     self.report_unknown = "other"
+    #     self.discovery = True
 
     def test_qingping_CGP1W(self):
         """Test Qingping parser for CGP1W."""
         data_string = "043E28020100006F1C40342D581C0201061816CDFD08096F1C40342D580104BE000D0207027226020157D1"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Qingping"
         assert sensor_msg["type"] == "CGP1W"
@@ -37,7 +38,8 @@ class TestQingping:
         data_string = "043E2402010000BF6552342D58180201061416CDFD080CBF6552342D580104F100AD01020125D1"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Qingping"
         assert sensor_msg["type"] == "CGD1"
@@ -54,7 +56,8 @@ class TestQingping:
         data_string = "043E2402010000B24410342D58180201061416CDFD0807B24410342D580104CA004502020138AF"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Qingping"
         assert sensor_msg["type"] == "CGG1"
@@ -71,6 +74,7 @@ class TestQingping:
         data_string = "043E1F020100000CA4288CCF04130201060B16CDFD080E0AA4288CCF048CCF0481CB"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg is None

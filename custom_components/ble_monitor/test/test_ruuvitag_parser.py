@@ -1,6 +1,6 @@
 """The tests for the Ruuvitag ble_parser."""
 import pytest
-from ble_monitor.ble_parser import ble_parser
+from ble_monitor.ble_parser import BleParser
 
 
 class TestRuuviTag:
@@ -9,17 +9,14 @@ class TestRuuviTag:
     def _init_ble_monitor(self):
         self.lpacket_ids = {}
         self.movements_list = {}
-        self.adv_priority = {}
-        self.trackerlist = []
-        self.report_unknown = "other"
-        self.discovery = True
 
     def test_ruuvitag_v2(self):
         """Test ruuvitag v2 parser."""
         data_string = "043E2A0201030157168974A5F41E0201060303AAFE1616AAFE10EE037275752E76692F23416A7759414D4666CD"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Ruuvitag V2"
         assert sensor_msg["type"] == "Ruuvitag"
@@ -36,7 +33,8 @@ class TestRuuviTag:
         data_string = "043E2502010301F27A52FAD4CD1902010415FF990403291A1ECE1EFC18F94202CA0B53000000009E"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Ruuvitag V3"
         assert sensor_msg["type"] == "Ruuvitag"
@@ -59,7 +57,8 @@ class TestRuuviTag:
         data_string = "043E2B02010301C4C437D31ED01F0201060303AAFE1716AAFE10F6037275752E76692F2342475159414D71387798"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Ruuvitag V4"
         assert sensor_msg["type"] == "Ruuvitag"
@@ -76,13 +75,9 @@ class TestRuuviTag:
         data_string = "043E2B02010301F27A52FAD4CD1F0201061BFF990405138A5F61C4F0FFE4FFDC0414C5B6EC29B3F27A52FAD4CDBC"
         data = bytes(bytearray.fromhex(data_string))
 
-        # get the mac to fill in an initial packet id and movement
-        is_ext_packet = True if data[3] == 0x0D else False
-        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
-        self.lpacket_ids[mac] = "10674"
-        self.movements_list[mac] = "1"
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Ruuvitag V5"
         assert sensor_msg["type"] == "Ruuvitag"
@@ -99,6 +94,6 @@ class TestRuuviTag:
         assert sensor_msg["voltage"] == 3.181
         assert sensor_msg["battery"] == 100
         assert sensor_msg["tx power"] == 4
-        assert sensor_msg["motion"] == 1
-        assert sensor_msg["motion timer"] == 1
+        assert sensor_msg["motion"] == 0
+        assert sensor_msg["motion timer"] == 0
         assert sensor_msg["rssi"] == -68

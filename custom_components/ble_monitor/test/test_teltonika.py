@@ -1,25 +1,26 @@
 """The tests for the Teltonika ble_parser."""
 import pytest
-from ble_monitor.ble_parser import ble_parser
+from ble_monitor.ble_parser import BleParser
 
 
 class TestTeltonika:
 
-    @pytest.fixture(autouse=True)
-    def _init_ble_monitor(self):
-        self.lpacket_ids = {}
-        self.movements_list = {}
-        self.adv_priority = {}
-        self.trackerlist = []
-        self.report_unknown = "other"
-        self.discovery = True
+    # @pytest.fixture(autouse=True)
+    # def _init_ble_monitor(self):
+    #     self.lpacket_ids = {}
+    #     self.movements_list = {}
+    #     self.adv_priority = {}
+    #     self.trackerlist = []
+    #     self.report_unknown = "other"
+    #     self.discovery = True
 
     def test_blue_puck_T(self):
         """Test Teltonika parser for Blue Puck T."""
         data_string = "043e1e02010001e7e193546ec61202010605166e2a860b08095055434b5f5431dd"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"], "Teltonika"
         assert sensor_msg["type"], "Blue Puck T"
@@ -34,7 +35,8 @@ class TestTeltonika:
         data_string = "043e230201000196826a022bf01702010605166e2aa30404166f2a2308095055434b5f5448bd"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"], "Teltonika"
         assert sensor_msg["type"], "Blue Puck RHT"

@@ -1,25 +1,26 @@
 """The tests for the Thermoplus ble_parser."""
 import pytest
-from ble_monitor.ble_parser import ble_parser
+from ble_monitor.ble_parser import BleParser
 
 
 class TestThermoplus:
 
-    @pytest.fixture(autouse=True)
-    def _init_ble_monitor(self):
-        self.lpacket_ids = {}
-        self.movements_list = {}
-        self.adv_priority = {}
-        self.trackerlist = []
-        self.report_unknown = "other"
-        self.discovery = True
+    # @pytest.fixture(autouse=True)
+    # def _init_ble_monitor(self):
+    #     self.lpacket_ids = {}
+    #     self.movements_list = {}
+    #     self.adv_priority = {}
+    #     self.trackerlist = []
+    #     self.report_unknown = "other"
+    #     self.discovery = True
 
     def test_thermoplus_smart_hygrometer(self):
         """Test thermoplus Smart hygrometer parser."""
         data_string = "043e29020100002716000088061d0201060302f0ff15ff110000002716000088063c0c8f01a103b9d70300c8"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Thermoplus"
         assert sensor_msg["type"] == "Smart hygrometer"
@@ -37,7 +38,8 @@ class TestThermoplus:
         data_string = "043e2902010000dc0e0000f1701d0201060302f0ff15ff10000000dc0e0000f1706a0b8101d70283270500b2"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Thermoplus"
         assert sensor_msg["type"] == "Lanyard/mini hygrometer"

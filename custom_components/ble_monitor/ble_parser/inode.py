@@ -82,14 +82,12 @@ def parse_inode(self, data, source_mac, rssi):
         prev_packet = None
     if prev_packet == packet_id:
         # only process new messages
-        return None
+        if self.filter_duplicates is True:
+            return None
     self.lpacket_ids[inode_mac] = packet_id
-    if prev_packet is None:
-        # ignore first message after a restart
-        return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and inode_mac.lower() not in self.whitelist:
+    # check for MAC presence in sensor whitelist, if needed
+    if self.discovery is False and inode_mac.lower() not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(inode_mac))
         return None
 

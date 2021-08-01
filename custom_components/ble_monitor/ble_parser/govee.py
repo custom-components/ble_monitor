@@ -82,8 +82,8 @@ def parse_govee(self, data, source_mac, rssi):
             )
         return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and govee_mac.lower() not in self.whitelist:
+    # check for MAC presence in sensor whitelist, if needed
+    if self.discovery is False and govee_mac.lower() not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(govee_mac))
         return None
 

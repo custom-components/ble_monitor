@@ -1,6 +1,6 @@
 """The tests for the Mi Scale ble_parser."""
 import pytest
-from ble_monitor.ble_parser import ble_parser
+from ble_monitor.ble_parser import BleParser
 
 
 class TestMiscale:
@@ -8,11 +8,6 @@ class TestMiscale:
     @pytest.fixture(autouse=True)
     def _init_ble_monitor(self):
         self.lpacket_ids = {}
-        self.movements_list = {}
-        self.adv_priority = {}
-        self.trackerlist = []
-        self.report_unknown = "other"
-        self.discovery = True
 
     def test_miscale_v1(self):
         """Test Mi Scale v1 parser."""
@@ -24,7 +19,8 @@ class TestMiscale:
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Mi Scale V1"
         assert sensor_msg["type"] == "Mi Scale V1"
@@ -47,7 +43,8 @@ class TestMiscale:
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Mi Scale V1"
         assert sensor_msg["type"] == "Mi Scale V1"
@@ -70,7 +67,8 @@ class TestMiscale:
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Mi Scale V1"
         assert sensor_msg["type"] == "Mi Scale V1"
@@ -94,7 +92,8 @@ class TestMiscale:
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Mi Scale V2"
         assert sensor_msg["type"] == "Mi Scale V2"
@@ -117,7 +116,8 @@ class TestMiscale:
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         self.lpacket_ids[mac] = "1"
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Mi Scale V2"
         assert sensor_msg["type"] == "Mi Scale V2"

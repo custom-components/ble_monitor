@@ -55,6 +55,7 @@ def parse_miscale(self, data, source_mac, rssi):
             weight_unit = None
     else:
         device_type = None
+
     if device_type is None:
         if self.report_unknown == "Mi Scale":
             _LOGGER.info(
@@ -89,14 +90,16 @@ def parse_miscale(self, data, source_mac, rssi):
         prev_packet = None
     if prev_packet == packet_id:
         # only process new messages
-        return None
+        if self.filter_duplicates is True:
+            return None
     self.lpacket_ids[miscale_mac] = packet_id
     if prev_packet is None:
-        # ignore first message after a restart
-        return None
+        if self.filter_duplicates is True:
+            # ignore first message after a restart
+            return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and miscale_mac.lower() not in self.whitelist:
+    # check for MAC presence in sensor whitelist, if needed
+    if self.discovery is False and miscale_mac.lower() not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(miscale_mac))
         return None
 
