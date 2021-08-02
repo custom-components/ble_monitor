@@ -14,10 +14,6 @@ class TestInode:
         data_string = "043E2102010000473A6D6F1200150201060EFF90820400CFE40000DC05B0ED10020A08A5"
         data = bytes(bytearray.fromhex(data_string))
 
-        # # get the mac to fill in an initial packet id
-        # is_ext_packet = True if data[3] == 0x0D else False
-        # mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
-        # self.lpacket_ids[mac] = "0400cfe40000dc05b0ed20"
         # pylint: disable=unused-variable
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_data(data)
