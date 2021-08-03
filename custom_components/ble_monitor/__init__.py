@@ -24,7 +24,7 @@ from homeassistant.helpers.entity_registry import (
     async_entries_for_device,
 )
 
-from .ble_parser import ble_parser
+from .ble_parser import BleParser
 from .const import (
     DEFAULT_DECIMALS,
     DEFAULT_PERIOD,
@@ -446,16 +446,14 @@ class HCIdump(Thread):
         self._event_loop = None
         self._joining = False
         self.evt_cnt = 0
-        self.lpacket_ids = {}
-        self.movements_list = {}
-        self.adv_priority = {}
         self.config = config
         self._interfaces = config[CONF_HCI_INTERFACE]
         self._active = int(config[CONF_ACTIVE_SCAN] is True)
         self.discovery = True
+        self.filter_duplicates = True
         self.aeskeys = {}
-        self.whitelist = []
-        self.trackerlist = []
+        self.sensor_whitelist = []
+        self.tracker_whitelist = []
         self.report_unknown = False
         if self.config[CONF_REPORT_UNKNOWN]:
             self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
@@ -476,19 +474,19 @@ class HCIdump(Thread):
                     continue
         _LOGGER.debug("%s encryptors mac:key pairs loaded.", len(self.aeskeys))
 
-        # prepare whitelist to speedup parser
+        # prepare sensor whitelist to speedup parser
         if isinstance(self.config[CONF_DISCOVERY], bool) and self.config[CONF_DISCOVERY] is False:
             self.discovery = False
             if self.config[CONF_DEVICES]:
                 for device in self.config[CONF_DEVICES]:
-                    self.whitelist.append(device["mac"])
+                    self.sensor_whitelist.append(device["mac"])
 
-        # remove duplicates from whitelist
-        self.whitelist = list(dict.fromkeys(self.whitelist))
-        _LOGGER.debug("whitelist: [%s]", ", ".join(self.whitelist).upper())
-        for i, mac in enumerate(self.whitelist):
-            self.whitelist[i] = bytes.fromhex(mac.replace(":", "")).lower()
-        _LOGGER.debug("%s whitelist item(s) loaded.", len(self.whitelist))
+        # remove duplicates from sensor whitelist
+        self.sensor_whitelist = list(dict.fromkeys(self.sensor_whitelist))
+        _LOGGER.debug("sensor whitelist: [%s]", ", ".join(self.sensor_whitelist).upper())
+        for i, mac in enumerate(self.sensor_whitelist):
+            self.sensor_whitelist[i] = bytes.fromhex(mac.replace(":", "")).lower()
+        _LOGGER.debug("%s sensor whitelist item(s) loaded.", len(self.sensor_whitelist))
 
         # prepare device tracker list to speedup parser
         if self.config[CONF_DEVICES]:
@@ -497,17 +495,25 @@ class HCIdump(Thread):
                     track_mac = bytes.fromhex(
                         device["mac"].replace(":", "")
                     )
-                    self.trackerlist.append(track_mac.lower())
+                    self.tracker_whitelist.append(track_mac.lower())
                 else:
                     continue
-        _LOGGER.debug("%s device tracker(s) being monitored.", len(self.trackerlist))
+        _LOGGER.debug("%s device tracker(s) being monitored.", len(self.tracker_whitelist))
 
     def process_hci_events(self, data):
         """Parse HCI events."""
         self.evt_cnt += 1
         if len(data) < 12:
             return
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser(
+            report_unknown=self.report_unknown,
+            discovery=self.discovery,
+            filter_duplicates=self.filter_duplicates,
+            sensor_whitelist=self.sensor_whitelist,
+            tracker_whitelist=self.tracker_whitelist,
+            aeskeys=self.aeskeys
+        )
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
         if sensor_msg:
             measurements = list(sensor_msg.keys())
             device_type = sensor_msg["type"]

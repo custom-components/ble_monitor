@@ -99,8 +99,8 @@ def parse_atc(self, data, source_mac, rssi):
             )
         return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and atc_mac.lower() not in self.whitelist:
+    # check for MAC presence in sensor whitelist, if needed
+    if self.discovery is False and atc_mac.lower() not in self.sensor_whitelist:
         return None
 
     try:
@@ -117,11 +117,10 @@ def parse_atc(self, data, source_mac, rssi):
         # always process advertisements with a higher priority
         self.adv_priority[atc_mac] = adv_priority
     elif adv_priority == old_adv_priority:
-        # only process messages with same priority that have a unique packet id
-        if prev_packet == packet_id:
-            return None
-        else:
-            pass
+        if self.filter_duplicates is True:
+            # only process messages with same priority that have a changed packet id
+            if prev_packet == packet_id:
+                return None
     else:
         # do not process advertisements with lower priority
         old_adv_priority -= 1

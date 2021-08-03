@@ -3,7 +3,7 @@
 # Usage:
 #   pip3 install bluepy
 #   python3 get_beacon_key.py <MAC> <PRODUCT_ID>
-# 
+#
 # List of PRODUCT_ID:
 #   339: For 'YLYK01YL'
 #   950: For 'YLKG07YL/YLKG08YL'
@@ -11,7 +11,7 @@
 #   1254: For 'YLYK01YL-VENFAN'
 #   1678: For 'YLYK01YL-FANCL'
 #
-# Example: 
+# Example:
 #   python3 get_beacon_key.py AB:CD:EF:12:34:56 950
 
 from bluepy.btle import UUID, Peripheral, DefaultDelegate
@@ -27,12 +27,13 @@ UUID_SERVICE = "fe95"
 HANDLE_AUTH = 3
 HANDLE_FIRMWARE_VERSION = 10
 HANDLE_AUTH_INIT = 19
-HANDLE_BEACON_KEY= 25
+HANDLE_BEACON_KEY = 25
 
 MI_KEY1 = bytes([0x90, 0xCA, 0x85, 0xDE])
 MI_KEY2 = bytes([0x92, 0xAB, 0x54, 0xFA])
 SUBSCRIBE_TRUE = bytes([0x01, 0x00])
-  
+
+
 def reverseMac(mac) -> bytes:
     parts = mac.split(":")
     reversedMac = bytearray()
@@ -41,11 +42,14 @@ def reverseMac(mac) -> bytes:
         reversedMac.extend(bytearray.fromhex(parts[leng - i]))
     return reversedMac
 
+
 def mixA(mac, productID) -> bytes:
     return bytes([mac[0], mac[2], mac[5], (productID & 0xff), (productID & 0xff), mac[4], mac[5], mac[1]])
 
+
 def mixB(mac, productID) -> bytes:
     return bytes([mac[0], mac[2], mac[5], ((productID >> 8) & 0xff), mac[4], mac[0], mac[5], (productID & 0xff)])
+
 
 def cipherInit(key) -> bytes:
     perm = bytearray()
@@ -58,6 +62,7 @@ def cipherInit(key) -> bytes:
         j = j & 0xff
         perm[i], perm[j] = perm[j], perm[i]
     return perm
+
 
 def cipherCrypt(input, perm) -> bytes:
     index1 = 0
@@ -73,19 +78,21 @@ def cipherCrypt(input, perm) -> bytes:
         idx = idx & 0xff
         outputByte = input[i] ^ perm[idx]
         output.extend(bytes([outputByte & 0xff]))
-
     return output
+
 
 def cipher(key, input) -> bytes:
     # More information: https://github.com/drndos/mikettle
     perm = cipherInit(key)
     return cipherCrypt(input, perm)
 
+
 def generateRandomToken() -> bytes:
     token = bytearray()
     for i in range(0, 12):
-        token.extend(bytes([random.randint(0,255)]))
+        token.extend(bytes([random.randint(0, 255)]))
     return token
+
 
 def get_beacon_key(mac, product_id):
     reversed_mac = reverseMac(mac)
@@ -109,7 +116,7 @@ def get_beacon_key(mac, product_id):
     peripheral.waitForNotifications(10.0)
     peripheral.writeCharacteristic(3, cipher(token, MI_KEY2), "true")
     print("Successful authentication!")
-    
+
     # Read
     beacon_key = cipher(token, peripheral.readCharacteristic(HANDLE_BEACON_KEY)).hex()
     firmware_version = cipher(token, peripheral.readCharacteristic(HANDLE_FIRMWARE_VERSION)).decode()
@@ -117,9 +124,10 @@ def get_beacon_key(mac, product_id):
     print(f"beaconKey: '{beacon_key}'")
     print(f"firmware_version: '{firmware_version}'")
 
+
 def main(argv):
     # ARGS
-    if len(argv) <= 2 : 
+    if len(argv) <= 2:
         print("usage: get_beacon_key.py <MAC> <PRODUCT_ID>\n")
         print("PRODUCT_ID:")
         print("  339: For 'YLYK01YL'")
@@ -135,7 +143,7 @@ def main(argv):
         print(f"[ERROR] The MAC address '{mac}' seems to be in the wrong format")
         return
 
-    # PRODUCT_ID  
+    # PRODUCT_ID
     product_id = argv[2]
     try:
         product_id = int(product_id)
@@ -145,6 +153,7 @@ def main(argv):
 
     # BEACON_KEY
     get_beacon_key(mac, product_id)
+
 
 if __name__ == '__main__':
     main(sys.argv)

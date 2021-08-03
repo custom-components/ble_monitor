@@ -1,25 +1,16 @@
 """The tests for the kegtron ble_parser."""
-import pytest
-from ble_monitor.ble_parser import ble_parser
+from ble_monitor.ble_parser import BleParser
 
 
 class TestKegtron:
-
-    @pytest.fixture(autouse=True)
-    def _init_ble_monitor(self):
-        self.lpacket_ids = {}
-        self.movements_list = {}
-        self.adv_priority = {}
-        self.trackerlist = []
-        self.report_unknown = "other"
-        self.discovery = True
 
     def test_kegtron_kt100(self):
         """Test kegtron parser for KT-100."""
         data_string = "043e2b02010400759b5c5ecfd01f1effffff49ef138802e20153696e676c6520506f7274000000000000000000ae"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Kegtron"
         assert sensor_msg["type"] == "Kegtron KT-100"
@@ -40,7 +31,8 @@ class TestKegtron:
         data_string = "043e2b02010400759b5c5ecfd01f1effffff49ef138802e251326e6420506f7274000000000000000000000000af"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
-        sensor_msg, tracker_msg = ble_parser(self, data)
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Kegtron"
         assert sensor_msg["type"] == "Kegtron KT-200"

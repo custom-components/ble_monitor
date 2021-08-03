@@ -107,12 +107,14 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                     # start with empty first packet
                     prev_packet = None
                 if prev_packet == packet_id:
-                    # only process new messages
-                    return None
+                    if self.filter_duplicates is True:
+                        # only process new messages
+                        return None
                 self.lpacket_ids[ruuvitag_mac] = packet_id
                 if prev_packet is None:
-                    # ignore first message after a restart
-                    return None
+                    if self.filter_duplicates is True:
+                        # ignore first message after a restart
+                        return None
                 # Check for an increased movement counter
                 try:
                     prev_movement = self.movements_list[ruuvitag_mac]
@@ -189,8 +191,8 @@ def parse_ruuvitag(self, data, source_mac, rssi):
         else:
             batt = 0
         result["battery"] = round(batt, 1)
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and ruuvitag_mac.lower() not in self.whitelist:
+    # check for MAC presence in sensor whitelist, if needed
+    if self.discovery is False and ruuvitag_mac.lower() not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(ruuvitag_mac))
         return None
     if version < 5:

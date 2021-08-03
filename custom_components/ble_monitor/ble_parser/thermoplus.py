@@ -57,8 +57,8 @@ def parse_thermoplus(self, data, source_mac, rssi):
         _LOGGER.debug("Invalid MAC address for Thermoplus device")
         return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and thermoplus_mac.lower() not in self.whitelist:
+    # check for MAC presence in sensor whitelist, if needed
+    if self.discovery is False and thermoplus_mac.lower() not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(thermoplus_mac))
         return None
 
