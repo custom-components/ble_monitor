@@ -133,7 +133,7 @@ MEASUREMENT_DICT = {
     'SJWS01LM'                : [["battery"], [], ["moisture"]],
     'MJYD02YL'                : [["battery"], [], ["light", "motion"]],
     'MUE4094RT'               : [[], [], ["motion"]],
-    'RTCGQ02LM'               : [[], ["button"], ["light", "motion"]],
+    'RTCGQ02LM'               : [["battery"], ["button"], ["light", "motion"]],
     'MMC-T201-1'              : [["temperature", "battery"], [], []],
     'M1S-T500'                : [["battery"], ["toothbrush mode"], []],
     'CGC1'                    : [["temperature", "humidity", "battery"], [], []],

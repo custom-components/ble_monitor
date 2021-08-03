@@ -500,12 +500,8 @@ class HCIdump(Thread):
                     continue
         _LOGGER.debug("%s device tracker(s) being monitored.", len(self.tracker_whitelist))
 
-    def process_hci_events(self, data):
-        """Parse HCI events."""
-        self.evt_cnt += 1
-        if len(data) < 12:
-            return
-        ble_parser = BleParser(
+        # prepare the ble_parser
+        self.ble_parser = BleParser(
             report_unknown=self.report_unknown,
             discovery=self.discovery,
             filter_duplicates=self.filter_duplicates,
@@ -513,7 +509,13 @@ class HCIdump(Thread):
             tracker_whitelist=self.tracker_whitelist,
             aeskeys=self.aeskeys
         )
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+    def process_hci_events(self, data):
+        """Parse HCI events."""
+        self.evt_cnt += 1
+        if len(data) < 12:
+            return
+        sensor_msg, tracker_msg = self.ble_parser.parse_data(data)
         if sensor_msg:
             measurements = list(sensor_msg.keys())
             device_type = sensor_msg["type"]
