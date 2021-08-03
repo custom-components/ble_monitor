@@ -1,18 +1,8 @@
 """The tests for the Thermoplus ble_parser."""
-import pytest
 from ble_monitor.ble_parser import BleParser
 
 
 class TestThermoplus:
-
-    # @pytest.fixture(autouse=True)
-    # def _init_ble_monitor(self):
-    #     self.lpacket_ids = {}
-    #     self.movements_list = {}
-    #     self.adv_priority = {}
-    #     self.trackerlist = []
-    #     self.report_unknown = "other"
-    #     self.discovery = True
 
     def test_thermoplus_smart_hygrometer(self):
         """Test thermoplus Smart hygrometer parser."""

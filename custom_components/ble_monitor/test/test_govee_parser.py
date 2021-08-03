@@ -1,18 +1,8 @@
 """The tests for the Govee ble_parser."""
-import pytest
 from ble_monitor.ble_parser import BleParser
 
 
 class TestGovee:
-
-    # @pytest.fixture(autouse=True)
-    # def _init_ble_monitor(self):
-    #     self.lpacket_ids = {}
-    #     self.movements_list = {}
-    #     self.adv_priority = {}
-    #     self.trackerlist = []
-    #     self.report_unknown = "other"
-    #     self.discovery = True
 
     def test_Govee_H5074(self):
         """Test Govee H5074 parser."""

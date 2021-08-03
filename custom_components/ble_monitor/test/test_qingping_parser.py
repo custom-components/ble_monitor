@@ -1,18 +1,8 @@
 """The tests for the Qingping ble_parser."""
-import pytest
 from ble_monitor.ble_parser import BleParser
 
 
 class TestQingping:
-
-    # @pytest.fixture(autouse=True)
-    # def _init_ble_monitor(self):
-    #     self.lpacket_ids = {}
-    #     self.movements_list = {}
-    #     self.adv_priority = {}
-    #     self.trackerlist = []
-    #     self.report_unknown = "other"
-    #     self.discovery = True
 
     def test_qingping_CGP1W(self):
         """Test Qingping parser for CGP1W."""

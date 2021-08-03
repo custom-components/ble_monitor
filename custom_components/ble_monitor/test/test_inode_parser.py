@@ -1,13 +1,8 @@
 """The tests for the iNode ble_parser."""
-import pytest
 from ble_monitor.ble_parser import BleParser
 
 
 class TestInode:
-
-    @pytest.fixture(autouse=True)
-    def _init_ble_monitor(self):
-        self.lpacket_ids = {}
 
     def test_inode_energy_meter(self):
         """Test inode parser for iNode Energy Monitor."""

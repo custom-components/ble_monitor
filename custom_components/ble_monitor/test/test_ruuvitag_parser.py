@@ -1,14 +1,8 @@
 """The tests for the Ruuvitag ble_parser."""
-import pytest
 from ble_monitor.ble_parser import BleParser
 
 
 class TestRuuviTag:
-
-    @pytest.fixture(autouse=True)
-    def _init_ble_monitor(self):
-        self.lpacket_ids = {}
-        self.movements_list = {}
 
     def test_ruuvitag_v2(self):
         """Test ruuvitag v2 parser."""

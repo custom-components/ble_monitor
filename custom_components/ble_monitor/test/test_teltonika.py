@@ -1,18 +1,8 @@
 """The tests for the Teltonika ble_parser."""
-import pytest
 from ble_monitor.ble_parser import BleParser
 
 
 class TestTeltonika:
-
-    # @pytest.fixture(autouse=True)
-    # def _init_ble_monitor(self):
-    #     self.lpacket_ids = {}
-    #     self.movements_list = {}
-    #     self.adv_priority = {}
-    #     self.trackerlist = []
-    #     self.report_unknown = "other"
-    #     self.discovery = True
 
     def test_blue_puck_T(self):
         """Test Teltonika parser for Blue Puck T."""

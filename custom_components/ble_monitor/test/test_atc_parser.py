@@ -1,17 +1,8 @@
 """The tests for the ATC ble_parser."""
-import pytest
 from ble_monitor.ble_parser import BleParser
 
 
 class TestATC:
-
-    # @pytest.fixture(autouse=True)
-    # def _init_ble_monitor(self):
-    #     # self.trackerlist = []
-    #     # self.report_unknown = "other"
-    #     self.discovery = True
-
-    #     ble_parser = BleParser()
 
     def test_atc_atc1441(self):
         """Test ATC parser for ATC 1441 format."""

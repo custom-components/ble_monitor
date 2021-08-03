@@ -1,18 +1,8 @@
 """The tests for the Brifit ble_parser."""
-import pytest
 from ble_monitor.ble_parser import BleParser
 
 
 class TestBrifit:
-
-    # @pytest.fixture(autouse=True)
-    # def _init_ble_monitor(self):
-    #     self.lpacket_ids = {}
-    #     self.movements_list = {}
-    #     self.adv_priority = {}
-    #     self.trackerlist = []
-    #     self.report_unknown = "other"
-    #     self.discovery = True
 
     def test_brifit(self):
         """Test brifit parser."""
