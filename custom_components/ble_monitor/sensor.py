@@ -37,6 +37,7 @@ except ImportError:
 
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
+from homeassistant.components.sensor import STATE_CLASS_MEASUREMENT
 import homeassistant.util.dt as dt_util
 
 from .const import (
@@ -280,6 +281,7 @@ class BaseSensor(RestoreEntity):
         self._fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
         self._name = ""
         self._state = None
+        self._state_class = None
         self._unit_of_measurement = ""
         self._device_settings = self.get_device_settings()
         self._device_name = self._device_settings["name"]
@@ -355,6 +357,11 @@ class BaseSensor(RestoreEntity):
     def state(self):
         """Return the state of the sensor."""
         return self._state
+
+    @property
+    def state_class(self):
+        """Return type of state."""
+        return self._state_class
 
     @property
     def unit_of_measurement(self):
@@ -482,6 +489,7 @@ class MeasuringSensor(BaseSensor):
         self._jagged = False
         self._fmdh_dec = 0
         self._use_median = self._device_settings["use median"]
+        self._state_class = STATE_CLASS_MEASUREMENT
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
@@ -779,6 +787,7 @@ class InstantUpdateSensor(BaseSensor):
         """Initialize the sensor."""
         super().__init__(config, mac, devtype, firmware)
         self._reset_timer = self._device_settings["reset timer"]
+        self._state_class = STATE_CLASS_MEASUREMENT
 
     def collect(self, data, batt_attr=None):
         """Measurements collector."""
@@ -1030,6 +1039,7 @@ class SwitchSensor(InstantUpdateSensor):
         super().__init__(config, mac, devtype, firmware)
         self._measurement = ""
         self._button = ""
+        self._state_class = None
 
     @property
     def icon(self):
