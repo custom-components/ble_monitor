@@ -37,7 +37,7 @@ except ImportError:
 
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.components.sensor import STATE_CLASS_MEASUREMENT
+from homeassistant.components.sensor import SensorEntity, STATE_CLASS_MEASUREMENT
 import homeassistant.util.dt as dt_util
 
 from .const import (
@@ -230,7 +230,7 @@ class BLEupdater():
             ble_adv_cnt = 0
 
 
-class BaseSensor(RestoreEntity):
+class BaseSensor(RestoreEntity, SensorEntity):
     """Base class for all sensor entities."""
 
     # BaseSensor
