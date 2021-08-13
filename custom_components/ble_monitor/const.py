@@ -238,3 +238,8 @@ MANUFACTURER_DICT = {
     'Blue Puck T'             : 'Teltonika',
     'Blue Puck RHT'           : 'Teltonika',
 }
+
+# Renamed model dictionary
+RENAMED_MODEL_DICT = {
+    'H5051/H5074': 'H5074'
+}

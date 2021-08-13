@@ -61,6 +61,7 @@ from .const import (
     MANUFACTURER_DICT,
     MEASUREMENT_DICT,
     SENSOR_DICT,
+    RRENAMED_MODEL_DICT,
     DOMAIN,
 )
 
@@ -141,6 +142,9 @@ class BLEupdater():
                 if dev:
                     mac = mac.replace(":", "")
                     sensortype = dev.model
+                    # migrate to new model name if changed
+                    if dev.model in RENAMED_MODEL_DICT.keys():
+                        sensortype = RENAMED_MODEL_DICT[dev.model]
                     firmware = dev.sw_version
                     if sensortype and firmware:
                         sensors = await async_add_sensor(mac, sensortype, firmware)
@@ -173,6 +177,9 @@ class BLEupdater():
                 rssi[mac].append(int(data["rssi"]))
                 batt_attr = None
                 sensortype = data["type"]
+                # migrate to new model name if changed
+                if data["type"] in RENAMED_MODEL_DICT.keys():
+                    sensortype = RENAMED_MODEL_DICT[data["type"]]
                 firmware = data["firmware"]
                 averaging_sensors = MEASUREMENT_DICT[sensortype][0]
                 instant_sensors = MEASUREMENT_DICT[sensortype][1]
