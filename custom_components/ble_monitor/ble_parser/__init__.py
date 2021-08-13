@@ -98,7 +98,10 @@ class BleParser:
                     if adstruct[0] == 0x15 and (comp_id == 0x0010 or comp_id == 0x0011):  # Thermoplus
                         sensor_data = parse_thermoplus(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x0A and comp_id == 0xEC88:  # Govee H5051/H5074
+                    if adstruct[0] == 0x0C and comp_id == 0xEC88:  # Govee H5051
+                        sensor_data = parse_govee(self, adstruct, mac, rssi)
+                        break
+                    if adstruct[0] == 0x0A and comp_id == 0xEC88:  # Govee H5074
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
                     if adstruct[0] == 0x09 and comp_id == 0xEC88:  # Govee H5072/H5075
