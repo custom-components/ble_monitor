@@ -139,7 +139,7 @@ def obj1001(xobj):
             remote_binary = None
         elif button_type == 3:
             remote_command = "+"
-            fan_remote_command = " color temperature"
+            fan_remote_command = "color temperature"
             ven_fan_remote_command = "strong wind speed"
             bathroom_remote_command = "speed +"
             three_btn_switch_left = "toggle"
