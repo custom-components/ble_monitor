@@ -37,7 +37,11 @@ def parse_govee(self, data, source_mac, rssi):
         batt = int(data[9])
         result.update({"temperature": temp, "humidity": humi, "battery": batt})
     elif msg_length == 11 and device_id == 0xEC88:
-        device_type = "H5051/H5074"
+        device_type = "H5074"
+        (temp, humi, batt) = unpack("<hHB", data[5:10])
+        result.update({"temperature": temp / 100, "humidity": humi / 100, "battery": batt})
+    elif msg_length == 13 and device_id == 0xEC88:
+        device_type = "H5051"
         (temp, humi, batt) = unpack("<hHB", data[5:10])
         result.update({"temperature": temp / 100, "humidity": humi / 100, "battery": batt})
     elif msg_length == 13 and device_id == 0x0001:

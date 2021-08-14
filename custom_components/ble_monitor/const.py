@@ -167,7 +167,8 @@ MEASUREMENT_DICT = {
     'T201'                    : [["temperature", "humidity", "battery", "voltage"], [], []],
     'H5072/H5075'             : [["temperature", "humidity", "battery"], [], []],
     'H5101/H5102/H5177'       : [["temperature", "humidity", "battery"], [], []],
-    'H5051/H5074'             : [["temperature", "humidity", "battery"], [], []],
+    'H5051'                   : [["temperature", "humidity", "battery"], [], []],
+    'H5074'                   : [["temperature", "humidity", "battery"], [], []],
     'H5178'                   : [["temperature", "temperature outdoor", "humidity", "humidity outdoor", "battery"], [], []],
     'H5179'                   : [["temperature", "humidity", "battery"], [], []],
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage"], ["acceleration"], ["motion"]],
@@ -228,11 +229,17 @@ MANUFACTURER_DICT = {
     'T201'                    : 'Brifit',
     'H5072/H5075'             : 'Govee',
     'H5101/H5102/H5177'       : 'Govee',
-    'H5051/H5074'             : 'Govee',
+    'H5051'                   : 'Govee',
+    'H5074'                   : 'Govee',
     'H5178'                   : 'Govee',
     'H5179'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
     'iNode Energy Meter'      : 'iNode',
     'Blue Puck T'             : 'Teltonika',
     'Blue Puck RHT'           : 'Teltonika',
+}
+
+# Renamed model dictionary
+RENAMED_MODEL_DICT = {
+    'H5051/H5074': 'H5074'
 }
