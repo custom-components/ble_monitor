@@ -5,35 +5,28 @@ import logging
 import statistics as sts
 
 from homeassistant.const import (
-    DEVICE_CLASS_BATTERY,
-    DEVICE_CLASS_ENERGY,
-    DEVICE_CLASS_POWER,
-    DEVICE_CLASS_HUMIDITY,
-    DEVICE_CLASS_ILLUMINANCE,
-    DEVICE_CLASS_PRESSURE,
-    DEVICE_CLASS_TEMPERATURE,
-    DEVICE_CLASS_VOLTAGE,
-    CONDUCTIVITY,
-    ENERGY_KILO_WATT_HOUR,
-    POWER_KILO_WATT,
-    PRESSURE_HPA,
-    TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
     ATTR_BATTERY_LEVEL,
+    CONDUCTIVITY,
     CONF_DEVICES,
     CONF_NAME,
     CONF_TEMPERATURE_UNIT,
     CONF_UNIQUE_ID,
+    DEVICE_CLASS_BATTERY,
+    DEVICE_CLASS_ENERGY,
+    DEVICE_CLASS_HUMIDITY,
+    DEVICE_CLASS_ILLUMINANCE,
+    DEVICE_CLASS_POWER,
+    DEVICE_CLASS_PRESSURE,
+    DEVICE_CLASS_TEMPERATURE,
+    DEVICE_CLASS_VOLTAGE,
+    ELECTRIC_POTENTIAL_VOLT,
+    ENERGY_KILO_WATT_HOUR,
+    PERCENTAGE,
+    POWER_KILO_WATT,
+    PRESSURE_HPA,
+    TEMP_CELSIUS,
+    TEMP_FAHRENHEIT
 )
-
-try:
-    from homeassistant.const import PERCENTAGE
-except ImportError:
-    from homeassistant.const import UNIT_PERCENTAGE as PERCENTAGE
-try:
-    from homeassistant.const import ELECTRIC_POTENTIAL_VOLT
-except ImportError:
-    from homeassistant.const import VOLT as ELECTRIC_POTENTIAL_VOLT
 
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
