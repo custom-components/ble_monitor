@@ -3,10 +3,9 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestGovee:
-
     def test_Govee_H5051(self):
-        """Test Govee H5074 parser."""
-        data_string = "043e1702010400aabb615960e30b0cff88ec00BA0AF90F63020101b7"
+        """Test Govee H5051 parser."""
+        data_string = "043e1902010400aabb615960e30d0cff88ec00ba0af90f63020101b7"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
