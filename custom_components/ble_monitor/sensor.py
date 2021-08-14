@@ -61,7 +61,7 @@ from .const import (
     MANUFACTURER_DICT,
     MEASUREMENT_DICT,
     SENSOR_DICT,
-    RRENAMED_MODEL_DICT,
+    RENAMED_MODEL_DICT,
     DOMAIN,
 )
 
