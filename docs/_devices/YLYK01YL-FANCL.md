@@ -9,7 +9,7 @@ broadcasted_properties:
   - button
 broadcasted_property_notes:
   - property: fan remote
-    note: button pressed options are 'fan toggle', 'light toggle', 'wind speed', 'wind mode', 'brightness min', 'brightness max'
+    note: button pressed options are 'fan toggle', 'light toggle', 'wind speed', 'wind mode', 'brightness', 'color temperature'
   - property: button
     note: press types are 'short press' or 'long press'
 broadcast_rate:
