@@ -4,6 +4,7 @@ import asyncio
 import logging
 
 from homeassistant.components.binary_sensor import (
+    BinarySensorEntity,
     DEVICE_CLASS_LIGHT,
     DEVICE_CLASS_MOISTURE,
     DEVICE_CLASS_MOTION,
@@ -11,11 +12,6 @@ from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_POWER,
     DEVICE_CLASS_SMOKE,
 )
-
-try:
-    from homeassistant.components.binary_sensor import BinarySensorEntity
-except ImportError:
-    from homeassistant.components.binary_sensor import BinarySensorDevice as BinarySensorEntity
 
 from homeassistant.const import (
     CONF_DEVICES,
