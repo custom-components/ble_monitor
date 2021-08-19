@@ -120,7 +120,7 @@ DOMAIN_SCHEMA = vol.Schema(
         ),
         vol.Optional(
             CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): vol.In(
-            ["ATC", "Brifit", "Govee", "iNode", "Kegtron", "Mi Scale", "Qingping", "Ruuvitag", "Teltonika", "Thermoplus", "Xiaomi", "Other", False]
+            ["ATC", "Brifit", "Govee", "iNode", "Kegtron", "Mi Scale", "Qingping", "Ruuvitag", "SensorPush", "Teltonika", "Thermoplus", "Xiaomi", "Other", False]
         ),
     }
 )
@@ -447,7 +447,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     default=self.config_entry.options.get(
                         CONF_REPORT_UNKNOWN, DEFAULT_REPORT_UNKNOWN
                     ),
-                ): vol.In(["ATC", "Brifit", "Govee", "iNode", "Kegtron", "Mi Scale", "Qingping", "Ruuvitag", "Teltonika", "Thermoplus", "Xiaomi", "Other", False]),
+                ): vol.In(["ATC", "Brifit", "Govee", "iNode", "Kegtron", "Mi Scale", "Qingping", "Ruuvitag", "SensorPush", "Teltonika", "Thermoplus", "Xiaomi", "Other", False]),
             }
         )
         return self._show_user_form("init", options_schema, errors or {})

@@ -175,6 +175,8 @@ MEASUREMENT_DICT = {
     'iNode Energy Meter'      : [["battery", "voltage"], ["energy", "power"], []],
     'Blue Puck T'             : [["temperature"], [], []],
     'Blue Puck RHT'           : [["temperature", "humidity"], [], []],
+    'HTP.xw'                  : [["temperature", "humidity", "pressure"], [], []],
+    'HT.w'                    : [["temperature", "humidity", "pressure"], [], []]
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -237,6 +239,8 @@ MANUFACTURER_DICT = {
     'iNode Energy Meter'      : 'iNode',
     'Blue Puck T'             : 'Teltonika',
     'Blue Puck RHT'           : 'Teltonika',
+    'HTP.xw'                  : 'SensorPush',
+    'HT.w'                    : 'SensorPush',
 }
 
 # Renamed model dictionary
