@@ -2,7 +2,7 @@
 
 ## BLE Monitor for BLE sensors and device tracking
 
-https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/sensors.jpeg)
+![BLE_sensors](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/sensors.jpeg)
 
 This custom component for [Home Assistant](https://www.home-assistant.io) passively monitors [many different BLE devices](https://custom-components.github.io/ble_monitor/devices) of different [brands](https://custom-components.github.io/ble_monitor/by_brand), but can also be used as device tracker for devices with static MAC addresses. 
 
