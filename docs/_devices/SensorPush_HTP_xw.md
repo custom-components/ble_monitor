@@ -9,8 +9,6 @@ broadcasted_properties:
   - humidity
   - pressure
 broadcasted_property_notes:
-  - property: temperature
-    note: Features the highest-accuracy temperature/humidity sensor available, with a typical RH accuracy of +/-1.5%RH from 20%-80%, as well as barometric pressure capability.
   - property: humidity
     note: Typical RH accuracy of the sensor is +/-1.5%RH from 20%-80%
   - property: pressure
