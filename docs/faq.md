@@ -352,7 +352,7 @@ Often, the cause of this is the presence of bugs in the system components respon
 
 In addition, in the case of Raspberry Pi, a common problem is a lack of power. If you do not observe any negative effects associated with a lack of power, then this does not mean that they actually are not present. We have feedback from users who have solved their bluetooth problems installing a more powerful power supply and high-quality cable. Good powering is very important for raspberry. In addition to a sufficiently powerful power supply, attention should be paid to the power cable - it should be able to deliver this power. Often, to compensate for losses, power supplies are made with a slightly higher output voltage (up to 5.1V or even 5.25V).
 
-### My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?
+### My sensor is not in the list of supported ones. How to request implementation?
 
 - [Install the component](Installation) if you have not already done so.
 - Make sure you have [logger](https://www.home-assistant.io/integrations/logger/) enabled, and logging enabled for `info` level (globally or just for `custom_components.ble_monitor`). For example:

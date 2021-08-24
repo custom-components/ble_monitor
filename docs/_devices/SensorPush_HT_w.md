@@ -10,6 +10,7 @@ broadcasted_properties:
 broadcasted_property_notes:
   - property: humidity
     note: Typical RH accuracy of the sensor is +/-1.5%RH from 20%-80%
+broadcast_rate: One reading per minute.
 active_scan:
 encryption_key:
 custom_firmware:
