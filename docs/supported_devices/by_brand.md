@@ -1,6 +1,6 @@
 ---
 layout: default
-title: By Manufacture
+title: By Manufacturer
 permalink: by_brand
 parent: Supported Devices
 nav_order: 1

@@ -13,6 +13,7 @@ Supported sensor brands
 - Kegtron
 - Qingping
 - Ruuvitag
+- SensorPush
 - Teltonika
 - Thermoplus
 - Xiaomi MiBeacon
