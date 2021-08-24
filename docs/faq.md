@@ -5,7 +5,10 @@ permalink: faq
 nav_order: 4
 ---
 
-## Why is this component called passive and what does this mean
+
+## General
+
+### Why is this component called passive and what does this mean
 
 Unlike the original `mitemp_bt` component (and most other solutions), this custom component does not use connections (polling) to collect data. The fact is that many sensors from the Xiaomi ecosystem transmit information themselves about their condition to the air with some frequency. We need only to "passively" receive these messages and update the status of the corresponding entities in the Home Assistant. What does this give us?
 
@@ -84,14 +87,15 @@ Devices:
 
 This means that Python is built/installed without support for Bluetooth. You will have to rebuild Python 3 with `bluetooth.h`. When using a virtual environment (venv), you can do this with the following instructions. Please make a backup first!!!, as you will have to delete the venv with Home Assistant and reinstall it in a new venv. You might need to modify commands for your own situation.
 
-1. Install BT library with:
+
+1 Install BT library with:
 
 ```
 sudo apt-get install bluetooth libbluetooth-dev
 sudo pip3 install pybluez
 ```
 
-2. Rebuild Python:
+2 Rebuild Python:
 
 ```
 cd Python-3.8.6/
@@ -100,14 +104,14 @@ make
 sudo make install
 ```
 
-3. Disable systemctl and reboot:
+3 Disable systemctl and reboot:
 
 ```
 sudo systemctl disable home-assistant@homeassistant
 sudo reboot
 ```
 
-4. Removed old venv and save Home Assistant configuration:
+4 Removed old venv and save Home Assistant configuration:
 
 ```
 cd /srv/homeassistant
@@ -119,7 +123,7 @@ sudo mv .homeassistant/ .homeassistant_backup
 sudo su -s /bin/bash homeassistant
 ```
 
-5. Create a new venv and install HomeAssistant again:
+5 Create a new venv and install HomeAssistant again:
 
 ```
 cd /srv/homeassistant
@@ -129,7 +133,7 @@ pip3 install homeassistant
 hass -v
 ```
 
-6. When you see `INFO (MainThread) [homeassistant.core] Starting Home Assistant` in log use CTRL+C to break and restore your Home Assistant configuration:
+6 When you see `INFO (MainThread) [homeassistant.core] Starting Home Assistant` in log use CTRL+C to break and restore your Home Assistant configuration:
 
 ```
 deactivate
@@ -142,26 +146,7 @@ sudo systemctl enable home-assistant@homeassistant
 sudo reboot
 ```
 
-7. Wait a long time before all plugins are installed in Home Assistant
-
-
-### How can I create a battery sensor?
-
-You can set option `batt_entities` to `True` - the battery sensor entity will be created automatically for each device reporting battery status.
-
-Or you can create a battery sensor by using a template sensor. Add the following to your `configuration.yaml`. Make sure you adjust the name of the sensor with your own sensor.
- {% raw %}
-```yaml
-sensor:
-  - platform: template
-    sensors:
-      ble_battery_582d34339449:
-        friendly_name: "Battery"
-        unit_of_measurement: "%"
-        value_template: "{{ state_attr('sensor.ble_temperature_582d34339449', 'battery_level') }}"
-        device_class: "battery"
-```
- {% endraw %}
+7 Wait a long time before all plugins are installed in Home Assistant
 
 ## Reception Issues
 

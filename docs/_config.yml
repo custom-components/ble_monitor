@@ -23,7 +23,7 @@
 title: Passive BLE Monitor integration
 description: >- # this means to ignore newlines until "baseurl:"
   Passively monitors BLE messages from Xiaomi Mijia BLE MiBeacon, Qingping, ATC,
-  Xiaomi Scale, Kegtron and Thermoplus sensors .
+  Xiaomi Scale, Kegtron and Thermoplus sensors.
 
 # Build settings
 # theme: just-the-docs

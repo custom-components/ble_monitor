@@ -7,7 +7,8 @@ permalink: Installation
 nav_order: 2
 ---
 
-# Step 0. Grant permissions for Python to have rootless access to the HCI interface
+
+## Step 0. Grant permissions for Python to have rootless access to the HCI interface
 
 This is usually only needed for alternative installations of Home Assistant that only install Home Assistant core.
 
@@ -25,27 +26,27 @@ This is usually only needed for alternative installations of Home Assistant that
 
 *In case you get a PermissionError, check the [Frequently Asked Questions (FAQ) page](faq.md).
 
-# Step 1. Install the custom integration
+## Step 1. Install the custom integration
 
 The easiest way to install the BLE Monitor integration is with [HACS](https://hacs.xyz/). First install [HACS](https://hacs.xyz/) if you don't have it yet. After installation you can find this integration in the HACS store under integrations.
 
 Alternatively, you can install it manually. Just copy paste the content of the `ble_monitor/custom_components` folder in your `config/custom_components` directory. As example, you will get the `sensor.py` file in the following path: `/config/custom_components/ble_monitor/sensor.py`. The disadvantage of a manual installation is that you won't be notified about updates.
 
-# Step 2. Add your sensors to the MiHome app if you haven’t already
+## Step 2. Add your sensors to the MiHome app if you haven’t already
 
 Many Xiaomi ecosystem sensors do not broadcast BLE advertisements containing useful data until they have gone through the "pairing" process in the MiHome app. The encryption key is also (re)set when adding the sensor to the MiHome app, so do this first. Some sensors also support alternative ATC firmware, which doesn't need to be paired to MiHome.
 
-# Step 3. Configure the integration
+## Step 3. Configure the integration
 
 There are two ways to configure the integration and your devices (sensors), in the User Interface (UI) or in your YAML configuration file. Choose one method, you can't use both ways at the same time. You are able to switch from one to the other, at any time.
 
-## Step 3a. Configuration in the User Interface
+### Step 3a. Configuration in the User Interface
 
 Make sure you restart Home Assistant after the installation in HACS. After the restart, go to **Configuration** in the side menu in Home Assistant and select **Integrations**. Click on **Add Integrations** in the bottom right corner and search for **Passive BLE Monitor** to install. This will open the configuration menu with the default settings. The options are explained in the [configuration parameters](configuration_params) section below and can also be changed later in the options menu. Depending on the sensor, the sensors should be added to your Home Assistant automatically within a few seconds till 10 minutes.
 
   ![Integration setup]({{site.baseurl}}/assets/images/configuration_screen.png)
 
-## Step 3b. Configuration in YAML
+### Step 3b. Configuration in YAML
 
 Alternatively, you can add the configuration in `configuration.yaml` as explained below. The options are the same as in the UI and are explained in the [configuration parameters](configuration_params) section below. After adding your initial configuration to your YAML file, or applying a configuration change in YAML, a restart is required to load the new configuration. Depending on the sensor, the sensors should be added to your Home Assistant automatically within a few seconds till 10 minutes.
 

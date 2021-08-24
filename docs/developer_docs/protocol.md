@@ -6,7 +6,7 @@ permalink: MiBeacon_protocol
 nav_order: 2
 ---
 
-# Reverse engineering the MiBeacon protocol
+## Reverse engineering the MiBeacon protocol
 
 With the `report_unknown` option, you can collect information about new devices that are not supported yet. An example of the LYWSDCGQ sensor is given below. This sensor supports Temperature, Humidity and battery level and is not encrypted. Enabling this option will genereate a lot of output in the logs, which look like this.
 
@@ -55,7 +55,7 @@ type code    evt rep type addr                             flag         type  UU
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
 ```
 
-## Converting hex to decimals
+### Converting hex to decimals
 Next step is to convert some of the hex numbers to decimals. The following parameters are in the table below converted to decimals, to make it human readable:
 
 - Len
@@ -86,7 +86,7 @@ type code    evt rep type addr                             flag         type  UU
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
 ```
 
-## Explanation of the data
+### Explanation of the data
 
 - A HCI Packet Type: HCI Event (`0x04`)
 - B Event Code: LE Mata (`0x3e`)
@@ -117,7 +117,7 @@ type code    evt rep type addr                             flag         type  UU
 - X Batt = Battery in % (`48` (hex) --> 72 (decimals) --> 72%)
 - Y RSSI (`CB` (hex) --> -53 (decimals))
 
-# Encrypted advertisements
+## Encrypted advertisements
 Some advertisements are encrypted. The following python script shows the decryption of these messages
 
 ```python
