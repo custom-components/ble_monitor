@@ -1,0 +1,82 @@
+.site-title {
+  font-size: 20px !important;
+}
+
+
+.broadcast-label {
+  background-color:#b2c7dd !important;
+  color: #444 !important;
+  max-height: 2em;
+}
+
+.broadcast-label.has-notes {
+  background-color: #FFFF00 !important;
+  border: 1px solid #111;
+}
+
+.device-image {
+  display:flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  max-width: 150px;
+  width: 150px;
+}
+
+.device-image img {
+  max-width: 150px;
+  width: 150px;
+}
+
+p {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+
+// Used to create H1 header without a table of content link
+.fake-h1 {
+  @extend h1
+}
+
+
+.request_new_devices_msg {
+  padding: 3em;
+  text-align: center;
+}
+
+.request_new_devices_msg .open-issue {
+  font-weight: bold;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-auto {
+  flex: 1 1 auto;
+}
+
+.align-items-flex-end {
+  align-items: flex-end;
+}
+
+.align-content-flex-start {
+  align-content: flex-start;
+}

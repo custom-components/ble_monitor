@@ -1,29 +1,9 @@
-# Frequently asked questions
-
-## Table of contents
-
-<!-- TOC -->
-- [Why is this component called “passive” and what does this mean](#why-is-this-component-called-passive-and-what-does-this-mean)
-- [INSTALLATION ISSUES](#installation-issues)
-  - [I get a PermissionError in Home Assistant after the installation](#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade)
-  - [How do I find MAC address or the HCI number of the HCI interface?](#how-do-i-find-the-mac-address-or-the-hci-number-of-the-hci-interface)
-  - [How can I create a battery sensor?](#how-can-i-create-a-battery-sensor)
-  - [I get AttributeError: module 'socket' has no attribute 'AF_BLUETOOTH' in Home Assistant after the installation or python upgrade](#i-get-attributeerror-module-socket-has-no-attribute-af_bluetooth-in-home-assistant-after-the-installation-or-python-upgrade)
-- [RECEPTION ISSUES](#reception-issues)
-  - [My sensor doesn't receive any readings from my sensors anymore or only occasionally](#my-sensor-doesnt-receive-any-readings-from-my-sensors-anymore-or-only-occasionally)
-  - [How to increase coverage](#how-to-increase-coverage)
-  - [My sensor's BLE advertisements are encrypted, how can I get the key?](#my-sensors-ble-advertisements-are-encrypted-how-can-i-get-the-key)
-- [OTHER ISSUES](#other-issues)
-  - [Conflicts with other components using the same BT interface](#conflicts-with-other-components-using-the-same-bt-interface)
-  - [My sensor stops receiving updates some time after the system restart](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart)
-  - [My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?](#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)
-  - [My sensor isn't showing the battery level](#my-sensor-isnt-showing-the-battery-level)
-- [TIPS AND TRICKS](#tips-and-tricks)
-  - [How to know exactly if the reception of data from my sensors has stopped?](#how-to-know-exactly-if-the-reception-of-data-from-my-sensors-has-stopped)
-  - [How can I add a sensor in lovelace that shows the RSSI signal strength?](#how-can-I-add-a-sensor-in-lovelace-that-shows-the-RSSI-signal-strength)
-- [DEBUG](#debug)
-- [FORUM](#forum)
-<!-- /TOC -->
+---
+layout: default
+title: FAQ
+permalink: faq
+nav_order: 4
+---
 
 ## Why is this component called passive and what does this mean
 
@@ -36,7 +16,7 @@ Unlike the original `mitemp_bt` component (and most other solutions), this custo
 
 I’m not sure that I have listed all the advantages resulting from the passivity of this component. But I hope that I was able to explain the essence.
 
-## INSTALLATION ISSUES
+## Installation Issues
 
 ### I get a PermissionError in Home Assistant after the installation or python upgrade
 
@@ -85,7 +65,7 @@ logger:
     custom_components.ble_monitor: info
 ```
 
-After a restart, you will find the MAC addresses in the Home Assistant log. 
+After a restart, you will find the MAC addresses in the Home Assistant log.
 
 An alternative is to use the following shell command to find the correct MAC address or interface number number:
 
@@ -102,11 +82,11 @@ Devices:
 
 ### I get AttributeError: module 'socket' has no attribute 'AF_BLUETOOTH' in Home Assistant after the installation or python upgrade
 
-This means that Python is built/installed without support for Bluetooth. You will have to rebuild Python 3 with `bluetooth.h`. When using a virtual environment (venv), you can do this with the following instructions. Please make a backup first!!!, as you will have to delete the venv with Home Assistant and reinstall it in a new venv. You might need to modify commands for your own situation. 
+This means that Python is built/installed without support for Bluetooth. You will have to rebuild Python 3 with `bluetooth.h`. When using a virtual environment (venv), you can do this with the following instructions. Please make a backup first!!!, as you will have to delete the venv with Home Assistant and reinstall it in a new venv. You might need to modify commands for your own situation.
 
 1. Install BT library with:
 
-``` 
+```
 sudo apt-get install bluetooth libbluetooth-dev
 sudo pip3 install pybluez
 ```
@@ -152,7 +132,7 @@ hass -v
 6. When you see `INFO (MainThread) [homeassistant.core] Starting Home Assistant` in log use CTRL+C to break and restore your Home Assistant configuration:
 
 ```
-deactivate 
+deactivate
 exit
 cd /home/homeassistant
 sudo rm .homeassistant/ -R
@@ -170,7 +150,7 @@ sudo reboot
 You can set option `batt_entities` to `True` - the battery sensor entity will be created automatically for each device reporting battery status.
 
 Or you can create a battery sensor by using a template sensor. Add the following to your `configuration.yaml`. Make sure you adjust the name of the sensor with your own sensor.
-
+ {% raw %}
 ```yaml
 sensor:
   - platform: template
@@ -181,8 +161,9 @@ sensor:
         value_template: "{{ state_attr('sensor.ble_temperature_582d34339449', 'battery_level') }}"
         device_class: "battery"
 ```
+ {% endraw %}
 
-## RECEPTION ISSUES
+## Reception Issues
 
 ### My sensor doesn't receive any readings from my sensors anymore or only occasionally
 
@@ -213,7 +194,7 @@ There are several ways to increase coverage:
 
 - use an external BT-dongle (preferably with a full-size antenna).
 - use multiple spaced BT-dongles. You can experiment with various extension cords (for example, inexpensive [USB-RJ45 extenders](https://sc01.alicdn.com/kf/HTB1q0VKodcnBKNjSZR0q6AFqFXae.jpg) in combination with a regular ethernet cable).
-- use additional devices with their own BT-interface, and connect them to Home Assistant. For example, it could be another raspberrypi with Home Assistant and our component, connected to the main host using the [remote_homeassistant](https://github.com/lukas-hetzenecker/home-assistant-remote) component, which links multiple Home Assistant instances together.
+- use additional devices with their own BT-interface, and connect them to Home Assistant. For example, it could be another raspberrypi with Home Assistant and our component, connected to the main host using the [remote_homeassistant](https://github.com/custom-components/remote_homeassistant) component, which links multiple Home Assistant instances together.
 
 ### My sensor's BLE advertisements are encrypted, how can I get the key?
 
@@ -234,7 +215,7 @@ Get the encryption key with the online tool on the [TelinkFlasher website](https
 
 Note that even though most functionality there (flashing) is only for LYWSD03MMC sensors, this particular version of the page has been modified to allow activation of any device.
 
-![Telink Flasher](/pictures/Telink_flasher_website.png)
+![Telink Flasher]({{site.baseurl}}/assets/images/Telink_flasher_website.png)
 
 - Keep the sensor close to the mobile phone (use Chromium-based browsers on Android, try [WebBLE](https://apps.apple.com/us/app/webble/id1193531073) (paid app) on iOS) or use a PC.
 - Make sure that the bluetooth is enabled.
@@ -243,30 +224,30 @@ Note that even though most functionality there (flashing) is only for LYWSD03MMC
 - Now, click the [Connect] button (1) and wait until it shows "Connected." See the Log section at the bottom. Choose the according target device (i.e. LYWSD03MMC) to pair.
 - Once connected, click the [Do Activation] button (2) and wait until the "Mi Bind Key" (3) shows the information.
 
-Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore. 
-    
-  
+Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore.
+
+
 **3. MiHome mod (Android only)**
 
 Get the key with the customized [MiHome mod](https://www.kapiba.ru/2017/11/mi-home.html) with the following steps.
 
 - You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
-- Create a folder `/devicestorage/vevs/logs/`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app. 
+- Create a folder `/devicestorage/vevs/logs/`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app.
 - [Download](https://www.kapiba.ru/2017/11/mi-home.html) the latest version of MiHome mod and install the MiHome mod apk on your android phone. Use google translate to translate the website, as the website is only available in Russian. At the bottom, you will find the download link to the latest version. MiHome mod is basically just MiHome with some translatons from chinese to English and Russian, but also with the possibility to save the encryption key.
 - During setup of the app, give access to the local device storage.
 - Add the sensor device to the MiHome app.
-- After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod. 
+- After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod.
 
 
 **4. Intercepting the MiHome application traffic**
 
-Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms). 
+Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms).
 
-Unfortunately, Xiaomi has enabled additional encryption of API requests recently, and therefore the procedure for intercepting traffic has become much more complicated. Most of the instructions below won't work anymore, as they are written at the time before encryption was enabled, but we are currently (successfully) looking into the [Charles proxy method](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122) to deal with this encryption. If you are successfull with this or one of the other methods, please open an issue and share the steps you took with us. 
+Unfortunately, Xiaomi has enabled additional encryption of API requests recently, and therefore the procedure for intercepting traffic has become much more complicated. Most of the instructions below won't work anymore, as they are written at the time before encryption was enabled, but we are currently (successfully) looking into the [Charles proxy method](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122) to deal with this encryption. If you are successfull with this or one of the other methods, please open an issue and share the steps you took with us.
 
   - iOS:
     - [using Charles proxy, paid $7-10](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595327131). For more detailed instructions, check [these instructions](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122).
-    - [using Stream - Network Debug Tool, free](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/101?u=magalex). For more detailed instructions, check [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/117?u=magalex) or [these instructions](https://community.home-assistant.io/t/xiaomi-passive-ble-monitor-sensor-platform/177352/300?u=magalex).
+    - [using Stream - Network Debug Tool, free](https://community.home-assistant.io/t/passive-ble-monitor-integration-xiaomi-mijia-ble-mibeacon-monitor/177352/101). For more detailed instructions, check [these instructions](https://community.home-assistant.io/t/passive-ble-monitor-integration-xiaomi-mijia-ble-mibeacon-monitor/177352/117) or [these instructions](https://community.home-assistant.io/t/passive-ble-monitor-integration-xiaomi-mijia-ble-mibeacon-monitor/177352/300).
   - Android:
     - using Packet Capture.
     - [using Burp Suite](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-599780750), device must be rooted.
@@ -278,14 +259,14 @@ Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legac
 
 **5. get_beacon_key python script**
 
-We have created a python script that will get the beaconkey by connecting to the remote/dimmer, which can be found [here](https://github.com/custom-components/ble_monitor/blob/master/custom_components/ble_monitor/ble_parser/get_beacon_key.py). The script is based on a script that is used for [Mi Kettles](https://github.com/rexbut/mikettle/blob/master/get_beacon_key.py). You can get the beaconkey with the following commands. 
+We have created a python script that will get the beaconkey by connecting to the remote/dimmer, which can be found [here](https://github.com/custom-components/ble_monitor/blob/master/custom_components/ble_monitor/ble_parser/get_beacon_key.py). The script is based on a script that is used for [Mi Kettles](https://github.com/rexbut/mikettle/blob/master/get_beacon_key.py). You can get the beaconkey with the following commands.
 
 ```
 wget https://raw.githubusercontent.com/custom-components/ble_monitor/master/custom_components/ble_monitor/ble_parser/get_beacon_key.py
 pip3 install bluepy
 python3 get_beacon_key.py <MAC> <PRODUCT_ID>
 ```
-Replace `<MAC>` with your MAC address of the remote/dimmer and replace `<PRODUCT_ID>` with one of the following numbers, corresponding to your remote/dimmer. 
+Replace `<MAC>` with your MAC address of the remote/dimmer and replace `<PRODUCT_ID>` with one of the following numbers, corresponding to your remote/dimmer.
 
 | PRODUCT_ID|Device               |Type                    |
 |-----------|---------------------|------------------------|
@@ -296,7 +277,7 @@ Replace `<MAC>` with your MAC address of the remote/dimmer and replace `<PRODUCT
 | 1678      | 'YLYK01YL-FANCL'    | Ventilator Fan Remote  |
 
 
-Example: 
+Example:
 
 ```
 python3 get_beacon_key.py AB:CD:EF:12:34:56 950
@@ -306,11 +287,11 @@ This will return the beaconkey from your device.
 
 **6. miiocli tool**
 
-You can get the encryption key with the [miiocli tool (python-miio)](https://github.com/rytilahti/python-miio). 
+You can get the encryption key with the [miiocli tool (python-miio)](https://github.com/rytilahti/python-miio).
 
-- First get the IP address and TOKEN of your the device the remote/dimmer is connected to with [Xiaomi cloud token extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). Login with your Xiaomi credentials and make a note of the `<IP>` and `<TOKEN>` of the device the remote/dimmer is connected to, e.g. a Yeelight ceiling light. 
+- First get the IP address and TOKEN of your the device the remote/dimmer is connected to with [Xiaomi cloud token extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). Login with your Xiaomi credentials and make a note of the `<IP>` and `<TOKEN>` of the device the remote/dimmer is connected to, e.g. a Yeelight ceiling light.
 - Install `python-miio`, installation instructions can be found [in the documentation](https://python-miio.readthedocs.io/en/latest/discovery.html#installation).
-- Send the following command, while replacing `<IP>` and `<TOKEN>` with the result of the first step. 
+- Send the following command, while replacing `<IP>` and `<TOKEN>` with the result of the first step.
 
 ```
 miiocli device --ip <IP> --token <TOKEN> raw_command ble_dbg_tbl_dump '{"table":"evtRuleTbl"}'
@@ -330,16 +311,35 @@ Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key yo
 If you don't have a device (ceiling light) to pair your remote/dimmer with, you can get the key with the customized [MiHome mod](https://ru.kapiba.ru/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) with the following steps.
 
 - You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
-- Create a folder `/devicestorage/vevs/logs/`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app. 
+- Create a folder `/devicestorage/vevs/logs/`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app.
 - [Download MiHome mod](https://ru.kapiba.ru/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) (Make sure your have the modified version 6.5.700_63911_vevs_dimmer.apk) and install the MiHome mod apk on your android phone. MiHome mod is basically just MiHome with some translatons from Chinese to English and Russian, but also with the possibility to save the encryption key and in this specific version the possibility to add the dimmer/remote.
 - During setup of the app, give access to the local device storage.
-- It's suggested to choose India as the region, as this will allow you to use a temporary account and the beaconkey won't change anymore. 
+- It's suggested to choose India as the region, as this will allow you to use a temporary account and the beaconkey won't change anymore.
 - Put your device in pairing mode, click + and pair the remote to the MiHome app.
 - After setting up, a file `pairings.txt` will be created in `/devicestorage/vevs/logs/misc/pairings.txt`. Open this file. The encryption key you need is called `Bindkey`. Also make a note of the corresponding Mac. If the `pairings.txt` file isn't created, try an older version of MiHome mod.
-- You can also read the key after the pairing with [Xiaomi cloud token extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). Use region `i2` if you have selected India before. 
+- You can also read the key after the pairing with [Xiaomi cloud token extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). Use region `i2` if you have selected India before.
 
 
-## OTHER ISSUES
+## Other Issues
+
+### How can I use my device as a tracker
+
+This integration is also capable of tracking Bluetooth devices, as long as it is using a static MAC address (public or random static (lifetime) address). To track a device, add the [mac](configuration_params#mac) address of the device to track under the [devices](configuration_params#devices) option and enable the option [track_device](configuration_params#track_device). The tracker will listen to every advertisement that is send by the device. As this can be quite often, an [tracker_scan_interval](configuration_params#tracker_scan_interval) can be set to reduce the number of state updates in Home Assistant (default 20 seconds). When no advertisments are received anymore, the device tracker entity state will turn to `Away` after the set [consider_home](configuration_params#consider_home) interval (default 180 seconds).
+
+
+### How to remove devices and sensors
+
+Removing devices can be done by removing the corresponding lines in your `configuration.yaml`. In the UI, you can delete devices by typing `-` in the `MAC address` field. Note that if the [discovery](configuration_params#discovery) option is set to `True` sensors will be discovered automatically again.
+
+Unfortunately, old devices and entities are not entirely deleted by this, they will still be visible, but will be `unavailable` after a restart. The same applies for changing a name of an existing device in YAML, the entities with the old name will still remain visible, but with an `unavailable` state after a restart. To completely remove these left overs, follow the following steps.
+
+#### 1. Remove old entities
+
+First, delete the old entities, by going to **configuration**, **integrations** and selecting **devices** in the BLE monitor tile. Select the device with old entities and select each unavailable entity, to delete it manually. If the delete button isn't visible, you will have to restart Home Assistant to unload the entities. Make sure all old entities are deleted before going to the next step.
+
+#### 2. Remove old devices
+
+If the device doesn't have any entities anymore, you can delete the device as well. Unfortunately, Home Assistant doesn't have an delete option to remove the old device. To overcome this problem, we have created a `service` to help you solve this. Go to **developer tools**, **services** and select the `ble_monitor.cleanup_entries` service. Click on **Call service** and the device should be gone. If not, you probably haven't deleted all entities (go to step 1).
 
 ### Conflicts with other components using the same BT interface
 
@@ -354,7 +354,7 @@ In addition, in the case of Raspberry Pi, a common problem is a lack of power. I
 
 ### My sensor from the Xiaomi ecosystem is not in the list of supported ones. How to request implementation?
 
-- [Install the component](https://github.com/custom-components/ble_monitor/blob/master/README.md#how-to-install) if you have not already done so.
+- [Install the component](Installation) if you have not already done so.
 - Make sure you have [logger](https://www.home-assistant.io/integrations/logger/) enabled, and logging enabled for `info` level (globally or just for `custom_components.ble_monitor`). For example:
 
 ```yaml
@@ -365,7 +365,7 @@ logger:
 ```
 
 - Place your sensor extremely close to the HA host (BT interface).
-- [Enable the option](https://github.com/custom-components/ble_monitor/blob/master/README.md#configuration) `report_unknown` by specifying the sensor type you want to get info from.
+- [Enable the option](configuration_params#report_unknown) `report_unknown` by specifying the sensor type you want to get info from.
 - Wait until a number of "BLE ADV from UNKNOWN" messages accumulate in the log.
 - Create a new [issue](https://github.com/custom-components/ble_monitor/issues), write everything you know about your sensor and attach the obtained log.
 - Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.
@@ -390,7 +390,7 @@ or
 sudo hciconfig hci0 reset
 ```
 
-And than run the first command again. 
+And than run the first command again.
 
 Attach the created `dump.txt` to a new [issue](https://github.com/custom-components/ble_monitor/issues) as described above.
 
@@ -399,9 +399,9 @@ If you don't have access to `hcidump`, you could also use the android app [Bluet
 
 ### My sensor isn't showing the battery level
 
-Battery level is not broadcasted by all sensors. Check the list of [supported sensors](https://github.com/custom-components/ble_monitor/blob/master/README.md#supported-sensors) to see if your sensor supports battery level. LYWSD02 sensors need to be updated to firmware 1.1.2_00085 or above to the show battery level.
+Battery level is not broadcasted by all sensors. Check the list of [supported sensors](devices) to see if your sensor supports battery level. LYWSD02 sensors need to be updated to firmware 1.1.2_00085 or above to the show battery level.
 
-## TIPS AND TRICKS
+## Tips and Tricks
 
 ### How to know exactly if the reception of data from my sensors has stopped?
 
@@ -410,9 +410,9 @@ When the reception of data from sensors is stopped for some reason (hardware fai
 
 ### How can I add a sensor in lovelace that shows the RSSI signal strength?
 
-There are several ways to do this. If you want to show it in an entity card, you can add it in lovelace directly. Select Rssi as the attribute to display. 
+There are several ways to do this. If you want to show it in an entity card, you can add it in lovelace directly. Select Rssi as the attribute to display.
 
-![RSSI in entity card](/pictures/RSSI_in_entity_card.png)
+![RSSI in entity card]({{site.baseurl}}/assets/images/RSSI_in_entity_card.png)
 
 If you want to use the entities card (with multple sensors), just add a sensor entity from which you want to display the RSSI to the entities card and click on the pencil. First change the icon and name and click on `view code editor` at the bottom (note that there are two `view code editor` buttons, use the one at the bottom). Change the code to the following format.
 
@@ -428,8 +428,8 @@ entities:
 ```
 
 A third option is more advanced and will create a new sensor based on a template sensor. If you e.g. want to use graphs, you will need to create a template sensor. Add the following to your YAML configuration and modify `livingroom` to represent your own sensor.
-
-```
+ {% raw %}
+```YAML
 sensor:
   - platform: template
     sensors:
@@ -440,15 +440,15 @@ sensor:
         value_template: >-
           {% set sensors = [state_attr('sensor.ble_temperature_livingroom','rssi')|float, state_attr('sensor.ble_humidity_livingroom','rssi')|float, state_attr('sensor.ble_battery_livingroom','rssi')|float] %}
           {% if sensors | sum == 0 %}
-            -99 
+            -99
           {% else %}
-            {{ ((sensors | sum) / (sensors | select('lt',0) | list | length)) | round | int }} 
+            {{ ((sensors | sum) / (sensors | select('lt',0) | list | length)) | round | int }}
           {% endif %}
 ```
-
+ {% endraw %}
 After a restart, a new sensor `sensor.ble_rssi_livingroom` will be created, which you can use where you want.
 
-## DEBUG
+## Debug
 
 To enable debug logging, add the following lines to `configuration.yaml`:
 
@@ -460,7 +460,7 @@ logger:
 ```
 
 In addition, the `btmon` utility can provide a lot of useful information.
-For example, using the command. 
+For example, using the command.
 
 ```shell
 btmon --write hcitrace.snoop | tee hcitrace.txt
@@ -468,6 +468,6 @@ btmon --write hcitrace.snoop | tee hcitrace.txt
 
 You can write to the hcitrace.snoop and hcitrace.txt files the moment the problem occurs and attach this files to your issue.
 
-## FORUM
+## Forum
 
 You can more freely discuss the operation of the component, ask for support, leave feedback and share your experience in [our topic](https://community.home-assistant.io/t/passive-ble-monitor-integration/303583) on the Home Assistant forum.

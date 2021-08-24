@@ -1,14 +1,22 @@
-# Reverse engineering the MiBeacon protocol 
+---
+layout: default
+parent: Technical and development documentation
+title: Reverse engineering the MiBeacon protocol
+permalink: MiBeacon_protocol
+nav_order: 2
+---
+
+# Reverse engineering the MiBeacon protocol
 
 With the `report_unknown` option, you can collect information about new devices that are not supported yet. An example of the LYWSDCGQ sensor is given below. This sensor supports Temperature, Humidity and battery level and is not encrypted. Enabling this option will genereate a lot of output in the logs, which look like this.
 
 `2020-12-23 17:42:12 INFO (Thread-3) [custom_components.ble_monitor] BLE ADV from UNKNOWN: RSSI: -53, MAC: 4C65A8DDB89B, ADV: 043e25020100009bb8dda8654c19020106151695fe5020aa01fe9bb8dda8654c0d1004b2007502cb`
 
-Another option is to use the following command. 
+Another option is to use the following command.
 
 `btmon --write hcitrace.snoop | tee hcitrace.txt`
 
-It will display all bluetooth messages, search for the ones that have an `UUID 0xfe95`. 
+It will display all bluetooth messages, search for the ones that have an `UUID 0xfe95`.
 
 ```
 > HCI Event: LE Meta Event (0x3e) plen 37                 #292 [hci0] 10.578272
@@ -25,7 +33,7 @@ It will display all bluetooth messages, search for the ones that have an `UUID 0
         RSSI: -68 dBm (0xbc)
 ```
 
-In the example below, we will use the data from the `report_unknown` option. When sorting this data, you can find the following pattern for the LYWSDCGQ sensor. The `Service Data` in the HCI Event above corresponds to the part from `Frame ctrl` till the `payload` (without `RSSI`). More info on the Mi Beacon protocol can be found [here](https://cdn.cnbj0.fds.api.mi-img.com/miio.files/commonfile_pdf_f119c8464d43526b48fb453f19f30192.pdf), although most is in Chinese. 
+In the example below, we will use the data from the `report_unknown` option. When sorting this data, you can find the following pattern for the LYWSDCGQ sensor. The `Service Data` in the HCI Event above corresponds to the part from `Frame ctrl` till the `payload` (without `RSSI`). More info on the Mi Beacon protocol can be found [here](https://cdn.cnbj0.fds.api.mi-img.com/miio.files/commonfile_pdf_f119c8464d43526b48fb453f19f30192.pdf), although most is in Chinese.
 
 ```
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -89,7 +97,7 @@ type code    evt rep type addr                             flag         type  UU
 - G Peer Address Type: Public (`0x00`)
 - H MAC = MAC address in reversed order (per 2 characters)
 - I Data length till the end of advertisement
-- J Length 
+- J Length
 - L Value
 - M Length till the end of advertisement
 - N AD type (for Xiaomi Mi Beacon `16`)
