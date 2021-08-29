@@ -337,7 +337,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
             self.ready_for_update = True
             return
         try:
-            self._attr_native_unit_of_measurement = old_state.unit_of_measurement
+            self._attr_unit_of_measurement = old_state.unit_of_measurement
         except AttributeError:
             pass
         self._state = old_state.state
@@ -722,9 +722,9 @@ class WeightSensor(InstantUpdateSensor):
                 data["weight removed"]
             )
         if "weight unit" in data:
-            self._attr_native_unit_of_measurement = data["weight unit"]
+            self._attr_unit_of_measurement = data["weight unit"]
         else:
-            self._attr_native_unit_of_measurement = None
+            self._attr_unit_of_measurement = None
         if batt_attr is not None:
             self._extra_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
@@ -748,10 +748,10 @@ class EnergySensor(InstantUpdateSensor):
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
         if "energy unit" in data:
-            self._attr_native_unit_of_measurement = data["energy unit"]
+            self._attr_unit_of_measurement = data["energy unit"]
         else:
-            self._attr_native_unit_of_measurement = (
-                self.entity_description.native_unit_of_measurement
+            self._attr_unit_of_measurement = (
+                self.entity_description.unit_of_measurement
             )
         if "constant" in data:
             self._extra_state_attributes["constant"] = data["constant"]
@@ -780,10 +780,10 @@ class PowerSensor(InstantUpdateSensor):
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
         if "power unit" in data:
-            self._attr_native_unit_of_measurement = data["power unit"]
+            self._attr_unit_of_measurement = data["power unit"]
         else:
-            self._attr_native_unit_of_measurement = (
-                self.entity_description.native_unit_of_measurement
+            self._attr_unit_of_measurement = (
+                self.entity_description.unit_of_measurement
             )
         if "constant" in data:
             self._extra_state_attributes["constant"] = data["constant"]
