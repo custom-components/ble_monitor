@@ -58,7 +58,7 @@ async def async_setup_entry(hass, config_entry, add_entities):
     return True
 
 
-class BLEupdaterBinary():
+class BLEupdaterBinary:
     """BLE monitor entities updater."""
 
     def __init__(self, blemonitor, add_entities):
@@ -79,8 +79,11 @@ class BLEupdaterBinary():
             if mac not in sensors_by_mac:
                 sensors = []
                 for sensor in device_sensors:
-                    sensors.insert(device_sensors.index(sensor), globals()[BINARY_SENSOR_DICT[sensor]](
-                        self.config, mac, sensortype, firmware)
+                    sensors.insert(
+                        device_sensors.index(sensor),
+                        globals()[BINARY_SENSOR_DICT[sensor]](
+                            self.config, mac, sensortype, firmware
+                        ),
                     )
                 if len(sensors) != 0:
                     sensors_by_mac[mac] = sensors
@@ -113,7 +116,9 @@ class BLEupdaterBinary():
                     sensortype = dev.model
                     firmware = dev.sw_version
                     if sensortype and firmware:
-                        sensors = await async_add_binary_sensor(mac, sensortype, firmware)
+                        sensors = await async_add_binary_sensor(
+                            mac, sensortype, firmware
+                        )
                     else:
                         continue
                 else:
@@ -158,7 +163,9 @@ class BLEupdaterBinary():
                         batt[mac] = int(data["battery"])
                         batt_attr = batt[mac]
                         for entity in sensors:
-                            getattr(entity, "_device_state_attributes")[ATTR_BATTERY_LEVEL] = batt_attr
+                            getattr(entity, "_device_state_attributes")[
+                                ATTR_BATTERY_LEVEL
+                            ] = batt_attr
                             if entity.pending_update is True:
                                 entity.async_schedule_update_ha_state(False)
                     else:
@@ -173,7 +180,9 @@ class BLEupdaterBinary():
                         entity.collect(data, batt_attr)
                         if entity.pending_update is True:
                             entity.async_schedule_update_ha_state(True)
-                        elif entity.ready_for_update is False and entity.enabled is True:
+                        elif (
+                            entity.ready_for_update is False and entity.enabled is True
+                        ):
                             hpriority.append(entity)
                 data = None
             ts_now = dt_util.now()
@@ -197,7 +206,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         self.ready_for_update = False
         self._config = config
         self._mac = mac
-        self._fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
+        self._fmac = ":".join(self._mac[i : i + 2] for i in range(0, len(self._mac), 2))
         self._name = ""
         self._state = None
         self._device_settings = self.get_device_settings()
@@ -233,15 +242,21 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         elif old_state.state == STATE_OFF:
             self._state = False
         if "ext_state" in old_state.attributes:
-            self._device_state_attributes["ext_state"] = old_state.attributes["ext_state"]
+            self._device_state_attributes["ext_state"] = old_state.attributes[
+                "ext_state"
+            ]
         if "rssi" in old_state.attributes:
             self._device_state_attributes["rssi"] = old_state.attributes["rssi"]
         if "firmware" in old_state.attributes:
             self._device_state_attributes["firmware"] = old_state.attributes["firmware"]
         if "last packet id" in old_state.attributes:
-            self._device_state_attributes["last packet id"] = old_state.attributes["last packet id"]
+            self._device_state_attributes["last packet id"] = old_state.attributes[
+                "last packet id"
+            ]
         if ATTR_BATTERY_LEVEL in old_state.attributes:
-            self._device_state_attributes[ATTR_BATTERY_LEVEL] = old_state.attributes[ATTR_BATTERY_LEVEL]
+            self._device_state_attributes[ATTR_BATTERY_LEVEL] = old_state.attributes[
+                ATTR_BATTERY_LEVEL
+            ]
         self.ready_for_update = True
 
     @property
@@ -333,7 +348,7 @@ class SwitchingSensor(RestoreEntity, BinarySensorEntity):
         device_settings = {
             "name": dev_name,
             "restore state": dev_restore_state,
-            "reset timer": dev_reset_timer
+            "reset timer": dev_reset_timer,
         }
         _LOGGER.debug(
             "Binary sensor device with mac address %s has the following settings. "
@@ -439,7 +454,9 @@ class OpeningBinarySensor(SwitchingSensor):
     async def async_update(self):
         """Update sensor state and attributes."""
         self._ext_state = self._newstate
-        self._state = not bool(self._newstate) if self._ext_state < 2 else bool(self._newstate)
+        self._state = (
+            not bool(self._newstate) if self._ext_state < 2 else bool(self._newstate)
+        )
         self._device_state_attributes["ext_state"] = self._ext_state
 
 
@@ -465,30 +482,29 @@ class MotionBinarySensor(SwitchingSensor):
         self._name = "ble motion {}".format(self._device_name)
         self._unique_id = "mn_" + self._device_name
         self._device_class = DEVICE_CLASS_MOTION
+        self._start_timer = None
 
     def reset_state(self, event=None):
         """Reset state of the sensor."""
-        self._now = dt_util.now()
         # check if the latest update of the timer is longer than the set timer value
-        if self._now - self._start_timer >= timedelta(seconds=self._reset_timer):
+        if dt_util.now() - self._start_timer >= timedelta(seconds=self._reset_timer):
             self._state = False
             self.schedule_update_ha_state(False)
 
     async def async_update(self):
         """Update sensor state and attribute."""
-
         # check if the reset timer is enabled
         if self._reset_timer > 0:
             try:
                 # if there is a last motion attribute, check the timer
-                self._now = dt_util.now()
+                now = dt_util.now()
                 self._start_timer = self._device_state_attributes["last motion"]
 
-                if self._now - self._start_timer >= timedelta(seconds=self._reset_timer):
+                if now - self._start_timer >= timedelta(seconds=self._reset_timer):
                     self._state = False
                 else:
                     self._state = True
-                    async_call_later(self.hass, self._reset_timer, self.reset_state)
+                    async_call_later(self.hass, self._reset_timer, self.reset_state())
             except KeyError:
                 self._state = self._newstate
         else:

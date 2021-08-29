@@ -4,7 +4,6 @@ import asyncio
 import logging
 
 from homeassistant.components.device_tracker.const import (
-    ATTR_SOURCE_TYPE,
     SOURCE_TYPE_BLUETOOTH_LE,
 )
 
@@ -57,7 +56,7 @@ async def async_setup_entry(hass, config_entry, add_entities):
     return True
 
 
-class BLEupdaterTracker():
+class BLEupdaterTracker:
     """BLE monitor entities updater."""
 
     def __init__(self, blemonitor, add_entities):
@@ -149,7 +148,7 @@ class BLEupdaterTracker():
                 continue
             ts_last = ts_now
             _LOGGER.debug(
-                "%i BLE ADV messages processed last %i seconds for %i device tracker device(s).",
+                "%i BLE ADV messages processed last %i seconds for %i device tracker device(s)",
                 adv_cnt,
                 self.period,
                 len(trackers),
@@ -166,7 +165,7 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
         self.ready_for_update = False
         self._config = config
         self._mac = mac
-        self._fmac = ":".join(self._mac[i:i + 2] for i in range(0, len(self._mac), 2))
+        self._fmac = ":".join(self._mac[i : i + 2] for i in range(0, len(self._mac), 2))
         self._device_settings = self.get_device_settings()
         self._device_name = self._device_settings["name"]
         self._name = "ble tracker {}".format(self._device_name)
@@ -203,8 +202,8 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
     @property
     def is_connected(self):
         """Return the connection state of the device."""
-        return (
-            self._last_seen and (dt_util.now() - self._last_seen) < timedelta(seconds=self._consider_home)
+        return self._last_seen and (dt_util.now() - self._last_seen) < timedelta(
+            seconds=self._consider_home
         )
 
     @property
@@ -304,7 +303,7 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
             device_settings["restore state"],
             device_settings["track device"],
             device_settings["scan interval"],
-            device_settings["consider home"]
+            device_settings["consider home"],
         )
         return device_settings
 
@@ -314,17 +313,17 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
         return self.enabled and self.ready_for_update
 
     def data_update(self, data):
-        """Preparing data for update."""
+        """Prepare data for update."""
         if self.enabled is False:
             return
 
-        self._now = dt_util.now()
+        now = dt_util.now()
         # Do not update within scan interval to save resources
         if self._last_seen:
-            if self._now - self._last_seen <= timedelta(seconds=self._scan_interval):
+            if now - self._last_seen <= timedelta(seconds=self._scan_interval):
                 self.ready_for_update = False
                 return
-        self._last_seen = self._now
+        self._last_seen = now
         self._extra_state_attributes["rssi"] = data["rssi"]
         self._extra_state_attributes["last seen"] = self._last_seen
         self.ready_for_update = True
