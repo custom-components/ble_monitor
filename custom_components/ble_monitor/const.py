@@ -504,6 +504,7 @@ MEASUREMENT_DICT = {
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage"], ["acceleration"], ["motion"]],
     'iNode Energy Meter'      : [["battery", "voltage"], ["energy", "power"], []],
     'Blue Puck T'             : [["temperature"], [], []],
+    'Blue Coin T'             : [["temperature"], [], []],
     'Blue Puck RHT'           : [["temperature", "humidity"], [], []],
     'HTP.xw'                  : [["temperature", "humidity", "pressure"], [], []],
     'HT.w'                    : [["temperature", "humidity", "pressure"], [], []]
@@ -568,6 +569,7 @@ MANUFACTURER_DICT = {
     'Ruuvitag'                : 'Ruuvitag',
     'iNode Energy Meter'      : 'iNode',
     'Blue Puck T'             : 'Teltonika',
+    'Blue Coin T'             : 'Teltonika',
     'Blue Puck RHT'           : 'Teltonika',
     'HTP.xw'                  : 'SensorPush',
     'HT.w'                    : 'SensorPush',

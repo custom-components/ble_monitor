@@ -23,6 +23,10 @@ def parse_teltonika(self, data, source_mac, rssi):
                     device_type = "Blue Puck T"
                 elif dev_type == "PUCK_TH":
                     device_type = "Blue Puck RHT"
+                elif dev_type[0:3] == "C T":
+                    device_type = "Blue Coin T"
+                elif dev_type[0:3] == "P T":
+                    device_type = "Blue Puck T"
                 else:
                     device_type = None
             elif adstuct_type == 0x16 and adstuct_size > 4:
@@ -41,9 +45,10 @@ def parse_teltonika(self, data, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "Teltonika":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Teltonika DEVICE: RSSI: %s, MAC: %s, ADV: %s",
+                "BLE ADV from UNKNOWN Teltonika DEVICE: RSSI: %s, MAC: %s, DEVICE TYPE: %s, ADV: %s",
                 rssi,
                 to_mac(source_mac),
+                dev_type,
                 data.hex()
             )
         return None
