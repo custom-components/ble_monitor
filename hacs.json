@@ -1,7 +1,7 @@
 {
   "name": "Passive BLE monitor integration (Xiaomi MiBeacon and Scale, Qingping, ATC, Kegtron and Thermoplus sensors)",
   "domains": "ble_monitor",
-  "iot_class": "local push"
+  "iot_class": "local push",
   "domains": ["binary_sensor", "sensor", "device_tracker"],
   "homeassistant": "2021.8.0",
 }
