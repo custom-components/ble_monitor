@@ -325,7 +325,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
 
     async def async_added_to_hass(self):
         """Handle entity which will be added."""
-        _LOGGER.debug("async_added_to_hass called for %s", self.name)
+        _LOGGER.debug("async_added_to_hass called for %s", self._attr_name)
         await super().async_added_to_hass()
 
         # Restore the old state if available

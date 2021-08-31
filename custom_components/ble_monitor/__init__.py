@@ -533,7 +533,7 @@ class HCIdump(Thread):
             "sensor whitelist: [%s]", ", ".join(self.sensor_whitelist).upper()
         )
         for i, mac in enumerate(self.sensor_whitelist):
-            self.sensor_whitelist[i] = bytes.fromhex(mac.replace(":", "")).lower()
+            self.sensor_whitelist[i] = bytes.fromhex(mac.replace(":", ""))
         _LOGGER.debug("%s sensor whitelist item(s) loaded", len(self.sensor_whitelist))
 
         # prepare device tracker list to speedup parser
@@ -541,7 +541,7 @@ class HCIdump(Thread):
             for device in self.config[CONF_DEVICES]:
                 if CONF_DEVICE_TRACK in device and device[CONF_DEVICE_TRACK]:
                     track_mac = bytes.fromhex(device["mac"].replace(":", ""))
-                    self.tracker_whitelist.append(track_mac.lower())
+                    self.tracker_whitelist.append(track_mac)
                 else:
                     continue
         _LOGGER.debug(

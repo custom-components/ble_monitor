@@ -3,6 +3,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from homeassistant.components.binary_sensor import (
+    DEVICE_CLASS_LIGHT,
+    DEVICE_CLASS_MOISTURE,
+    DEVICE_CLASS_MOTION,
+    DEVICE_CLASS_OPENING,
+    DEVICE_CLASS_SMOKE,
+    BinarySensorEntityDescription,
+)
 from homeassistant.components.sensor import (
     STATE_CLASS_MEASUREMENT,
     SensorEntityDescription,
@@ -98,12 +106,86 @@ class BLEMonitorRequiredKeysMixin:
     sensor_class: str
     unique_id: str
 
-
 @dataclass
 class BLEMonitorSensorEntityDescription(
     SensorEntityDescription, BLEMonitorRequiredKeysMixin
 ):
     """Describes BLE Monitor sensor entity."""
+
+
+@dataclass
+class BLEMonitorBinarySensorEntityDescription(
+    BinarySensorEntityDescription, BLEMonitorRequiredKeysMixin
+):
+    """Describes BLE Monitor binary sensor entity."""
+
+
+BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
+    BLEMonitorBinarySensorEntityDescription(
+        key="remote single press",
+        sensor_class="BaseBinarySensor",
+        name="ble remote binary single press",
+        unique_id="rb_single_press_",
+        device_class=None,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="remote long press",
+        sensor_class="BaseBinarySensor",
+        name="ble remote binary long press",
+        unique_id="rb_long_press_",
+        device_class=None,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="switch",
+        sensor_class="BaseBinarySensor",
+        name="ble switch",
+        unique_id="sw_",
+        device_class=DEVICE_CLASS_POWER,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="opening",
+        sensor_class="BaseBinarySensor",
+        name="ble opening",
+        unique_id="op_",
+        device_class=DEVICE_CLASS_OPENING,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="light",
+        sensor_class="BaseBinarySensor",
+        name="ble light",
+        unique_id="lt_",
+        device_class=DEVICE_CLASS_LIGHT,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="moisture",
+        sensor_class="BaseBinarySensor",
+        name="ble moisture",
+        unique_id="mo_",
+        device_class=DEVICE_CLASS_MOISTURE,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="motion",
+        sensor_class="MotionBinarySensor",
+        name="ble motion",
+        unique_id="mn_",
+        device_class=DEVICE_CLASS_MOTION,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="weight removed",
+        sensor_class="BaseBinarySensor",
+        name="ble weight removed",
+        icon="mdi:weight",
+        unique_id="wr_",
+        device_class=None,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="smoke detector",
+        sensor_class="BaseBinarySensor",
+        name="ble smoke detector",
+        unique_id="sd_",
+        device_class=DEVICE_CLASS_SMOKE,
+    ),
+)
 
 
 SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
@@ -427,20 +509,6 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         state_class=STATE_CLASS_MEASUREMENT,
     ),
 )
-
-
-# Dictionary with the available binary sensors
-BINARY_SENSOR_DICT = {
-    "remote single press":     "RemoteSinglePressBinarySensor",
-    "remote long press":       "RemoteLongPressBinarySensor",
-    "switch":                  "PowerBinarySensor",
-    "opening":                 "OpeningBinarySensor",
-    "light":                   "LightBinarySensor",
-    "moisture":                "MoistureBinarySensor",
-    "motion":                  "MotionBinarySensor",
-    "weight removed":          "WeightRemovedBinarySensor",
-    "smoke detector":          "SmokeDetectorBinarySensor",
-}
 
 
 # Dictionary with supported sensors

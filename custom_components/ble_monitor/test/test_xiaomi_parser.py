@@ -24,6 +24,28 @@ class TestXiaomi:
 
     def test_Xiaomi_CGG1(self):
         """Test Xiaomi parser for CGG1."""
+        data_string = "043e2a020100005f12342d585a1e0201061a1695fe5858480b685f12342d585a0b1841e2aa000e00a4964fb5b6"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "814aac74c4f17b6c1581e1ab87816b99"
+        self.aeskeys = {}
+
+        p_mac = bytes.fromhex("5A582D34125F")
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        allow_list = self.aeskeys.keys()
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys, discovery=False, sensor_whitelist=allow_list)
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "CGG1-ENCRYPTED"
+        assert sensor_msg["mac"] == "5A582D34125F"
+        assert sensor_msg["packet"] == 104
+        assert sensor_msg["data"]
+        assert sensor_msg["humidity"] == 59.6
+        assert sensor_msg["rssi"] == -74
 
     def test_Xiaomi_CGDK2(self):
         """Test Xiaomi parser for CGDK2."""

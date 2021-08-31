@@ -32,22 +32,23 @@ SENSORPUSH_DATA_TYPES = {
         "humidity"
     ]
 }
-    
+
+
 def decode_values(mfg_data: bytes, device_type_id: int) -> dict:
     pack_params = SENSORPUSH_PACK_PARAMS.get(device_type_id, None)
     if pack_params is None:
         _LOGGER.error("SensorPush device type id %d unknown" % device_type_id)
         return {}
-        
+
     values = {}
-    
+
     packed_values = 0
-    for i in range(1,len(mfg_data)):
-        packed_values += mfg_data[i] << (8 * (i-1))
-    
+    for i in range(1, len(mfg_data)):
+        packed_values += mfg_data[i] << (8 * (i - 1))
+
     mod = 1
     div = 1
-    for i in range(0,len(pack_params)):
+    for i in range(0, len(pack_params)):
         vp = pack_params[i]
         min_value = vp[0]
         max_value = vp[1]
@@ -60,7 +61,7 @@ def decode_values(mfg_data: bytes, device_type_id: int) -> dict:
             value = value / 100.0
         values[data_type] = value
         div *= int((max_value - min_value) / step + step / 2.0) + 1
-        
+
     return values
 
 
@@ -68,7 +69,7 @@ def parse_sensorpush(self, data, source_mac, rssi):
     result = {"firmware": "SensorPush"}
     sensorpush_mac = source_mac
     device_type = None
-    
+
     # SensorPush puts encoded data in manufacturer data (0xFF)
     adpayload_start = 0
     adpayload_size = len(data)
@@ -97,7 +98,7 @@ def parse_sensorpush(self, data, source_mac, rssi):
         return None
 
     # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and sensorpush_mac.lower() not in self.sensor_whitelist:
+    if self.discovery is False and sensorpush_mac not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(sensorpush_mac))
         return None
 

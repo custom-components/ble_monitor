@@ -99,7 +99,7 @@ def parse_miscale(self, data, source_mac, rssi):
             return None
 
     # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and miscale_mac.lower() not in self.sensor_whitelist:
+    if self.discovery is False and miscale_mac not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(miscale_mac))
         return None
 

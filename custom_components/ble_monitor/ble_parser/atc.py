@@ -100,7 +100,7 @@ def parse_atc(self, data, source_mac, rssi):
         return None
 
     # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and atc_mac.lower() not in self.sensor_whitelist:
+    if self.discovery is False and atc_mac not in self.sensor_whitelist:
         return None
 
     try:
