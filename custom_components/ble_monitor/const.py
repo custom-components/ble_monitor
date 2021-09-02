@@ -9,6 +9,7 @@ from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_MOTION,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_SMOKE,
+    DEVICE_CLASS_LOCK,
     BinarySensorEntityDescription,
 )
 from homeassistant.components.sensor import (
@@ -184,6 +185,21 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         name="ble smoke detector",
         unique_id="sd_",
         device_class=DEVICE_CLASS_SMOKE,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="fingerprint",
+        sensor_class="BaseBinarySensor",
+        name="ble fingerprint",
+        icon="mdi:fingerprint",
+        unique_id="fp_",
+        device_class=None,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="lock",
+        sensor_class="BaseBinarySensor",
+        name="ble lock",
+        unique_id="lock_",
+        device_class=DEVICE_CLASS_LOCK,
     ),
 )
 
@@ -534,6 +550,8 @@ MEASUREMENT_DICT = {
     'RTCGQ02LM'               : [["battery"], ["button"], ["light", "motion"]],
     'MMC-T201-1'              : [["temperature", "battery"], [], []],
     'M1S-T500'                : [["battery"], ["toothbrush mode"], []],
+    'ZNMS16LM'                : [["battery"], [], ["lock", "fingerprint"]],
+    'ZNMS17LM'                : [["battery"], [], ["lock", "fingerprint"]],
     'CGC1'                    : [["temperature", "humidity", "battery"], [], []],
     'CGD1'                    : [["temperature", "humidity", "battery"], [], []],
     'CGDK2'                   : [["temperature", "humidity", "battery"], [], []],
@@ -599,6 +617,8 @@ MANUFACTURER_DICT = {
     'RTCGQ02LM'               : 'Xiaomi',
     'MMC-T201-1'              : 'Xiaomi',
     'M1S-T500'                : 'Xiaomi Soocas',
+    'ZNMS16LM'                : 'Xiaomi Aqara',
+    'ZNMS17LM'                : 'Xiaomi Aqara',
     'CGC1'                    : 'Qingping',
     'CGD1'                    : 'Qingping',
     'CGDK2'                   : 'Qingping',

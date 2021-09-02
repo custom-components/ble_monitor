@@ -256,10 +256,6 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
             self._state = True
         elif old_state.state == STATE_OFF:
             self._state = False
-        if "status" in old_state.attributes:
-            self._extra_state_attributes["status"] = old_state.attributes[
-                "status"
-            ]
         if "rssi" in old_state.attributes:
             self._extra_state_attributes["rssi"] = old_state.attributes["rssi"]
         if "firmware" in old_state.attributes:
@@ -272,6 +268,25 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
             self._extra_state_attributes[ATTR_BATTERY_LEVEL] = old_state.attributes[
                 ATTR_BATTERY_LEVEL
             ]
+        if "status" in old_state.attributes:
+            self._extra_state_attributes["status"] = old_state.attributes["status"]
+        if "motion timer" in old_state.attributes:
+            self._extra_state_attributes["motion timer"] = old_state.attributes[
+                "motion timer"
+            ]
+        if "action" in old_state.attributes:
+            self._extra_state_attributes["action"] = old_state.attributes["action"]
+        if "method" in old_state.attributes:
+            self._extra_state_attributes["method"] = old_state.attributes["method"]
+        if "error" in old_state.attributes:
+            self._extra_state_attributes["error"] = old_state.attributes["error"]
+        if "key id" in old_state.attributes:
+            self._extra_state_attributes["key id"] = old_state.attributes["key id"]
+        if "timestamp" in old_state.attributes:
+            self._extra_state_attributes["timestamp"] = old_state.attributes["timestamp"]
+        if "result" in old_state.attributes:
+            self._extra_state_attributes["result"] = old_state.attributes["result"]
+
         self.ready_for_update = True
 
     @property
@@ -358,6 +373,15 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
                 self._extra_state_attributes["status"] = self._newstate
         if self.entity_description.key == "opening":
             self._extra_state_attributes["status"] = data["status"]
+        if self.entity_description.key == "lock":
+            self._extra_state_attributes["action"] = data["action"]
+            self._extra_state_attributes["method"] = data["method"]
+            self._extra_state_attributes["error"] = data["error"]
+            self._extra_state_attributes["key id"] = data["key id"]
+            self._extra_state_attributes["timestamp"] = data["timestamp"]
+        if self.entity_description.key == "fingerprint":
+            self._extra_state_attributes["result"] = data["result"]
+            self._extra_state_attributes["key id"] = data["key id"]
 
     async def async_update(self):
         """Update sensor state and attribute."""
