@@ -24,6 +24,28 @@ class TestXiaomi:
 
     def test_Xiaomi_CGG1(self):
         """Test Xiaomi parser for CGG1."""
+        data_string = "043e2a020100005f12342d585a1e0201061a1695fe5858480b685f12342d585a0b1841e2aa000e00a4964fb5b6"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "814aac74c4f17b6c1581e1ab87816b99"
+        self.aeskeys = {}
+
+        p_mac = bytes.fromhex("5A582D34125F")
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        allow_list = self.aeskeys.keys()
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys, discovery=False, sensor_whitelist=allow_list)
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "CGG1-ENCRYPTED"
+        assert sensor_msg["mac"] == "5A582D34125F"
+        assert sensor_msg["packet"] == 104
+        assert sensor_msg["data"]
+        assert sensor_msg["humidity"] == 59.6
+        assert sensor_msg["rssi"] == -74
 
     def test_Xiaomi_CGDK2(self):
         """Test Xiaomi parser for CGDK2."""
@@ -301,6 +323,46 @@ class TestXiaomi:
         assert sensor_msg["data"]
         assert sensor_msg["toothbrush mode"] == 3
         assert sensor_msg["rssi"] == -36
+
+    def test_Xiaomi_ZNMS16LM_fingerprint(self):
+        """Test Xiaomi parser for ZNMS16LM."""
+        data_string = "043e2a02010000918aeb441fd71e020106030295fe161695fe50449e0642918aeb441fd7060005ffffffff00a9"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V4)"
+        assert sensor_msg["type"] == "ZNMS16LM"
+        assert sensor_msg["mac"] == "D71F44EB8A91"
+        assert sensor_msg["packet"] == 66
+        assert sensor_msg["data"]
+        assert sensor_msg["fingerprint"] == 1
+        assert sensor_msg["result"] == "match successful"
+        assert sensor_msg["key id"] == "unknown operator"
+        assert sensor_msg["rssi"] == -87
+
+    def test_Xiaomi_ZNMS16LM_lock(self):
+        """Test Xiaomi parser for ZNMS16LM."""
+        data_string = "043e2e02010000918aeb441fd722020106030295fe1a1695fe50449e0643918aeb441fd70b000920020001807c442f61a9"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V4)"
+        assert sensor_msg["type"] == "ZNMS16LM"
+        assert sensor_msg["mac"] == "D71F44EB8A91"
+        assert sensor_msg["packet"] == 67
+        assert sensor_msg["data"]
+        assert sensor_msg["lock"] == 0
+        assert sensor_msg["action"] == "unlock outside the door"
+        assert sensor_msg["method"] == "biometrics"
+        assert sensor_msg["error"] is None
+        assert sensor_msg["key id"] == 2
+        assert sensor_msg["rssi"] == -87
 
     def test_Xiaomi_YLAI003(self):
         """Test Xiaomi parser for YLAI003."""

@@ -4,6 +4,8 @@ import math
 import struct
 from Cryptodome.Cipher import AES
 
+from homeassistant.util import datetime
+
 _LOGGER = logging.getLogger(__name__)
 
 # Device type dictionary
@@ -46,6 +48,8 @@ XIAOMI_TYPE_DICT = {
     0x04E6: "YLYK01YL-VENFAN",
     0x03BF: "YLYB01YL-BHFRC",
     0x03B6: "YLKG07YL/YLKG08YL",
+    0x069E: "ZNMS16LM",
+    0x069F: "ZNMS17LM",
 }
 
 # Structured objects for data conversions
@@ -61,6 +65,62 @@ M_STRUCT = struct.Struct("<L")
 P_STRUCT = struct.Struct("<H")
 BUTTON_STRUCT = struct.Struct("<BBB")
 
+# Definition of lock messages
+BLE_LOCK_ERROR = {
+    0xC0DE0000: "frequent unlocking with incorrect password",
+    0xC0DE0001: "frequent unlocking with wrong fingerprints",
+    0xC0DE0002: "operation timeout (password input timeout)",
+    0xC0DE0003: "lock picking",
+    0xC0DE0004: "reset button is pressed",
+    0xC0DE0005: "the wrong key is frequently unlocked",
+    0xC0DE0006: "foreign body in the keyhole",
+    0xC0DE0007: "the key has not been taken out",
+    0xC0DE0008: "error NFC frequently unlocks",
+    0xC0DE0009: "timeout is not locked as required",
+    0xC0DE000A: "failure to unlock frequently in multiple ways",
+    0xC0DE000B: "unlocking the face frequently fails",
+    0xC0DE000C: "failure to unlock the vein frequently",
+    0xC0DE000D: "hijacking alarm",
+    0xC0DE000E: "unlock inside the door after arming",
+    0xC0DE000F: "palmprints frequently fail to unlock",
+    0xC0DE0010: "the safe was moved",
+    0xC0DE1000: "the battery level is less than 10%",
+    0xC0DE1001: "the battery is less than 5%",
+    0xC0DE1002: "the fingerprint sensor is abnormal",
+    0xC0DE1003: "the accessory battery is low",
+    0xC0DE1004: "mechanical failure",
+    0xC0DE1005: "the lock sensor is faulty",
+}
+
+BLE_LOCK_ACTION = {
+    0b0000: [0, "unlock outside the door"],
+    0b0001: [1, "lock"],
+    0b0010: [1, "turn on anti-lock"],
+    0b0011: [0, "turn off anti-lock"],
+    0b0100: [0, "unlock inside the door"],
+    0b0101: [1, "lock inside the door"],
+    0b0110: [1, "turn on child lock"],
+    0b0111: [0, "turn off child lock"],
+    0b1000: [1, "lock outside the door"],
+    0b1111: [0, "abnormal"],
+}
+
+BLE_LOCK_METHOD = {
+    0b0000: "bluetooth",
+    0b0001: "password",
+    0b0010: "biometrics",
+    0b0011: "key",
+    0b0100: "turntable",
+    0b0101: "nfc",
+    0b0110: "one-time password",
+    0b0111: "two-step verification",
+    0b1001: "Homekit",
+    0b1000: "coercion",
+    0b1010: "manual",
+    0b1011: "automatic",
+    0b1111: "abnormal"
+}
+
 
 # Advertisement conversion of measurement data
 # https://iot.mi.com/new/doc/embedded-development/ble/object-definition
@@ -68,8 +128,81 @@ def obj0003(xobj):
     return {"motion": xobj[0], "motion timer": xobj[0]}
 
 
+def obj0006(xobj):
+    if len(xobj) == 5:
+        key_id = xobj[0:4]
+        match_byte = xobj[4]
+        if key_id == b'\x00\x00\x00\x00':
+            key_id = "administrator"
+        elif key_id == b'\xff\xff\xff\xff':
+            key_id = "unknown operator"
+        else:
+            key_id = int.from_bytes(key_id, 'little')
+        if match_byte == 0x00:
+            result = "match successful"
+        elif match_byte == 0x01:
+            result = "match failed"
+        elif match_byte == 0x02:
+            result = "timeout"
+        elif match_byte == 0x033:
+            result = "low quality (too light, fuzzy)"
+        elif match_byte == 0x04:
+            result = "insufficient area"
+        elif match_byte == 0x05:
+            result = "skin is too dry"
+        elif match_byte == 0x06:
+            result = "skin is too wet"
+        else:
+            result = None
+
+        fingerprint = 1 if match_byte == 0x00 else 0
+
+        return {
+            "fingerprint": fingerprint,
+            "result": result,
+            "key id": key_id,
+        }
+    else:
+        return {}
+
+
 def obj0010(xobj):
     return {"toothbrush mode": xobj[1]}
+
+
+def obj000b(xobj):
+    if len(xobj) == 9:
+        action = xobj[0] & 0x0F
+        method = xobj[0] >> 4
+        key_id = int.from_bytes(xobj[1:5], 'little')
+        timestamp = int.from_bytes(xobj[5:], 'little')
+
+        timestamp = datetime.fromtimestamp(timestamp).isoformat()
+
+        # all keys except Bluetooth have only 65536 values
+        error = BLE_LOCK_ERROR.get(key_id)
+        if error is None and method > 0:
+            key_id &= 0xFFFF
+        elif error:
+            key_id = hex(key_id)
+
+        if action not in BLE_LOCK_ACTION or method not in BLE_LOCK_METHOD:
+            return {}
+
+        lock = BLE_LOCK_ACTION[action][0]
+        action = BLE_LOCK_ACTION[action][1]
+        method = BLE_LOCK_METHOD[method]
+
+        return {
+            "lock": lock,
+            "action": action,
+            "method": method,
+            "error": error,
+            "key id": key_id,
+            "timestamp": timestamp,
+        }
+    else:
+        return {}
 
 
 def obj000f(xobj):
@@ -318,7 +451,23 @@ def obj1018(xobj):
 
 
 def obj1019(xobj):
-    return {"opening": xobj[0]}
+    open = xobj[0]
+    if open == 0:
+        opening = 1
+        status = "opened"
+    elif open == 1:
+        opening = 0
+        status = "closed"
+    elif open == 2:
+        opening = 1
+        status = "closing timeout"
+    elif open == 3:
+        opening = 1
+        status = "device reset"
+    else:
+        opening = 0
+        status = None
+    return {"opening": opening, "status": status}
 
 
 def obj100a(xobj):
@@ -354,7 +503,9 @@ def obj2000(xobj):
 # {dataObject_id: (converter}
 xiaomi_dataobject_dict = {
     0x0003: obj0003,
+    0x0006: obj0006,
     0x0010: obj0010,
+    0x000B: obj000b,
     0x000F: obj000f,
     0x1001: obj1001,
     0x1004: obj1004,
@@ -458,7 +609,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
         sinfo += ', Standard certification'
 
     # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and xiaomi_mac.lower() not in self.sensor_whitelist:
+    if self.discovery is False and xiaomi_mac not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(xiaomi_mac))
         return None
 

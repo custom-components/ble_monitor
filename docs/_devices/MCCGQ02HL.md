@@ -8,7 +8,15 @@ broadcasted_properties:
   - battery
   - opening
   - light
+  - status
 broadcasted_property_notes:
+  - property: status
+    note: >
+      The opening entity has an extra attribute "status", which can have the following values:
+        * opened
+        * closed
+        * closing timeout
+        * device reset
 broadcast_rate: battery level ~1/day
 active_scan:
 encryption_key: true

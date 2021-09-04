@@ -31,7 +31,7 @@
           "tracker_scan_interval": "Device tracker scan interval (in seconds)",
           "consider_home": "Device tracker consider home interval (in seconds)"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
@@ -75,7 +75,7 @@
           "tracker_scan_interval": "Device tracker scan interval (in seconds)",
           "consider_home": "Device tracker consider home interval (in seconds)"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",

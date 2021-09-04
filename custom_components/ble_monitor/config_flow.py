@@ -80,25 +80,23 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_DEVICE_DECIMALS, default=DEFAULT_DEVICE_DECIMALS): vol.In(
             [DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]
         ),
-        vol.Optional(
-            CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN): vol.In(
+        vol.Optional(CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN): vol.In(
             [DEFAULT_DEVICE_USE_MEDIAN, True, False]
         ),
         vol.Optional(
-            CONF_DEVICE_RESTORE_STATE, default=DEFAULT_DEVICE_RESTORE_STATE): vol.In(
-            [DEFAULT_DEVICE_RESTORE_STATE, True, False]
-        ),
+            CONF_DEVICE_RESTORE_STATE, default=DEFAULT_DEVICE_RESTORE_STATE
+        ): vol.In([DEFAULT_DEVICE_RESTORE_STATE, True, False]),
         vol.Optional(
             CONF_DEVICE_RESET_TIMER, default=DEFAULT_DEVICE_RESET_TIMER
         ): cv.positive_int,
+        vol.Optional(CONF_DEVICE_TRACK, default=DEFAULT_DEVICE_TRACK): cv.boolean,
         vol.Optional(
-            CONF_DEVICE_TRACK, default=DEFAULT_DEVICE_TRACK
-        ): cv.boolean,
-        vol.Optional(
-            CONF_DEVICE_TRACKER_SCAN_INTERVAL, default=DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL
+            CONF_DEVICE_TRACKER_SCAN_INTERVAL,
+            default=DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
         ): cv.positive_int,
         vol.Optional(
-            CONF_DEVICE_TRACKER_CONSIDER_HOME, default=DEFAULT_DEVICE_TRACKER_CONSIDER_HOME
+            CONF_DEVICE_TRACKER_CONSIDER_HOME,
+            default=DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
         ): cv.positive_int,
     }
 )
@@ -118,9 +116,23 @@ DOMAIN_SCHEMA = vol.Schema(
         vol.Optional(CONF_DEVICES, default=[]): vol.All(
             cv.ensure_list, [DEVICE_SCHEMA]
         ),
-        vol.Optional(
-            CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): vol.In(
-            ["ATC", "Brifit", "Govee", "iNode", "Kegtron", "Mi Scale", "Qingping", "Ruuvitag", "SensorPush", "Teltonika", "Thermoplus", "Xiaomi", "Other", False]
+        vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): vol.In(
+            [
+                "ATC",
+                "Brifit",
+                "Govee",
+                "iNode",
+                "Kegtron",
+                "Mi Scale",
+                "Qingping",
+                "Ruuvitag",
+                "SensorPush",
+                "Teltonika",
+                "Thermoplus",
+                "Xiaomi",
+                "Other",
+                False,
+            ]
         ),
     }
 )
@@ -199,7 +211,9 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
             _LOGGER.debug("async_step_add_device: %s", user_input)
             if user_input[CONF_MAC] and user_input[CONF_MAC] != "-":
                 if (
-                    self._sel_device and user_input[CONF_MAC].upper() != self._sel_device.get(CONF_MAC).upper()
+                    self._sel_device
+                    and user_input[CONF_MAC].upper()
+                    != self._sel_device.get(CONF_MAC).upper()
                 ):
                     errors[CONF_MAC] = "cannot_change_mac"
                     user_input[CONF_MAC] = self._sel_device.get(CONF_MAC)
@@ -308,25 +322,25 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     CONF_DEVICE_RESET_TIMER,
                     default=self._sel_device.get(CONF_DEVICE_RESET_TIMER)
                     if self._sel_device.get(CONF_DEVICE_RESET_TIMER)
-                    else DEFAULT_DEVICE_RESET_TIMER
+                    else DEFAULT_DEVICE_RESET_TIMER,
                 ): cv.positive_int,
                 vol.Optional(
                     CONF_DEVICE_TRACK,
                     default=self._sel_device.get(CONF_DEVICE_TRACK)
                     if self._sel_device.get(CONF_DEVICE_TRACK)
-                    else DEFAULT_DEVICE_TRACK
+                    else DEFAULT_DEVICE_TRACK,
                 ): cv.boolean,
                 vol.Optional(
                     CONF_DEVICE_TRACKER_SCAN_INTERVAL,
                     default=self._sel_device.get(CONF_DEVICE_TRACKER_SCAN_INTERVAL)
                     if self._sel_device.get(CONF_DEVICE_TRACKER_SCAN_INTERVAL)
-                    else DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL
+                    else DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
                 ): cv.positive_int,
                 vol.Optional(
                     CONF_DEVICE_TRACKER_CONSIDER_HOME,
                     default=self._sel_device.get(CONF_DEVICE_TRACKER_CONSIDER_HOME)
                     if self._sel_device.get(CONF_DEVICE_TRACKER_CONSIDER_HOME)
-                    else DEFAULT_DEVICE_TRACKER_CONSIDER_HOME
+                    else DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
                 ): cv.positive_int,
             }
         )
@@ -402,9 +416,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 ): cv.multi_select(BT_MAC_INTERFACES),
                 vol.Optional(
                     CONF_PERIOD,
-                    default=self.config_entry.options.get(
-                        CONF_PERIOD, DEFAULT_PERIOD
-                    ),
+                    default=self.config_entry.options.get(CONF_PERIOD, DEFAULT_PERIOD),
                 ): cv.positive_int,
                 vol.Optional(
                     CONF_DISCOVERY,
@@ -447,7 +459,24 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     default=self.config_entry.options.get(
                         CONF_REPORT_UNKNOWN, DEFAULT_REPORT_UNKNOWN
                     ),
-                ): vol.In(["ATC", "Brifit", "Govee", "iNode", "Kegtron", "Mi Scale", "Qingping", "Ruuvitag", "SensorPush", "Teltonika", "Thermoplus", "Xiaomi", "Other", False]),
+                ): vol.In(
+                    [
+                        "ATC",
+                        "Brifit",
+                        "Govee",
+                        "iNode",
+                        "Kegtron",
+                        "Mi Scale",
+                        "Qingping",
+                        "Ruuvitag",
+                        "SensorPush",
+                        "Teltonika",
+                        "Thermoplus",
+                        "Xiaomi",
+                        "Other",
+                        False,
+                    ]
+                ),
             }
         )
         return self._show_user_form("init", options_schema, errors or {})
@@ -461,7 +490,8 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
         if user_input is not None:
             _LOGGER.debug("async_step_init (after): %s", user_input)
             if (
-                CONFIG_IS_FLOW in self.config_entry.options and not self.config_entry.options[CONFIG_IS_FLOW]
+                CONFIG_IS_FLOW in self.config_entry.options
+                and not self.config_entry.options[CONFIG_IS_FLOW]
             ):
                 return self.async_abort(reason="not_in_use")
             if user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
@@ -474,7 +504,8 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
         _LOGGER.debug("async_step_init (before): %s", self.config_entry.options)
 
         if (
-            CONFIG_IS_FLOW in self.config_entry.options and not self.config_entry.options[CONFIG_IS_FLOW]
+            CONFIG_IS_FLOW in self.config_entry.options
+            and not self.config_entry.options[CONFIG_IS_FLOW]
         ):
             options_schema = vol.Schema({vol.Optional("not_in_use", default=""): str})
             return self.async_show_form(
@@ -483,7 +514,9 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
         for dev in self.config_entry.options.get(CONF_DEVICES):
             self._devices[dev[CONF_MAC].upper()] = dev
         devreg = await self.hass.helpers.device_registry.async_get_registry()
-        for dev in device_registry.async_entries_for_config_entry(devreg, self.config_entry.entry_id):
+        for dev in device_registry.async_entries_for_config_entry(
+            devreg, self.config_entry.entry_id
+        ):
             for iddomain, idmac in dev.identifiers:
                 if iddomain != DOMAIN:
                     continue
@@ -494,7 +527,9 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     self._devices[idmac] = {CONF_MAC: idmac, CONF_NAME: name}
 
         # sort devices by name
-        sorteddev_tuples = sorted(self._devices.items(), key=lambda item: item[1].get("name", item[1]["mac"]))
+        sorteddev_tuples = sorted(
+            self._devices.items(), key=lambda item: item[1].get("name", item[1]["mac"])
+        )
         self._devices = dict(sorteddev_tuples)
         self.hass.config_entries.async_update_entry(
             self.config_entry, unique_id=self.config_entry.entry_id

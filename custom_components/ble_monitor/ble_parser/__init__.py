@@ -139,7 +139,7 @@ class BleParser:
             adpayload_start += adstuct_size
 
         # check for monitored device trackers
-        if mac.lower() in self.tracker_whitelist:
+        if mac in self.tracker_whitelist:
             tracker_data = {
                 "is connected": True,
                 "mac": ''.join('{:02X}'.format(x) for x in mac),

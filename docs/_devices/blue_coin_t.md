@@ -1,9 +1,9 @@
 ---
 manufacturer: Teltonika
-name: Blue Puck T
-model: Blue Puck T
-image: Teltonika_blue_puck_T.png
-physical_description: Round puck, no screen
+name: Blue Coin T
+model: Blue Coin T
+image: Teltonika_blue_coin_T.png
+physical_description: Round coin, no screen
 broadcasted_properties:
   - temperature
 broadcasted_property_notes:
