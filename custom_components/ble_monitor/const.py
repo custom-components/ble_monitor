@@ -201,6 +201,14 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         unique_id="lock_",
         device_class=DEVICE_CLASS_LOCK,
     ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="toothbrush",
+        sensor_class="BaseBinarySensor",
+        name="ble toothbrush",
+        unique_id="tb_",
+        icon="mdi:toothbrush-electric",
+        device_class=DEVICE_CLASS_POWER,
+    ),
 )
 
 
@@ -325,16 +333,6 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         native_unit_of_measurement="mG",
         device_class=None,
         state_class=STATE_CLASS_MEASUREMENT,
-    ),
-    BLEMonitorSensorEntityDescription(
-        key="toothbrush mode",
-        sensor_class="InstantUpdateSensor",
-        name="ble toothbrush mode",
-        unique_id="to_",
-        icon="mdi:toothbrush-electric",
-        native_unit_of_measurement=None,
-        device_class=None,
-        state_class=None,
     ),
     BLEMonitorSensorEntityDescription(
         key="weight",
@@ -549,7 +547,7 @@ MEASUREMENT_DICT = {
     'MUE4094RT'               : [[], [], ["motion"]],
     'RTCGQ02LM'               : [["battery"], ["button"], ["light", "motion"]],
     'MMC-T201-1'              : [["temperature", "battery"], [], []],
-    'M1S-T500'                : [["battery"], ["toothbrush mode"], []],
+    'M1S-T500'                : [["battery"], [], ["toothbrush"]],
     'ZNMS16LM'                : [["battery"], [], ["lock", "fingerprint"]],
     'ZNMS17LM'                : [["battery"], [], ["lock", "fingerprint"]],
     'CGC1'                    : [["temperature", "humidity", "battery"], [], []],

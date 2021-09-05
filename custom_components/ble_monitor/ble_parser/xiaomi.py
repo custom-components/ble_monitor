@@ -125,10 +125,12 @@ BLE_LOCK_METHOD = {
 # Advertisement conversion of measurement data
 # https://iot.mi.com/new/doc/embedded-development/ble/object-definition
 def obj0003(xobj):
+    # Motion
     return {"motion": xobj[0], "motion timer": xobj[0]}
 
 
 def obj0006(xobj):
+    # Fingerprint
     if len(xobj) == 5:
         key_id = xobj[0:4]
         match_byte = xobj[4]
@@ -167,10 +169,15 @@ def obj0006(xobj):
 
 
 def obj0010(xobj):
-    return {"toothbrush mode": xobj[1]}
+    # Toothbrush
+    if xobj[0] == 0:
+        return {'toothbrush': 1, 'counter': xobj[1]}
+    else:
+        return {'toothbrush': 0, 'score': xobj[1]}
 
 
 def obj000b(xobj):
+    # Lock
     if len(xobj) == 9:
         action = xobj[0] & 0x0F
         method = xobj[0] >> 4
@@ -206,6 +213,7 @@ def obj000b(xobj):
 
 
 def obj000f(xobj):
+    # Moving with light
     if len(xobj) == 3:
         (value,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
         # MJYD02YL:  1 - moving no light, 100 - moving with light
@@ -217,6 +225,7 @@ def obj000f(xobj):
 
 
 def obj1001(xobj):
+    # Button
     if len(xobj) == 3:
         (button_type, value, press) = BUTTON_STRUCT.unpack(xobj)
         # RTCGQ02LM:            button
@@ -373,6 +382,7 @@ def obj1001(xobj):
 
 
 def obj1004(xobj):
+    # Temperature
     if len(xobj) == 2:
         (temp,) = T_STRUCT.unpack(xobj)
         return {"temperature": temp / 10}
@@ -385,6 +395,7 @@ def obj1005(xobj):
 
 
 def obj1006(xobj):
+    # Humidity
     if len(xobj) == 2:
         (humi,) = H_STRUCT.unpack(xobj)
         return {"humidity": humi / 10}
@@ -393,6 +404,7 @@ def obj1006(xobj):
 
 
 def obj1007(xobj):
+    # Illuminance
     if len(xobj) == 3:
         (illum,) = ILL_STRUCT.unpack(xobj + b'\x00')
         return {"illuminance": illum, "light": 1 if illum == 100 else 0}
@@ -401,10 +413,12 @@ def obj1007(xobj):
 
 
 def obj1008(xobj):
+    # Moisture
     return {"moisture": xobj[0]}
 
 
 def obj1009(xobj):
+    # Conductivity
     if len(xobj) == 2:
         (cond,) = CND_STRUCT.unpack(xobj)
         return {"conductivity": cond}
@@ -413,6 +427,7 @@ def obj1009(xobj):
 
 
 def obj1010(xobj):
+    # Formaldehyde
     if len(xobj) == 2:
         (fmdh,) = FMDH_STRUCT.unpack(xobj)
         return {"formaldehyde": fmdh / 100}
@@ -421,22 +436,27 @@ def obj1010(xobj):
 
 
 def obj1012(xobj):
+    # Switch
     return {"switch": xobj[0]}
 
 
 def obj1013(xobj):
+    # Consumable (in percent)
     return {"consumable": xobj[0]}
 
 
 def obj1014(xobj):
+    # Moisture
     return {"moisture": xobj[0]}
 
 
 def obj1015(xobj):
+    # Smoke
     return {"smoke detector": xobj[0]}
 
 
 def obj1017(xobj):
+    # Motion
     if len(xobj) == 4:
         (motion,) = M_STRUCT.unpack(xobj)
         # seconds since last motion detected message (not used, we use motion timer in obj000f)
@@ -447,10 +467,12 @@ def obj1017(xobj):
 
 
 def obj1018(xobj):
+    # Light intensity
     return {"light": xobj[0]}
 
 
 def obj1019(xobj):
+    # Door
     open = xobj[0]
     if open == 0:
         opening = 1
@@ -471,12 +493,14 @@ def obj1019(xobj):
 
 
 def obj100a(xobj):
+    # Battery
     batt = xobj[0]
     volt = 2.2 + (3.1 - 2.2) * (batt / 100)
     return {"battery": batt, "voltage": volt}
 
 
 def obj100d(xobj):
+    # Temperature and humidity
     if len(xobj) == 4:
         (temp, humi) = TH_STRUCT.unpack(xobj)
         return {"temperature": temp / 10, "humidity": humi / 10}
@@ -485,6 +509,7 @@ def obj100d(xobj):
 
 
 def obj2000(xobj):
+    # Body temperature
     if len(xobj) == 5:
         (temp1, temp2, bat) = TTB_STRUCT.unpack(xobj)
         # Body temperature is calculated from the two measured temperatures.
