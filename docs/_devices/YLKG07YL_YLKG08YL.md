@@ -6,6 +6,7 @@ image: YLKG07YL_YLKG08YL.png
 physical_description:
 broadcasted_properties:
   - dimmer
+  - rssi
 broadcasted_property_notes:
   - property: dimmer
     note: >-
@@ -13,6 +14,9 @@ broadcasted_property_notes:
       For rotation, it reports the rotation direction (`left`, `right`) and how far you rotate (number of `steps`).
       For `short press` it reports how many times you pressed the dimmer.
       For `long press` it reports the time (in seconds) you pressed the dimmer.
+  - property: rssi
+    note: >
+      The RSSI sensor is disabled by default. You can enable the RSSI sensor by going to `configuration`, `integrations`, select `devices` on the BLE monitor integration tile and select your device. Click on the `+1 disabled entity` to show the disabled sensor and select the disabled entity. Finally, click on `Enable entity` to enable it. 
 broadcast_rate:
 active_scan:
 encryption_key: true
