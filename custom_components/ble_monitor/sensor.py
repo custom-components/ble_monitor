@@ -108,7 +108,7 @@ class BLEupdater:
         sensors_by_mac = {}
         sensors = []
         batt = {}  # batteries
-        rssi = {}
+        rssi = {}  # rssi
         ble_adv_cnt = 0
         ts_last = dt_util.now()
         ts_now = ts_last
@@ -241,9 +241,10 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |**conductivity
     # |  |**illuminance
     # |  |**formaldehyde
-    # |  |**voltage
+    # |  |**rssi
     # |  |--BatterySensor (Class)
     # |  |  |**battery
+    # |  |**voltage
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
     # |  |--AccelerationSensor (Class)
@@ -508,7 +509,8 @@ class MeasuringSensor(BaseSensor):
             self._measurements.clear()
             self._extra_state_attributes["median"] = state_median
             self._extra_state_attributes["mean"] = state_mean
-            self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+            if self.entity_description.key != "rssi":
+                self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
             self.rssi_values.clear()
         except (AttributeError, AssertionError):
             _LOGGER.debug(

@@ -9,11 +9,15 @@ broadcasted_properties:
   - motion
   - button
   - battery
+  - rssi
 broadcasted_property_notes:
   - property: motion
     note:  Light state is broadcasted upon a change in light in the room and is also broadcasted at the same time as motion is detected. The sensor does not broadcast `motion clear` advertisements. It is therefore required to use the [reset_timer](configuration_params#reset_timer) option with a value that is not 0).
   - property: button
     note:  The sensor also broadcasts `single press` if you press the button. After each button press, the sensor state shortly shows `single press` and will return to `no press` after 1 second. The sensor has an attribute which shows the `last button press`. You can use the state change event to trigger an automation in Home Assistant. Battery is broadcasted once every few hours.
+  - property: rssi
+    note: >
+      The RSSI sensor is disabled by default. You can enable the RSSI sensor by going to `configuration`, `integrations`, select `devices` on the BLE monitor integration tile and select your device. Click on the `+1 disabled entity` to show the disabled sensor and select the disabled entity. Finally, click on `Enable entity` to enable it. 
 broadcast_rate: See notes
 active_scan:
 encryption_key: true
