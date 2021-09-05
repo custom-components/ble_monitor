@@ -286,6 +286,10 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
             self._extra_state_attributes["timestamp"] = old_state.attributes["timestamp"]
         if "result" in old_state.attributes:
             self._extra_state_attributes["result"] = old_state.attributes["result"]
+        if "score" in old_state.attributes:
+            self._extra_state_attributes["score"] = old_state.attributes["score"]
+        if "counter" in old_state.attributes:
+            self._extra_state_attributes["counter"] = old_state.attributes["counter"]
 
         self.ready_for_update = True
 
@@ -382,6 +386,11 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         if self.entity_description.key == "fingerprint":
             self._extra_state_attributes["result"] = data["result"]
             self._extra_state_attributes["key id"] = data["key id"]
+        if self.entity_description.key == "toothbrush":
+            if "counter" in data:
+                self._extra_state_attributes["counter"] = data["counter"]
+            else:
+                self._extra_state_attributes["score"] = data["score"]
 
     async def async_update(self):
         """Update sensor state and attribute."""

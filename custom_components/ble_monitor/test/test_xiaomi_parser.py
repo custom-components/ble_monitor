@@ -321,7 +321,8 @@ class TestXiaomi:
         assert sensor_msg["mac"] == "E67143175B11"
         assert sensor_msg["packet"] == 55
         assert sensor_msg["data"]
-        assert sensor_msg["toothbrush mode"] == 3
+        assert sensor_msg["toothbrush"] == 1
+        assert sensor_msg["counter"] == 3
         assert sensor_msg["rssi"] == -36
 
     def test_Xiaomi_ZNMS16LM_fingerprint(self):

@@ -248,7 +248,6 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |**consumable
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
-    # |  |**toothbrush
     # |  |--WeightSensor (Class)
     # |  |  |**weight
     # |  |  |**non-stabilized weight
