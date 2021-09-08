@@ -2,8 +2,8 @@
 manufacturer: Linptech
 name: Switch (two button version)
 model: K9B
-image: "Linptech_K9B.png"
-physical_description: ""
+image: Linptech_K9B.png
+physical_description:
 broadcasted_properties:
   - two btn switch left
   - two btn switch right
@@ -19,8 +19,6 @@ broadcasted_property_notes:
   - property: rssi
     note: >
       The RSSI sensor is disabled by default. You can enable the RSSI sensor by going to `configuration`, `integrations`, select `devices` on the BLE monitor integration tile and select your device. Click on the `+1 disabled entity` to show the disabled sensor and select the disabled entity. Finally, click on `Enable entity` to enable it. 
-broadcasted_properties: ["button press type"]
-broadcasted_properties_with_notes:  [button press type"]
 broadcast_rate:
 active_scan: false
 encryption_key: Probably (not confirmed yet)
