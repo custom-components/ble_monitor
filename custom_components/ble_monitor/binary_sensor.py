@@ -425,7 +425,7 @@ class MotionBinarySensor(BaseBinarySensor):
                     self._state = False
                 else:
                     self._state = True
-                    async_call_later(self.hass, self._reset_timer, self.reset_state())
+                    async_call_later(self.hass, self._reset_timer, self.reset_state)
             except KeyError:
                 self._state = self._newstate
         else:
