@@ -7,18 +7,27 @@ from .govee import parse_govee
 from .kegtron import parse_kegtron
 from .miscale import parse_miscale
 from .inode import parse_inode
-from .xiaomi import parse_xiaomi
+from .moat import parse_moat
 from .qingping import parse_qingping
 from .ruuvitag import parse_ruuvitag
+from .sensorpush import parse_sensorpush
 from .teltonika import parse_teltonika
 from .thermoplus import parse_thermoplus
-from .sensorpush import parse_sensorpush
+from .xiaomi import parse_xiaomi
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class BleParser:
-    def __init__(self, report_unknown=False, discovery=True, filter_duplicates=False, sensor_whitelist=[], tracker_whitelist=[], aeskeys={}):
+    def __init__(
+        self,
+        report_unknown=False,
+        discovery=True,
+        filter_duplicates=False,
+        sensor_whitelist=[],
+        tracker_whitelist=[],
+        aeskeys={}
+    ):
         self.report_unknown = report_unknown
         self.discovery = discovery
         self.filter_duplicates = filter_duplicates
@@ -125,6 +134,9 @@ class BleParser:
                         break
                     if adstruct[0] == 0x0E and adstruct[3] == 0x82:  # iNode
                         sensor_data = parse_inode(self, adstruct, mac, rssi)
+                        break
+                    if adstruct[0] == 0x15 and comp_id == 0x1000:  # Moat S2
+                        sensor_data = parse_moat(self, adstruct, mac, rssi)
                         break
                 elif adstuct_type == 0x06 and adstuct_size > 16:
                     sensorpush_uuid_reversed = b'\xb0\x0a\x09\xec\xd7\x9d\xb8\x93\xba\x42\xd6\x11\x00\x00\x09\xef'

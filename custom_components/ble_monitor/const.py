@@ -603,7 +603,8 @@ MEASUREMENT_DICT = {
     'Blue Coin T'             : [["temperature", "rssi"], [], []],
     'Blue Puck RHT'           : [["temperature", "humidity", "rssi"], [], []],
     'HTP.xw'                  : [["temperature", "humidity", "pressure", "rssi"], [], []],
-    'HT.w'                    : [["temperature", "humidity", "pressure", "rssi"], [], []]
+    'HT.w'                    : [["temperature", "humidity", "pressure", "rssi"], [], []],
+    'Moat S2'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -671,6 +672,7 @@ MANUFACTURER_DICT = {
     'Blue Puck RHT'           : 'Teltonika',
     'HTP.xw'                  : 'SensorPush',
     'HT.w'                    : 'SensorPush',
+    'Moat S2'                 : 'Moat',
 }
 
 # Renamed model dictionary
