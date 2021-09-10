@@ -212,33 +212,27 @@ def obj000b(xobj):
         return {}
 
 
-def obj000f(xobj):
+def obj000f(xobj, device_type):
     # Moving with light
     if len(xobj) == 3:
         (value,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
-        # MJYD02YL:  1 - moving no light, 100 - moving with light
-        # RTCGQ02LM: 0 - moving no light, 256 - moving with light
-        # CGPR1:     moving, value is illumination in lux
-        return {"motion": 1, "motion timer": 1, "light": int(value >= 100), "illuminance": value}
+
+        if device_type in ["MJYD02YL", "RTCGQ02LM"]:
+            # MJYD02YL:  1 - moving no light, 100 - moving with light
+            # RTCGQ02LM: 0 - moving no light, 256 - moving with light
+            return {"motion": 1, "motion timer": 1, "light": int(value >= 100)}
+        elif device_type == "CGPR1":
+            # CGPR1:     moving, value is illumination in lux
+            return {"motion": 1, "motion timer": 1, "illuminance": value}
+        else:
+            return {}
     else:
         return {}
 
 
-def obj1001(xobj):
-    # Button
+def obj1001(xobj, device_type):
     if len(xobj) == 3:
         (button_type, value, press) = BUTTON_STRUCT.unpack(xobj)
-        # RTCGQ02LM:            button
-        # YLAI003:              button
-        # YLYK01YL:             remote_command and remote_binary
-        # YLYK01YL-FANRC:       fan_remote_command, button
-        # YLYK01YL-VENFAN:      ven_fan_remote_command, button
-        # YLYB01YL-BHFRC:       bathroom_remote_command, button
-        # YLKG07YL/YLKG08YL:    button, dimmer
-        # JTYJGD03MI:           button
-        # K9B-1BTN              1_btn_switch
-        # K9B-2BTN              2_btn_switch_left, 2_btn_switch_right
-        # K9B-3BTN              3_btn_switch_left, 3_btn_switch_middle, 3_btn_switch_right
 
         # remote command and remote binary
         remote_command = None
@@ -353,28 +347,48 @@ def obj1001(xobj):
         elif press == 6:
             button_press_type = "long press"
 
-        result = {
-            "remote": remote_command,
-            "fan remote": fan_remote_command,
-            "ventilator fan remote": ven_fan_remote_command,
-            "bathroom heater remote": bathroom_remote_command,
-            "one btn switch": one_btn_switch,
-            "two btn switch left": two_btn_switch_left,
-            "two btn switch right": two_btn_switch_right,
-            "three btn switch left": three_btn_switch_left,
-            "three btn switch middle": three_btn_switch_middle,
-            "three btn switch right": three_btn_switch_right,
-            "button": button_press_type,
-            "button switch": btn_switch_press_type,
-            "dimmer": dimmer,
-        }
-
-        if remote_binary is not None:
-            if button_press_type == "single press":
-                result["remote single press"] = remote_binary
-            else:
-                result["remote long press"] = remote_binary
-
+        # return device specific output
+        result = {}
+        if device_type in ["RTCGQ02LM", "YLAI003", "JTYJGD03MI"]:
+            result["button"] = button_press_type
+        elif device_type == "YLYK01YL":
+            result["remote"] = remote_command
+            if remote_binary is not None:
+                if button_press_type == "single press":
+                    result["remote single press"] = remote_binary
+                else:
+                    result["remote long press"] = remote_binary
+        elif device_type == "YLYK01YL-FANRC":
+            result["fan remote"] = fan_remote_command
+            result["button"] = button_press_type
+        elif device_type == "YLYK01YL-VENFAN":
+            result["ventilator fan remote"] = ven_fan_remote_command
+            result["button"] = button_press_type
+        elif device_type == "YLYB01YL-BHFRC":
+            result["bathroom heater remote"] = bathroom_remote_command
+            result["button"] = button_press_type
+        elif device_type == "YLKG07YL/YLKG08YL":
+            result["dimmer"] = dimmer
+            result["button"] = button_press_type
+        elif device_type == "K9B-1BTN":
+            result["button switch"] = btn_switch_press_type
+            result["1_btn_switch"] = one_btn_switch
+        elif device_type == "K9B-2BTN":
+            result["button switch"] = btn_switch_press_type
+            if two_btn_switch_left:
+                result["2_btn_switch_left"] = two_btn_switch_left
+            if two_btn_switch_right:
+                result["2_btn_switch_right"] = two_btn_switch_right
+        elif device_type == "K9B-3BTN":
+            result["button switch"] = btn_switch_press_type
+            if three_btn_switch_left:
+                result["3_btn_switch_left"] = three_btn_switch_left
+            if three_btn_switch_middle:
+                result["3_btn_switch_middle"] = three_btn_switch_middle
+            if three_btn_switch_right:
+                result["3_btn_switch_right"] = three_btn_switch_right
+        else:
+            return None
         return result
 
     else:
@@ -743,7 +757,10 @@ def parse_xiaomi(self, data, source_mac, rssi):
             if obj_length != 0:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
-                    result.update(resfunc(object))
+                    if hex(obj_typecode) in ["0x1001", "0x000F"]:
+                        result.update(resfunc(object, device_type))
+                    else:
+                        result.update(resfunc(object))
                 else:
                     if self.report_unknown == "Xiaomi":
                         _LOGGER.info("%s, UNKNOWN dataobject in payload! Adv: %s", sinfo, data.hex())
