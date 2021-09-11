@@ -158,6 +158,7 @@ CONFIG_SCHEMA = vol.Schema(
                             "iNode",
                             "Kegtron",
                             "Mi Scale",
+                            "Moat",
                             "Qingping",
                             "Ruuvitag",
                             "SensorPush",
