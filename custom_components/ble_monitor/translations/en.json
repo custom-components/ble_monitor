@@ -17,7 +17,7 @@
           "restore_state": "Restore state"
         }
       },
-      "add_device": {
+      "add_remove_device": {
         "title": "Add device",
         "data": {
           "mac": "MAC address",
@@ -29,14 +29,16 @@
           "reset_timer": "Reset timer (in seconds, 0 = off)",
           "track_device": "Track device",
           "tracker_scan_interval": "Device tracker scan interval (in seconds)",
-          "consider_home": "Device tracker consider home interval (in seconds)"
+          "consider_home": "Device tracker consider home interval (in seconds)",
+          "delete device": "Delete device"
         }
       }
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
       "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for Yeelight sensors).",
-      "cannot_change_mac": "MAC address cannot be changed."
+      "cannot_change_mac": "MAC address cannot be changed.",
+      "cannot_delete_device": "Device can't be deleted."
     },
     "abort": {
       "single_instance_allowed": "Only a single configuration of BLE monitor is allowed."
@@ -61,10 +63,10 @@
           "not_in_use": "YAML is used, change options in YAML"
         }
       },
-      "add_device": {
+      "add_remove_device": {
         "title": "Configure device",
         "data": {
-          "mac": "MAC address (set to '-' to delete)",
+          "mac": "MAC address",
           "encryption_key": "Encryption key (set to '-' to remove)",
           "temperature_unit": "Temperature unit",
           "decimals": "Number of decimals",
@@ -73,14 +75,16 @@
           "reset_timer": "Reset timer (in seconds, 0 = off)",
           "track_device": "Track device",
           "tracker_scan_interval": "Device tracker scan interval (in seconds)",
-          "consider_home": "Device tracker consider home interval (in seconds)"
+          "consider_home": "Device tracker consider home interval (in seconds)",
+          "delete device": "Delete device"
         }
       }
     },
     "error": {
       "invalid_mac": "MAC address must be in the form 'AA:BB:CC:DD:EE:FF'.",
       "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for for Yeelight sensors).",
-      "cannot_change_mac": "MAC address cannot be changed."
+      "cannot_change_mac": "MAC address cannot be changed.",
+      "cannot_delete_device": "Device can't be deleted."
     },
     "abort": {
       "not_in_use": "You have configured BLE monitor in YAML. Please change your options in YAML."

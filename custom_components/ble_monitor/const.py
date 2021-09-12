@@ -62,6 +62,7 @@ CONF_DEVICE_RESET_TIMER = "reset_timer"
 CONF_DEVICE_TRACK = "track_device"
 CONF_DEVICE_TRACKER_SCAN_INTERVAL = "tracker_scan_interval"
 CONF_DEVICE_TRACKER_CONSIDER_HOME = "consider_home"
+CONF_DEVICE_DELETE_DEVICE = "delete device"
 CONFIG_IS_FLOW = "is_flow"
 
 SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
@@ -83,6 +84,7 @@ DEFAULT_DEVICE_RESET_TIMER = 35
 DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL = 20
 DEFAULT_DEVICE_TRACKER_CONSIDER_HOME = 180
 DEFAULT_DEVICE_TRACK = False
+DEFAULT_DEVICE_DELETE_DEVICE = False
 
 # regex constants for configuration schema
 MAC_REGEX = "(?i)^(?:[0-9A-F]{2}[:]){5}(?:[0-9A-F]{2})$"

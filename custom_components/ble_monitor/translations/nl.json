@@ -17,7 +17,7 @@
           "restore_state": "Herstel staat na herstart"
         }
       },
-      "add_device": {
+      "add_remove_device": {
         "title": "Apparaat toevoegen",
         "data": {
           "mac": "MAC adres",
@@ -29,14 +29,16 @@
           "reset_timer": "Reset timer (in seconden, 0 = uit)",
           "track_device": "Track apparaat",
           "tracker_scan_interval": "Device tracker scan interval (in seconden)",
-          "consider_home": "Device tracker beschouw thuis interval (in seconden)"
+          "consider_home": "Device tracker beschouw thuis interval (in seconden)",
+          "delete device": "Verwijder apparaat"
         }
       }  
     },
     "error": {
       "invalid_mac": "MAC adres dient opgegeven te worden in de vorm 'AA:BB:CC:DD:EE:FF'.",
       "invalid_key": "Encryptie sleutel dient 32 hexadecimale karakters te hebben (24 voor Yeelight sensoren).",
-      "cannot_change_mac": "MAC adres kan niet veranderd worden."
+      "cannot_change_mac": "MAC adres kan niet veranderd worden.",
+      "cannot_delete_device": "Apparaat kon niet verwijderd worden."
     },
     "abort": {
       "single_instance_allowed": "Slechts één instantie van BLE monitor is toegestaan."
@@ -61,7 +63,7 @@
           "not_in_use": "YAML is gebruikt, pas je instellingen aan in YAML"
         }
       },
-      "add_device": {
+      "add_remove_device": {
         "title": "Configureer apparaat",
         "data": {
           "mac": "MAC adres",
@@ -73,14 +75,16 @@
           "reset_timer": "Reset timer (in seconden, 0 = uit)",
           "track_device": "Track apparaat",
           "tracker_scan_interval": "Device tracker scan interval (in seconden)",
-          "consider_home": "Device tracker beschouw thuis interval (in seconden)"
+          "consider_home": "Device tracker beschouw thuis interval (in seconden)",
+          "delete device": "Verwijder apparaat"
         }
       }  
     },
     "error": {
       "invalid_mac": "MAC adres dient opgegeven te worden in de vorm 'AA:BB:CC:DD:EE:FF'.",
       "invalid_key": "Encryptie sleutel dient 32 hexadecimale karakters te hebben (24 voor Yeelight sensoren).",
-      "cannot_change_mac": "MAC adres kan niet veranderd worden."
+      "cannot_change_mac": "MAC adres kan niet veranderd worden.",
+      "cannot_delete_device": "Apparaat kon niet verwijderd worden."
     },
     "abort": {
       "not_in_use": "Je hebt BLE monitor in YAML geconfigureerd. Pas je instellingen aan in YAML."
