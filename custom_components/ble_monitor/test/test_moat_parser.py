@@ -18,5 +18,5 @@ class TestMoat:
         assert sensor_msg["data"]
         assert sensor_msg["temperature"] == 20.300
         assert sensor_msg["humidity"] == 93.127
-        assert sensor_msg["battery"] == 75
+        assert sensor_msg["battery"] == 19.5
         assert sensor_msg["rssi"] == -86
