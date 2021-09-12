@@ -21,12 +21,14 @@ def parse_moat(self, data, source_mac, rssi):
         voltage = volt / 1000
         if volt >= 3000:
             batt = 100
-        elif volt >= 2600:
-            batt = 60 + (volt - 2600) * 0.1
-        elif volt >= 2500:
-            batt = 40 + (volt - 2500) * 0.2
-        elif volt >= 2450:
-            batt = 20 + (volt - 2450) * 0.4
+        elif volt >= 2900:
+            batt = 42 + (volt - 2900) * 0.58
+        elif volt >= 2740:
+            batt = 18 + (volt - 2740) * 0.15
+        elif volt >= 2440:
+            batt = 6 + (volt - 2440) * 0.04
+        elif volt >= 2100:
+            batt = (volt - 2100) * (6/340)
         else:
             batt = 0
         result.update({
