@@ -17,7 +17,7 @@
           "restore_state": "回復狀態"
         }
       },
-      "add_device": {
+      "add_remove_device": {
         "title": "新增裝置",
         "data": {
           "mac": "MAC 位址",
@@ -32,7 +32,7 @@
     },
     "error": {
       "invalid_mac": "MAC 位址必須為「AA:BB:CC:DD:EE:FF」格式。",
-      "invalid_key": "密鑰必須為 32 個十六進位字元（YLKG01YL/YLKG08YL 則為 24）。",
+      "invalid_key": "密鑰必須為 32 個十六進位字元（Yeelight 則為 24）。",
       "cannot_change_mac": "MAC 位址無法變更。"
     },
     "abort": {
@@ -58,10 +58,10 @@
           "not_in_use": "已使用 YAML、於 YAML 變更選項"
         }
       },
-      "add_device": {
+      "add_remove_device": {
         "title": "設定裝置",
         "data": {
-          "mac": "MAC 位址（若輸入為「-」進行刪除）",
+          "mac": "MAC 位址",
           "encryption_key": "密鑰（若輸入為「-」進行移除）",
           "temperature_unit": "溫度單位",
           "decimals": "小數點位數",
@@ -73,7 +73,7 @@
     },
     "error": {
       "invalid_mac": "MAC 位址必須為「AA:BB:CC:DD:EE:FF」格式。",
-      "invalid_key": "密鑰必須為 32 個十六進位字元（YLKG01YL/YLKG08YL 則為 24）。",
+      "invalid_key": "密鑰必須為 32 個十六進位字元（Yeelight 則為 24）。",
       "cannot_change_mac": "MAC 位址無法變更。"
     },
     "abort": {

@@ -34,6 +34,7 @@ from .const import (
     DEFAULT_DEVICE_TRACK,
     DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
     DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
+    DEFAULT_DEVICE_DELETE_DEVICE,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
@@ -50,6 +51,7 @@ from .const import (
     CONF_DEVICE_TRACK,
     CONF_DEVICE_TRACKER_SCAN_INTERVAL,
     CONF_DEVICE_TRACKER_CONSIDER_HOME,
+    CONF_DEVICE_DELETE_DEVICE,
     CONFIG_IS_FLOW,
     DOMAIN,
     MAC_REGEX,
@@ -98,6 +100,10 @@ DEVICE_SCHEMA = vol.Schema(
             CONF_DEVICE_TRACKER_CONSIDER_HOME,
             default=DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
         ): cv.positive_int,
+        vol.Optional(
+            CONF_DEVICE_DELETE_DEVICE,
+            default=DEFAULT_DEVICE_DELETE_DEVICE,
+        ): cv.boolean,
     }
 )
 
@@ -204,12 +210,12 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
             step_id=step_id, data_schema=config_schema, errors=errors or {}
         )
 
-    async def async_step_add_device(self, user_input=None):
-        """Add device step."""
+    async def async_step_add_remove_device(self, user_input=None):
+        """Add/remove device step."""
         errors = {}
         if user_input is not None:
-            _LOGGER.debug("async_step_add_device: %s", user_input)
-            if user_input[CONF_MAC] and user_input[CONF_MAC] != "-":
+            _LOGGER.debug("async_step_add_remove_device: %s", user_input)
+            if user_input[CONF_MAC] and not user_input[CONF_DEVICE_DELETE_DEVICE]:
                 if (
                     self._sel_device
                     and user_input[CONF_MAC].upper()
@@ -270,15 +276,28 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                             CONF_DEVICE_TRACKER_CONSIDER_HOME,
                             default=user_input[CONF_DEVICE_TRACKER_CONSIDER_HOME],
                         ): cv.positive_int,
+                        vol.Optional(
+                            CONF_DEVICE_DELETE_DEVICE,
+                            default=DEFAULT_DEVICE_DELETE_DEVICE,
+                        ): cv.boolean,
                     }
                 )
                 return self.async_show_form(
-                    step_id="add_device",
+                    step_id="add_remove_device",
                     data_schema=retry_device_option_schema,
                     errors=errors,
                 )
             if self._sel_device:
-                del self._devices[self._sel_device.get(CONF_MAC).upper()]
+                """Remove device from device registry."""
+                device_registry = await self.hass.helpers.device_registry.async_get_registry()
+                mac = self._sel_device.get(CONF_MAC).upper()
+                device = device_registry.async_get_device({(DOMAIN, mac)}, set())
+                if device is None:
+                    errors[CONF_MAC] = "cannot_delete_device"
+                else:
+                    _LOGGER.debug("Removing BLE monitor device %s", mac)
+                    device_registry.async_remove_device(device.id)
+                    del self._devices[self._sel_device.get(CONF_MAC).upper()]
             return self._show_main_form(errors)
         device_option_schema = vol.Schema(
             {
@@ -342,11 +361,15 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     if self._sel_device.get(CONF_DEVICE_TRACKER_CONSIDER_HOME)
                     else DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
                 ): cv.positive_int,
+                vol.Optional(
+                    CONF_DEVICE_DELETE_DEVICE,
+                    default=DEFAULT_DEVICE_DELETE_DEVICE,
+                ): cv.boolean,
             }
         )
 
         return self.async_show_form(
-            step_id="add_device",
+            step_id="add_remove_device",
             data_schema=device_option_schema,
             errors=errors,
         )
@@ -380,10 +403,10 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
                 user_input[CONF_DEVICES] = {}
             elif user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
                 self._sel_device = {}
-                return await self.async_step_add_device()
+                return await self.async_step_add_remove_device()
             if user_input[CONF_DEVICES] in self._devices:
                 self._sel_device = self._devices[user_input[CONF_DEVICES]]
-                return await self.async_step_add_device()
+                return await self.async_step_add_remove_device()
             await self.async_set_unique_id(DOMAIN_TITLE)
             self._abort_if_unique_id_configured()
             return self._create_entry(user_input)
@@ -496,10 +519,10 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 return self.async_abort(reason="not_in_use")
             if user_input[CONF_DEVICES] == OPTION_ADD_DEVICE:
                 self._sel_device = {}
-                return await self.async_step_add_device()
+                return await self.async_step_add_remove_device()
             if user_input[CONF_DEVICES] in self._devices:
                 self._sel_device = self._devices[user_input[CONF_DEVICES]]
-                return await self.async_step_add_device()
+                return await self.async_step_add_remove_device()
             return self._create_entry(user_input)
         _LOGGER.debug("async_step_init (before): %s", self.config_entry.options)
 

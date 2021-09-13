@@ -235,3 +235,8 @@ ble_monitor:
 ### consider_home
 
    (positive integer)(Optional) This option sets the period with no data after which the device tracker is considered to be away. The setting is in seconds. Default value: 180
+
+### delete_device
+
+   (boolean)(Optional) This option is only available in the UI. Selecting this option will delete your device from your configuration and will delete your device from the Home Assistant device registry. Note that the device will automatically be rediscoverd if you have [discover](#discovery) enabled. Default value: False
+   
