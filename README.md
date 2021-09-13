@@ -24,6 +24,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Govee
 - iNode sensors
 - Kegtron
+- Moat
 - Qingping
 - Ruuvitag
 - SensorPush
