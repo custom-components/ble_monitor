@@ -370,6 +370,22 @@ class TestXiaomi:
 
     def test_Xiaomi_YLYK01YL(self):
         """Test Xiaomi parser for YLYK01YL."""
+        data_string = "043E21020103007450E94124F815141695FE503053013F7450E94124F8011003000000E0"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
+        assert sensor_msg["type"] == "YLYK01YL"
+        assert sensor_msg["mac"] == "F82441E95074"
+        assert sensor_msg["packet"] == 63
+        assert sensor_msg["data"]
+        assert sensor_msg["remote"] == "on"
+        assert sensor_msg["button"] == "single press"
+        assert sensor_msg["remote single press"] == 1
+        assert sensor_msg["rssi"] == -32
 
     def test_Xiaomi_YLYK01YL_FANCL(self):
         """Test Xiaomi parser for YLYK01YL-FANCL."""
