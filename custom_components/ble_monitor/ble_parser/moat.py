@@ -13,7 +13,6 @@ def parse_moat(self, data, source_mac, rssi):
     device_id = (data[3] << 8) | data[2]
     result = {"firmware": firmware}
     if msg_length == 22 and device_id == 0x1000:
-        print(data[14:20].hex())
         device_type = "Moat S2"
         (temp, humi, volt) = unpack("<HHH", data[14:20])
         temperature = -46.85 + 175.72 * temp / 65536.0
