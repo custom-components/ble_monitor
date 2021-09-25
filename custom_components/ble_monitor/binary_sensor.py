@@ -228,7 +228,7 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         self._attr_name = f"{description.name} {self._device_name}"
         self._attr_unique_id = f"{description.unique_id}{self._device_name}"
         self._attr_should_poll = False
-        self._attr_force_update = True
+        self._attr_force_update = description.force_update
         self._attr_extra_state_attributes = self._extra_state_attributes
         self._attr_device_info = {
             "identifiers": {(DOMAIN, self._extra_state_attributes["mac address"])},
