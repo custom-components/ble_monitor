@@ -33,7 +33,7 @@ try:
     BT_MAC_INTERFACES = list(BT_INTERFACES.values())
     DEFAULT_BT_INTERFACE = list(BT_INTERFACES.items())[0][1]
     DEFAULT_HCI_INTERFACE = list(BT_INTERFACES.items())[0][0]
-except (IndexError, OSError):
+except (IndexError, OSError, subprocess.CalledProcessError):
     BT_INTERFACES = {0: "00:00:00:00:00:00"}
     DEFAULT_BT_INTERFACE = "00:00:00:00:00:00"
     DEFAULT_HCI_INTERFACE = 0
