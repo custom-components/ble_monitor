@@ -75,5 +75,5 @@ broadcast_rate:
 active_scan:
 encryption_key:
 custom_firmware:
-notes: Bluetooth version
+notes: Only supports the Bluetooth version (MiHome version)
 ---
