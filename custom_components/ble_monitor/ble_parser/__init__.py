@@ -2,6 +2,7 @@
 import logging
 
 from .atc import parse_atc
+from .bluemaestro import parse_bluemaestro
 from .brifit import parse_brifit
 from .govee import parse_govee
 from .kegtron import parse_kegtron
@@ -137,6 +138,9 @@ class BleParser:
                         break
                     if adstruct[0] == 0x15 and comp_id == 0x1000:  # Moat S2
                         sensor_data = parse_moat(self, adstruct, mac, rssi)
+                        break
+                    if adstruct[0] == 0x11 and comp_id == 0x0133:  # BlueMaestro
+                        sensor_data = parse_bluemaestro(self, adstruct, mac, rssi)
                         break
                 elif adstuct_type == 0x06 and adstuct_size > 16:
                     sensorpush_uuid_reversed = b'\xb0\x0a\x09\xec\xd7\x9d\xb8\x93\xba\x42\xd6\x11\x00\x00\x09\xef'

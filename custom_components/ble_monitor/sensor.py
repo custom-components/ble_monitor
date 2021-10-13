@@ -241,6 +241,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |**conductivity
     # |  |**illuminance
     # |  |**formaldehyde
+    # |  |**dewpoint
     # |  |**rssi
     # |  |--BatterySensor (Class)
     # |  |  |**battery

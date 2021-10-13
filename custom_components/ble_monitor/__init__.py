@@ -1,12 +1,13 @@
 """Passive BLE monitor integration."""
-import aioblescan as aiobs
 import asyncio
 import copy
-import janus
 import json
 import logging
 from threading import Thread
 import voluptuous as vol
+
+import aioblescan as aiobs
+import janus
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
@@ -153,6 +154,7 @@ CONFIG_SCHEMA = vol.Schema(
                     ): vol.In(
                         [
                             "ATC",
+                            "BlueMaestro",
                             "Brifit",
                             "Govee",
                             "iNode",
