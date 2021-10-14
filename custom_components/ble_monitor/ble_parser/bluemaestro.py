@@ -16,18 +16,18 @@ def parse_bluemaestro(self, data, source_mac, rssi):
         # BlueMaestro Tempo Disc THD
         device_type = "Tempo Disc THD"
         # pylint: disable=unused-variable
-        (batt, time_interval, log_cnt, temp, humi, dew_point, mode) = unpack("<BhhhHhH", msg)
+        (batt, time_interval, log_cnt, temp, humi, dew_point, mode) = unpack("!BhhhHhH", msg)
         result = {
             "temperature": temp / 10,
             "humidity": humi / 10,
             "battery": batt,
-            "dewpoint": dew_point
+            "dewpoint": dew_point / 10
         }
     elif msg_length == 18 and device_id == 0x1b:
         # BlueMaestro Tempo Disc THPD (sends P instead of D, no D is send)
         device_type = "Tempo Disc THPD"
         # pylint: disable=unused-variable
-        (batt, time_interval, log_cnt, temp, humi, press, mode) = unpack("<BhhhHhH", msg)
+        (batt, time_interval, log_cnt, temp, humi, press, mode) = unpack("!BhhhHhH", msg)
         result = {
             "temperature": temp / 10,
             "humidity": humi / 10,
