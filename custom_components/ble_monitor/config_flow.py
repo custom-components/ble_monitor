@@ -125,6 +125,7 @@ DOMAIN_SCHEMA = vol.Schema(
         vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): vol.In(
             [
                 "ATC",
+                "BlueMaestro",
                 "Brifit",
                 "Govee",
                 "iNode",
@@ -486,6 +487,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 ): vol.In(
                     [
                         "ATC",
+                        "BlueMaestro",
                         "Brifit",
                         "Govee",
                         "iNode",
