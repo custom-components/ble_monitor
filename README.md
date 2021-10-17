@@ -20,6 +20,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 ![BLE_sensors](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/sensors_2.png)
 
 - ATC (custom firmware for Xiaomi/Qingping sensors)
+- BlueMaestro
 - Brifit
 - Govee
 - iNode sensors
