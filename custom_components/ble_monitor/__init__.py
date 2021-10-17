@@ -6,7 +6,7 @@ import logging
 from threading import Thread
 import voluptuous as vol
 
-import aioblescan as aiobs
+from .aioblescan import aioblescan_ext as aiobs
 import janus
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
