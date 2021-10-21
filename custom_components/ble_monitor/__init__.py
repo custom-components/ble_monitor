@@ -6,7 +6,7 @@ import logging
 from threading import Thread
 import voluptuous as vol
 
-from .aioblescan import aioblescan_ext as aiobs
+import aioblescan as aiobs
 import janus
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
@@ -75,6 +75,7 @@ from .bt_helpers import (
     BT_INTERFACES,
     BT_MAC_INTERFACES,
     DEFAULT_BT_INTERFACE,
+    reset_bluetooth
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -406,7 +407,7 @@ async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> Non
     await hass.config_entries.async_reload(entry.entry_id)
 
 
-async def async_cleanup_entries_service(hass: HomeAssistant, data):
+async def async_cleanup_entries_service(hass: HomeAssistant, service_data):
     """Remove orphaned entries from device and entity registries."""
     _LOGGER.debug("async_cleanup_entries_service")
 
@@ -618,10 +619,12 @@ class HCIdump(Thread):
                         )
                     except RuntimeError as error:
                         _LOGGER.error(
-                            "HCIdump thread: Runtime error while sending scan request on hci%i: %s",
+                            "HCIdump thread: Runtime error while sending scan request on hci%i: %s. Resetting Bluetooth adapter %s and trying again.",
                             hci,
                             error,
+                            BT_INTERFACES[hci],
                         )
+                        reset_bluetooth(hci)
             _LOGGER.debug("HCIdump thread: start main event_loop")
             try:
                 self._event_loop.run_forever()
@@ -634,10 +637,12 @@ class HCIdump(Thread):
                         )
                     except RuntimeError as error:
                         _LOGGER.error(
-                            "HCIdump thread: Runtime error while stop scan request on hci%i: %s",
+                            "HCIdump thread: Runtime error while stop scan request on hci%i: %s Resetting Bluetooth adapter %s and trying again.",
                             hci,
                             error,
+                            BT_INTERFACES[hci],
                         )
+                        reset_bluetooth(hci)
                     except KeyError:
                         _LOGGER.debug(
                             "HCIdump thread: Key error while stop scan request on hci%i",
