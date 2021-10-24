@@ -3,7 +3,7 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestMiscale:
-
+    """Tests for the MiScale parser"""
     def test_miscale_v1(self):
         """Test Mi Scale v1 parser."""
         data_string = "043e2b020100008995c08c47c81f02010603021d1809ff5701c8478cc095890d161d18a22044b20701010a1a15c5"

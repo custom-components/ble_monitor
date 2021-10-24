@@ -3,7 +3,7 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestInode:
-
+    """Tests for the iNode parser"""
     def test_inode_energy_meter(self):
         """Test inode parser for iNode Energy Monitor."""
         data_string = "043E2102010000473A6D6F1200150201060EFF90820400CFE40000DC05B0ED10020A08A5"

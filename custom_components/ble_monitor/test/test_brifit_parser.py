@@ -3,7 +3,7 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestBrifit:
-
+    """Tests for the Brifit parser"""
     def test_brifit(self):
         """Test brifit parser."""
         data_string = "043E2B0201000085B07438C1A41F05095432303102010614FF55AA0101A4C13874B08501070A1D10F064000100D6"

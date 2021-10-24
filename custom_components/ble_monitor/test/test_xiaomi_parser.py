@@ -3,6 +3,9 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestXiaomi:
+    """Tests for the Xiaomi parser"""
+    def __init__(self) -> None:
+        self.aeskeys = {}
 
     def test_Xiaomi_LYWSDCGQ(self):
         """Test Xiaomi parser for LYWSDCGQ."""
@@ -28,7 +31,6 @@ class TestXiaomi:
         data = bytes(bytearray.fromhex(data_string))
 
         aeskey = "814aac74c4f17b6c1581e1ab87816b99"
-        self.aeskeys = {}
 
         p_mac = bytes.fromhex("5A582D34125F")
         p_key = bytes.fromhex(aeskey.lower())
@@ -53,7 +55,7 @@ class TestXiaomi:
         data = bytes(bytearray.fromhex(data_string))
 
         aeskey = "a3bfe9853dd85a620debe3620caaa351"
-        self.aeskeys = {}
+
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         mac_address = mac.hex()
@@ -99,7 +101,7 @@ class TestXiaomi:
         data = bytes(bytearray.fromhex(data_string))
 
         aeskey = "e9ea895fac7cca6d30532432a516f3a8"
-        self.aeskeys = {}
+
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         mac_address = mac.hex()
@@ -117,6 +119,31 @@ class TestXiaomi:
         assert sensor_msg["data"]
         assert sensor_msg["humidity"] == 46.7
         assert sensor_msg["rssi"] == -30
+
+    def test_Xiaomi_XMWSDJ04MMC(self):
+        """Test Xiaomi parser for XMWSDJ04MMC with encryption."""
+        data_string = "043e260201000004702565112c1a020106161695fe48590312a41b776e7c96add7000000f2bf545bce"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "b2cf9a553d53571b5657defd582d676e"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "XMWSDJ04MMC"
+        assert sensor_msg["mac"] == "2C1165257004"
+        assert sensor_msg["packet"] == 164
+        assert sensor_msg["data"]
+        assert sensor_msg["humidity"] == 45.0
+        assert sensor_msg["rssi"] == -50
 
     def test_Xiaomi_CGC1(self):
         """Test Xiaomi parser for CGC1."""
@@ -142,7 +169,7 @@ class TestXiaomi:
         data = bytes(bytearray.fromhex(data_string))
 
         aeskey = "5b51a7c91cde6707c9ef18dfda143a58"
-        self.aeskeys = {}
+
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         mac_address = mac.hex()
@@ -167,7 +194,7 @@ class TestXiaomi:
         data = bytes(bytearray.fromhex(data_string))
 
         aeskey = "5b51a7c91cde6707c9ef18dfda143a58"
-        self.aeskeys = {}
+
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         mac_address = mac.hex()
@@ -268,7 +295,7 @@ class TestXiaomi:
         data = bytes(bytearray.fromhex(data_string))
 
         aeskey = "FFD8CE9C08AE7533A79BDAF0BB755E96"
-        self.aeskeys = {}
+
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         mac_address = mac.hex()
@@ -402,7 +429,7 @@ class TestXiaomi:
         data = bytes(bytearray.fromhex(data_string))
 
         aeskey = "b853075158487ca39a5b5ea9"
-        self.aeskeys = {}
+
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         mac_address = mac.hex()
@@ -428,7 +455,7 @@ class TestXiaomi:
         data = bytes(bytearray.fromhex(data_string))
 
         aeskey = "b853075158487ca39a5b5ea9"
-        self.aeskeys = {}
+
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         mac_address = mac.hex()

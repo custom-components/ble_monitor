@@ -3,6 +3,7 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestMoat:
+    """Tests for the Moat parser"""
     def test_Moat_S2(self):
         """Test Moat S2 parser."""
         data_string = "043e3702010000aabb611d12e12b0d09475648353130325f43423942030388ec02010515ff0010AABBCCDDEEFF11111111d46103cbbe0a0000aa"

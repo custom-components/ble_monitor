@@ -3,6 +3,7 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestSensorPush:
+    """Tests for the SensorPush parser"""
     def test_SensorPush_HTw(self):
         """Test SensorPush HT.w parser."""
         data_string = "043E280201000090F083F134A41C0201061106B00A09ECD79DB893BA42D611000009EF06FF04E9187D39D3"
@@ -20,7 +21,7 @@ class TestSensorPush:
         assert sensor_msg["humidity"] == 36.53
         # assert sensor_msg["battery"] == 99
         assert sensor_msg["rssi"] == -45
-        
+
     def test_SensorPush_HTPxw(self):
         """Test SensorPush HTP.xw parser."""
         data_string = "043E2A02010000252B80F134A41E0201061106B00A09ECD79DB893BA42D611000009EF08FF0089E456BEA6B4B3"

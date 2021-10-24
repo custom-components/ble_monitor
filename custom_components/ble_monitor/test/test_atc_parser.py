@@ -3,6 +3,9 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestATC:
+    """Tests for the ATC parser"""
+    def __init__(self) -> None:
+        self.aeskeys = {}
 
     def test_atc_atc1441(self):
         """Test ATC parser for ATC 1441 format."""
@@ -105,7 +108,7 @@ class TestATC:
         data = bytes(bytearray.fromhex(data_string))
 
         aeskey = "b9ea895fac7eea6d30532432a516f3a3"
-        self.aeskeys = {}
+
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         mac_address = mac.hex()
