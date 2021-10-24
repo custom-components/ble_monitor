@@ -32,4 +32,4 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Teltonika
 - Thermoplus
 - Xiaomi (MiBeacon)
-- Xiaomi (Mi Scale)
+- Xiaomi (MiScale)
