@@ -145,7 +145,7 @@ def bluetoothctl_power_on():
 
 def reset_bluetooth(hci):
     """Resetting the Bluetooth adapter."""
-    _LOGGER.error("resetting Bluetooth")
+    _LOGGER.debug("resetting Bluetooth")
 
     # Select the Bluetooth adapter and retreive the state of the adapter
     mac = hci_get_mac([hci])[0]
@@ -161,27 +161,27 @@ def reset_bluetooth(hci):
     if power_state_before is True:
         _LOGGER.debug("Power state of bluetooth adapter is on before resetting Bluetooth")
     elif power_state_before is False:
-        _LOGGER.error(
+        _LOGGER.debug(
             "Power state of bluetooth adapter is off before resetting Bluetooth, trying to turn it back on."
         )
     else:
-        _LOGGER.error(
+        _LOGGER.debug(
             "Power state of bluetooth adapter before resetting Bluetooth could not be determined, trying to turn it back on anyways."
         )
 
     soft_block, hard_block = rfkill_list_bluetooth(hci)
     if soft_block is True:
-        _LOGGER.error("bluetooth adapter is soft blocked before reset")
+        _LOGGER.debug("bluetooth adapter is soft blocked before reset")
     elif soft_block is False:
         _LOGGER.debug("bluetooth adapter is not soft blocked before reset")
     else:
-        _LOGGER.error("bluetooth adapter soft blocked state could not be determined before reset")
+        _LOGGER.debug("bluetooth adapter soft blocked state could not be determined before reset")
     if hard_block is True:
-        _LOGGER.error("bluetooth adapter is hard blocked before reset")
+        _LOGGER.debug("bluetooth adapter is hard blocked before reset")
     elif hard_block is False:
         _LOGGER.debug("bluetooth adapter is not hard blocked before reset")
     else:
-        _LOGGER.error("bluetooth adapter hard blocked state could not be determined before reset")
+        _LOGGER.debug("bluetooth adapter hard blocked state could not be determined before reset")
 
     # Turn the power on and unblock bluetooth adapter
     bluetoothctl_power_on()
@@ -193,25 +193,25 @@ def reset_bluetooth(hci):
     if power_state_after is True:
         _LOGGER.debug("Power state of bluetooth adapter is on after resetting Bluetooth")
     elif power_state_after is False:
-        _LOGGER.error("Power state of bluetooth adapter is still off after resetting Bluetooth.")
+        _LOGGER.debug("Power state of bluetooth adapter is still off after resetting Bluetooth.")
     else:
-        _LOGGER.error(
+        _LOGGER.debug(
             "Power state of bluetooth adapter after resetting Bluetooth could not be determined."
         )
 
     soft_block, hard_block = rfkill_list_bluetooth(hci)
     if soft_block is True:
-        _LOGGER.error("bluetooth adapter is still soft blocked after reset")
+        _LOGGER.debug("bluetooth adapter is still soft blocked after reset")
     elif soft_block is False:
         _LOGGER.debug("bluetooth adapter is not soft blocked after reset")
     else:
-        _LOGGER.error("bluetooth adapter soft blocked state could not be determined after reset")
+        _LOGGER.debug("bluetooth adapter soft blocked state could not be determined after reset")
     if hard_block is True:
-        _LOGGER.error("bluetooth adapter is still hard blocked after reset")
+        _LOGGER.debug("bluetooth adapter is still hard blocked after reset")
     elif hard_block is False:
         _LOGGER.debug("bluetooth adapter is not hard blocked after reset")
     else:
-        _LOGGER.error("bluetooth adapter hard blocked state could not be determined after reset")
+        _LOGGER.debug("bluetooth adapter hard blocked state could not be determined after reset")
 
 
 try:
