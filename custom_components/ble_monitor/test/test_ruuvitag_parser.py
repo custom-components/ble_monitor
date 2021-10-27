@@ -3,7 +3,7 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestRuuviTag:
-
+    """Tests for the RuuviTag parser"""
     def test_ruuvitag_v2(self):
         """Test ruuvitag v2 parser."""
         data_string = "043E2A0201030157168974A5F41E0201060303AAFE1616AAFE10EE037275752E76692F23416A7759414D4666CD"

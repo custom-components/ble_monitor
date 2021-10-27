@@ -3,6 +3,7 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestGovee:
+    """Tests for the Govee parser"""
     def test_Govee_H5051(self):
         """Test Govee H5051 parser."""
         data_string = "043e1902010400aabb615960e30d0cff88ec00ba0af90f63020101b7"

@@ -3,7 +3,7 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestKegtron:
-
+    """Tests for the Kegtron parser"""
     def test_kegtron_kt100(self):
         """Test kegtron parser for KT-100."""
         data_string = "043e2b02010400759b5c5ecfd01f1effffff49ef138802e20153696e676c6520506f7274000000000000000000ae"

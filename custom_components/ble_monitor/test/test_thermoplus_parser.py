@@ -3,7 +3,7 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestThermoplus:
-
+    """Tests for the Thermoplus parser"""
     def test_thermoplus_smart_hygrometer(self):
         """Test thermoplus Smart hygrometer parser."""
         data_string = "043e29020100002716000088061d0201060302f0ff15ff110000002716000088063c0c8f01a103b9d70300c8"

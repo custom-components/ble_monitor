@@ -3,7 +3,7 @@ from ble_monitor.ble_parser import BleParser
 
 
 class TestQingping:
-
+    """Tests for the Qingping parser"""
     def test_qingping_CGP1W(self):
         """Test Qingping parser for CGP1W."""
         data_string = "043E28020100006F1C40342D581C0201061816CDFD08096F1C40342D580104BE000D0207027226020157D1"

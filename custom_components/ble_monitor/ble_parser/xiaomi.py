@@ -14,6 +14,7 @@ XIAOMI_TYPE_DICT = {
     0x01AA: "LYWSDCGQ",
     0x045B: "LYWSD02",
     0x055B: "LYWSD03MMC",
+    0x1203: "XMWSDJ04MMC",
     0x0098: "HHCCJCY01",
     0x03BC: "GCLS002",
     0x015D: "HHCCPOT002",
@@ -64,6 +65,7 @@ FMDH_STRUCT = struct.Struct("<H")
 M_STRUCT = struct.Struct("<L")
 P_STRUCT = struct.Struct("<H")
 BUTTON_STRUCT = struct.Struct("<BBB")
+FLOAT_STRUCT = struct.Struct("<f")
 
 # Definition of lock messages
 BLE_LOCK_ERROR = {
@@ -539,6 +541,30 @@ def obj2000(xobj):
         return {}
 
 
+# The following data objects are device specific. For now only added for XMWSDJ04MMC
+# https://miot-spec.org/miot-spec-v2/instances?status=all
+def obj4803(xobj):
+    # Battery
+    batt = xobj[0]
+    return {"battery": batt}
+
+
+def obj4c01(xobj):
+    if len(xobj) == 4:
+        temp = FLOAT_STRUCT.unpack(xobj)[0]
+        return {"temperature": temp}
+    else:
+        return {}
+
+
+def obj4c08(xobj):
+    if len(xobj) == 4:
+        humi = FLOAT_STRUCT.unpack(xobj)[0]
+        return {"humidity": humi}
+    else:
+        return {}
+
+
 # Dataobject dictionary
 # {dataObject_id: (converter}
 xiaomi_dataobject_dict = {
@@ -565,6 +591,9 @@ xiaomi_dataobject_dict = {
     0x100A: obj100a,
     0x100D: obj100d,
     0x2000: obj2000,
+    0x4803: obj4803,
+    0x4c01: obj4c01,
+    0x4c08: obj4c08,
 }
 
 
