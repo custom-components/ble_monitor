@@ -167,7 +167,7 @@ CONFIG_SCHEMA = vol.Schema(
                             "SensorPush",
                             "Teltonika",
                             "Thermoplus",
-                            "Xiaogui"
+                            "Xiaogui",
                             "Xiaomi",
                             "Other",
                             False,
