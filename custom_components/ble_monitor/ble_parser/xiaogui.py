@@ -70,7 +70,7 @@ def parse_xiaogui(self, data, source_mac, rssi):
         return None
 
     # check for MAC presence in whitelist, if needed
-    if self.discovery is False and xiaogui_mac.lower() not in self.whitelist:
+    if self.discovery is False and xiaogui_mac.lower() not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(xiaogui_mac))
         return None
 
