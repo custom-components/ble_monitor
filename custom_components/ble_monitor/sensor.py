@@ -730,9 +730,10 @@ class WeightSensor(InstantUpdateSensor):
         self._extra_state_attributes["firmware"] = data["firmware"]
         if self.entity_description.key == "non-stabilized weight":
             self._extra_state_attributes["stabilized"] = bool(data["stabilized"])
-            self._extra_state_attributes["weight removed"] = bool(
-                data["weight removed"]
-            )
+            if "weight removed" in data:
+                self._extra_state_attributes["weight removed"] = bool(
+                    data["weight removed"]
+                )
         if "weight unit" in data:
             self._attr_native_unit_of_measurement = data["weight unit"]
         else:
