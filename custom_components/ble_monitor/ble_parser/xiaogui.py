@@ -20,7 +20,7 @@ def parse_xiaogui(self, data, source_mac, rssi):
 
         result = {
             "firmware": firmware,
-            "device_type": device_type,
+            "type": device_type,
             "mac": ''.join('{:02X}'.format(x) for x in xiaogui_mac),
             "rssi": rssi,
             "data": True,
@@ -28,7 +28,7 @@ def parse_xiaogui(self, data, source_mac, rssi):
 
         xvalue = data[3:11]
         (packet_id, weight, impedance, control, stablilized_byte) = unpack(">BHHHB", xvalue)
-        result.update({"packet_id": packet_id})
+        result.update({"packet": packet_id})
 
         if stablilized_byte == 0x20:
             result.update({"non-stabilized weight": weight / 10})
