@@ -65,12 +65,9 @@ def parse_xiaogui(self, data, source_mac, rssi):
         # only process new messages
         return None
     self.lpacket_ids[xiaogui_mac] = packet_id
-    if prev_packet is None:
-        # ignore first message after a restart
-        return None
 
     # check for MAC presence in whitelist, if needed
-    if self.discovery is False and xiaogui_mac.lower() not in self.sensor_whitelist:
+    if self.discovery is False and xiaogui_mac not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(xiaogui_mac))
         return None
 
