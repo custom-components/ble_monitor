@@ -27,7 +27,9 @@ def parse_xiaogui(self, data, source_mac, rssi):
         }
 
         xvalue = data[3:11]
-        (packet_id, weight, impedance, control, stablilized_byte) = unpack(">BHHHB", xvalue)
+        (frame_cnt, weight, impedance, control, stablilized_byte) = unpack(">BHHHB", xvalue)
+        packet_id = frame_cnt << 8 | stablilized_byte
+
         result.update({"packet": packet_id})
 
         if stablilized_byte == 0x20:
@@ -57,16 +59,15 @@ def parse_xiaogui(self, data, source_mac, rssi):
             )
         return None
 
-    # Check for duplicate messages (only when stabilized)
-    if stablilized_byte == 0x21:
-        try:
-            prev_packet = self.lpacket_ids[xiaogui_mac]
-        except KeyError:
-            # start with empty first packet
-            prev_packet = None
-        if prev_packet == packet_id:
-            # only process new messages
-            return None
+    # Check for duplicate messages
+    try:
+        prev_packet = self.lpacket_ids[xiaogui_mac]
+    except KeyError:
+        # start with empty first packet
+        prev_packet = None
+    if prev_packet == packet_id:
+        # only process new messages
+        return None
     self.lpacket_ids[xiaogui_mac] = packet_id
 
     # check for MAC presence in whitelist, if needed
