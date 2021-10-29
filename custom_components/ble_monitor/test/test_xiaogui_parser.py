@@ -16,7 +16,7 @@ class TestXiaogui:
         assert sensor_msg["firmware"] == "Xiaogui"
         assert sensor_msg["type"] == "TZC4"
         assert sensor_msg["mac"] == "5F5A29E5E094"
-        assert sensor_msg["packet"] == 163
+        assert sensor_msg["packet"] == 41761
         assert sensor_msg["data"]
         assert sensor_msg["non-stabilized weight"] == 63.0
         assert sensor_msg["weight"] == 63.0
@@ -36,7 +36,7 @@ class TestXiaogui:
         assert sensor_msg["firmware"] == "Xiaogui"
         assert sensor_msg["type"] == "TZC4"
         assert sensor_msg["mac"] == "5F5A29E5E094"
-        assert sensor_msg["packet"] == 93
+        assert sensor_msg["packet"] == 23840
         assert sensor_msg["data"]
         assert sensor_msg["non-stabilized weight"] == 14.0
         assert "weight" not in sensor_msg
