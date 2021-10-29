@@ -1,4 +1,4 @@
-# Parser for Xiaomi Mi Scale BLE advertisements
+"""Parser for Xiaomi Mi Scale BLE advertisements"""
 import logging
 from struct import unpack
 
@@ -6,23 +6,23 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def parse_miscale(self, data, source_mac, rssi):
-    # check for adstruc length
+    """Parser for Xiaomi Mi Scales."""
     msg_length = len(data)
     uuid16 = (data[3] << 8) | data[2]
 
     if msg_length == 14 and uuid16 == 0x181D:  # Mi Scale V1
         device_type = "Mi Scale V1"
         xvalue = data[4:]
-        (controlByte, weight) = unpack("<BH7x", xvalue)
+        (control_byte, weight) = unpack("<BH7x", xvalue)
 
-        hasImpedance = False
-        isStabilized = controlByte & (1 << 5)
-        weightRemoved = controlByte & (1 << 7)
+        has_impedance = False
+        is_stabilized = control_byte & (1 << 5)
+        weigth_removed = control_byte & (1 << 7)
 
-        if controlByte & (1 << 0):
+        if control_byte & (1 << 0):
             weight = weight / 100
             weight_unit = 'lbs'
-        elif controlByte & (1 << 4):
+        elif control_byte & (1 << 4):
             weight = weight / 100
             weight_unit = 'jin'
         else:
@@ -32,10 +32,10 @@ def parse_miscale(self, data, source_mac, rssi):
     elif msg_length == 17 and uuid16 == 0x181B:  # Mi Scale V2
         device_type = "Mi Scale V2"
         xvalue = data[4:]
-        (measunit, controlByte, impedance, weight) = unpack("<BB7xHH", xvalue)
-        hasImpedance = controlByte & (1 << 1)
-        isStabilized = controlByte & (1 << 5)
-        weightRemoved = controlByte & (1 << 7)
+        (measunit, control_byte, impedance, weight) = unpack("<BB7xHH", xvalue)
+        has_impedance = control_byte & (1 << 1)
+        is_stabilized = control_byte & (1 << 5)
+        weigth_removed = control_byte & (1 << 7)
 
         if measunit & (1 << 4):
             # measurement in Chinese Catty unit
@@ -68,14 +68,14 @@ def parse_miscale(self, data, source_mac, rssi):
     result = {
         "non-stabilized weight": weight,
         "weight unit": weight_unit,
-        "weight removed": 0 if weightRemoved == 0 else 1,
-        "stabilized": 0 if isStabilized == 0 else 1
+        "weight removed": 0 if weigth_removed == 0 else 1,
+        "stabilized": 0 if is_stabilized == 0 else 1
     }
 
-    if isStabilized and not weightRemoved:
+    if is_stabilized and not weigth_removed:
         result.update({"weight": weight})
 
-    if hasImpedance:
+    if has_impedance:
         result.update({"impedance": impedance})
 
     firmware = device_type
@@ -115,4 +115,5 @@ def parse_miscale(self, data, source_mac, rssi):
 
 
 def to_mac(addr: int):
+    """Return formatted MAC address"""
     return ':'.join('{:02x}'.format(x) for x in addr).upper()

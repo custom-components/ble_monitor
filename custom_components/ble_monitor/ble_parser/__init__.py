@@ -15,11 +15,13 @@ from .sensorpush import parse_sensorpush
 from .teltonika import parse_teltonika
 from .thermoplus import parse_thermoplus
 from .xiaomi import parse_xiaomi
+from .xiaogui import parse_xiaogui
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class BleParser:
+    """Parser for BLE advertisements"""
     def __init__(
         self,
         report_unknown=False,
@@ -98,6 +100,9 @@ class BleParser:
                         # Teltonika can contain multiple sevice data payloads in one advertisement
                         sensor_data = parse_teltonika(self, data[adpayload_start:], mac, rssi)
                         break
+                    else:
+                        if self.report_unknown == "Other":
+                            _LOGGER.info("Unknown advertisement received: %s", data.hex())
                 elif adstuct_type == 0xFF:
                     # AD type 'Manufacturer Specific Data' with company identifier
                     # https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers/
@@ -106,47 +111,56 @@ class BleParser:
                     if adstruct[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
                         sensor_data = parse_kegtron(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x15 and (comp_id == 0x0010 or comp_id == 0x0011):  # Thermoplus
+                    elif adstruct[0] == 0x15 and (comp_id == 0x0010 or comp_id == 0x0011):  # Thermoplus
                         sensor_data = parse_thermoplus(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x0C and comp_id == 0xEC88:  # Govee H5051
+                    elif adstruct[0] == 0x0C and comp_id == 0xEC88:  # Govee H5051
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x0A and comp_id == 0xEC88:  # Govee H5074
+                    elif adstruct[0] == 0x0A and comp_id == 0xEC88:  # Govee H5074
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x09 and comp_id == 0xEC88:  # Govee H5072/H5075
+                    elif adstruct[0] == 0x09 and comp_id == 0xEC88:  # Govee H5072/H5075
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x09 and comp_id == 0x0001:  # Govee H5101/H5102/H5177
+                    elif adstruct[0] == 0x09 and comp_id == 0x0001:  # Govee H5101/H5102/H5177
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x0C and comp_id == 0x0001:  # Govee H5178
+                    elif adstruct[0] == 0x0C and comp_id == 0x0001:  # Govee H5178
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x0C and comp_id == 0x8801:  # Govee H5179
+                    elif adstruct[0] == 0x0C and comp_id == 0x8801:  # Govee H5179
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
-                    if comp_id == 0x0499:  # Ruuvitag V3/V5
+                    elif comp_id == 0x0499:  # Ruuvitag V3/V5
                         sensor_data = parse_ruuvitag(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
+                    elif adstruct[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
                         sensor_data = parse_brifit(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x0E and adstruct[3] == 0x82:  # iNode
+                    elif adstruct[0] == 0x0E and adstruct[3] == 0x82:  # iNode
                         sensor_data = parse_inode(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x15 and comp_id == 0x1000:  # Moat S2
+                    elif adstruct[0] == 0x15 and comp_id == 0x1000:  # Moat S2
                         sensor_data = parse_moat(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x11 and comp_id == 0x0133:  # BlueMaestro
+                    elif adstruct[0] == 0x11 and comp_id == 0x0133:  # BlueMaestro
                         sensor_data = parse_bluemaestro(self, adstruct, mac, rssi)
                         break
+                    elif adstruct[0] == 0x10 and adstruct[2] == 0xC0:  # Xiaogui Scale
+                        sensor_data = parse_xiaogui(self, adstruct, mac, rssi)
+                        break
+                    else:
+                        if self.report_unknown == "Other":
+                            _LOGGER.info("Unknown advertisement received: %s", data.hex())
                 elif adstuct_type == 0x06 and adstuct_size > 16:
                     sensorpush_uuid_reversed = b'\xb0\x0a\x09\xec\xd7\x9d\xb8\x93\xba\x42\xd6\x11\x00\x00\x09\xef'
                     if str(adstruct[2:]) == str(sensorpush_uuid_reversed):
                         sensor_data = parse_sensorpush(self, data[adpayload_start:], mac, rssi)
                         break
+                    else:
+                        if self.report_unknown == "Other":
+                            _LOGGER.info("Unknown advertisement received: %s", data.hex())
                 else:
                     if self.report_unknown == "Other":
                         _LOGGER.info("Unknown advertisement received: %s", data.hex())

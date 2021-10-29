@@ -4,8 +4,6 @@ from ble_monitor.ble_parser import BleParser
 
 class TestATC:
     """Tests for the ATC parser"""
-    def __init__(self) -> None:
-        self.aeskeys = {}
 
     def test_atc_atc1441(self):
         """Test ATC parser for ATC 1441 format."""
@@ -104,6 +102,7 @@ class TestATC:
 
     def test_atc_custom_encrypted(self):
         """Test ATC parser for ATC custom format (encrypted)."""
+        self.aeskeys = {}
         data_string = "043e1b02010000b2188d38c1a40f0e161a1811d603fbfa7b6dfb1e26fde2"
         data = bytes(bytearray.fromhex(data_string))
 
