@@ -32,10 +32,12 @@ def parse_xiaogui(self, data, source_mac, rssi):
 
         if stablilized_byte == 0x20:
             result.update({"non-stabilized weight": weight / 10})
+            result.update({"weight unit": "kg"})
             result.update({"stabilized": 0})
         elif stablilized_byte == 0x21:
             result.update({"non-stabilized weight": weight / 10})
             result.update({"weight": weight / 10})
+            result.update({"weight unit": "kg"})
             result.update({"impedance": impedance / 10})
             result.update({"stabilized": 1})
         else:
@@ -55,15 +57,16 @@ def parse_xiaogui(self, data, source_mac, rssi):
             )
         return None
 
-    # Check for duplicate messages
-    try:
-        prev_packet = self.lpacket_ids[xiaogui_mac]
-    except KeyError:
-        # start with empty first packet
-        prev_packet = None
-    if prev_packet == packet_id:
-        # only process new messages
-        return None
+    # Check for duplicate messages (only when stabilized)
+    if stablilized_byte == 0x21:
+        try:
+            prev_packet = self.lpacket_ids[xiaogui_mac]
+        except KeyError:
+            # start with empty first packet
+            prev_packet = None
+        if prev_packet == packet_id:
+            # only process new messages
+            return None
     self.lpacket_ids[xiaogui_mac] = packet_id
 
     # check for MAC presence in whitelist, if needed
