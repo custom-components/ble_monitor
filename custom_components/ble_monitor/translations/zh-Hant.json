@@ -22,18 +22,23 @@
         "data": {
           "mac": "MAC 位址",
           "encryption_key": "密鑰",
-          "temperature_unit": "溫度單位",
+          "temperature_unit": "溫度單位 [僅針對溫度感測器]",
           "decimals": "小數點位數",
           "use_median": "使用中位數",
           "restore_state": "回復狀態",
-          "reset_timer": "人體感應器重置時間（秒、設定為 0 = 僅使用感應器訊息）"
+          "reset_timer": "人體感應器重置時間（秒、設定為 0 = 僅使用感應器訊息）",
+          "track_device": "追蹤裝置",
+          "tracker_scan_interval": "追蹤裝置掃描間隔（秒）",
+          "consider_home": "追蹤裝置視為在家（秒）",
+          "delete device": "刪除裝置"
         }
       }  
     },
     "error": {
       "invalid_mac": "MAC 位址必須為「AA:BB:CC:DD:EE:FF」格式。",
       "invalid_key": "密鑰必須為 32 個十六進位字元（Yeelight 則為 24）。",
-      "cannot_change_mac": "MAC 位址無法變更。"
+      "cannot_change_mac": "MAC 位址無法變更。",
+      "cannot_delete_device": "裝置無法刪除。"
     },
     "abort": {
       "single_instance_allowed": "BLE monitor 僅允許一組設定。"
@@ -67,14 +72,19 @@
           "decimals": "小數點位數",
           "use_median": "使用中位數",
           "restore_state": "回復狀態",
-          "reset_timer": "人體感應器重置時間（秒、設定為 0 = 僅使用感應器訊息）"
+          "reset_timer": "重置計時器（秒、設定為 0 = 關閉）",
+          "track_device": "追蹤裝置",
+          "tracker_scan_interval": "追蹤裝置掃描間隔（秒）",
+          "consider_home": "追蹤裝置視為在家（秒）",
+          "delete device": "刪除裝置"
         }
       }  
     },
     "error": {
       "invalid_mac": "MAC 位址必須為「AA:BB:CC:DD:EE:FF」格式。",
       "invalid_key": "密鑰必須為 32 個十六進位字元（Yeelight 則為 24）。",
-      "cannot_change_mac": "MAC 位址無法變更。"
+      "cannot_change_mac": "MAC 位址無法變更。",
+      "cannot_delete_device": "裝置無法刪除。"
     },
     "abort": {
       "not_in_use": "已經於 YAML 內設定 BLE monitor、請於 YAML 內變更選項"
