@@ -34,5 +34,6 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - SensorPush
 - Teltonika
 - Thermoplus
+- Xiaogui (Scale)
 - Xiaomi (MiBeacon)
 - Xiaomi (MiScale)
