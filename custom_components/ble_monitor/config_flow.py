@@ -62,6 +62,7 @@ from .const import (
 from . import (
     BT_MAC_INTERFACES,
     DEFAULT_BT_INTERFACE,
+    BT_MULTI_SELECT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -111,7 +112,7 @@ DOMAIN_SCHEMA = vol.Schema(
     {
         vol.Optional(
             CONF_BT_INTERFACE, default=[DEFAULT_BT_INTERFACE]
-        ): cv.multi_select(BT_MAC_INTERFACES),
+        ): cv.multi_select(BT_MULTI_SELECT),
         vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
         vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
         vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
@@ -439,7 +440,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     default=self.config_entry.options.get(
                         CONF_BT_INTERFACE, DEFAULT_BT_INTERFACE
                     ),
-                ): cv.multi_select(BT_MAC_INTERFACES),
+                ): cv.multi_select(BT_MULTI_SELECT),
                 vol.Optional(
                     CONF_PERIOD,
                     default=self.config_entry.options.get(CONF_PERIOD, DEFAULT_PERIOD),

@@ -74,6 +74,7 @@ from .const import (
 from .bt_helpers import (
     BT_INTERFACES,
     BT_MAC_INTERFACES,
+    BT_MULTI_SELECT,
     DEFAULT_BT_INTERFACE,
     reset_bluetooth
 )

@@ -229,3 +229,6 @@ except (IndexError, OSError, subprocess.CalledProcessError):
     _LOGGER.debug(
         "No Bluetooth interface found. Make sure Bluetooth is installed on your system"
     )
+BT_MULTI_SELECT = {
+    mac: mac for mac in BT_MAC_INTERFACES
+}
