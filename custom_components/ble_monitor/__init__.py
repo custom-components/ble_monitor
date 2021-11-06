@@ -68,6 +68,7 @@ from .const import (
     PLATFORMS,
     MAC_REGEX,
     MEASUREMENT_DICT,
+    REPORT_UNKNOWN_LIST,
     SERVICE_CLEANUP_ENTRIES,
 )
 
@@ -153,27 +154,7 @@ CONFIG_SCHEMA = vol.Schema(
                     ),
                     vol.Optional(
                         CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
-                    ): vol.In(
-                        [
-                            "ATC",
-                            "BlueMaestro",
-                            "Brifit",
-                            "Govee",
-                            "iNode",
-                            "Kegtron",
-                            "Mi Scale",
-                            "Moat",
-                            "Qingping",
-                            "Ruuvitag",
-                            "SensorPush",
-                            "Teltonika",
-                            "Thermoplus",
-                            "Xiaogui",
-                            "Xiaomi",
-                            "Other",
-                            False,
-                        ]
-                    ),
+                    ): vol.In(REPORT_UNKNOWN_LIST),
                 }
             ),
         )

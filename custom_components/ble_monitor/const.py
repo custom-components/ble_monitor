@@ -75,7 +75,7 @@ DEFAULT_LOG_SPIKES = False
 DEFAULT_USE_MEDIAN = False
 DEFAULT_ACTIVE_SCAN = False
 DEFAULT_BATT_ENTITIES = True
-DEFAULT_REPORT_UNKNOWN = False
+DEFAULT_REPORT_UNKNOWN = "Off"
 DEFAULT_DISCOVERY = True
 DEFAULT_RESTORE_STATE = False
 DEFAULT_DEVICE_MAC = ""
@@ -716,3 +716,25 @@ MANUFACTURER_DICT = {
 RENAMED_MODEL_DICT = {
     'H5051/H5074': 'H5074'
 }
+
+# Selection list for report_uknown
+REPORT_UNKNOWN_LIST = [
+    "ATC",
+    "BlueMaestro",
+    "Brifit",
+    "Govee",
+    "iNode",
+    "Kegtron",
+    "Mi Scale",
+    "Moat",
+    "Qingping",
+    "Ruuvitag",
+    "SensorPush",
+    "Teltonika",
+    "Thermoplus",
+    "Xiaogui",
+    "Xiaomi",
+    "Other",
+    "Off",
+    False,
+]

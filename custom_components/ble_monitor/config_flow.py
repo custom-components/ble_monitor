@@ -59,6 +59,7 @@ from .const import (
     DEFAULT_USE_MEDIAN,
     DOMAIN,
     MAC_REGEX,
+    REPORT_UNKNOWN_LIST,
 )
 
 from . import (
@@ -73,6 +74,9 @@ OPTION_LIST_DEVICE = "--Devices--"
 OPTION_ADD_DEVICE = "Add device..."
 DOMAIN_TITLE = "Bluetooth Low Energy Monitor"
 
+# Remove the False value for the report_unkown option in the UI
+if False in REPORT_UNKNOWN_LIST:
+    REPORT_UNKNOWN_LIST.remove(False)
 
 DEVICE_SCHEMA = vol.Schema(
     {
@@ -125,25 +129,7 @@ DOMAIN_SCHEMA = vol.Schema(
             cv.ensure_list, [DEVICE_SCHEMA]
         ),
         vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): vol.In(
-            [
-                "ATC",
-                "BlueMaestro",
-                "Brifit",
-                "Govee",
-                "iNode",
-                "Kegtron",
-                "Mi Scale",
-                "Moat",
-                "Qingping",
-                "Ruuvitag",
-                "SensorPush",
-                "Teltonika",
-                "Thermoplus",
-                "Xiaogui",
-                "Xiaomi",
-                "Other",
-                False,
-            ]
+            REPORT_UNKNOWN_LIST
         ),
     }
 )
@@ -247,7 +233,8 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     {
                         vol.Optional(CONF_MAC, default=user_input[CONF_MAC]): str,
                         vol.Optional(
-                            CONF_DEVICE_ENCRYPTION_KEY, default=user_input[CONF_DEVICE_ENCRYPTION_KEY]
+                            CONF_DEVICE_ENCRYPTION_KEY,
+                            default=user_input[CONF_DEVICE_ENCRYPTION_KEY],
                         ): str,
                         vol.Optional(
                             CONF_TEMPERATURE_UNIT,
@@ -489,27 +476,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     default=self.config_entry.options.get(
                         CONF_REPORT_UNKNOWN, DEFAULT_REPORT_UNKNOWN
                     ),
-                ): vol.In(
-                    [
-                        "ATC",
-                        "BlueMaestro",
-                        "Brifit",
-                        "Govee",
-                        "iNode",
-                        "Kegtron",
-                        "Mi Scale",
-                        "Moat",
-                        "Qingping",
-                        "Ruuvitag",
-                        "SensorPush",
-                        "Teltonika",
-                        "Thermoplus",
-                        "Xiaogui",
-                        "Xiaomi",
-                        "Other",
-                        False,
-                    ]
-                ),
+                ): vol.In(REPORT_UNKNOWN_LIST),
             }
         )
         return self._show_user_form("init", options_schema, errors or {})
