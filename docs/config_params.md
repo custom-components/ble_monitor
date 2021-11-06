@@ -13,7 +13,7 @@ nav_order: 3
 
 ### bt_interface
 
-   (MAC address or list of multiple MAC addresses)(Optional) This parameter is used to select the Bluetooth-interface of your Home Assistant host. When using YAML, a list of available Bluetooth-interfaces available on your system is given in the Home Assistant log during startup of the Integration, when you enable the Home Assistant [logger at info-level](https://www.home-assistant.io/integrations/logger/). If you don't specify a MAC address, by default the first interface of the list will be used. If you want to use multiple interfaces, you can use the following configuration:
+   (MAC address or list of multiple MAC addresses)(Optional) This parameter is used to select the Bluetooth-interface of your Home Assistant host. When using YAML, a list of available Bluetooth-interfaces available on your system is given in the Home Assistant log during startup of the Integration, when you enable the Home Assistant [logger at info-level](https://www.home-assistant.io/integrations/logger/). In the UI, both the MAC address and the hci number will be shown. If you don't specify a MAC address, by default the first interface of the list will be used. If you want to use multiple interfaces in YAML, you can use the following configuration:
 
 ```yaml
 ble_monitor:
@@ -26,7 +26,7 @@ ble_monitor:
 
 ### hci_interface (YAML only)
 
-   (positive integer or list of positive integers)(Optional) Like the previous option `bt_interface`, this parameter is also used to select the bt-interface of your Home Assistant host. It is however strongly advised to use the `bt_interface` option and not this `hci_interface` option, as the hci number can change, e.g. when plugging in a dongle. However, due to backwards compatibility, this option is still available. Use 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
+   (positive integer or list of positive integers)(Optional) Like the previous option `bt_interface`, this parameter can also be used to select the bt-interface of your Home Assistant host. It is however strongly advised to use the `bt_interface` option and not this `hci_interface` option, as the hci number can change, e.g. when plugging in a dongle. However, due to backwards compatibility, this option is still available. Use 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
 
 ```yaml
 ble_monitor:

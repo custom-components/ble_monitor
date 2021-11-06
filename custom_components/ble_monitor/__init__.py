@@ -74,7 +74,6 @@ from .const import (
 
 from .bt_helpers import (
     BT_INTERFACES,
-    BT_MAC_INTERFACES,
     BT_MULTI_SELECT,
     DEFAULT_BT_INTERFACE,
     reset_bluetooth
@@ -264,7 +263,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         for key, value in CONFIG_YAML.items():
             config[key] = value
         _LOGGER.info(
-            "Available Bluetooth interfaces for BLE monitor: %s", BT_MAC_INTERFACES
+            "Available Bluetooth interfaces for BLE monitor: %s", list(BT_MULTI_SELECT.values())
         )
 
         if config[CONF_HCI_INTERFACE]:
@@ -506,8 +505,7 @@ class HCIdump(Thread):
 
         # prepare sensor whitelist to speedup parser
         if (
-            isinstance(self.config[CONF_DISCOVERY], bool)
-            and self.config[CONF_DISCOVERY] is False
+            isinstance(self.config[CONF_DISCOVERY], bool) and self.config[CONF_DISCOVERY] is False
         ):
             self.discovery = False
             if self.config[CONF_DEVICES]:

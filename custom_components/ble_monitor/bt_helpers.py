@@ -216,19 +216,14 @@ def reset_bluetooth(hci):
 
 try:
     BT_INTERFACES = hci_get_mac([0, 1, 2, 3])
-    BT_HCI_INTERFACES = list(BT_INTERFACES.keys())
-    BT_MAC_INTERFACES = list(BT_INTERFACES.values())
     DEFAULT_BT_INTERFACE = list(BT_INTERFACES.items())[0][1]
     DEFAULT_HCI_INTERFACE = list(BT_INTERFACES.items())[0][0]
 except (IndexError, OSError, subprocess.CalledProcessError):
     BT_INTERFACES = {0: "00:00:00:00:00:00"}
     DEFAULT_BT_INTERFACE = "00:00:00:00:00:00"
     DEFAULT_HCI_INTERFACE = 0
-    BT_HCI_INTERFACES = [0]
-    BT_MAC_INTERFACES = ["00:00:00:00:00:00"]
     _LOGGER.debug(
         "No Bluetooth interface found. Make sure Bluetooth is installed on your system"
     )
-BT_MULTI_SELECT = {
-    mac: mac for mac in BT_MAC_INTERFACES
-}
+
+BT_MULTI_SELECT = dict([(v, v + ' (hci' + str(k) + ')') for k, v in BT_INTERFACES.items()])
