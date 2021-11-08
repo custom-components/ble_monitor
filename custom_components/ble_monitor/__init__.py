@@ -27,53 +27,53 @@ from homeassistant.helpers.entity_registry import (
 
 from .ble_parser import BleParser
 from .const import (
-    DEFAULT_DECIMALS,
-    DEFAULT_PERIOD,
-    DEFAULT_LOG_SPIKES,
-    DEFAULT_USE_MEDIAN,
+    AES128KEY24_REGEX,
+    AES128KEY32_REGEX,
+    CONF_ACTIVE_SCAN,
+    CONF_BATT_ENTITIES,
+    CONF_BT_INTERFACE,
+    CONF_DECIMALS,
+    CONF_DEVICE_DECIMALS,
+    CONF_DEVICE_ENCRYPTION_KEY,
+    CONF_DEVICE_USE_MEDIAN,
+    CONF_DEVICE_RESTORE_STATE,
+    CONF_DEVICE_RESET_TIMER,
+    CONF_DEVICE_TRACK,
+    CONF_DEVICE_TRACKER_SCAN_INTERVAL,
+    CONF_DEVICE_TRACKER_CONSIDER_HOME,
+    CONF_HCI_INTERFACE,
+    CONF_PERIOD,
+    CONF_LOG_SPIKES,
+    CONF_REPORT_UNKNOWN,
+    CONF_RESTORE_STATE,
+    CONF_USE_MEDIAN,
+    CONFIG_IS_FLOW,
     DEFAULT_ACTIVE_SCAN,
     DEFAULT_BATT_ENTITIES,
-    DEFAULT_REPORT_UNKNOWN,
-    DEFAULT_DISCOVERY,
-    DEFAULT_RESTORE_STATE,
+    DEFAULT_DECIMALS,
     DEFAULT_DEVICE_DECIMALS,
-    DEFAULT_DEVICE_USE_MEDIAN,
     DEFAULT_DEVICE_RESTORE_STATE,
     DEFAULT_DEVICE_RESET_TIMER,
     DEFAULT_DEVICE_TRACK,
     DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
     DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
-    CONF_DECIMALS,
-    CONF_PERIOD,
-    CONF_LOG_SPIKES,
-    CONF_USE_MEDIAN,
-    CONF_ACTIVE_SCAN,
-    CONF_HCI_INTERFACE,
-    CONF_BT_INTERFACE,
-    CONF_BATT_ENTITIES,
-    CONF_REPORT_UNKNOWN,
-    CONF_RESTORE_STATE,
-    CONF_ENCRYPTION_KEY,
-    CONF_DEVICE_DECIMALS,
-    CONF_DEVICE_USE_MEDIAN,
-    CONF_DEVICE_RESTORE_STATE,
-    CONF_DEVICE_RESET_TIMER,
-    CONF_DEVICE_TRACK,
-    CONFIG_IS_FLOW,
-    CONF_DEVICE_TRACKER_SCAN_INTERVAL,
-    CONF_DEVICE_TRACKER_CONSIDER_HOME,
+    DEFAULT_DEVICE_USE_MEDIAN,
+    DEFAULT_DISCOVERY,
+    DEFAULT_LOG_SPIKES,
+    DEFAULT_PERIOD,
+    DEFAULT_REPORT_UNKNOWN,
+    DEFAULT_RESTORE_STATE,
+    DEFAULT_USE_MEDIAN,
     DOMAIN,
     PLATFORMS,
     MAC_REGEX,
-    AES128KEY24_REGEX,
-    AES128KEY32_REGEX,
     MEASUREMENT_DICT,
+    REPORT_UNKNOWN_LIST,
     SERVICE_CLEANUP_ENTRIES,
 )
 
 from .bt_helpers import (
     BT_INTERFACES,
-    BT_MAC_INTERFACES,
     BT_MULTI_SELECT,
     DEFAULT_BT_INTERFACE,
     reset_bluetooth
@@ -88,7 +88,7 @@ DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
         vol.Optional(CONF_NAME): cv.string,
-        vol.Optional(CONF_ENCRYPTION_KEY): vol.Any(
+        vol.Optional(CONF_DEVICE_ENCRYPTION_KEY): vol.Any(
             cv.matches_regex(AES128KEY24_REGEX), cv.matches_regex(AES128KEY32_REGEX)
         ),
         vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
@@ -153,27 +153,7 @@ CONFIG_SCHEMA = vol.Schema(
                     ),
                     vol.Optional(
                         CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
-                    ): vol.In(
-                        [
-                            "ATC",
-                            "BlueMaestro",
-                            "Brifit",
-                            "Govee",
-                            "iNode",
-                            "Kegtron",
-                            "Mi Scale",
-                            "Moat",
-                            "Qingping",
-                            "Ruuvitag",
-                            "SensorPush",
-                            "Teltonika",
-                            "Thermoplus",
-                            "Xiaogui",
-                            "Xiaomi",
-                            "Other",
-                            False,
-                        ]
-                    ),
+                    ): vol.In(REPORT_UNKNOWN_LIST),
                 }
             ),
         )
@@ -283,7 +263,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         for key, value in CONFIG_YAML.items():
             config[key] = value
         _LOGGER.info(
-            "Available Bluetooth interfaces for BLE monitor: %s", BT_MAC_INTERFACES
+            "Available Bluetooth interfaces for BLE monitor: %s", list(BT_MULTI_SELECT.values())
         )
 
         if config[CONF_HCI_INTERFACE]:
@@ -373,32 +353,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 async def async_migrate_entry(hass, config_entry):
     """Migrate config entry to new version."""
-    if config_entry.version == 1:
+    if config_entry.version == 2:
         options = dict(config_entry.options)
-        hci_list = options.get(CONF_HCI_INTERFACE)
-        bt_mac_list = []
-        for hci in hci_list:
-            try:
-                bt_mac = BT_INTERFACES.get(hci)
-                if bt_mac:
-                    bt_mac_list.append(str(bt_mac))
-                else:
-                    _LOGGER.error(
-                        "HCI%i is not migrated, check the BLE monitor options", hci
-                    )
-            except ValueError:
-                _LOGGER.error(
-                    "HCI%i is not migrated, check the BLE monitor options", hci
-                )
-        if not bt_mac_list:
-            # Fall back in case no hci interfaces are added
-            bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
-            _LOGGER.warning(
-                "Migration of hci interface to Bluetooth mac address failed, using default MAC address"
-            )
-        options[CONF_BT_INTERFACE] = bt_mac_list
+        options[CONF_REPORT_UNKNOWN] = "Off"
 
-        config_entry.version = 2
+        config_entry.version = 3
         hass.config_entries.async_update_entry(config_entry, options=options)
         _LOGGER.info("Migrated config entry to version %d", config_entry.version)
     return True
@@ -515,9 +474,9 @@ class HCIdump(Thread):
         # prepare device:key lists to speedup parser
         if self.config[CONF_DEVICES]:
             for device in self.config[CONF_DEVICES]:
-                if CONF_ENCRYPTION_KEY in device and device[CONF_ENCRYPTION_KEY]:
+                if CONF_DEVICE_ENCRYPTION_KEY in device and device[CONF_DEVICE_ENCRYPTION_KEY]:
                     p_mac = bytes.fromhex(device["mac"].replace(":", "").lower())
-                    p_key = bytes.fromhex(device[CONF_ENCRYPTION_KEY].lower())
+                    p_key = bytes.fromhex(device[CONF_DEVICE_ENCRYPTION_KEY].lower())
                     self.aeskeys[p_mac] = p_key
                 else:
                     continue
@@ -525,8 +484,7 @@ class HCIdump(Thread):
 
         # prepare sensor whitelist to speedup parser
         if (
-            isinstance(self.config[CONF_DISCOVERY], bool)
-            and self.config[CONF_DISCOVERY] is False
+            isinstance(self.config[CONF_DISCOVERY], bool) and self.config[CONF_DISCOVERY] is False
         ):
             self.discovery = False
             if self.config[CONF_DEVICES]:

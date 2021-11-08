@@ -19,31 +19,12 @@ from homeassistant.const import (
 )
 
 from .const import (
-    DEFAULT_DECIMALS,
-    DEFAULT_PERIOD,
-    DEFAULT_LOG_SPIKES,
-    DEFAULT_USE_MEDIAN,
-    DEFAULT_ACTIVE_SCAN,
-    DEFAULT_REPORT_UNKNOWN,
-    DEFAULT_DISCOVERY,
-    DEFAULT_RESTORE_STATE,
-    DEFAULT_DEVICE_DECIMALS,
-    DEFAULT_DEVICE_USE_MEDIAN,
-    DEFAULT_DEVICE_RESTORE_STATE,
-    DEFAULT_DEVICE_RESET_TIMER,
-    DEFAULT_DEVICE_TRACK,
-    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
-    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
-    DEFAULT_DEVICE_DELETE_DEVICE,
-    CONF_DECIMALS,
-    CONF_PERIOD,
-    CONF_LOG_SPIKES,
-    CONF_USE_MEDIAN,
+    AES128KEY24_REGEX,
+    AES128KEY32_REGEX,
     CONF_ACTIVE_SCAN,
     CONF_BT_INTERFACE,
-    CONF_REPORT_UNKNOWN,
-    CONF_RESTORE_STATE,
-    CONF_ENCRYPTION_KEY,
+    CONF_DECIMALS,
+    CONF_DEVICE_ENCRYPTION_KEY,
     CONF_DEVICE_DECIMALS,
     CONF_DEVICE_USE_MEDIAN,
     CONF_DEVICE_RESTORE_STATE,
@@ -52,15 +33,36 @@ from .const import (
     CONF_DEVICE_TRACKER_SCAN_INTERVAL,
     CONF_DEVICE_TRACKER_CONSIDER_HOME,
     CONF_DEVICE_DELETE_DEVICE,
+    CONF_LOG_SPIKES,
+    CONF_PERIOD,
+    CONF_REPORT_UNKNOWN,
+    CONF_RESTORE_STATE,
+    CONF_USE_MEDIAN,
     CONFIG_IS_FLOW,
+    DEFAULT_ACTIVE_SCAN,
+    DEFAULT_DECIMALS,
+    DEFAULT_DEVICE_DECIMALS,
+    DEFAULT_DEVICE_ENCRYPTION_KEY,
+    DEFAULT_DEVICE_MAC,
+    DEFAULT_DEVICE_USE_MEDIAN,
+    DEFAULT_DEVICE_RESTORE_STATE,
+    DEFAULT_DEVICE_RESET_TIMER,
+    DEFAULT_DEVICE_TRACK,
+    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
+    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
+    DEFAULT_DEVICE_DELETE_DEVICE,
+    DEFAULT_DISCOVERY,
+    DEFAULT_LOG_SPIKES,
+    DEFAULT_PERIOD,
+    DEFAULT_REPORT_UNKNOWN,
+    DEFAULT_RESTORE_STATE,
+    DEFAULT_USE_MEDIAN,
     DOMAIN,
     MAC_REGEX,
-    AES128KEY24_REGEX,
-    AES128KEY32_REGEX,
+    REPORT_UNKNOWN_LIST,
 )
 
 from . import (
-    BT_MAC_INTERFACES,
     DEFAULT_BT_INTERFACE,
     BT_MULTI_SELECT,
 )
@@ -72,11 +74,14 @@ OPTION_LIST_DEVICE = "--Devices--"
 OPTION_ADD_DEVICE = "Add device..."
 DOMAIN_TITLE = "Bluetooth Low Energy Monitor"
 
+# Remove the False value for the report_unkown option in the UI
+if False in REPORT_UNKNOWN_LIST:
+    REPORT_UNKNOWN_LIST.remove(False)
 
 DEVICE_SCHEMA = vol.Schema(
     {
-        vol.Optional(CONF_MAC, default=""): cv.string,
-        vol.Optional(CONF_ENCRYPTION_KEY, default=""): cv.string,
+        vol.Optional(CONF_MAC, default=DEFAULT_DEVICE_MAC): cv.string,
+        vol.Optional(CONF_DEVICE_ENCRYPTION_KEY, default=DEFAULT_DEVICE_ENCRYPTION_KEY): cv.string,
         vol.Optional(CONF_TEMPERATURE_UNIT, default=TEMP_CELSIUS): vol.In(
             [TEMP_CELSIUS, TEMP_FAHRENHEIT]
         ),
@@ -124,25 +129,7 @@ DOMAIN_SCHEMA = vol.Schema(
             cv.ensure_list, [DEVICE_SCHEMA]
         ),
         vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): vol.In(
-            [
-                "ATC",
-                "BlueMaestro",
-                "Brifit",
-                "Govee",
-                "iNode",
-                "Kegtron",
-                "Mi Scale",
-                "Moat",
-                "Qingping",
-                "Ruuvitag",
-                "SensorPush",
-                "Teltonika",
-                "Thermoplus",
-                "Xiaogui",
-                "Xiaomi",
-                "Other",
-                False,
-            ]
+            REPORT_UNKNOWN_LIST
         ),
     }
 )
@@ -174,7 +161,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
             return
         if not self.validate_regex(value, AES128KEY24_REGEX):
             if not self.validate_regex(value, AES128KEY32_REGEX):
-                errors[CONF_ENCRYPTION_KEY] = "invalid_key"
+                errors[CONF_DEVICE_ENCRYPTION_KEY] = "invalid_key"
 
     def _show_main_form(self, errors=None):
         _LOGGER.error("_show_main_form: shouldn't be here")
@@ -184,10 +171,10 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
 
         uinput[CONF_DEVICES] = []
         for _, dev in self._devices.items():
-            if CONF_ENCRYPTION_KEY in dev and (
-                not dev[CONF_ENCRYPTION_KEY] or dev[CONF_ENCRYPTION_KEY] == "-"
+            if CONF_DEVICE_ENCRYPTION_KEY in dev and (
+                not dev[CONF_DEVICE_ENCRYPTION_KEY] or dev[CONF_DEVICE_ENCRYPTION_KEY] == "-"
             ):
-                del dev[CONF_ENCRYPTION_KEY]
+                del dev[CONF_DEVICE_ENCRYPTION_KEY]
             uinput[CONF_DEVICES].append(dev)
         return self.async_create_entry(title=DOMAIN_TITLE, data=uinput)
 
@@ -229,7 +216,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     user_input[CONF_MAC] = self._sel_device.get(CONF_MAC)
                 else:
                     self.validate_mac(user_input[CONF_MAC], errors)
-                    self.validate_key(user_input[CONF_ENCRYPTION_KEY], errors)
+                    self.validate_key(user_input[CONF_DEVICE_ENCRYPTION_KEY], errors)
                 if not errors:
                     # updating device configuration instead of overwriting
                     try:
@@ -246,7 +233,8 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     {
                         vol.Optional(CONF_MAC, default=user_input[CONF_MAC]): str,
                         vol.Optional(
-                            CONF_ENCRYPTION_KEY, default=user_input[CONF_ENCRYPTION_KEY]
+                            CONF_DEVICE_ENCRYPTION_KEY,
+                            default=user_input[CONF_DEVICE_ENCRYPTION_KEY],
                         ): str,
                         vol.Optional(
                             CONF_TEMPERATURE_UNIT,
@@ -307,63 +295,63 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
             {
                 vol.Optional(
                     CONF_MAC,
-                    default=self._sel_device.get(CONF_MAC)
-                    if self._sel_device.get(CONF_MAC)
-                    else "",
+                    default=self._sel_device.get(
+                        CONF_MAC, DEFAULT_DEVICE_MAC
+                    ),
                 ): str,
                 vol.Optional(
-                    CONF_ENCRYPTION_KEY,
-                    default=self._sel_device.get(CONF_ENCRYPTION_KEY)
-                    if self._sel_device.get(CONF_ENCRYPTION_KEY)
-                    else "",
+                    CONF_DEVICE_ENCRYPTION_KEY,
+                    default=self._sel_device.get(
+                        CONF_DEVICE_ENCRYPTION_KEY, DEFAULT_DEVICE_ENCRYPTION_KEY
+                    ),
                 ): str,
                 vol.Optional(
                     CONF_TEMPERATURE_UNIT,
-                    default=self._sel_device.get(CONF_TEMPERATURE_UNIT)
-                    if self._sel_device.get(CONF_TEMPERATURE_UNIT)
-                    else TEMP_CELSIUS,
+                    default=self._sel_device.get(
+                        CONF_TEMPERATURE_UNIT, TEMP_CELSIUS
+                    ),
                 ): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
                 vol.Optional(
                     CONF_DEVICE_DECIMALS,
-                    default=self._sel_device.get(CONF_DEVICE_DECIMALS)
-                    if self._sel_device.get(CONF_DEVICE_DECIMALS)
-                    else DEFAULT_DEVICE_DECIMALS,
+                    default=self._sel_device.get(
+                        CONF_DEVICE_DECIMALS, DEFAULT_DEVICE_DECIMALS
+                    ),
                 ): vol.In([DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]),
                 vol.Optional(
                     CONF_DEVICE_USE_MEDIAN,
-                    default=self._sel_device.get(CONF_DEVICE_USE_MEDIAN)
-                    if isinstance(self._sel_device.get(CONF_DEVICE_USE_MEDIAN), bool)
-                    else DEFAULT_DEVICE_USE_MEDIAN,
+                    default=self._sel_device.get(
+                        CONF_DEVICE_USE_MEDIAN, DEFAULT_DEVICE_USE_MEDIAN
+                    ),
                 ): vol.In([DEFAULT_DEVICE_USE_MEDIAN, True, False]),
                 vol.Optional(
                     CONF_DEVICE_RESTORE_STATE,
-                    default=self._sel_device.get(CONF_DEVICE_RESTORE_STATE)
-                    if isinstance(self._sel_device.get(CONF_DEVICE_RESTORE_STATE), bool)
-                    else DEFAULT_DEVICE_RESTORE_STATE,
+                    default=self._sel_device.get(
+                        CONF_DEVICE_RESTORE_STATE, DEFAULT_DEVICE_RESTORE_STATE
+                    ),
                 ): vol.In([DEFAULT_DEVICE_RESTORE_STATE, True, False]),
                 vol.Optional(
                     CONF_DEVICE_RESET_TIMER,
-                    default=self._sel_device.get(CONF_DEVICE_RESET_TIMER)
-                    if self._sel_device.get(CONF_DEVICE_RESET_TIMER)
-                    else DEFAULT_DEVICE_RESET_TIMER,
+                    default=self._sel_device.get(
+                        CONF_DEVICE_RESET_TIMER, DEFAULT_DEVICE_RESET_TIMER
+                    ),
                 ): cv.positive_int,
                 vol.Optional(
                     CONF_DEVICE_TRACK,
-                    default=self._sel_device.get(CONF_DEVICE_TRACK)
-                    if self._sel_device.get(CONF_DEVICE_TRACK)
-                    else DEFAULT_DEVICE_TRACK,
+                    default=self._sel_device.get(
+                        CONF_DEVICE_TRACK, DEFAULT_DEVICE_TRACK
+                    ),
                 ): cv.boolean,
                 vol.Optional(
                     CONF_DEVICE_TRACKER_SCAN_INTERVAL,
-                    default=self._sel_device.get(CONF_DEVICE_TRACKER_SCAN_INTERVAL)
-                    if self._sel_device.get(CONF_DEVICE_TRACKER_SCAN_INTERVAL)
-                    else DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
+                    default=self._sel_device.get(
+                        CONF_DEVICE_TRACKER_SCAN_INTERVAL, DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL
+                    ),
                 ): cv.positive_int,
                 vol.Optional(
                     CONF_DEVICE_TRACKER_CONSIDER_HOME,
-                    default=self._sel_device.get(CONF_DEVICE_TRACKER_CONSIDER_HOME)
-                    if self._sel_device.get(CONF_DEVICE_TRACKER_CONSIDER_HOME)
-                    else DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
+                    default=self._sel_device.get(
+                        CONF_DEVICE_TRACKER_CONSIDER_HOME, DEFAULT_DEVICE_TRACKER_CONSIDER_HOME
+                    ),
                 ): cv.positive_int,
                 vol.Optional(
                     CONF_DEVICE_DELETE_DEVICE,
@@ -382,7 +370,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
 class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOMAIN):
     """BLEMonitor config flow."""
 
-    VERSION = 2
+    VERSION = 3
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
 
     @staticmethod
@@ -443,7 +431,9 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                 ): cv.multi_select(BT_MULTI_SELECT),
                 vol.Optional(
                     CONF_PERIOD,
-                    default=self.config_entry.options.get(CONF_PERIOD, DEFAULT_PERIOD),
+                    default=self.config_entry.options.get(
+                        CONF_PERIOD, DEFAULT_PERIOD
+                    ),
                 ): cv.positive_int,
                 vol.Optional(
                     CONF_DISCOVERY,
@@ -486,27 +476,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     default=self.config_entry.options.get(
                         CONF_REPORT_UNKNOWN, DEFAULT_REPORT_UNKNOWN
                     ),
-                ): vol.In(
-                    [
-                        "ATC",
-                        "BlueMaestro",
-                        "Brifit",
-                        "Govee",
-                        "iNode",
-                        "Kegtron",
-                        "Mi Scale",
-                        "Moat",
-                        "Qingping",
-                        "Ruuvitag",
-                        "SensorPush",
-                        "Teltonika",
-                        "Thermoplus",
-                        "Xiaogui",
-                        "Xiaomi",
-                        "Other",
-                        False,
-                    ]
-                ),
+                ): vol.In(REPORT_UNKNOWN_LIST),
             }
         )
         return self._show_user_form("init", options_schema, errors or {})

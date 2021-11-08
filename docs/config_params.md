@@ -13,7 +13,7 @@ nav_order: 3
 
 ### bt_interface
 
-   (MAC address or list of multiple MAC addresses)(Optional) This parameter is used to select the Bluetooth-interface of your Home Assistant host. When using YAML, a list of available Bluetooth-interfaces available on your system is given in the Home Assistant log during startup of the Integration, when you enable the Home Assistant [logger at info-level](https://www.home-assistant.io/integrations/logger/). If you don't specify a MAC address, by default the first interface of the list will be used. If you want to use multiple interfaces, you can use the following configuration:
+   (MAC address or list of multiple MAC addresses)(Optional) This parameter is used to select the Bluetooth-interface of your Home Assistant host. When using YAML, a list of available Bluetooth-interfaces available on your system is given in the Home Assistant log during startup of the Integration, when you enable the Home Assistant [logger at info-level](https://www.home-assistant.io/integrations/logger/). In the UI, both the MAC address and the hci number will be shown. If you don't specify a MAC address, by default the first interface of the list will be used. If you want to use multiple interfaces in YAML, you can use the following configuration:
 
 ```yaml
 ble_monitor:
@@ -26,7 +26,7 @@ ble_monitor:
 
 ### hci_interface (YAML only)
 
-   (positive integer or list of positive integers)(Optional) Like the previous option `bt_interface`, this parameter is also used to select the bt-interface of your Home Assistant host. It is however strongly advised to use the `bt_interface` option and not this `hci_interface` option, as the hci number can change, e.g. when plugging in a dongle. However, due to backwards compatibility, this option is still available. Use 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
+   (positive integer or list of positive integers)(Optional) Like the previous option `bt_interface`, this parameter can also be used to select the bt-interface of your Home Assistant host. It is however strongly advised to use the `bt_interface` option and not this `hci_interface` option, as the hci number can change, e.g. when plugging in a dongle. However, due to backwards compatibility, this option is still available. Use 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
 
 ```yaml
 ble_monitor:
@@ -84,7 +84,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 ### report_unknown
 
-   ( `ATC`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `SensorPush`, `Teltonika`, `Thermoplus`, `Xiaomi`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](devices). If you set this parameter to `ATC`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `SensorPush`, `Teltonika`, `Thermoplus` or `Xiaomi`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: False
+   (`ATC`, `BlueMaestro`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `SensorPush`, `Teltonika`, `Thermoplus`, `Xiaogui`, `Xiaomi`, `Other`, `Off` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](devices). If you set this parameter to `ATC`, `BlueMaestro`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `SensorPush`, `Teltonika`, `Thermoplus`, `Xiaogui` or `Xiaomi`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Note: `report_unknown: False` can only be set in YAML and is the same as `report_unknown: Off`. Default value: `Off`
 
 
 ## Configuration parameters at device level
