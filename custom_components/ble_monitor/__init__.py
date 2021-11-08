@@ -353,32 +353,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 async def async_migrate_entry(hass, config_entry):
     """Migrate config entry to new version."""
-    if config_entry.version == 1:
+    if config_entry.version == 2:
         options = dict(config_entry.options)
-        hci_list = options.get(CONF_HCI_INTERFACE)
-        bt_mac_list = []
-        for hci in hci_list:
-            try:
-                bt_mac = BT_INTERFACES.get(hci)
-                if bt_mac:
-                    bt_mac_list.append(str(bt_mac))
-                else:
-                    _LOGGER.error(
-                        "HCI%i is not migrated, check the BLE monitor options", hci
-                    )
-            except ValueError:
-                _LOGGER.error(
-                    "HCI%i is not migrated, check the BLE monitor options", hci
-                )
-        if not bt_mac_list:
-            # Fall back in case no hci interfaces are added
-            bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
-            _LOGGER.warning(
-                "Migration of hci interface to Bluetooth mac address failed, using default MAC address"
-            )
-        options[CONF_BT_INTERFACE] = bt_mac_list
+        options[CONF_REPORT_UNKNOWN] = "Off"
 
-        config_entry.version = 2
+        config_entry.version = 3
         hass.config_entries.async_update_entry(config_entry, options=options)
         _LOGGER.info("Migrated config entry to version %d", config_entry.version)
     return True
