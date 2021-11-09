@@ -74,10 +74,6 @@ OPTION_LIST_DEVICE = "--Devices--"
 OPTION_ADD_DEVICE = "Add device..."
 DOMAIN_TITLE = "Bluetooth Low Energy Monitor"
 
-# Remove the False value for the report_unkown option in the UI
-if False in REPORT_UNKNOWN_LIST:
-    REPORT_UNKNOWN_LIST.remove(False)
-
 DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_MAC, default=DEFAULT_DEVICE_MAC): cv.string,
