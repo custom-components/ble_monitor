@@ -92,7 +92,7 @@ def parse_inode(self, data, source_mac, rssi):
                 "week day total": week_day_total
             }
         )
-    if msg_length == 26 and device_id in INODE_CARE_SENSORS_IDS:
+    elif msg_length == 26 and device_id in INODE_CARE_SENSORS_IDS:
         """iNode Care Sensors"""
         measurements = MEASUREMENTS[device_id]
         (
