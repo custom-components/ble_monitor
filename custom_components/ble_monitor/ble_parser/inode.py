@@ -152,6 +152,7 @@ def parse_inode(self, data, source_mac, rssi):
             acc = math.sqrt(acc_x ** 2 + acc_y ** 2 + acc_z ** 2)
             result.update({
                 "motion": motion,
+                "motion timer": motion,
                 "acceleration": acc,
                 "acceleration x": acc_x,
                 "acceleration y": acc_y,
