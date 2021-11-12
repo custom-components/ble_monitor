@@ -45,6 +45,7 @@ DOMAIN = "ble_monitor"
 PLATFORMS = ["binary_sensor", "device_tracker", "sensor"]
 
 # Configuration options
+CONF_BT_AUTO_RESTART = "bt_auto_restart"
 CONF_DECIMALS = "decimals"
 CONF_PERIOD = "period"
 CONF_LOG_SPIKES = "log_spikes"
@@ -69,6 +70,7 @@ CONFIG_IS_FLOW = "is_flow"
 SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
 
 # Default values for configuration options
+DEFAULT_BT_AUTO_RESTART = False
 DEFAULT_DECIMALS = 1
 DEFAULT_PERIOD = 60
 DEFAULT_LOG_SPIKES = False
@@ -630,6 +632,16 @@ MEASUREMENT_DICT = {
     'H5179'                   : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage", "rssi"], ["acceleration"], ["motion"]],
     'iNode Energy Meter'      : [["battery", "voltage", "rssi"], ["energy", "power"], []],
+    "iNode Care Sensor 1"     : [["battery", "voltage", "rssi"], ["energy", "power"], []],
+    "iNode Care Sensor 2"     : [["temperature", "battery", "voltage", "rssi"], [], []],
+    "iNode Care Sensor 3"     : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
+    "iNode Care Sensor 4"     : [["temperature", "battery", "voltage", "rssi"], [], []],
+    "iNode Care Sensor 5"     : [["temperature", "battery", "voltage", "rssi"], [], []],
+    "iNode Care Sensor 6"     : [["temperature", "battery", "voltage", "rssi"], [], []],
+    "iNode Care Sensor T"     : [["temperature", "battery", "voltage", "rssi"], [], []],
+    "iNode Care Sensor HT"    : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
+    "iNode Care Sensor PT"    : [["temperature", "pressure", "battery", "voltage", "rssi"], [], []],
+    "iNode Care Sensor PHT"   : [["temperature", "humidity", "pressure", "battery", "voltage", "rssi"], [], []],
     'Blue Puck T'             : [["temperature", "rssi"], [], []],
     'Blue Coin T'             : [["temperature", "rssi"], [], []],
     'Blue Puck RHT'           : [["temperature", "humidity", "rssi"], [], []],
@@ -702,6 +714,16 @@ MANUFACTURER_DICT = {
     'H5179'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
     'iNode Energy Meter'      : 'iNode',
+    "iNode Care Sensor 1"     : 'iNode',
+    "iNode Care Sensor 2"     : 'iNode',
+    "iNode Care Sensor 3"     : 'iNode',
+    "iNode Care Sensor 4"     : 'iNode',
+    "iNode Care Sensor 5"     : 'iNode',
+    "iNode Care Sensor 6"     : 'iNode',
+    "iNode Care Sensor T"     : 'iNode',
+    "iNode Care Sensor HT"    : 'iNode',
+    "iNode Care Sensor PT"    : 'iNode',
+    "iNode Care Sensor PHT"   : 'iNode',
     'Blue Puck T'             : 'Teltonika',
     'Blue Coin T'             : 'Teltonika',
     'Blue Puck RHT'           : 'Teltonika',

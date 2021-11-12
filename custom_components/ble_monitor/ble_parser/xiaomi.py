@@ -877,4 +877,5 @@ def decrypt_mibeacon_legacy(self, data, i, xiaomi_mac):
 
 
 def to_mac(addr: int):
+    """Return formatted MAC address"""
     return ':'.join('{:02x}'.format(x) for x in addr).upper()
