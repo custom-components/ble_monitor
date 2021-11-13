@@ -29,3 +29,47 @@ class TestInode:
         assert sensor_msg["week day"] == 0
         assert sensor_msg["week day total"] == 4333
         assert sensor_msg["rssi"] == -91
+
+    def test_inode_care_sensor_1(self):
+        """Test inode parser for iNode Care Sensor 1."""
+        data_string = "043e290201000070ec4318f0d01d02010619ff929101b000001700a81900000400f4bbce6e77a00b97d1b5c5"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "iNode"
+        assert sensor_msg["type"] == "iNode Care Sensor 1"
+        assert sensor_msg["mac"] == "D0F01843EC70"
+        assert sensor_msg["packet"] == "01b000001700a81900000400f4bbce6e77a00b97d1b5"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == -30
+        assert sensor_msg["motion"] == 0
+        assert sensor_msg["acceleration"] == 23.0
+        assert sensor_msg["acceleration x"] == 0
+        assert sensor_msg["acceleration y"] == 0
+        assert sensor_msg["acceleration z"] == 23
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["voltage"] == 2.88
+        assert sensor_msg["rssi"] == -59
+
+    def test_inode_care_sensor_ht(self):
+        """Test inode parser for iNode Care Sensor HT."""
+        data_string = "043e290201000071ec4318f0d01d02010619ff909b01a0000000007f14b9298e61af6cde99ef797870ee41c5"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "iNode"
+        assert sensor_msg["type"] == "iNode Care Sensor HT"
+        assert sensor_msg["mac"] == "D0F01843EC71"
+        assert sensor_msg["packet"] == "01a0000000007f14b9298e61af6cde99ef797870ee41"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 9.424587402343747
+        assert sensor_msg["humidity"] == 75.48956298828125
+        assert sensor_msg["battery"] == 90
+        assert sensor_msg["voltage"] == 2.76
+        assert sensor_msg["rssi"] == -59

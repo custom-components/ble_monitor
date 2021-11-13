@@ -257,6 +257,8 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |--WeightSensor (Class)
     # |  |  |**weight
     # |  |  |**non-stabilized weight
+    # |  |**MagneticFieldSensor
+    # |  |**MagneticFieldDirectionSensor
     # |  |**ImpedanceSensor
     # |  |--EnergySensor (Class)
     # |  |  |**energy
