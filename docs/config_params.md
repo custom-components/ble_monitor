@@ -13,6 +13,7 @@ nav_order: 3
 
 ### bt_interface
 
+   **MAC address of the Bluetooth interface/adapter**
    (MAC address or list of multiple MAC addresses)(Optional) This parameter is used to select the Bluetooth-interface of your Home Assistant host. When using YAML, a list of available Bluetooth-interfaces available on your system is given in the Home Assistant log during startup of the Integration, when you enable the Home Assistant [logger at info-level](https://www.home-assistant.io/integrations/logger/). In the UI, both the MAC address and the hci number will be shown. If you don't specify a MAC address, by default the first interface of the list will be used. If you want to use multiple interfaces in YAML, you can use the following configuration:
 
 ```yaml
@@ -26,6 +27,7 @@ ble_monitor:
 
 ### hci_interface (YAML only)
 
+   **hci number of the Bluetooth interface/adapter**
    (positive integer or list of positive integers)(Optional) Like the previous option `bt_interface`, this parameter can also be used to select the bt-interface of your Home Assistant host. It is however strongly advised to use the `bt_interface` option and not this `hci_interface` option, as the hci number can change, e.g. when plugging in a dongle. However, due to backwards compatibility, this option is still available. Use 0 for hci0, 1 for hci1 and so on. On most systems, the interface is hci0. In addition, if you need to collect data from several interfaces, you can specify a list of interfaces:
 
 ```yaml
@@ -37,8 +39,25 @@ ble_monitor:
 
    Default value: No default value, `bt_interface` is used as default.
 
+### bt_auto_restart
+
+  **Automatically restart Bluetooth adapter on failure**
+  (boolean)(Optional)
+  This option allows the Bluetooth adapter to automatically restart on failures. The following commands will be used to restart Bluetooth: `bluetoothctl power on` and `rfkill unblock bluetooth`. This can help if your Bluetooth adapter fails periodically.
+
+```yaml
+ble_monitor:
+  bt_auto_restart: True
+```
+
+### active_scan
+
+   **Use active scan in stead of passive scan (affects battery)**
+   (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
+
 ### discovery
 
+   **Discover devices and sensors automatically**
    (boolean)(Optional) By default, the component creates entities for all discovered, supported sensors. However, situations may arise where you need to limit the list of sensors. For example, when you receive data from neighboring sensors, or when data from part of your sensors are received using other equipment, and you don't want to see entities you do not need. To resolve this issue, simply add an entry of each MAC-address of the sensors you need under `devices`, by using the `mac` option, and set the `discovery` option to False:
 
 ```yaml
@@ -51,39 +70,41 @@ ble_monitor:
 
 Data from sensors with other addresses will be ignored. Default value: True
 
-### active_scan
-
-   (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
-
-### decimals
-
-   (positive integer)(Optional) Number of decimal places to round. This setting can be overruled with for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: 1
-
 ### period
 
+   **Peiod to use for averaging**
    (positive integer)(Optional) The period in seconds during which the sensor readings are collected and transmitted to Home Assistant after averaging. Default value: 60.
 
    *To clarify the difference between the sensor broadcast interval and the component measurement period: The LYWSDCGQ transmits 20-25 valuable BT LE messages (RSSI -75..-70 dBm). During the period = 60 (seconds), the component accumulates all these 20-25 messages, and after the 60 seconds expires, averages them and updates the sensor status in Home Assistant. The period does not affect the consumption of the sensor. It only affects the Home Assistant sensor update rate and the number of averaged values. We cannot change the frequency with which sensor sends data.*
 
-### log_spikes
-
-   (boolean)(Optional) Puts information about each erroneous spike in the Home Assistant log. Default value: False
-
-   *There are reports (pretty rare) that some sensors tend to sometimes produce erroneous values that differ markedly from the actual ones. Therefore, if you see inexplicable sharp peaks or dips on the temperature or humidity graph, I recommend that you enable this option so that you can see in the log which values were qualified as erroneous. The component discards values that exceeds the sensor’s measurement capabilities. These discarded values are given in the log records when this option is enabled. If erroneous values are within the measurement capabilities (-40..60°C and 0..100%H), there are no messages in the log. If your sensor is showing this, there is no other choice but to calculate the average as the median (next option).*
-
 ### use_median
 
+   **Use median in stead of mean**
    (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the mean values in any case are present as the sensor state attributes. This setting can be overruled with for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
 
    *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
 
+### decimals
+
+   **Number of decimals**
+   (positive integer)(Optional) Number of decimal places to round. This setting can be overruled with for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: 1
+
+### log_spikes
+
+   **Log spikes**
+   (boolean)(Optional) Puts information about each erroneous spike in the Home Assistant log. Default value: False
+
+   *There are reports (pretty rare) that some sensors tend to sometimes produce erroneous values that differ markedly from the actual ones. Therefore, if you see inexplicable sharp peaks or dips on the temperature or humidity graph, I recommend that you enable this option so that you can see in the log which values were qualified as erroneous. The component discards values that exceeds the sensor’s measurement capabilities. These discarded values are given in the log records when this option is enabled. If erroneous values are within the measurement capabilities (-40..60°C and 0..100%H), there are no messages in the log. If your sensor is showing this, there is no other choice but to calculate the average as the median (next option).*
+
 ### restore_state
 
+   **Restore state after a restart**
    (boolean)(Optional) This option will, when set to `True`, restore the state of the sensors. If your [devices](#devices) are configured with a [mac](#mac) address, they will restore immediately after a restart of Home Assistant to the state right before the restart. If you didn't configure your [devices](#devices), the state will be restored upon the first BLE advertisement being received.
    with `restore_state` set to `False`, the integration needs some time (see [period](#period) option) after a restart before it shows the actual data in Home Assistant. During this time, the integration receives data from your sensors and calculates the mean or median values of these measurements. During this period, the entity will have a state "unknown" or "unavailable" when `restore_state` is set to `False`. Setting it to `True` will prevent this, as it restores the old state, but could result in sensors having the wrong state, e.g. if the state has changed during the restart. By default, this option is disabled, as especially the binary sensors would rely on the correct state. For measuring sensors like temperature sensors, this option can be safely set to `True`. It is also possible to overrule this setting for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
 
 ### report_unknown
 
+   **Report unknown sensors**
    (`ATC`, `BlueMaestro`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `SensorPush`, `Teltonika`, `Thermoplus`, `Xiaogui`, `Xiaomi`, `Other`, `Off` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](devices). If you set this parameter to `ATC`, `BlueMaestro`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `SensorPush`, `Teltonika`, `Thermoplus`, `Xiaogui` or `Xiaomi`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Note: `report_unknown: False` can only be set in YAML and is the same as `report_unknown: Off`. Default value: `Off`
 
 

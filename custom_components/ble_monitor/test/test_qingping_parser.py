@@ -59,6 +59,56 @@ class TestQingping:
         assert sensor_msg["battery"] == 56
         assert sensor_msg["rssi"] == -81
 
+    def test_qingping_CGPR1_1(self):
+        """Test Qingping parser for CGPR1 (illuminance)."""
+        data_string = "043E2702010000005E60342D581B0201061716CDFD0812005E60342D580201640F011C09048B090000AF"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "Qingping"
+        assert sensor_msg["type"] == "CGPR1"
+        assert sensor_msg["mac"] == "582D34605E00"
+        assert sensor_msg["packet"] == 28
+        assert sensor_msg["data"]
+        assert sensor_msg["illuminance"] == 2443
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["rssi"] == -81
+
+    def test_qingping_CGPR1_2(self):
+        """Test Qingping parser for CGPR1 (illuminance + motion)."""
+        data_string = "043E2402010000005E60342D58180201061416CDFD4812005E60342D580804008B09000F0122AF"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "Qingping"
+        assert sensor_msg["type"] == "CGPR1"
+        assert sensor_msg["mac"] == "582D34605E00"
+        assert sensor_msg["packet"] == 34
+        assert sensor_msg["data"]
+        assert sensor_msg["illuminance"] == 2443
+        assert sensor_msg["motion"] == 0
+        assert sensor_msg["rssi"] == -81
+
+    def test_qingping_CGPR1_3(self):
+        """Test Qingping parser for CGPR1 (light)."""
+        data_string = "043E2102010000005E60342D58150201061116CDFD4812005E60342D581101010F0130AF"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "Qingping"
+        assert sensor_msg["type"] == "CGPR1"
+        assert sensor_msg["mac"] == "582D34605E00"
+        assert sensor_msg["packet"] == 48
+        assert sensor_msg["data"]
+        assert sensor_msg["light"] == 1
+        assert sensor_msg["rssi"] == -81
+
     def test_qingping_no_data(self):
         """Test Qingping parser with message with no data."""
         data_string = "043E1F020100000CA4288CCF04130201060B16CDFD080E0AA4288CCF048CCF0481CB"
