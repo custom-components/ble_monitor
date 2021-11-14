@@ -46,10 +46,10 @@ class TestInode:
         assert sensor_msg["data"]
         assert sensor_msg["temperature"] == -30
         assert sensor_msg["motion"] == 0
-        assert sensor_msg["acceleration"] == 23.0
+        assert sensor_msg["acceleration"] == 9.0
         assert sensor_msg["acceleration x"] == 0
         assert sensor_msg["acceleration y"] == 0
-        assert sensor_msg["acceleration z"] == 23
+        assert sensor_msg["acceleration z"] == -9
         assert sensor_msg["battery"] == 100
         assert sensor_msg["voltage"] == 2.88
         assert sensor_msg["rssi"] == -59

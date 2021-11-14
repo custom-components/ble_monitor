@@ -33,6 +33,12 @@ MEASUREMENTS = {
 }
 
 
+def adj_acc(acc):
+    if(acc & 0x10) == 0x10:
+        acc = -1 * (32 - acc)
+    return acc
+
+
 def parse_inode(self, data, source_mac, rssi):
     """iNode parser"""
     msg_length = len(data)
@@ -143,12 +149,10 @@ def parse_inode(self, data, source_mac, rssi):
             })
         if "position" in measurements:
             motion = raw_p & 0x8000
-            acc_x = (raw_p >> 10) & 0x1F
-            acc_y = (raw_p >> 5) & 0x1F
-            acc_z = raw_p & 0x1F
-            # acc_x = acc_x - (acc_x & 0x10 ? 0x1F: 0)
-            # acc_y = acc_y - (acc_y & 0x10 ? 0x1F: 0)
-            # acc_z = acc_z - (acc_z & 0x10 ? 0x1F: 0)
+            acc_x = adj_acc((raw_p >> 10) & 0x1F)
+            acc_y = adj_acc((raw_p >> 5) & 0x1F)
+            acc_z = adj_acc(raw_p & 0x1F)
+
             acc = math.sqrt(acc_x ** 2 + acc_y ** 2 + acc_z ** 2)
             result.update({
                 "motion": motion,
