@@ -31,6 +31,7 @@ from .const import (
     AES128KEY32_REGEX,
     CONF_ACTIVE_SCAN,
     CONF_BATT_ENTITIES,
+    CONF_BT_AUTO_RESTART,
     CONF_BT_INTERFACE,
     CONF_DECIMALS,
     CONF_DEVICE_DECIMALS,
@@ -50,6 +51,7 @@ from .const import (
     CONFIG_IS_FLOW,
     DEFAULT_ACTIVE_SCAN,
     DEFAULT_BATT_ENTITIES,
+    DEFAULT_BT_AUTO_RESTART,
     DEFAULT_DECIMALS,
     DEFAULT_DEVICE_DECIMALS,
     DEFAULT_DEVICE_RESTORE_STATE,
@@ -154,6 +156,9 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(
                         CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
                     ): vol.In(REPORT_UNKNOWN_LIST),
+                    vol.Optional(
+                        CONF_BT_AUTO_RESTART, default=DEFAULT_BT_AUTO_RESTART
+                    ): cv.boolean,
                 }
             ),
         )
@@ -578,13 +583,20 @@ class HCIdump(Thread):
                             btctrl[hci].send_scan_request(self._active)
                         )
                     except RuntimeError as error:
-                        _LOGGER.error(
-                            "HCIdump thread: Runtime error while sending scan request on hci%i: %s. Resetting Bluetooth adapter %s and trying again.",
-                            hci,
-                            error,
-                            BT_INTERFACES[hci],
-                        )
-                        reset_bluetooth(hci)
+                        if CONF_BT_AUTO_RESTART:
+                            _LOGGER.error(
+                                "HCIdump thread: Runtime error while sending scan request on hci%i: %s. Resetting Bluetooth adapter %s and trying again.",
+                                hci,
+                                error,
+                                BT_INTERFACES[hci],
+                            )
+                            reset_bluetooth(hci)
+                        else:
+                            _LOGGER.error(
+                                "HCIdump thread: Runtime error while sending scan request on hci%i: %s.",
+                                hci,
+                                error,
+                            )
             _LOGGER.debug("HCIdump thread: start main event_loop")
             try:
                 self._event_loop.run_forever()
@@ -596,13 +608,20 @@ class HCIdump(Thread):
                             btctrl[hci].stop_scan_request()
                         )
                     except RuntimeError as error:
-                        _LOGGER.error(
-                            "HCIdump thread: Runtime error while stop scan request on hci%i: %s Resetting Bluetooth adapter %s and trying again.",
-                            hci,
-                            error,
-                            BT_INTERFACES[hci],
-                        )
-                        reset_bluetooth(hci)
+                        if CONF_BT_AUTO_RESTART:
+                            _LOGGER.error(
+                                "HCIdump thread: Runtime error while stop scan request on hci%i: %s Resetting Bluetooth adapter %s and trying again.",
+                                hci,
+                                error,
+                                BT_INTERFACES[hci],
+                            )
+                            reset_bluetooth(hci)
+                        else:
+                            _LOGGER.error(
+                                "HCIdump thread: Runtime error while stop scan request on hci%i: %s.",
+                                hci,
+                                error,
+                            )
                     except KeyError:
                         _LOGGER.debug(
                             "HCIdump thread: Key error while stop scan request on hci%i",

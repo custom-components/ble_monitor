@@ -225,7 +225,7 @@ def obj000f(xobj, device_type):
             return {"motion": 1, "motion timer": 1, "light": int(value >= 100)}
         elif device_type == "CGPR1":
             # CGPR1:     moving, value is illumination in lux
-            return {"motion": 1, "motion timer": 1, "illuminance": value}
+            return {"motion": 1, "motion timer": 1, "illuminance": value, "light": int(value >= 100)}
         else:
             return {}
     else:
@@ -877,4 +877,5 @@ def decrypt_mibeacon_legacy(self, data, i, xiaomi_mac):
 
 
 def to_mac(addr: int):
+    """Return formatted MAC address"""
     return ':'.join('{:02x}'.format(x) for x in addr).upper()

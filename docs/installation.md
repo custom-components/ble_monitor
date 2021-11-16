@@ -61,14 +61,15 @@ An example of `configuration.yaml` with all optional parameters is:
 ```yaml
 ble_monitor:
   bt_interface: '04:B1:38:2C:84:2B'
-  discovery: True
+  bt_auto_restart: False
   active_scan: False
-  report_unknown: False
-  decimals: 1
+  discovery: True
   period: 60
-  log_spikes: False
   use_median: False
+  decimals: 1
+  log_spikes: False
   restore_state: False
+  report_unknown: False
   devices:
     # sensor
     - mac: 'A4:C1:38:2F:86:6C'

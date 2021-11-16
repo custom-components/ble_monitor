@@ -141,6 +141,9 @@ class BleParser:
                     elif adstruct[0] == 0x0E and adstruct[3] == 0x82:  # iNode
                         sensor_data = parse_inode(self, adstruct, mac, rssi)
                         break
+                    elif adstruct[0] == 0x19 and adstruct[3] in [0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x9A, 0x9B, 0x9C, 0x9D]:  # iNode Care Sensors
+                        sensor_data = parse_inode(self, adstruct, mac, rssi)
+                        break
                     elif adstruct[0] == 0x15 and comp_id == 0x1000:  # Moat S2
                         sensor_data = parse_moat(self, adstruct, mac, rssi)
                         break

@@ -22,6 +22,7 @@ from .const import (
     AES128KEY24_REGEX,
     AES128KEY32_REGEX,
     CONF_ACTIVE_SCAN,
+    CONF_BT_AUTO_RESTART,
     CONF_BT_INTERFACE,
     CONF_DECIMALS,
     CONF_DEVICE_ENCRYPTION_KEY,
@@ -40,6 +41,7 @@ from .const import (
     CONF_USE_MEDIAN,
     CONFIG_IS_FLOW,
     DEFAULT_ACTIVE_SCAN,
+    DEFAULT_BT_AUTO_RESTART,
     DEFAULT_DECIMALS,
     DEFAULT_DEVICE_DECIMALS,
     DEFAULT_DEVICE_ENCRYPTION_KEY,
@@ -114,18 +116,19 @@ DOMAIN_SCHEMA = vol.Schema(
         vol.Optional(
             CONF_BT_INTERFACE, default=[DEFAULT_BT_INTERFACE]
         ): cv.multi_select(BT_MULTI_SELECT),
-        vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
-        vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
+        vol.Optional(CONF_BT_AUTO_RESTART, default=DEFAULT_BT_AUTO_RESTART): cv.boolean,
         vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
+        vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
+        vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
+        vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
         vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
-        vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
         vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
-        vol.Optional(CONF_DEVICES, default=[]): vol.All(
-            cv.ensure_list, [DEVICE_SCHEMA]
-        ),
         vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): vol.In(
             REPORT_UNKNOWN_LIST
+        ),
+        vol.Optional(CONF_DEVICES, default=[]): vol.All(
+            cv.ensure_list, [DEVICE_SCHEMA]
         ),
     }
 )
@@ -426,11 +429,17 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     ),
                 ): cv.multi_select(BT_MULTI_SELECT),
                 vol.Optional(
-                    CONF_PERIOD,
+                    CONF_BT_AUTO_RESTART,
                     default=self.config_entry.options.get(
-                        CONF_PERIOD, DEFAULT_PERIOD
+                        CONF_BT_AUTO_RESTART, DEFAULT_BT_AUTO_RESTART
                     ),
-                ): cv.positive_int,
+                ): cv.boolean,
+                vol.Optional(
+                    CONF_ACTIVE_SCAN,
+                    default=self.config_entry.options.get(
+                        CONF_ACTIVE_SCAN, DEFAULT_ACTIVE_SCAN
+                    ),
+                ): cv.boolean,
                 vol.Optional(
                     CONF_DISCOVERY,
                     default=self.config_entry.options.get(
@@ -438,9 +447,15 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                     ),
                 ): cv.boolean,
                 vol.Optional(
-                    CONF_ACTIVE_SCAN,
+                    CONF_PERIOD,
                     default=self.config_entry.options.get(
-                        CONF_ACTIVE_SCAN, DEFAULT_ACTIVE_SCAN
+                        CONF_PERIOD, DEFAULT_PERIOD
+                    ),
+                ): cv.positive_int,
+                vol.Optional(
+                    CONF_USE_MEDIAN,
+                    default=self.config_entry.options.get(
+                        CONF_USE_MEDIAN, DEFAULT_USE_MEDIAN
                     ),
                 ): cv.boolean,
                 vol.Optional(
@@ -455,12 +470,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                         CONF_LOG_SPIKES, DEFAULT_LOG_SPIKES
                     ),
                 ): cv.boolean,
-                vol.Optional(
-                    CONF_USE_MEDIAN,
-                    default=self.config_entry.options.get(
-                        CONF_USE_MEDIAN, DEFAULT_USE_MEDIAN
-                    ),
-                ): cv.boolean,
+
                 vol.Optional(
                     CONF_RESTORE_STATE,
                     default=self.config_entry.options.get(
