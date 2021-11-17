@@ -17,6 +17,6 @@ broadcast_rate: Variable, at least once a minute.
 active_scan:
 encryption_key:
 custom_firmware:
-notes:>
-      The sensor does not send the Dew Point in its BLE advertisements
+notes:
+  - The sensor does not send the Dew Point in its BLE advertisements
 ---
