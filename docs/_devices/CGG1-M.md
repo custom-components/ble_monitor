@@ -1,5 +1,5 @@
 ---
-manufacturer: Qingping/MiHome
+manufacturer: Qingping
 name: Hygro thermometer
 model: CGG1-M
 image: CGG1.png
