@@ -6,14 +6,10 @@ image: XMMF01JQD.png
 physical_description:
 broadcasted_properties:
   - button
-  - battery
   - rssi
 broadcasted_property_notes:
   - property: button
     note: Possible states are 'left' and 'right', corresponding to the directon you rotate the cube. No edge information is available, only the direction, as this edge info is only available after connecting to the cube. This is not supported in BLE monitor.
-  - property: battery
-    note: >
-      It is not known if the battery state is being broadcasted. If the sensor remains `Unavailable`, please create an issue and we will remove the battery sensor.  
 broadcast_rate:
 active_scan:
 encryption_key: true

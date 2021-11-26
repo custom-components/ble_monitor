@@ -102,7 +102,7 @@ AES128KEY32_REGEX = "(?i)^[A-F0-9]{32}$"
 
 # Sensor measurement limits to exclude erroneous spikes from the results (temperature in °C)
 CONF_TMIN = -40.0
-CONF_TMAX = 60.0
+CONF_TMAX = 85.0
 CONF_TMIN_KETTLES = -20.0
 CONF_TMAX_KETTLES = 120.0
 CONF_HMIN = 0.0
@@ -598,7 +598,7 @@ MEASUREMENT_DICT = {
     'LYWSD02'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
     'LYWSD03MMC'              : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'XMWSDJ04MMC'             : [["temperature", "humidity", "battery", "rssi"], [], []],
-    'XMMF01JQD'               : [["rssi", "battery"], ["button"], []],
+    'XMMF01JQD'               : [["rssi"], ["button"], []],
     'HHCCJCY01'               : [["temperature", "moisture", "conductivity", "illuminance", "rssi"], [], []],
     'GCLS002'                 : [["temperature", "moisture", "conductivity", "illuminance", "rssi"], [], []],
     'HHCCPOT002'              : [["moisture", "conductivity", "rssi"], [], []],

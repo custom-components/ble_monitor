@@ -248,6 +248,7 @@ def obj1001(xobj, device_type):
         three_btn_switch_left = None
         three_btn_switch_middle = None
         three_btn_switch_right = None
+        cube_direction = None
         remote_binary = None
 
         if button_type == 0:
@@ -258,6 +259,7 @@ def obj1001(xobj, device_type):
             one_btn_switch = "toggle"
             two_btn_switch_left = "toggle"
             three_btn_switch_left = "toggle"
+            cube_direction = "right"
             remote_binary = 1
         elif button_type == 1:
             remote_command = "off"
@@ -266,6 +268,7 @@ def obj1001(xobj, device_type):
             bathroom_remote_command = "air exchange"
             two_btn_switch_right = "toggle"
             three_btn_switch_middle = "toggle"
+            cube_direction = "left"
             remote_binary = 0
         elif button_type == 2:
             remote_command = "sun"
@@ -313,17 +316,14 @@ def obj1001(xobj, device_type):
         # press type and dimmer
         button_press_type = "no press"
         btn_switch_press_type = "no press"
-        cube_direction = None
         dimmer = None
 
         if press == 0:
             button_press_type = "single press"
             btn_switch_press_type = "single press"
-            cube_direction = "right"
         elif press == 1:
             button_press_type = "double press"
             btn_switch_press_type = "long press"
-            cube_direction = "left"
         elif press == 2:
             button_press_type = "long press"
             btn_switch_press_type = "double press"
