@@ -147,6 +147,23 @@ class TestXiaomi:
         assert sensor_msg["humidity"] == 45.0
         assert sensor_msg["rssi"] == -50
 
+    def test_Xiaomi_XMMF01JQD(self):
+        """Test Xiaomi parser for XMMF01JQD."""
+        data_string = "043e240201000154d3e63053e218020106141695fe5030e1048e54d3e63053e2011003010000b8"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
+        assert sensor_msg["type"] == "XMMF01JQD"
+        assert sensor_msg["mac"] == "E25330E6D354"
+        assert sensor_msg["packet"] == 142
+        assert sensor_msg["data"]
+        assert sensor_msg["button"] == "left"
+        assert sensor_msg["rssi"] == -72
+
     def test_Xiaomi_CGC1(self):
         """Test Xiaomi parser for CGC1."""
 

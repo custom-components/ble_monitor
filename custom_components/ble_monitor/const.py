@@ -102,7 +102,7 @@ AES128KEY32_REGEX = "(?i)^[A-F0-9]{32}$"
 
 # Sensor measurement limits to exclude erroneous spikes from the results (temperature in °C)
 CONF_TMIN = -40.0
-CONF_TMAX = 60.0
+CONF_TMAX = 85.0
 CONF_TMIN_KETTLES = -20.0
 CONF_TMAX_KETTLES = 120.0
 CONF_HMIN = 0.0
@@ -598,6 +598,7 @@ MEASUREMENT_DICT = {
     'LYWSD02'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
     'LYWSD03MMC'              : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'XMWSDJ04MMC'             : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'XMMF01JQD'               : [["rssi"], ["button"], []],
     'HHCCJCY01'               : [["temperature", "moisture", "conductivity", "illuminance", "rssi"], [], []],
     'GCLS002'                 : [["temperature", "moisture", "conductivity", "illuminance", "rssi"], [], []],
     'HHCCPOT002'              : [["moisture", "conductivity", "rssi"], [], []],
@@ -606,7 +607,7 @@ MEASUREMENT_DICT = {
     'YM-K1501'                : [["rssi"], ["temperature"], ["switch"]],
     'YM-K1501EU'              : [["rssi"], ["temperature"], ["switch"]],
     'V-SK152'                 : [["rssi"], ["temperature"], ["switch"]],
-    'SJWS01LM'                : [["battery", "rssi"], [], ["moisture"]],
+    'SJWS01LM'                : [["battery", "rssi"], ["button"], ["moisture"]],
     'MJYD02YL'                : [["battery", "rssi"], [], ["light", "motion"]],
     'MUE4094RT'               : [["rssi"], [], ["motion"]],
     'RTCGQ02LM'               : [["battery", "rssi"], ["button"], ["light", "motion"]],
@@ -629,7 +630,7 @@ MEASUREMENT_DICT = {
     'K9B-1BTN'                : [["rssi"], ["one btn switch"], []],
     'K9B-2BTN'                : [["rssi"], ["two btn switch left", "two btn switch right"], []],
     'K9B-3BTN'                : [["rssi"], ["three btn switch left", "three btn switch middle", "three btn switch right"], []],
-    'YLAI003'                 : [["rssi"], ["button", "battery"], []],
+    'YLAI003'                 : [["rssi", "battery"], ["button"], []],
     'YLYK01YL'                : [["rssi"], ["remote"], ["remote single press", "remote long press"]],
     'YLYK01YL-FANCL'          : [["rssi"], ["fan remote"], []],
     'YLYK01YL-VENFAN'         : [["rssi"], ["ventilator fan remote"], []],
@@ -680,6 +681,7 @@ MANUFACTURER_DICT = {
     'LYWSD02'                 : 'Xiaomi',
     'LYWSD03MMC'              : 'Xiaomi',
     'XMWSDJ04MMC'             : 'Xiaomi',
+    'XMMF01JQD'               : 'Xiaomi',
     'HHCCJCY01'               : 'Xiaomi',
     'GCLS002'                 : 'Xiaomi',
     'HHCCPOT002'              : 'Xiaomi',

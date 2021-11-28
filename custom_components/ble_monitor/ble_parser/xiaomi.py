@@ -15,6 +15,7 @@ XIAOMI_TYPE_DICT = {
     0x045B: "LYWSD02",
     0x055B: "LYWSD03MMC",
     0x1203: "XMWSDJ04MMC",
+    0x04E1: "XMMF01JQD",
     0x0098: "HHCCJCY01",
     0x03BC: "GCLS002",
     0x015D: "HHCCPOT002",
@@ -247,6 +248,7 @@ def obj1001(xobj, device_type):
         three_btn_switch_left = None
         three_btn_switch_middle = None
         three_btn_switch_right = None
+        cube_direction = None
         remote_binary = None
 
         if button_type == 0:
@@ -257,6 +259,7 @@ def obj1001(xobj, device_type):
             one_btn_switch = "toggle"
             two_btn_switch_left = "toggle"
             three_btn_switch_left = "toggle"
+            cube_direction = "right"
             remote_binary = 1
         elif button_type == 1:
             remote_command = "off"
@@ -265,6 +268,7 @@ def obj1001(xobj, device_type):
             bathroom_remote_command = "air exchange"
             two_btn_switch_right = "toggle"
             three_btn_switch_middle = "toggle"
+            cube_direction = "left"
             remote_binary = 0
         elif button_type == 2:
             remote_command = "sun"
@@ -351,8 +355,10 @@ def obj1001(xobj, device_type):
 
         # return device specific output
         result = {}
-        if device_type in ["RTCGQ02LM", "YLAI003", "JTYJGD03MI"]:
+        if device_type in ["RTCGQ02LM", "YLAI003", "JTYJGD03MI", "SJWS01LM"]:
             result["button"] = button_press_type
+        elif device_type == "XMMF01JQD":
+            result["button"] = cube_direction
         elif device_type == "YLYK01YL":
             result["remote"] = remote_command
             result["button"] = button_press_type
