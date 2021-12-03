@@ -48,6 +48,7 @@ from .const import (
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
     CONF_USE_MEDIAN,
+    CONF_PACKET,
     CONFIG_IS_FLOW,
     DEFAULT_ACTIVE_SCAN,
     DEFAULT_BATT_ENTITIES,
@@ -72,6 +73,7 @@ from .const import (
     MEASUREMENT_DICT,
     REPORT_UNKNOWN_LIST,
     SERVICE_CLEANUP_ENTRIES,
+    SERVICE_PARSE_DATA,
 )
 
 from .bt_helpers import (
@@ -167,6 +169,11 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 SERVICE_CLEANUP_ENTRIES_SCHEMA = vol.Schema({})
+SERVICE_PARSE_DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_PACKET): cv.string,
+    }
+)
 
 
 async def async_setup(hass: HomeAssistant, config):
@@ -177,11 +184,22 @@ async def async_setup(hass: HomeAssistant, config):
 
         await async_cleanup_entries_service(hass, service_data)
 
+    async def service_parse_data(service_call):
+        service_data = service_call.data
+
+        await async_parse_data_service(hass, service_data)
+
     hass.services.async_register(
         DOMAIN,
         SERVICE_CLEANUP_ENTRIES,
         service_cleanup_entries,
         schema=SERVICE_CLEANUP_ENTRIES_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_PARSE_DATA,
+        service_parse_data,
+        schema=SERVICE_PARSE_DATA_SCHEMA,
     )
 
     if DOMAIN not in config:
@@ -392,6 +410,13 @@ async def async_cleanup_entries_service(hass: HomeAssistant, service_data):
         if len(async_entries_for_device(entity_registry, device_id)) == 0:
             device_registry.async_remove_device(device_id)
             _LOGGER.debug("device %s will be deleted", device_id)
+
+
+async def async_parse_data_service(hass: HomeAssistant, service_data):
+    """Call parse_data with RAW HCI packet data."""
+    _LOGGER.debug("async_parse_data_service")
+    blemonitor = hass.data[DOMAIN]["blemonitor"]
+    blemonitor.dumpthread.process_hci_events(bytes.fromhex(service_data["packet"]))
 
 
 class BLEmonitor:
