@@ -65,9 +65,11 @@ CONF_DEVICE_TRACK = "track_device"
 CONF_DEVICE_TRACKER_SCAN_INTERVAL = "tracker_scan_interval"
 CONF_DEVICE_TRACKER_CONSIDER_HOME = "consider_home"
 CONF_DEVICE_DELETE_DEVICE = "delete device"
+CONF_PACKET = "packet"
 CONFIG_IS_FLOW = "is_flow"
 
 SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
+SERVICE_PARSE_DATA = "parse_data"
 
 # Default values for configuration options
 DEFAULT_BT_AUTO_RESTART = False
