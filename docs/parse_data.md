@@ -23,7 +23,7 @@ You can also use this service to create support for you own home-brew sensor, as
 
 The example below is parsing BLE advertisements that are received by ESPHome [BLE gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) and converts it to a BLE monitor sensor, if it is in the correct format of a supported sensor. 
 
-```yaml
+{% highlight yaml %}
 automation:
   - alias: ESPHome BLE Advertise
     mode: queued
@@ -34,4 +34,4 @@ automation:
       - service: ble_monitor.parse_data
         data:
           packet: "{{ trigger.event.data.packet }}"
-```
+{% endhighlight %}
