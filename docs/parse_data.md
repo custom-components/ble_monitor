@@ -17,6 +17,8 @@ BLE monitor has a service to parse BLE advertisements. This service can e.g. be 
 
 You can also use this service to create support for you own home-brew sensor, as long as you make sure you follow the format of one of the existing sensors.
 
+In this example you can see the BLE data packet from device with MAC address `BC:9A:78:56:34:12`, in the packet it's in reverse order `123456789ABC`. The BLE packet should be in HCI format, with packet type HCI Event (0x04).
+
 ![parse_data_service]({{site.baseurl}}/assets/images/parse_data_service_screen.png)
 
 ### Example of an automation
