@@ -415,8 +415,9 @@ async def async_cleanup_entries_service(hass: HomeAssistant, service_data):
 async def async_parse_data_service(hass: HomeAssistant, service_data):
     """Call parse_data with RAW HCI packet data."""
     _LOGGER.debug("async_parse_data_service")
-    blemonitor = hass.data[DOMAIN]["blemonitor"]
-    blemonitor.dumpthread.process_hci_events(bytes.fromhex(service_data["packet"]))
+    blemonitor: BLEmonitor = hass.data[DOMAIN]["blemonitor"]
+    if blemonitor:
+        blemonitor.dumpthread.process_hci_events(bytes.fromhex(service_data["packet"]))
 
 
 class BLEmonitor:
