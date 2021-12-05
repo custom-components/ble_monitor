@@ -10,3 +10,5 @@ parse_data:
       description: RAW HCI packet data hex
       required: true
       example: 043E2B02010000123456789ABC1F12161A1819416538C1A41B073915810B529F0F0B094154435F363534313139AA
+      selector:
+        text:
