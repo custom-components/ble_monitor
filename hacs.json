@@ -2,5 +2,5 @@
   "name": "Passive BLE monitor integration",
   "domains": "ble_monitor",
   "iot_class": "local push",
-  "homeassistant": "2021.11.0"
+  "homeassistant": "2021.12.0"
 }
