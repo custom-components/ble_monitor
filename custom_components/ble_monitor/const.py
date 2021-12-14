@@ -593,7 +593,7 @@ MEASUREMENT_DICT = {
     'LYWSD03MMC'              : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'XMWSDJ04MMC'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'XMMF01JQD'               : [["rssi"], ["button"], []],
-    'HHCCJCY01'               : [["temperature", "moisture", "conductivity", "illuminance", "rssi"], [], []],
+    'HHCCJCY01'               : [["temperature", "moisture", "conductivity", "illuminance", "battery", "rssi"], [], []],
     'GCLS002'                 : [["temperature", "moisture", "conductivity", "illuminance", "rssi"], [], []],
     'HHCCPOT002'              : [["moisture", "conductivity", "rssi"], [], []],
     'WX08ZM'                  : [["consumable", "battery", "rssi"], [], ["switch"]],
