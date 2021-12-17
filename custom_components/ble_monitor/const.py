@@ -665,6 +665,7 @@ MEASUREMENT_DICT = {
     'Moat S2'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Tempo Disc THD'          : [["temperature", "humidity", "dewpoint", "battery", "rssi"], [], []],
     'Tempo Disc THPD'         : [["temperature", "humidity", "pressure", "battery", "rssi"], [], []],
+    'Series 7000'             : [["rssi"], [], ["toothbrush"]],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -748,6 +749,7 @@ MANUFACTURER_DICT = {
     'Moat S2'                 : 'Moat',
     'Tempo Disc THD'          : 'BlueMaestro',
     'Tempo Disc THPD'         : 'BlueMaestro',
+    'Series 7000'             : 'Oral-B',
 }
 
 # Renamed model dictionary
@@ -765,6 +767,7 @@ REPORT_UNKNOWN_LIST = [
     "Kegtron",
     "Mi Scale",
     "Moat",
+    "Oral-B",
     "Qingping",
     "Ruuvitag",
     "SensorPush",

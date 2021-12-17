@@ -286,10 +286,16 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
             self._extra_state_attributes["timestamp"] = old_state.attributes["timestamp"]
         if "result" in old_state.attributes:
             self._extra_state_attributes["result"] = old_state.attributes["result"]
-        if "score" in old_state.attributes:
-            self._extra_state_attributes["score"] = old_state.attributes["score"]
         if "counter" in old_state.attributes:
             self._extra_state_attributes["counter"] = old_state.attributes["counter"]
+        if "score" in old_state.attributes:
+            self._extra_state_attributes["score"] = old_state.attributes["score"]
+        if "toothbrush state" in old_state.attributes:
+            self._extra_state_attributes["toothbrush state"] = old_state.attributes["toothbrush state"]
+        if "pressure" in old_state.attributes:
+            self._extra_state_attributes["pressure"] = old_state.attributes["pressure"]
+        if "mode" in old_state.attributes:
+            self._extra_state_attributes["mode"] = old_state.attributes["mode"]
 
         self.ready_for_update = True
 
@@ -389,8 +395,18 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         if self.entity_description.key == "toothbrush":
             if "counter" in data:
                 self._extra_state_attributes["counter"] = data["counter"]
-            else:
+            if "score" in data:
                 self._extra_state_attributes["score"] = data["score"]
+            if "toothbrush state" in data:
+                self._extra_state_attributes["toothbrush state"] = data["toothbrush state"]
+            if "pressure" in data:
+                self._extra_state_attributes["pressure"] = data["pressure"]
+            if "mode" in data:
+                self._extra_state_attributes["mode"] = data["mode"]
+            if "sensor_a" in data:
+                self._extra_state_attributes["sensor_a"] = data["sensor_a"]
+            if "sensor_b" in data:
+                self._extra_state_attributes["sensor_b"] = data["sensor_b"]
 
     async def async_update(self):
         """Update sensor state and attribute."""
