@@ -90,14 +90,14 @@ This means that Python is built/installed without support for Bluetooth. You wil
 
 1 Install BT library with:
 
-```
+```shell
 sudo apt-get install bluetooth libbluetooth-dev
 sudo pip3 install pybluez
 ```
 
 2 Rebuild Python:
 
-```
+```shell
 cd Python-3.8.6/
 ./configure
 make
@@ -106,14 +106,14 @@ sudo make install
 
 3 Disable systemctl and reboot:
 
-```
+```shell
 sudo systemctl disable home-assistant@homeassistant
 sudo reboot
 ```
 
 4 Removed old venv and save Home Assistant configuration:
 
-```
+```shell
 cd /srv/homeassistant
 sudo rm * -R
 cd ..
@@ -125,7 +125,7 @@ sudo su -s /bin/bash homeassistant
 
 5 Create a new venv and install HomeAssistant again:
 
-```
+```shell
 cd /srv/homeassistant
 python3.8 -m venv .
 source bin/activate
@@ -135,7 +135,7 @@ hass -v
 
 6 When you see `INFO (MainThread) [homeassistant.core] Starting Home Assistant` in log use CTRL+C to break and restore your Home Assistant configuration:
 
-```
+```shell
 deactivate
 exit
 cd /home/homeassistant
@@ -156,14 +156,14 @@ The full error you can get in Home Assistant is `HCIdump thread: Runtime error w
 
 This will reset Bluetooth automatically, by running the following commands, when the error occurs. 
 
-```
+```shell
 bluetoothctl power on
 rfkill unblock bluetooth
 ```
 
 In YAML you can turn `bt_auto_restart` on with the following line in your configuration.yaml. 
 
-```
+```yaml
 ble_monitor:
   bt_auto_restart: True
 ```
@@ -172,7 +172,7 @@ ble_monitor:
 
 Make sure all relevant Bluetooth packages are installed. On Home Assistant OS, this should normally already be the case, but if you use some other type of installation, you might be missing some relevant software/packages. 
 
-```
+```shell
 sudo apt-get install systemd
 sudo apt-get install bluetooth pi-bluetooth bluez
 sudo apt-get install rfkill
@@ -321,7 +321,7 @@ You can get the encryption key with the [miiocli tool (python-miio)](https://git
 - Install `python-miio`, installation instructions can be found [in the documentation](https://python-miio.readthedocs.io/en/latest/discovery.html#installation).
 - Send the following command, while replacing `<IP>` and `<TOKEN>` with the result of the first step.
 
-```
+```shell
 miiocli device --ip <IP> --token <TOKEN> raw_command ble_dbg_tbl_dump '{"table":"evtRuleTbl"}'
 ```
 
