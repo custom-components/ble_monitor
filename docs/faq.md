@@ -148,6 +148,48 @@ sudo reboot
 
 7 Wait a long time before all plugins are installed in Home Assistant
 
+### I get a RuntimeError: Event loop stopped before Future completed
+
+The full error you can get in Home Assistant is `HCIdump thread: Runtime error while sending scan request on hci0: Event loop stopped before Future completed.` This error is discussed in [this issue](https://github.com/custom-components/ble_monitor/issues/295) and we were not able to solve it for everybody, but it seems to be related to Home Assistant not being able to use Bluetooth. But there are a couple of things you could try to fix it.
+
+1. Turn on the option `bt_auto_restart` (`Automatically restart Bluetooth adapter on failure` in the UI). 
+
+This will reset Bluetooth automatically, by running the following commands, when the error occurs. 
+
+```
+bluetoothctl power on
+rfkill unblock bluetooth
+```
+
+In YAML you can turn `bt_auto_restart` on with the following line in your configuration.yaml. 
+
+```
+ble_monitor:
+  bt_auto_restart: True
+```
+
+2. Install all Bluetooth packages
+
+Make sure all relevant Bluetooth packages are installed. On Home Assistant OS, this should normally already be the case, but if you use some other type of installation, you might be missing some relevant software/packages. 
+
+```
+sudo apt-get install systemd
+sudo apt-get install bluetooth pi-bluetooth bluez
+sudo apt-get install rfkill
+```
+
+3. Make sure HA has the proper rights to use Bluetooth
+
+Especially on Docker installations, make sure that Bluetooth can be used by Home Asssistant.
+
+4. Check the permissions for the HCI interface
+
+Python needs the right root permissions to use the HCI interface. If you recently upgraded Python, these might be set wrong. Follow the instructions [here](https://custom-components.github.io/ble_monitor/faq#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade).
+
+5. Using the LinuxServer.io image?
+
+Some users have mentioned that the [linuxserver image](https://docs.linuxserver.io/images/docker-homeassistant) is causing the issue. Using the original Home Assistant image by using `docker pull homeassistant/home-assistant` solved this issue for some people.
+
 ## Reception Issues
 
 ### My sensor doesn't receive any readings from my sensors anymore or only occasionally
