@@ -88,14 +88,14 @@ Devices:
 This means that Python is built/installed without support for Bluetooth. You will have to rebuild Python 3 with `bluetooth.h`. When using a virtual environment (venv), you can do this with the following instructions. Please make a backup first!!!, as you will have to delete the venv with Home Assistant and reinstall it in a new venv. You might need to modify commands for your own situation.
 
 
-1 Install BT library with:
+**1 Install BT library with:**
 
 ```shell
 sudo apt-get install bluetooth libbluetooth-dev
 sudo pip3 install pybluez
 ```
 
-2 Rebuild Python:
+**2 Rebuild Python:**
 
 ```shell
 cd Python-3.8.6/
@@ -104,14 +104,14 @@ make
 sudo make install
 ```
 
-3 Disable systemctl and reboot:
+**3 Disable systemctl and reboot:**
 
 ```shell
 sudo systemctl disable home-assistant@homeassistant
 sudo reboot
 ```
 
-4 Removed old venv and save Home Assistant configuration:
+**4 Removed old venv and save Home Assistant configuration:**
 
 ```shell
 cd /srv/homeassistant
@@ -123,7 +123,7 @@ sudo mv .homeassistant/ .homeassistant_backup
 sudo su -s /bin/bash homeassistant
 ```
 
-5 Create a new venv and install HomeAssistant again:
+**5 Create a new venv and install HomeAssistant again:**
 
 ```shell
 cd /srv/homeassistant
@@ -133,7 +133,7 @@ pip3 install homeassistant
 hass -v
 ```
 
-6 When you see `INFO (MainThread) [homeassistant.core] Starting Home Assistant` in log use CTRL+C to break and restore your Home Assistant configuration:
+**6 When you see `INFO (MainThread) [homeassistant.core] Starting Home Assistant` in log use CTRL+C to break and restore your Home Assistant configuration:**
 
 ```shell
 deactivate
@@ -146,13 +146,14 @@ sudo systemctl enable home-assistant@homeassistant
 sudo reboot
 ```
 
-7 Wait a long time before all plugins are installed in Home Assistant
+**7 Wait a long time before all plugins are installed in Home Assistant**
 
 ### I get a RuntimeError: Event loop stopped before Future completed
 
 The full error you can get in Home Assistant is `HCIdump thread: Runtime error while sending scan request on hci0: Event loop stopped before Future completed.` This error is discussed in [this issue](https://github.com/custom-components/ble_monitor/issues/295) and we were not able to solve it for everybody, but it seems to be related to Home Assistant not being able to use Bluetooth. But there are a couple of things you could try to fix it.
 
-1 Turn on the option `bt_auto_restart` (`Automatically restart Bluetooth adapter on failure` in the UI). 
+
+**1 Turn on the option `bt_auto_restart` (`Automatically restart Bluetooth adapter on failure` in the UI).**
 
 This will reset Bluetooth automatically, by running the following commands, when the error occurs. 
 
@@ -168,7 +169,8 @@ ble_monitor:
   bt_auto_restart: True
 ```
 
-2 Install all Bluetooth packages
+
+**2 Install all Bluetooth packages**
 
 Make sure all relevant Bluetooth packages are installed. On Home Assistant OS, this should normally already be the case, but if you use some other type of installation, you might be missing some relevant software/packages. 
 
@@ -178,17 +180,21 @@ sudo apt-get install bluetooth pi-bluetooth bluez
 sudo apt-get install rfkill
 ```
 
-3 Make sure HA has the proper rights to use Bluetooth
+
+**3 Make sure HA has the proper rights to use Bluetooth**
 
 Especially on Docker installations, make sure that Bluetooth can be used by Home Asssistant.
 
-4 Check the permissions for the HCI interface
+
+**4 Check the permissions for the HCI interface**
 
 Python needs the right root permissions to use the HCI interface. If you recently upgraded Python, these might be set wrong. Follow the instructions [here](https://custom-components.github.io/ble_monitor/faq#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade).
 
-5 Using the LinuxServer.io image?
+
+**5 Using the LinuxServer.io image?**
 
 Some users have mentioned that the [linuxserver image](https://docs.linuxserver.io/images/docker-homeassistant) is causing the issue. Using the original Home Assistant image by using `docker pull homeassistant/home-assistant` solved this issue for some people.
+
 
 ## Reception Issues
 
