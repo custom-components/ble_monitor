@@ -5,6 +5,7 @@ from .atc import parse_atc
 from .bluemaestro import parse_bluemaestro
 from .brifit import parse_brifit
 from .govee import parse_govee
+from .inkbird import parse_inkbird
 from .inode import parse_inode
 from .kegtron import parse_kegtron
 from .miscale import parse_miscale
@@ -138,6 +139,9 @@ class BleParser:
                         break
                     elif adstruct[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
                         sensor_data = parse_brifit(self, adstruct, mac, rssi)
+                        break
+                    if adstruct[0] == 0x0F and comp_id == 0x0000:  # Inkbird
+                        sensor_data = parse_inkbird(self, adstruct, mac, rssi)
                         break
                     elif adstruct[0] == 0x0E and adstruct[3] == 0x82:  # iNode
                         sensor_data = parse_inode(self, adstruct, mac, rssi)
