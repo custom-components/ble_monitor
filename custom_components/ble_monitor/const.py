@@ -689,7 +689,7 @@ MEASUREMENT_DICT = {
     'Moat S2'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Tempo Disc THD'          : [["temperature", "humidity", "dewpoint", "battery", "rssi"], [], []],
     'Tempo Disc THPD'         : [["temperature", "humidity", "pressure", "battery", "rssi"], [], []],
-    'Series 7000'             : [["rssi"], [], ["toothbrush"]],
+    'SmartSeries 7000'        : [["rssi"], [], ["toothbrush"]],
     'iBBQ-2'                  : [["temperature probe 1", "temperature probe 2", "rssi"], [], []],
 }
 
@@ -773,7 +773,7 @@ MANUFACTURER_DICT = {
     'Moat S2'                 : 'Moat',
     'Tempo Disc THD'          : 'BlueMaestro',
     'Tempo Disc THPD'         : 'BlueMaestro',
-    'Series 7000'             : 'Oral-B',
+    'SmartSeries 7000'        : 'Oral-B',
     'iBBQ-2'                  : 'Inkbird',
 }
 

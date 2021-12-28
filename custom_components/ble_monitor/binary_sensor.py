@@ -35,6 +35,28 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+RESTORE_ATTRIBUTES = [
+    "rssi",
+    "firmware",
+    "last packet id",
+    ATTR_BATTERY_LEVEL,
+    "status",
+    "motion timer",
+    "action",
+    "method",
+    "error",
+    "key id",
+    "timestamp",
+    "result",
+    "counter",
+    "score",
+    "toothbrush state",
+    "pressure",
+    "mode",
+    "sector timer",
+    "number of sectors",
+]
+
 
 async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
     """Set up from setup_entry."""
@@ -256,47 +278,9 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
             self._state = True
         elif old_state.state == STATE_OFF:
             self._state = False
-        if "rssi" in old_state.attributes:
-            self._extra_state_attributes["rssi"] = old_state.attributes["rssi"]
-        if "firmware" in old_state.attributes:
-            self._extra_state_attributes["firmware"] = old_state.attributes["firmware"]
-        if "last packet id" in old_state.attributes:
-            self._extra_state_attributes["last packet id"] = old_state.attributes[
-                "last packet id"
-            ]
-        if ATTR_BATTERY_LEVEL in old_state.attributes:
-            self._extra_state_attributes[ATTR_BATTERY_LEVEL] = old_state.attributes[
-                ATTR_BATTERY_LEVEL
-            ]
-        if "status" in old_state.attributes:
-            self._extra_state_attributes["status"] = old_state.attributes["status"]
-        if "motion timer" in old_state.attributes:
-            self._extra_state_attributes["motion timer"] = old_state.attributes[
-                "motion timer"
-            ]
-        if "action" in old_state.attributes:
-            self._extra_state_attributes["action"] = old_state.attributes["action"]
-        if "method" in old_state.attributes:
-            self._extra_state_attributes["method"] = old_state.attributes["method"]
-        if "error" in old_state.attributes:
-            self._extra_state_attributes["error"] = old_state.attributes["error"]
-        if "key id" in old_state.attributes:
-            self._extra_state_attributes["key id"] = old_state.attributes["key id"]
-        if "timestamp" in old_state.attributes:
-            self._extra_state_attributes["timestamp"] = old_state.attributes["timestamp"]
-        if "result" in old_state.attributes:
-            self._extra_state_attributes["result"] = old_state.attributes["result"]
-        if "counter" in old_state.attributes:
-            self._extra_state_attributes["counter"] = old_state.attributes["counter"]
-        if "score" in old_state.attributes:
-            self._extra_state_attributes["score"] = old_state.attributes["score"]
-        if "toothbrush state" in old_state.attributes:
-            self._extra_state_attributes["toothbrush state"] = old_state.attributes["toothbrush state"]
-        if "pressure" in old_state.attributes:
-            self._extra_state_attributes["pressure"] = old_state.attributes["pressure"]
-        if "mode" in old_state.attributes:
-            self._extra_state_attributes["mode"] = old_state.attributes["mode"]
-
+        for attr in RESTORE_ATTRIBUTES:
+            if attr in old_state.attributes:
+                self._extra_state_attributes[attr] = old_state.attributes[attr]
         self.ready_for_update = True
 
     @property
@@ -403,10 +387,10 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
                 self._extra_state_attributes["pressure"] = data["pressure"]
             if "mode" in data:
                 self._extra_state_attributes["mode"] = data["mode"]
-            if "sensor_a" in data:
-                self._extra_state_attributes["sensor_a"] = data["sensor_a"]
-            if "sensor_b" in data:
-                self._extra_state_attributes["sensor_b"] = data["sensor_b"]
+            if "sector timer" in data:
+                self._extra_state_attributes["sector timer"] = data["sector timer"]
+            if "number of sectors" in data:
+                self._extra_state_attributes["number of sectors"] = data["number of sectors"]
 
     async def async_update(self):
         """Update sensor state and attribute."""

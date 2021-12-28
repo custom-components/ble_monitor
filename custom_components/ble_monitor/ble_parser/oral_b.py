@@ -58,12 +58,12 @@ def parse_oral_b(self, data, source_mac, rssi):
     result = {"firmware": firmware}
     if msg_length == 15:
         print(data[7:15].hex())
-        device_type = "Series 7000"
-        (state, pressure, counter, mode, sector, sensor_a, sensor_b) = unpack(
+        device_type = "SmartSeries 7000"
+        (state, pressure, counter, mode, sector, sector_timer, no_of_sectors) = unpack(
             ">BBHBBBB", data[7:15]
         )
 
-        if STATES[state] == 3:
+        if state == 3:
             result.update({"toothbrush": 1})
         else:
             result.update({"toothbrush": 0})
@@ -74,8 +74,8 @@ def parse_oral_b(self, data, source_mac, rssi):
             "counter": counter,
             "mode": MODES[mode],
             "sector": SECTORS[sector],
-            "sensor_a": sensor_a,
-            "sensor_b": sensor_b,
+            "sector timer": sector_timer,
+            "number of sectors": no_of_sectors,
         })
 
     else:
