@@ -24,6 +24,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - BlueMaestro
 - Brifit
 - Govee
+- Inkbird iBBQ
 - iNode sensors
 - Kegtron
 - Moat
