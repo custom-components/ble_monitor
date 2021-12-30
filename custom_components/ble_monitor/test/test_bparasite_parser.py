@@ -13,8 +13,8 @@ class TestBParasite:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
-        assert sensor_msg["firmware"] == "v2"
-        assert sensor_msg["type"] == "b-parasite"
+        assert sensor_msg["firmware"] == "b-parasite V1.1.0 (with illuminance)"
+        assert sensor_msg["type"] == "b-parasite V1.1.0"
         assert sensor_msg["mac"] == "F0CAF0CA0201"
         assert sensor_msg["packet"] == 11
         assert sensor_msg["data"]
@@ -33,8 +33,8 @@ class TestBParasite:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
-        assert sensor_msg["firmware"] == "v1"
-        assert sensor_msg["type"] == "b-parasite"
+        assert sensor_msg["firmware"] == "b-parasite V1.0.0 (without illuminance)"
+        assert sensor_msg["type"] == "b-parasite V1.0.0"
         assert sensor_msg["mac"] == "F0CAF0CA0201"
         assert sensor_msg["packet"] == 11
         assert sensor_msg["data"]
