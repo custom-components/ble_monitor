@@ -99,8 +99,14 @@ CONF_TMIN = -40.0
 CONF_TMAX = 85.0
 CONF_TMIN_KETTLES = -20.0
 CONF_TMAX_KETTLES = 120.0
+CONF_TMIN_PROBES = 0.0
+CONF_TMAX_PROBES = 300.0
 CONF_HMIN = 0.0
 CONF_HMAX = 99.9
+
+# Sensors with deviating temperature range
+KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
+PROBES = ('iBBQ-2')
 
 # Sensor entity description
 @dataclass
@@ -233,6 +239,24 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         sensor_class="TemperatureSensor",
         name="ble temperature",
         unique_id="t_",
+        native_unit_of_measurement=TEMP_CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="temperature probe 1",
+        sensor_class="TemperatureSensor",
+        name="ble temperature probe 1",
+        unique_id="t_probe_1",
+        native_unit_of_measurement=TEMP_CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="temperature probe 2",
+        sensor_class="TemperatureSensor",
+        name="ble temperature probe 2",
+        unique_id="t_probe_2",
         native_unit_of_measurement=TEMP_CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -665,9 +689,10 @@ MEASUREMENT_DICT = {
     'Moat S2'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Tempo Disc THD'          : [["temperature", "humidity", "dewpoint", "battery", "rssi"], [], []],
     'Tempo Disc THPD'         : [["temperature", "humidity", "pressure", "battery", "rssi"], [], []],
+    'SmartSeries 7000'        : [["rssi"], [], ["toothbrush"]],
+    'iBBQ-2'                  : [["temperature probe 1", "temperature probe 2", "rssi"], [], []],
 }
 
-KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
 
 # Sensor manufacturer dictionary
 MANUFACTURER_DICT = {
@@ -748,6 +773,8 @@ MANUFACTURER_DICT = {
     'Moat S2'                 : 'Moat',
     'Tempo Disc THD'          : 'BlueMaestro',
     'Tempo Disc THPD'         : 'BlueMaestro',
+    'SmartSeries 7000'        : 'Oral-B',
+    'iBBQ-2'                  : 'Inkbird',
 }
 
 # Renamed model dictionary
@@ -761,10 +788,12 @@ REPORT_UNKNOWN_LIST = [
     "BlueMaestro",
     "Brifit",
     "Govee",
+    "Inkbird",
     "iNode",
     "Kegtron",
     "Mi Scale",
     "Moat",
+    "Oral-B",
     "Qingping",
     "Ruuvitag",
     "SensorPush",
