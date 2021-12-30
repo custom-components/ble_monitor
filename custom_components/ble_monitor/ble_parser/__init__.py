@@ -18,6 +18,7 @@ from .teltonika import parse_teltonika
 from .thermoplus import parse_thermoplus
 from .xiaomi import parse_xiaomi
 from .xiaogui import parse_xiaogui
+from .bparasite import parse_bparasite
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -86,8 +87,11 @@ class BleParser:
                     if uuid16 == 0xFFF9 or uuid16 == 0xFDCD:  # UUID16 = Cleargrass or Qingping
                         sensor_data = parse_qingping(self, adstruct, mac, rssi)
                         break
-                    elif uuid16 == 0x181A:  # UUID16 = ATC
-                        sensor_data = parse_atc(self, adstruct, mac, rssi)
+                    elif uuid16 == 0x181A:  # UUID16 = ATC or b-parasite
+                        if len(adstruct) == 22 or len(adstruct) == 20:
+                            sensor_data = parse_bparasite(self, adstruct, mac, rssi)
+                        else:
+                            sensor_data = parse_atc(self, adstruct, mac, rssi)
                         break
                     elif uuid16 == 0xFE95:  # UUID16 = Xiaomi
                         sensor_data = parse_xiaomi(self, adstruct, mac, rssi)

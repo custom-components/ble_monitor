@@ -689,6 +689,8 @@ MEASUREMENT_DICT = {
     'Moat S2'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Tempo Disc THD'          : [["temperature", "humidity", "dewpoint", "battery", "rssi"], [], []],
     'Tempo Disc THPD'         : [["temperature", "humidity", "pressure", "battery", "rssi"], [], []],
+    'b-parasite V1.0.0'       : [["temperature", "humidity", "moisture", "voltage", "rssi"], [], []],
+    'b-parasite V1.1.0'       : [["temperature", "humidity", "moisture", "voltage", "rssi", "illuminance"], [], []],
     'SmartSeries 7000'        : [["rssi"], [], ["toothbrush"]],
     'iBBQ-2'                  : [["temperature probe 1", "temperature probe 2", "rssi"], [], []],
 }
@@ -773,6 +775,8 @@ MANUFACTURER_DICT = {
     'Moat S2'                 : 'Moat',
     'Tempo Disc THD'          : 'BlueMaestro',
     'Tempo Disc THPD'         : 'BlueMaestro',
+    'b-parasite V1.0.0'       : 'rbaron',
+    'b-parasite V1.1.0'       : 'rbaron',
     'SmartSeries 7000'        : 'Oral-B',
     'iBBQ-2'                  : 'Inkbird',
 }
@@ -795,6 +799,7 @@ REPORT_UNKNOWN_LIST = [
     "Moat",
     "Oral-B",
     "Qingping",
+    "rbaron",
     "Ruuvitag",
     "SensorPush",
     "Teltonika",
