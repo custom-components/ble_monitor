@@ -588,6 +588,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
 # - [instantly updating sensor list]:   sensors that update the state instantly after new data
 # - [binary sensor list]:               binary sensors
 MEASUREMENT_DICT = {
+    'b-parasite'              : [["temperature", "humidity", "moisture", "voltage", "rssi", "illuminance"], [], []],
     'LYWSDCGQ'                : [["temperature", "humidity", "battery", "rssi"], [], []],
     'LYWSD02'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
     'LYWSD03MMC'              : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
@@ -748,6 +749,7 @@ MANUFACTURER_DICT = {
     'Moat S2'                 : 'Moat',
     'Tempo Disc THD'          : 'BlueMaestro',
     'Tempo Disc THPD'         : 'BlueMaestro',
+    'b-parasite'              : 'rbaron',
 }
 
 # Renamed model dictionary
@@ -758,6 +760,7 @@ RENAMED_MODEL_DICT = {
 # Selection list for report_uknown
 REPORT_UNKNOWN_LIST = [
     "ATC",
+    "b-parasite",
     "BlueMaestro",
     "Brifit",
     "Govee",
