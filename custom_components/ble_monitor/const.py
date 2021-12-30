@@ -588,7 +588,6 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
 # - [instantly updating sensor list]:   sensors that update the state instantly after new data
 # - [binary sensor list]:               binary sensors
 MEASUREMENT_DICT = {
-    'b-parasite'              : [["temperature", "humidity", "moisture", "voltage", "rssi", "illuminance"], [], []],
     'LYWSDCGQ'                : [["temperature", "humidity", "battery", "rssi"], [], []],
     'LYWSD02'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
     'LYWSD03MMC'              : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
@@ -666,6 +665,8 @@ MEASUREMENT_DICT = {
     'Moat S2'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Tempo Disc THD'          : [["temperature", "humidity", "dewpoint", "battery", "rssi"], [], []],
     'Tempo Disc THPD'         : [["temperature", "humidity", "pressure", "battery", "rssi"], [], []],
+    'b-parasite V1.0.0'       : [["temperature", "humidity", "moisture", "voltage", "rssi"], [], []],
+    'b-parasite V1.1.0'       : [["temperature", "humidity", "moisture", "voltage", "rssi", "illuminance"], [], []],
 }
 
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -749,7 +750,8 @@ MANUFACTURER_DICT = {
     'Moat S2'                 : 'Moat',
     'Tempo Disc THD'          : 'BlueMaestro',
     'Tempo Disc THPD'         : 'BlueMaestro',
-    'b-parasite'              : 'rbaron',
+    'b-parasite V1.0.0'       : 'rbaron',
+    'b-parasite V1.1.0'       : 'rbaron',
 }
 
 # Renamed model dictionary
@@ -760,7 +762,6 @@ RENAMED_MODEL_DICT = {
 # Selection list for report_uknown
 REPORT_UNKNOWN_LIST = [
     "ATC",
-    "b-parasite",
     "BlueMaestro",
     "Brifit",
     "Govee",
@@ -769,6 +770,7 @@ REPORT_UNKNOWN_LIST = [
     "Mi Scale",
     "Moat",
     "Qingping",
+    "rbaron",
     "Ruuvitag",
     "SensorPush",
     "Teltonika",
