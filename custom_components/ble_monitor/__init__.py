@@ -24,6 +24,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity_registry import (
     async_entries_for_device,
 )
+import homeassistant.util.dt as dt_util
 
 from .ble_parser import BleParser
 from .const import (
@@ -496,6 +497,7 @@ class HCIdump(Thread):
         self.sensor_whitelist = []
         self.tracker_whitelist = []
         self.report_unknown = False
+        self.last_bt_reset = dt_util.now()
         if self.config[CONF_REPORT_UNKNOWN]:
             self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
             _LOGGER.info(
@@ -609,14 +611,17 @@ class HCIdump(Thread):
                             btctrl[hci].send_scan_request(self._active)
                         )
                     except RuntimeError as error:
-                        if CONF_BT_AUTO_RESTART:
-                            _LOGGER.error(
-                                "HCIdump thread: Runtime error while sending scan request on hci%i: %s. Resetting Bluetooth adapter %s and trying again.",
-                                hci,
-                                error,
-                                BT_INTERFACES[hci],
-                            )
-                            reset_bluetooth(hci)
+                        if CONF_BT_AUTO_RESTART is True:
+                            ts_now = dt_util.now()
+                            if ts_now - self.last_bt_reset > 60:
+                                _LOGGER.error(
+                                    "HCIdump thread: Runtime error while sending scan request on hci%i: %s. Resetting Bluetooth adapter %s and trying again.",
+                                    hci,
+                                    error,
+                                    BT_INTERFACES[hci],
+                                )
+                                reset_bluetooth(hci)
+                                self.last_bt_reset = ts_now
                         else:
                             _LOGGER.error(
                                 "HCIdump thread: Runtime error while sending scan request on hci%i: %s.",
@@ -634,14 +639,17 @@ class HCIdump(Thread):
                             btctrl[hci].stop_scan_request()
                         )
                     except RuntimeError as error:
-                        if CONF_BT_AUTO_RESTART:
-                            _LOGGER.error(
-                                "HCIdump thread: Runtime error while stop scan request on hci%i: %s Resetting Bluetooth adapter %s and trying again.",
-                                hci,
-                                error,
-                                BT_INTERFACES[hci],
-                            )
-                            reset_bluetooth(hci)
+                        if CONF_BT_AUTO_RESTART is True:
+                            ts_now = dt_util.now()
+                            if ts_now - self.last_bt_reset > 60:
+                                _LOGGER.error(
+                                    "HCIdump thread: Runtime error while stop scan request on hci%i: %s Resetting Bluetooth adapter %s and trying again.",
+                                    hci,
+                                    error,
+                                    BT_INTERFACES[hci],
+                                )
+                                reset_bluetooth(hci)
+                                self.last_bt_reset = ts_now
                         else:
                             _LOGGER.error(
                                 "HCIdump thread: Runtime error while stop scan request on hci%i: %s.",
