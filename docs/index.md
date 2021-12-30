@@ -17,7 +17,7 @@ This [Home Assistant](https://www.home-assistant.io) custom component is an alte
  [Bluetooth LE Tracker](https://www.home-assistant.io/integrations/bluetooth_le_tracker/)
  integration that are available in Home Assistant. BLE monitor supports
  [many more sensors](devices) than the build in integration from manufactures like
- [BlueMaestro, Brifit, Govee, iNode, Kegtron, Moat, Qingping, Ruuvitag, SensorPush, Teltonica, Thermoplus, Xiaomi and more](by_brand)
+ [BlueMaestro, Brifit, Govee, Inkbird, iNode, Kegtron, Moat, Oral-B, Qingping, Ruuvitag, SensorPush, Teltonica, Thermoplus, Xiaomi and more](by_brand)
  . Unlike the original `mitemp_bt` integration, which is getting its data by
  polling the device with a default five-minute interval, this custom component
  is parsing the Bluetooth Low Energy packets payload that is constantly emitted

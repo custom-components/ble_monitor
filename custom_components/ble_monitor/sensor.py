@@ -33,12 +33,15 @@ from .const import (
     CONF_TMAX,
     CONF_TMIN_KETTLES,
     CONF_TMAX_KETTLES,
+    CONF_TMIN_PROBES,
+    CONF_TMAX_PROBES,
     CONF_HMIN,
     CONF_HMAX,
     DEFAULT_DEVICE_RESET_TIMER,
     KETTLES,
     MANUFACTURER_DICT,
     MEASUREMENT_DICT,
+    PROBES,
     RENAMED_MODEL_DICT,
     DOMAIN,
     SENSOR_TYPES,
@@ -236,6 +239,8 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |--MeasuringSensor (Class)
     # |  |--TemperatureSensor (Class)
     # |  |  |**temperature
+    # |  |  |**temperature probe 1
+    # |  |  |**temperature probe 2
     # |  |  |**temperature outdoor
     # |  |--HumiditySensor (Class)
     # |  |  |**humidity
@@ -550,8 +555,15 @@ class TemperatureSensor(MeasuringSensor):
         super().__init__(config, mac, devtype, firmware, description)
         self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
 
-        self._temp_min = CONF_TMIN_KETTLES if devtype in KETTLES else CONF_TMIN
-        self._temp_max = CONF_TMAX_KETTLES if devtype in KETTLES else CONF_TMAX
+        if devtype in KETTLES:
+            self._temp_min = CONF_TMIN_KETTLES
+            self._temp_max = CONF_TMAX_KETTLES
+        elif devtype in PROBES:
+            self._temp_min = CONF_TMIN_PROBES
+            self._temp_max = CONF_TMAX_PROBES
+        else:
+            self._temp_min = CONF_TMIN
+            self._temp_max = CONF_TMAX
         self._lower_temp_limit = self.temperature_limit(config, mac, self._temp_min)
         self._upper_temp_limit = self.temperature_limit(config, mac, self._temp_max)
         self._log_spikes = config[CONF_LOG_SPIKES]
