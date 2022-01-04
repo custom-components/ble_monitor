@@ -22,7 +22,8 @@ def parse_atc(self, data, source_mac, rssi):
             "voltage": volt / 1000,
             "battery": batt,
             "switch": (trg >> 1) & 1,
-            "opening": (trg ^ 1) & 1,
+            "opening": (~trg ^ 1) & 1,
+            "status": "opened",
             "data": True
         }
         adv_priority = 39
@@ -59,7 +60,8 @@ def parse_atc(self, data, source_mac, rssi):
                 "voltage": volt,
                 "battery": batt,
                 "switch": (trg >> 1) & 1,
-                "opening": (trg ^ 1) & 1,
+                "opening": (~trg ^ 1) & 1,
+                "status": "opened",
                 "data": True
             }
             adv_priority = 39

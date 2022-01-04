@@ -289,6 +289,14 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         return self.enabled and self.ready_for_update
 
     @property
+    def entity_registry_enabled_default(self):
+        """Return if the entity should be enabled when first added to the entity registry."""
+        if self._device_type == "ATC":
+            return False
+        else:
+            return True
+
+    @property
     def is_on(self):
         """Return true if the binary sensor is on."""
         return bool(self._state) if self._state is not None else None
