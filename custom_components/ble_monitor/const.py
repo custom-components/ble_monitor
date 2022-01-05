@@ -106,7 +106,7 @@ CONF_HMAX = 99.9
 
 # Sensors with deviating temperature range
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
-PROBES = ('iBBQ-2')
+PROBES = ('iBBQ-2',)
 
 # Sensor entity description
 @dataclass
