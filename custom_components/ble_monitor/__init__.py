@@ -611,9 +611,9 @@ class HCIdump(Thread):
                             btctrl[hci].send_scan_request(self._active)
                         )
                     except RuntimeError as error:
-                        if CONF_BT_AUTO_RESTART is True:
+                        if self.config[CONF_BT_AUTO_RESTART] is True:
                             ts_now = dt_util.now()
-                            if ts_now - self.last_bt_reset > 60:
+                            if (ts_now - self.last_bt_reset).seconds > 60:
                                 _LOGGER.error(
                                     "HCIdump thread: Runtime error while sending scan request on hci%i: %s. Resetting Bluetooth adapter %s and trying again.",
                                     hci,
@@ -639,9 +639,9 @@ class HCIdump(Thread):
                             btctrl[hci].stop_scan_request()
                         )
                     except RuntimeError as error:
-                        if CONF_BT_AUTO_RESTART is True:
+                        if self.config[CONF_BT_AUTO_RESTART] is True:
                             ts_now = dt_util.now()
-                            if ts_now - self.last_bt_reset > 60:
+                            if (ts_now - self.last_bt_reset).seconds > 60:
                                 _LOGGER.error(
                                     "HCIdump thread: Runtime error while stop scan request on hci%i: %s Resetting Bluetooth adapter %s and trying again.",
                                     hci,
