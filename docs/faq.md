@@ -29,6 +29,13 @@ Python needs root access to access the HCI interface. If Python doesn't have roo
 PermissionError: [Errno 1] Operation not permitted
 ```
 
+or 
+
+```
+RuntimeError: Event loop stopped before Future completed
+```
+
+**Steps to solve**
 First, try to set root access with
 
 ```shell
@@ -49,11 +56,70 @@ The command will return the path to python and looks like (can vary based on you
 
 Make sure you first stop Home Assistant and then start Home Assistant again. Restarting Home Assistant is not enough, as the python process does not exit upon restart.
 
-If you have multiple python versions, make sure it refers to the same version which is used by Home Assistant. If Home Assistant is using a different version, e.g. python3.6, run the following command to set the correct version (adjust it to your own version if needed).
+**Note 1**
+
+If you have multiple python versions, make sure it refers to the same version which is used by Home Assistant. If Home Assistant is using a different version, e.g. python3.9, run the following command to set the correct version (adjust it to your own version if needed).
 
 ```shell
-sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.6
+sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.9
 ```
+
+**Note 2**
+
+When Home Assistant is installed in **pyenv**, the output of the command `which python3` looks like `/home/homeassistant/.pyenv/johndoe/python3` but this is not the real link to actual python3 interpreter. The actual binary is placed in a folder like `/home/homeassistant/.pyenv/versions/3.9.9/bin/python3.9` (it might slightly differ depending on the installed python version). So to grant root access to python, it is required to run the `setcap` command with the correct path, i.e. 
+
+```shell
+setcap 'cap_net_raw,cap_net_admin+eip' /home/homeassistant/.pyenv/versions/3.9.9/bin/python3.9
+```
+
+
+### I get a RuntimeError: Event loop stopped before Future completed
+
+If you encounter the following error `HCIdump thread: Runtime error while sending scan request on hci0: Event loop stopped before Future completed.`, you could try one of the following possible solutions. If you have tried each step and it still doesn't work, you can discuss it further in [this issue](https://github.com/custom-components/ble_monitor/issues/295) .
+
+
+**1 Turn on the option `bt_auto_restart`**
+
+In the UI configuration, this is called `Automatically restart Bluetooth adapter on failure`. This will reset Bluetooth automatically, by running the following commands, when the error occurs. 
+
+```shell
+bluetoothctl power on
+rfkill unblock bluetooth
+```
+
+In YAML you can turn `bt_auto_restart` on with the following line in your configuration.yaml. 
+
+```yaml
+ble_monitor:
+  bt_auto_restart: True
+```
+
+
+**2 Make sure HA has the proper rights to use Bluetooth**
+
+Especially on Docker installations, make sure that Bluetooth can be used by Home Asssistant.
+
+
+**3 Check the permissions for the HCI interface**
+
+Python needs the right root permissions to use the HCI interface. If you recently upgraded Python, these might be set wrong. Follow the instructions [here](https://custom-components.github.io/ble_monitor/faq#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade).
+
+
+**4 Install all Bluetooth packages**
+
+Make sure all relevant Bluetooth packages are installed. On Home Assistant OS, this should normally already be the case, but if you use some other type of installation, you might be missing some relevant software/packages. 
+
+```shell
+sudo apt-get install systemd
+sudo apt-get install bluetooth pi-bluetooth bluez
+sudo apt-get install rfkill
+```
+
+
+**5 Using the LinuxServer.io image?**
+
+Some users have mentioned that the [linuxserver image](https://docs.linuxserver.io/images/docker-homeassistant) is causing the issue. Using the original Home Assistant image by using `docker pull homeassistant/home-assistant` solved this issue for some people.
+
 
 ### How do I find the MAC address or the HCI number of the HCI interface?
 
@@ -147,53 +213,6 @@ sudo reboot
 ```
 
 **7 Wait a long time before all plugins are installed in Home Assistant**
-
-### I get a RuntimeError: Event loop stopped before Future completed
-
-The full error you can get in Home Assistant is `HCIdump thread: Runtime error while sending scan request on hci0: Event loop stopped before Future completed.` This error is discussed in [this issue](https://github.com/custom-components/ble_monitor/issues/295) and we were not able to solve it for everybody, but it seems to be related to Home Assistant not being able to use Bluetooth. But there are a couple of things you could try to fix it.
-
-
-**1 Turn on the option `bt_auto_restart` (`Automatically restart Bluetooth adapter on failure` in the UI).**
-
-This will reset Bluetooth automatically, by running the following commands, when the error occurs. 
-
-```shell
-bluetoothctl power on
-rfkill unblock bluetooth
-```
-
-In YAML you can turn `bt_auto_restart` on with the following line in your configuration.yaml. 
-
-```yaml
-ble_monitor:
-  bt_auto_restart: True
-```
-
-
-**2 Install all Bluetooth packages**
-
-Make sure all relevant Bluetooth packages are installed. On Home Assistant OS, this should normally already be the case, but if you use some other type of installation, you might be missing some relevant software/packages. 
-
-```shell
-sudo apt-get install systemd
-sudo apt-get install bluetooth pi-bluetooth bluez
-sudo apt-get install rfkill
-```
-
-
-**3 Make sure HA has the proper rights to use Bluetooth**
-
-Especially on Docker installations, make sure that Bluetooth can be used by Home Asssistant.
-
-
-**4 Check the permissions for the HCI interface**
-
-Python needs the right root permissions to use the HCI interface. If you recently upgraded Python, these might be set wrong. Follow the instructions [here](https://custom-components.github.io/ble_monitor/faq#i-get-a-permissionerror-in-home-assistant-after-the-installation-or-python-upgrade).
-
-
-**5 Using the LinuxServer.io image?**
-
-Some users have mentioned that the [linuxserver image](https://docs.linuxserver.io/images/docker-homeassistant) is causing the issue. Using the original Home Assistant image by using `docker pull homeassistant/home-assistant` solved this issue for some people.
 
 
 ## Reception Issues
