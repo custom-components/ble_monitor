@@ -693,6 +693,7 @@ MEASUREMENT_DICT = {
     'b-parasite V1.1.0'       : [["temperature", "humidity", "moisture", "voltage", "rssi", "illuminance"], [], []],
     'SmartSeries 7000'        : [["rssi"], [], ["toothbrush"]],
     'iBBQ-2'                  : [["temperature probe 1", "temperature probe 2", "rssi"], [], []],
+    'IBS-TH2'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
 }
 
 
@@ -779,6 +780,7 @@ MANUFACTURER_DICT = {
     'b-parasite V1.1.0'       : 'rbaron',
     'SmartSeries 7000'        : 'Oral-B',
     'iBBQ-2'                  : 'Inkbird',
+    'IBS-TH2'                 : 'Inkbird',
 }
 
 # Renamed model dictionary

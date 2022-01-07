@@ -144,7 +144,10 @@ class BleParser:
                     elif adstruct[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
                         sensor_data = parse_brifit(self, adstruct, mac, rssi)
                         break
-                    if adstruct[0] == 0x0F and comp_id == 0x0000:  # Inkbird
+                    if adstruct[0] == 0x0F and comp_id == 0x0000:  # Inkbird iBBQ
+                        sensor_data = parse_inkbird(self, adstruct, mac, rssi)
+                        break
+                    if adstruct[0] == 0x0A and adstruct[2] == 0x9C:  # Inkbird IBS-TH2
                         sensor_data = parse_inkbird(self, adstruct, mac, rssi)
                         break
                     elif adstruct[0] == 0x0E and adstruct[3] == 0x82:  # iNode
