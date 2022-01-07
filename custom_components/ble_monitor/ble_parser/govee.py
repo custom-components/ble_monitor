@@ -76,6 +76,12 @@ def parse_govee(self, data, source_mac, rssi):
         device_type = "H5179"
         (temp, humi, batt) = unpack("<hHB", data[8:13])
         result.update({"temperature": temp / 100, "humidity": humi / 100, "battery": batt})
+    elif msg_length == 18:
+        device_type = "H5183"
+        (temp_probe, temp_alarm) = unpack(">hh", data[12:16])
+        temp_probe = 0 if temp_probe < 0 else temp_probe
+        temp_alarm = 0 if temp_alarm < 0 else temp_alarm
+        result.update({"temperature probe 1": temp_probe / 100, "temperature alarm": temp_alarm / 100})
     else:
         if self.report_unknown == "Govee":
             _LOGGER.info(

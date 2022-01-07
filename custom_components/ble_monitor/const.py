@@ -106,7 +106,7 @@ CONF_HMAX = 99.9
 
 # Sensors with deviating temperature range
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
-PROBES = ('iBBQ-2',)
+PROBES = ('iBBQ-2', 'H5183')
 
 # Sensor entity description
 @dataclass
@@ -266,6 +266,15 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         sensor_class="TemperatureSensor",
         name="ble temperature outdoor",
         unique_id="t_outdoor_",
+        native_unit_of_measurement=TEMP_CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="temperature alarm",
+        sensor_class="TemperatureSensor",
+        name="ble temperature alarm",
+        unique_id="t_alarm_",
         native_unit_of_measurement=TEMP_CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -669,6 +678,7 @@ MEASUREMENT_DICT = {
     'H5074'                   : [["temperature", "humidity", "battery", "rssi"], [], []],
     'H5178'                   : [["temperature", "temperature outdoor", "humidity", "humidity outdoor", "battery", "rssi"], [], []],
     'H5179'                   : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'H5183'                   : [["temperature probe 1", "temperature alarm", "rssi"], [], []],
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage", "rssi"], ["acceleration"], ["motion"]],
     'iNode Energy Meter'      : [["battery", "voltage", "rssi"], ["energy", "power"], []],
     "iNode Care Sensor 1"     : [["temperature", "battery", "voltage", "rssi"], ["acceleration"], ["motion"]],
@@ -756,6 +766,7 @@ MANUFACTURER_DICT = {
     'H5074'                   : 'Govee',
     'H5178'                   : 'Govee',
     'H5179'                   : 'Govee',
+    'H5183'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
     'iNode Energy Meter'      : 'iNode',
     "iNode Care Sensor 1"     : 'iNode',

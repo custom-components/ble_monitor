@@ -26,8 +26,9 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - ATC (custom firmware for Xiaomi/Qingping sensors)
 - BlueMaestro
 - Brifit
+- b-parasite
 - Govee
-- Inkbird iBBQ
+- Inkbird
 - iNode sensors
 - Kegtron
 - Moat
