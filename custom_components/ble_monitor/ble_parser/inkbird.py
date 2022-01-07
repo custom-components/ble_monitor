@@ -6,18 +6,33 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def parse_inkbird(self, data, source_mac, rssi):
-    """parser for inkbird iBBQ thermometer"""
+    # check for adstruc length
     msg_length = len(data)
     firmware = "Inkbird"
     result = {"firmware": firmware}
-    inkbird_mac = data[6:12]
-    if inkbird_mac != source_mac:
-        _LOGGER.debug("Inkbird MAC address doesn't match data MAC address. Data: %s", data.hex())
-        return None
-
-    xvalue = data[12:16]
-    if msg_length == 16:
+    if msg_length == 11:
+        device_type = "IBS-TH2"
+        inkbird_mac = source_mac
+        xvalue = data[2:10]
+        (temp, hum) = unpack("<hH", xvalue[0:4])
+        bat = int.from_bytes(xvalue[7:8], 'little')
+        result.update(
+            {
+                "temperature": temp / 100,
+                "humidity": hum / 100,
+                "battery": bat,
+            }
+        )
+    elif msg_length == 16:
         device_type = "iBBQ-2"
+        inkbird_mac = data[6:12]
+        xvalue = data[12:16]
+        if inkbird_mac != source_mac:
+            _LOGGER.debug(
+                "Inkbird MAC address doesn't match data MAC address. Data: %s",
+                data.hex()
+            )
+            return None
         (temp_1, temp_2) = unpack("<HH", xvalue)
         if temp_1 < 60000:
             temperature_1 = temp_1 / 10.0
