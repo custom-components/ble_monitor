@@ -36,6 +36,7 @@ RuntimeError: Event loop stopped before Future completed
 ```
 
 **Steps to solve**
+
 First, try to set root access with
 
 ```shell
@@ -151,7 +152,7 @@ Devices:
 
 ### I get AttributeError: module 'socket' has no attribute 'AF_BLUETOOTH' in Home Assistant after the installation or python upgrade
 
-This means that Python is built/installed without support for Bluetooth. You will have to rebuild Python 3 with `bluetooth.h`. When using a virtual environment (venv), you can do this with the following instructions. Please make a backup first!!!, as you will have to delete the venv with Home Assistant and reinstall it in a new venv. You might need to modify commands for your own situation.
+This means that Python is built/installed without support for Bluetooth. You will have to rebuild Python 3 with `bluetooth.h`. When using a virtual environment (venv), you can do this with the following instructions. Please make a backup first!!!, as you will have to delete the venv with Home Assistant and reinstall it in a new venv. You might need to modify commands for your own situation and the latest python version.
 
 
 **1 Install BT library with:**
