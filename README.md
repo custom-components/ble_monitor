@@ -25,7 +25,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Brifit
 - b-parasite
 - Govee
-- Inkbird iBBQ
+- Inkbird
 - iNode sensors
 - Kegtron
 - Moat

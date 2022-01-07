@@ -242,6 +242,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |  |**temperature probe 1
     # |  |  |**temperature probe 2
     # |  |  |**temperature outdoor
+    # |  |  |**temperature alarm
     # |  |--HumiditySensor (Class)
     # |  |  |**humidity
     # |  |  |**humidity outdoor
