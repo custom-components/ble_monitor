@@ -116,7 +116,7 @@ def bluetoothctl_show():
             .split("\n")[0]
             .strip()
         )
-        if power_state == "on":
+        if power_state == "on" or "yes":
             power = True
         else:
             power = False
