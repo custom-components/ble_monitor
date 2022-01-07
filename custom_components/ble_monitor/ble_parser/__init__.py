@@ -138,7 +138,7 @@ class BleParser:
                     elif adstruct[0] == 0x0C and comp_id == 0x8801:  # Govee H5179
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
-                    elif adstruct[0] == 0x11 and int(data[16:18].hex()) == 5183:
+                    elif adstruct[0] == 0x11 and data[16] == 0x51 and data[17] == 0x83:
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
                     elif comp_id == 0x0499:  # Ruuvitag V3/V5
