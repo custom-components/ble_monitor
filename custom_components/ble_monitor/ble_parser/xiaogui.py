@@ -6,7 +6,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def parse_xiaogui(self, data, source_mac, rssi):
-    """Parser for Xiaogui Scales"""
+    """Xiaogui Scales parser"""
     msg_length = len(data)
 
     if msg_length == 17:

@@ -73,6 +73,9 @@ class BleParser:
         # MAC address
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         sensor_data = None
+        complete_local_name = ""
+        service_class_uuid16 = None
+        service_class_uuid128 = None
 
         while adpayload_size > 1:
             adstuct_size = data[adpayload_start] + 1
@@ -80,8 +83,17 @@ class BleParser:
                 adstruct = data[adpayload_start:adpayload_start + adstuct_size]
                 # https://www.bluetooth.com/specifications/assigned-numbers/generic-access-profile/
                 adstuct_type = adstruct[1]
-                if adstuct_type == 0x16 and adstuct_size > 4:
-                    # AD type 'UUI16' https://www.bluetooth.com/specifications/assigned-numbers/
+                if adstuct_type == 0x03:
+                    # AD type '16-bit Service Class UUIDs'
+                    service_class_uuid16 = (adstruct[2] << 8) | adstruct[3]
+                elif adstuct_type == 0x06:
+                    # AD type '128-bit Service Class UUIDs'
+                    service_class_uuid128 = adstruct[2:]
+                elif adstuct_type == 0x09:
+                    # AD type 'complete local name'
+                    complete_local_name = adstruct[2:].decode("utf-8")
+                elif adstuct_type == 0x16 and adstuct_size > 4:
+                    # AD type 'Service Data - 16-bit UUID'
                     uuid16 = (adstruct[3] << 8) | adstruct[2]
                     # check for service data of supported manufacturers
                     if uuid16 == 0xFFF9 or uuid16 == 0xFDCD:  # UUID16 = Cleargrass or Qingping
@@ -138,7 +150,7 @@ class BleParser:
                     elif adstruct[0] == 0x0C and comp_id == 0x8801:  # Govee H5179
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
-                    elif adstruct[0] == 0x11 and data[16] == 0x51 and data[17] == 0x83:
+                    elif adstruct[0] == 0x11 and service_class_uuid16 == 0x5183:  # Govee H5183
                         sensor_data = parse_govee(self, adstruct, mac, rssi)
                         break
                     elif comp_id == 0x0499:  # Ruuvitag V3/V5
@@ -150,7 +162,7 @@ class BleParser:
                     elif adstruct[0] == 0x0F and comp_id == 0x0000:  # Inkbird iBBQ
                         sensor_data = parse_inkbird(self, adstruct, mac, rssi)
                         break
-                    elif adstruct[0] == 0x0A and adstruct[2] == 0x9C:  # Inkbird IBS-TH2
+                    elif adstruct[0] == 0x0A and complete_local_name == "sps":  # Inkbird IBS-TH2
                         sensor_data = parse_inkbird(self, adstruct, mac, rssi)
                         break
                     elif adstruct[0] == 0x0E and adstruct[3] == 0x82:  # iNode
@@ -171,13 +183,8 @@ class BleParser:
                     elif adstruct[0] == 0x0E and comp_id == 0x00DC:  # Oral-b
                         sensor_data = parse_oral_b(self, adstruct, mac, rssi)
                         break
-                    else:
-                        if self.report_unknown == "Other":
-                            _LOGGER.info("Unknown advertisement received: %s", data.hex())
-                elif adstuct_type == 0x06 and adstuct_size > 16:
-                    sensorpush_uuid_reversed = b'\xb0\x0a\x09\xec\xd7\x9d\xb8\x93\xba\x42\xd6\x11\x00\x00\x09\xef'
-                    if str(adstruct[2:]) == str(sensorpush_uuid_reversed):
-                        sensor_data = parse_sensorpush(self, data[adpayload_start:], mac, rssi)
+                    elif adstruct[0] == 0x06 or adstruct[0] == 0x08 and service_class_uuid128 == b'\xb0\x0a\x09\xec\xd7\x9d\xb8\x93\xba\x42\xd6\x11\x00\x00\x09\xef':  # Sensorpush
+                        sensor_data = parse_sensorpush(self, adstruct, mac, rssi)
                         break
                     else:
                         if self.report_unknown == "Other":

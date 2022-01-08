@@ -9,6 +9,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def parse_ruuvitag(self, data, source_mac, rssi):
+    """Ruuvitag parser"""
     ruuvitag_mac = source_mac
     device_type = "Ruuvitag"
     result = {

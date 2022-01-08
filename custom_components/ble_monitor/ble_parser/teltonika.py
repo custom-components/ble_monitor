@@ -6,6 +6,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def parse_teltonika(self, data, source_mac, rssi):
+    """Teltonika parser"""
     result = {"firmware": "Teltonika"}
     teltonika_mac = source_mac
 
@@ -69,4 +70,5 @@ def parse_teltonika(self, data, source_mac, rssi):
 
 
 def to_mac(addr: int):
+    """Return formatted MAC address"""
     return ':'.join('{:02x}'.format(x) for x in addr).upper()
