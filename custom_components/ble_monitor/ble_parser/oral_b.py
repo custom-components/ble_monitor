@@ -44,6 +44,7 @@ SECTORS = {
     23: "unknown 3",
     47: "unknown 4",
     55: "unknown 5",
+    39: "unknown 6",
     254: "last sector",
     255: "no sector"
 }
