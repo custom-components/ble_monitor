@@ -5,8 +5,17 @@ from struct import unpack
 _LOGGER = logging.getLogger(__name__)
 
 
+def convert_temperature(temp):
+    """Temperature converter"""
+    if temp > 0:
+        temperature = temp / 10.0
+    else:
+        temperature = 0
+    return temperature
+
+
 def parse_inkbird(self, data, source_mac, rssi):
-    # check for adstruc length
+    """Inkbird parser"""
     msg_length = len(data)
     firmware = "Inkbird"
     result = {"firmware": firmware}
@@ -34,18 +43,29 @@ def parse_inkbird(self, data, source_mac, rssi):
             )
             return None
         (temp_1, temp_2) = unpack("<HH", xvalue)
-        if temp_1 < 60000:
-            temperature_1 = temp_1 / 10.0
-        else:
-            temperature_1 = 0
-        if temp_2 < 60000:
-            temperature_2 = temp_2 / 10.0
-        else:
-            temperature_2 = 0
         result.update(
             {
-                "temperature probe 1": temperature_1,
-                "temperature probe 2": temperature_2,
+                "temperature probe 1": convert_temperature(temp_1),
+                "temperature probe 2": convert_temperature(temp_2),
+            }
+        )
+    elif msg_length == 20:
+        inkbird_mac = data[6:12]
+        xvalue = data[12:20]
+        if inkbird_mac != source_mac:
+            _LOGGER.debug(
+                "Inkbird MAC address doesn't match data MAC address. Data: %s",
+                data.hex()
+            )
+            return None
+        device_type = "iBBQ-4"
+        (temp_1, temp_2, temp_3, temp_4) = unpack("<hhhh", xvalue)
+        result.update(
+            {
+                "temperature probe 1": convert_temperature(temp_1),
+                "temperature probe 2": convert_temperature(temp_2),
+                "temperature probe 3": convert_temperature(temp_3),
+                "temperature probe 4": convert_temperature(temp_4),
             }
         )
     else:

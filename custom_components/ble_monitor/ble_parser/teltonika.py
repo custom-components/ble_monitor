@@ -5,43 +5,41 @@ from struct import unpack
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_teltonika(self, data, source_mac, rssi):
-    """Teltonika parser"""
+def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
     result = {"firmware": "Teltonika"}
     teltonika_mac = source_mac
+    print(data.hex())
+    if complete_local_name == "PUCK_T1":
+        device_type = "Blue Puck T"
+    elif complete_local_name == "PUCK_TH":
+        device_type = "Blue Puck RHT"
+    elif complete_local_name[0:3] == "C T":
+        device_type = "Blue Coin T"
+    elif complete_local_name[0:3] == "P T":
+        device_type = "Blue Puck T"
+    else:
+        device_type = None
 
-    # teltonika adv contain a name (0x09) and one or two 0x16 payloads (temperature/humidity)
-    adpayload_start = 0
-    adpayload_size = len(data)
-    while adpayload_size > 1:
-        adstuct_size = data[adpayload_start] + 1
-        if adstuct_size > 1 and adstuct_size <= adpayload_size:
-            adstruct = data[adpayload_start:adpayload_start + adstuct_size]
-            adstuct_type = adstruct[1]
-            if adstuct_type == 0x09 and adstuct_size > 4:
-                dev_type = adstruct[2:].decode("utf-8")
-                if dev_type == "PUCK_T1":
-                    device_type = "Blue Puck T"
-                elif dev_type == "PUCK_TH":
-                    device_type = "Blue Puck RHT"
-                elif dev_type[0:3] == "C T":
-                    device_type = "Blue Coin T"
-                elif dev_type[0:3] == "P T":
-                    device_type = "Blue Puck T"
-                else:
-                    device_type = None
-            elif adstuct_type == 0x16 and adstuct_size > 4:
-                uuid16 = (adstruct[3] << 8) | adstruct[2]
+    # Teltonika adv contain one or two 0x16 service data packets (temperature/humidity)
+    packet_start = 0
+    data_size = len(data)
+    while data_size > 1:
+        packet_size = data[packet_start] + 1
+        if packet_size > 1 and packet_size <= packet_size:
+            packet = data[packet_start:packet_start + packet_size]
+            packet_type = packet[1]
+            if packet_type == 0x16 and packet_size > 4:
+                uuid16 = (packet[3] << 8) | packet[2]
                 if uuid16 == 0x2A6E:
                     # Temperature
-                    (temp,) = unpack("<h", adstruct[4:])
+                    (temp,) = unpack("<h", packet[4:])
                     result.update({"temperature": temp / 100})
                 elif uuid16 == 0x2A6F:
                     # Humidity
-                    (humi,) = unpack("<B", adstruct[4:])
+                    (humi,) = unpack("<B", packet[4:])
                     result.update({"humidity": humi})
-        adpayload_size -= adstuct_size
-        adpayload_start += adstuct_size
+        data_size -= packet_size
+        packet_start += packet_size
 
     if device_type is None:
         if self.report_unknown == "Teltonika":
@@ -49,7 +47,7 @@ def parse_teltonika(self, data, source_mac, rssi):
                 "BLE ADV from UNKNOWN Teltonika DEVICE: RSSI: %s, MAC: %s, DEVICE TYPE: %s, ADV: %s",
                 rssi,
                 to_mac(source_mac),
-                dev_type,
+                device_type,
                 data.hex()
             )
         return None
