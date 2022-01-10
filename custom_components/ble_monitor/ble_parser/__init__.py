@@ -141,7 +141,7 @@ class BleParser:
                 if man_spec_data[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
                     sensor_data = parse_kegtron(self, man_spec_data, mac, rssi)
                     break
-                elif man_spec_data[0] == 0x15 and (comp_id == 0x0010 or comp_id == 0x0011):  # Thermoplus
+                elif man_spec_data[0] == 0x15 and comp_id in [0x0010, 0x0011]:  # Thermoplus
                     sensor_data = parse_thermoplus(self, man_spec_data, mac, rssi)
                     break
                 elif man_spec_data[0] == 0x0C and comp_id == 0xEC88:  # Govee H5051
@@ -171,10 +171,7 @@ class BleParser:
                 elif man_spec_data[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
                     sensor_data = parse_brifit(self, man_spec_data, mac, rssi)
                     break
-                elif man_spec_data[0] == 0x0F and service_class_uuid16 == 0xF0FF:  # Inkbird iBBQ-2
-                    sensor_data = parse_inkbird(self, man_spec_data, mac, rssi)
-                    break
-                elif man_spec_data[0] == 0x13 and complete_local_name == "iBBQ":  # Inkbird iBBQ-4
+                elif man_spec_data[0] in [0x0F, 0x13] and service_class_uuid16 == 0xF0FF:  # Inkbird iBBQ
                     sensor_data = parse_inkbird(self, man_spec_data, mac, rssi)
                     break
                 elif man_spec_data[0] == 0x0A and complete_local_name == "sps":  # Inkbird IBS-TH2
@@ -201,7 +198,7 @@ class BleParser:
                 elif man_spec_data[0] == 0x0E and comp_id == 0x00DC:  # Oral-b
                     sensor_data = parse_oral_b(self, man_spec_data, mac, rssi)
                     break
-                elif man_spec_data[0] == 0x06 or man_spec_data[0] == 0x08 and service_class_uuid128 == b'\xb0\x0a\x09\xec\xd7\x9d\xb8\x93\xba\x42\xd6\x11\x00\x00\x09\xef':  # Sensorpush
+                elif man_spec_data[0] in [0x06, 0x08] and service_class_uuid128 == b'\xb0\x0a\x09\xec\xd7\x9d\xb8\x93\xba\x42\xd6\x11\x00\x00\x09\xef':  # Sensorpush
                     sensor_data = parse_sensorpush(self, man_spec_data, mac, rssi)
                     break
                 else:
