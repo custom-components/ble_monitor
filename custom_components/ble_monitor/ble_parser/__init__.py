@@ -141,7 +141,7 @@ class BleParser:
                 if man_spec_data[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
                     sensor_data = parse_kegtron(self, man_spec_data, mac, rssi)
                     break
-                elif man_spec_data[0] == 0x15 and comp_id in [0x0010, 0x0011]:  # Thermoplus
+                elif man_spec_data[0] == 0x15 and comp_id in [0x0010, 0x0011, 0x0015]:  # Thermoplus
                     sensor_data = parse_thermoplus(self, man_spec_data, mac, rssi)
                     break
                 elif man_spec_data[0] == 0x0C and comp_id == 0xEC88:  # Govee H5051
