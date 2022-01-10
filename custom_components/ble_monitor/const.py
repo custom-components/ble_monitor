@@ -722,7 +722,7 @@ MEASUREMENT_DICT = {
     'SmartSeries 7000'        : [["rssi"], [], ["toothbrush"]],
     'iBBQ-2'                  : [["temperature probe 1", "temperature probe 2", "rssi"], [], []],
     'iBBQ-4'                  : [["temperature probe 1", "temperature probe 2", "temperature probe 3", "temperature probe 4","rssi"], [], []],
-    'IBS-TH2'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'IBS-TH'                  : [["temperature", "humidity", "battery", "rssi"], [], []],
 }
 
 
@@ -811,12 +811,13 @@ MANUFACTURER_DICT = {
     'SmartSeries 7000'        : 'Oral-B',
     'iBBQ-2'                  : 'Inkbird',
     'iBBQ-4'                  : 'Inkbird',
-    'IBS-TH2'                 : 'Inkbird',
+    'IBS-TH'                  : 'Inkbird',
 }
 
 # Renamed model dictionary
 RENAMED_MODEL_DICT = {
-    'H5051/H5074': 'H5074'
+    'H5051/H5074': 'H5074',
+    'IBS-TH2': 'IBS-TH',
 }
 
 # Selection list for report_uknown

@@ -20,7 +20,7 @@ def parse_inkbird(self, data, source_mac, rssi):
     firmware = "Inkbird"
     result = {"firmware": firmware}
     if msg_length == 11:
-        device_type = "IBS-TH2"
+        device_type = "IBS-TH"
         inkbird_mac = source_mac
         xvalue = data[2:10]
         (temp, hum) = unpack("<hH", xvalue[0:4])
