@@ -279,16 +279,17 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     errors=errors,
                 )
             if self._sel_device:
-                """Remove device from device registry."""
+                # Remove device from device registry
                 device_registry = await self.hass.helpers.device_registry.async_get_registry()
                 mac = self._sel_device.get(CONF_MAC).upper()
                 device = device_registry.async_get_device({(DOMAIN, mac)}, set())
                 if device is None:
                     errors[CONF_MAC] = "cannot_delete_device"
                 else:
-                    _LOGGER.debug("Removing BLE monitor device %s", mac)
+                    _LOGGER.error("Removing BLE monitor device %s from device registry", mac)
                     device_registry.async_remove_device(device.id)
-                    del self._devices[self._sel_device.get(CONF_MAC).upper()]
+                _LOGGER.error("Removing BLE monitor device %s from configuration", mac)
+                del self._devices[self._sel_device.get(CONF_MAC).upper()]
             return self._show_main_form(errors)
         device_option_schema = vol.Schema(
             {

@@ -44,6 +44,7 @@ SECTORS = {
     23: "unknown 3",
     47: "unknown 4",
     55: "unknown 5",
+    39: "unknown 6",
     254: "last sector",
     255: "no sector"
 }
@@ -52,12 +53,10 @@ SECTORS = {
 def parse_oral_b(self, data, source_mac, rssi):
     """Parser for Oral-B toothbrush."""
     msg_length = len(data)
-    print(data.hex())
     firmware = "Oral-B"
     oral_b_mac = source_mac
     result = {"firmware": firmware}
     if msg_length == 15:
-        print(data[7:15].hex())
         device_type = "SmartSeries 7000"
         (state, pressure, counter, mode, sector, sector_timer, no_of_sectors) = unpack(
             ">BBHBBBB", data[7:15]
