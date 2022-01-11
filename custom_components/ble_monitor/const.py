@@ -1018,6 +1018,7 @@ MEASUREMENT_DICT = {
     'Meter TH S1'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Meter TH plus'           : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Laica Smart Scale'       : [["weight", "impedance", "rssi"], [], []],
+    "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
 }
 
 # Sensor manufacturer dictionary
@@ -1120,7 +1121,6 @@ MANUFACTURER_DICT = {
     'iBeacon'                 : 'Apple',
     'AltBeacon'               : 'Radius Networks',
     'EClerk Eco'              : 'Relsib',
-    'Air Mentor Pro 2'        : 'Air Mentor',
     'Meter TH S1'             : 'Switchbot',
     'Meter TH plus'           : 'Switchbot',
     'Laica Smart Scale'       : 'Laica',
@@ -1182,7 +1182,6 @@ AUTO_SENSOR_LIST = [
 # Selection list for report_uknown
 REPORT_UNKNOWN_LIST = [
     "Off",
-    "Air Mentor"
     "ATC",
     "BlueMaestro",
     "Brifit",
