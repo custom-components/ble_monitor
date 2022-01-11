@@ -309,7 +309,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     BLEMonitorSensorEntityDescription(
         key="humidity outdoor",
         sensor_class="HumiditySensor",
-        name="ble temperature outdoor",
+        name="ble humidity outdoor",
         unique_id="h_outdoor_",
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.HUMIDITY,
