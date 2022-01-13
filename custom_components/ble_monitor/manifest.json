@@ -6,11 +6,11 @@
   "issue_tracker": "https://github.com/custom-components/ble_monitor/issues",
   "requirements": [
     "pycryptodomex>=3.12.0",
-    "janus>=0.7.0",
-    "aioblescan>=0.2.10"
+    "janus>=1.0.0",
+    "aioblescan>=0.2.11"
   ],
   "dependencies": [],
   "codeowners": ["@Ernst79", "@Magalex2x14", "@Thrilleratplay"],
-  "version": "6.9.4",
+  "version": "7.0.0",
   "iot_class": "local_polling"
 }
