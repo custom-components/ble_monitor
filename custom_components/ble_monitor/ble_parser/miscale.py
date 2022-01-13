@@ -17,7 +17,7 @@ def parse_miscale(self, data, source_mac, rssi):
 
         has_impedance = False
         is_stabilized = control_byte & (1 << 5)
-        weigth_removed = control_byte & (1 << 7)
+        weight_removed = control_byte & (1 << 7)
 
         if control_byte & (1 << 0):
             weight = weight / 100
@@ -35,7 +35,7 @@ def parse_miscale(self, data, source_mac, rssi):
         (measunit, control_byte, impedance, weight) = unpack("<BB7xHH", xvalue)
         has_impedance = control_byte & (1 << 1)
         is_stabilized = control_byte & (1 << 5)
-        weigth_removed = control_byte & (1 << 7)
+        weight_removed = control_byte & (1 << 7)
 
         if measunit & (1 << 4):
             # measurement in Chinese Catty unit
@@ -68,11 +68,11 @@ def parse_miscale(self, data, source_mac, rssi):
     result = {
         "non-stabilized weight": weight,
         "weight unit": weight_unit,
-        "weight removed": 0 if weigth_removed == 0 else 1,
+        "weight removed": 0 if weight_removed == 0 else 1,
         "stabilized": 0 if is_stabilized == 0 else 1
     }
 
-    if is_stabilized and not weigth_removed:
+    if is_stabilized and not weight_removed:
         result.update({"weight": weight})
 
     if has_impedance:
