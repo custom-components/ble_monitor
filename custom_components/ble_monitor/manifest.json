@@ -7,7 +7,7 @@
   "requirements": [
     "pycryptodomex>=3.12.0",
     "janus>=1.0.0",
-    "aioblescan>=0.2.11"
+    "aioblescan>=0.2.12"
   ],
   "dependencies": [],
   "codeowners": ["@Ernst79", "@Magalex2x14", "@Thrilleratplay"],
