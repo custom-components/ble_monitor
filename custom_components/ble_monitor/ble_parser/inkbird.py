@@ -36,7 +36,7 @@ def parse_inkbird(self, data, source_mac, rssi):
         device_type = "iBBQ-2"
         inkbird_mac = data[6:12]
         xvalue = data[12:16]
-        if inkbird_mac != source_mac:
+        if source_mac not in [inkbird_mac, inkbird_mac[::-1]]:
             _LOGGER.debug(
                 "Inkbird MAC address doesn't match data MAC address. Data: %s",
                 data.hex()
@@ -52,7 +52,7 @@ def parse_inkbird(self, data, source_mac, rssi):
     elif msg_length == 20:
         inkbird_mac = data[6:12]
         xvalue = data[12:20]
-        if inkbird_mac != source_mac:
+        if source_mac not in [inkbird_mac, inkbird_mac[::-1]]:
             _LOGGER.debug(
                 "Inkbird MAC address doesn't match data MAC address. Data: %s",
                 data.hex()
@@ -68,6 +68,24 @@ def parse_inkbird(self, data, source_mac, rssi):
                 "temperature probe 4": convert_temperature(temp_4),
             }
         )
+    elif msg_length == 24:
+        inkbird_mac = data[6:12]
+        xvalue = data[12:24]
+        if source_mac not in [inkbird_mac, inkbird_mac[::-1]]:
+            _LOGGER.debug("Inkbird MAC address doesn't match data MAC address. Data: %s", data.hex())
+            return None
+        device_type = "iBBQ-6"
+        (temp_1, temp_2, temp_3, temp_4, temp_5, temp_6) = unpack("<hhhhhh", xvalue)
+        result.update(
+            {
+                "temperature probe 1": convert_temperature(temp_1),
+                "temperature probe 2": convert_temperature(temp_2),
+                "temperature probe 3": convert_temperature(temp_3),
+                "temperature probe 4": convert_temperature(temp_4),
+                "temperature probe 5": convert_temperature(temp_5),
+                "temperature probe 6": convert_temperature(temp_6),
+            }
+        )
     else:
         if self.report_unknown == "Inkbird":
             _LOGGER.info(
@@ -80,12 +98,12 @@ def parse_inkbird(self, data, source_mac, rssi):
 
     # check for MAC presence in sensor whitelist, if needed
     if self.discovery is False and inkbird_mac.lower() not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(inkbird_mac))
+        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(source_mac))
         return None
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in inkbird_mac[:]),
+        "mac": ''.join('{:02X}'.format(x) for x in source_mac[:]),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

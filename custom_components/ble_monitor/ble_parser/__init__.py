@@ -171,7 +171,7 @@ class BleParser:
                 elif man_spec_data[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
                     sensor_data = parse_brifit(self, man_spec_data, mac, rssi)
                     break
-                elif man_spec_data[0] in [0x0F, 0x13] and service_class_uuid16 == 0xF0FF:  # Inkbird iBBQ
+                elif man_spec_data[0] in [0x0F, 0x13, 0x17] and service_class_uuid16 == 0xF0FF:  # Inkbird iBBQ
                     sensor_data = parse_inkbird(self, man_spec_data, mac, rssi)
                     break
                 elif man_spec_data[0] == 0x0A and complete_local_name == "sps":  # Inkbird IBS-TH2
