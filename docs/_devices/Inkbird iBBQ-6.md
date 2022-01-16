@@ -1,8 +1,8 @@
 ---
 manufacturer: Inkbird
-name: Inkbird iBBQ-4
-model: iBBQ-4
-image: Inkbird_iBBQ-4.jpg
+name: Inkbird iBBQ-6
+model: iBBQ-6
+image: Inkbird_iBBQ-6.jpg
 physical_description:
 broadcasted_properties:
   - temperature probe
