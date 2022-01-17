@@ -723,6 +723,7 @@ MEASUREMENT_DICT = {
     'iBBQ-2'                  : [["temperature probe 1", "temperature probe 2", "rssi"], [], []],
     'iBBQ-4'                  : [["temperature probe 1", "temperature probe 2", "temperature probe 3", "temperature probe 4","rssi"], [], []],
     'IBS-TH'                  : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'BEC07-5'                 : [["temperature", "humidity", "rssi"], [], []],
 }
 
 
@@ -812,6 +813,7 @@ MANUFACTURER_DICT = {
     'iBBQ-2'                  : 'Inkbird',
     'iBBQ-4'                  : 'Inkbird',
     'IBS-TH'                  : 'Inkbird',
+    'BEC07-5'                 : 'Jinou',
 }
 
 # Renamed model dictionary
@@ -828,6 +830,7 @@ REPORT_UNKNOWN_LIST = [
     "Govee",
     "Inkbird",
     "iNode",
+    "Jinou"
     "Kegtron",
     "Mi Scale",
     "Moat",
