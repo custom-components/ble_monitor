@@ -12,7 +12,7 @@ def parse_jinou(self, data, source_mac, rssi):
     result = {"firmware": firmware}
     if msg_length == 15:
         device_type = "BEC07-5"
-        jnou_mac = source_mac
+        jinou_mac = source_mac
         temp = float(str(data[3]) + "." + str(data[4]))
         if data[2] == 1:
             temp = temp * -1
@@ -25,9 +25,9 @@ def parse_jinou(self, data, source_mac, rssi):
             }
         )
     else:
-        if self.report_unknown == "Jinuo":
+        if self.report_unknown == "Jinou":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Jinuo DEVICE: RSSI: %s, MAC: %s, ADV: %s",
+                "BLE ADV from UNKNOWN Jinou DEVICE: RSSI: %s, MAC: %s, ADV: %s",
                 rssi,
                 to_mac(source_mac),
                 data.hex()
@@ -35,13 +35,13 @@ def parse_jinou(self, data, source_mac, rssi):
         return None
 
     # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and jnou_mac.lower() not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(jnou_mac))
+    if self.discovery is False and jinou_mac.lower() not in self.sensor_whitelist:
+        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(jinou_mac))
         return None
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in jnou_mac[:]),
+        "mac": ''.join('{:02X}'.format(x) for x in jinou_mac[:]),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

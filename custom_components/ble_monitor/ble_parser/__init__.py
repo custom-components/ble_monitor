@@ -184,7 +184,7 @@ class BleParser:
                 elif man_spec_data[0] == 0x19 and man_spec_data[3] in [0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x9A, 0x9B, 0x9C, 0x9D]:  # iNode Care Sensors
                     sensor_data = parse_inode(self, man_spec_data, mac, rssi)
                     break
-                elif man_spec_data[0] == 0x0E and service_class_uuid16 == 0x20AA:  # Jnou BEC07
+                elif man_spec_data[0] == 0x0E and service_class_uuid16 == 0x20AA:  # Jinou BEC07-5
                     sensor_data = parse_jinou(self, man_spec_data, mac, rssi)
                     break
                 elif man_spec_data[0] == 0x15 and comp_id == 0x1000:  # Moat S2
