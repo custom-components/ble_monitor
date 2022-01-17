@@ -23,7 +23,7 @@ class TestOralB:
         assert sensor_msg["pressure"] == 40
         assert sensor_msg["counter"] == 1041
         assert sensor_msg["mode"] == 'turbo'
-        assert sensor_msg["sector"] == 'unknown 5'
+        assert sensor_msg["sector"] == 'sector 55'
         assert sensor_msg["sector timer"] == 56
         assert sensor_msg["number of sectors"] == 4
         assert sensor_msg["rssi"] == -73
