@@ -142,8 +142,19 @@ class BleParser:
                 if man_spec_data[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
                     sensor_data = parse_kegtron(self, man_spec_data, mac, rssi)
                     break
-                elif man_spec_data[0] == 0x15 and comp_id in [0x0010, 0x0011, 0x0015]:  # Thermoplus
-                    sensor_data = parse_thermoplus(self, man_spec_data, mac, rssi)
+                elif service_class_uuid16 == 0xF0FF:
+                    if man_spec_data[0] in [0x15, 0x17] and comp_id in [0x0010, 0x0011, 0x0015]:  # Thermoplus
+                        sensor_data = parse_thermoplus(self, man_spec_data, mac, rssi)
+                        break
+                    elif man_spec_data[0] in [0x0F, 0x13, 0x17] and (
+                        comp_id in [0x0000, 0x0001] or complete_local_name == "iBBQ"
+                    ):  # Inkbird iBBQ
+                        sensor_data = parse_inkbird(self, man_spec_data, mac, rssi)
+                        break
+                    else:
+                        unknown_sensor = True
+                elif man_spec_data[0] == 0x0A and complete_local_name == "sps":  # Inkbird IBS-TH
+                    sensor_data = parse_inkbird(self, man_spec_data, mac, rssi)
                     break
                 elif man_spec_data[0] == 0x0C and comp_id == 0xEC88:  # Govee H5051
                     sensor_data = parse_govee(self, man_spec_data, mac, rssi)
@@ -171,12 +182,6 @@ class BleParser:
                     break
                 elif man_spec_data[0] == 0x14 and (comp_id == 0xaa55):  # Brifit
                     sensor_data = parse_brifit(self, man_spec_data, mac, rssi)
-                    break
-                elif man_spec_data[0] in [0x0F, 0x13, 0x17] and service_class_uuid16 == 0xF0FF:  # Inkbird iBBQ
-                    sensor_data = parse_inkbird(self, man_spec_data, mac, rssi)
-                    break
-                elif man_spec_data[0] == 0x0A and complete_local_name == "sps":  # Inkbird IBS-TH2
-                    sensor_data = parse_inkbird(self, man_spec_data, mac, rssi)
                     break
                 elif man_spec_data[0] == 0x0E and man_spec_data[3] == 0x82:  # iNode
                     sensor_data = parse_inode(self, man_spec_data, mac, rssi)
