@@ -29,6 +29,7 @@ from .const import (
     CONF_DEVICE_TRACKER_SCAN_INTERVAL,
     CONF_DEVICE_TRACKER_CONSIDER_HOME,
     CONF_PERIOD,
+    CONF_GATEWAY_ID,
     DEFAULT_DEVICE_TRACK,
     DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
     DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
@@ -197,6 +198,9 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
             )
         if "rssi" in old_state.attributes:
             self._extra_state_attributes["rssi"] = old_state.attributes["rssi"]
+        if CONF_GATEWAY_ID in old_state.attributes:
+            self._extra_state_attributes[CONF_GATEWAY_ID] = old_state.attributes[CONF_GATEWAY_ID]
+
         self.ready_for_update = True
 
     @property
@@ -326,6 +330,9 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
         self._last_seen = now
         self._extra_state_attributes["rssi"] = data["rssi"]
         self._extra_state_attributes["last seen"] = self._last_seen
+        if CONF_GATEWAY_ID in data:
+            self._extra_state_attributes[CONF_GATEWAY_ID] = data[CONF_GATEWAY_ID]
+
         self.ready_for_update = True
 
     def recheck_state(self, event=None):

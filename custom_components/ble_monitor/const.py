@@ -58,6 +58,7 @@ CONF_DEVICE_TRACKER_SCAN_INTERVAL = "tracker_scan_interval"
 CONF_DEVICE_TRACKER_CONSIDER_HOME = "consider_home"
 CONF_DEVICE_DELETE_DEVICE = "delete device"
 CONF_PACKET = "packet"
+CONF_GATEWAY_ID = "gateway_id"
 CONFIG_IS_FLOW = "is_flow"
 
 SERVICE_CLEANUP_ENTRIES = "cleanup_entries"

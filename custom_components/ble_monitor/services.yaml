@@ -12,3 +12,9 @@ parse_data:
       example: 043E2B02010000123456789ABC1F12161A1819416538C1A41B073915810B529F0F0B094154435F363534313139AA
       selector:
         text:
+    gateway_id:
+      name: Gateway ID (only for device_tracker)
+      required: false
+      example: esp32_gateway
+      selector:
+        text:
