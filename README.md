@@ -27,6 +27,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Govee
 - Inkbird
 - iNode sensors
+- Jinou
 - Kegtron
 - Moat
 - Oral-B
