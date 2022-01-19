@@ -45,6 +45,7 @@ from .const import (
     CONF_DEVICE_TRACKER_CONSIDER_HOME,
     CONF_HCI_INTERFACE,
     CONF_PACKET,
+    CONF_GATEWAY_ID,
     CONF_PERIOD,
     CONF_LOG_SPIKES,
     CONF_REPORT_UNKNOWN,
@@ -173,6 +174,7 @@ SERVICE_CLEANUP_ENTRIES_SCHEMA = vol.Schema({})
 SERVICE_PARSE_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_PACKET): cv.string,
+        vol.Optional(CONF_GATEWAY_ID): cv.string
     }
 )
 
@@ -418,7 +420,10 @@ async def async_parse_data_service(hass: HomeAssistant, service_data):
     _LOGGER.debug("async_parse_data_service")
     blemonitor: BLEmonitor = hass.data[DOMAIN]["blemonitor"]
     if blemonitor:
-        blemonitor.dumpthread.process_hci_events(bytes.fromhex(service_data["packet"]))
+        blemonitor.dumpthread.process_hci_events(
+            bytes.fromhex(service_data["packet"]),
+            service_data[CONF_GATEWAY_ID] if CONF_GATEWAY_ID in service_data else DOMAIN
+        )
 
 
 class BLEmonitor:
@@ -555,7 +560,7 @@ class HCIdump(Thread):
             aeskeys=self.aeskeys,
         )
 
-    def process_hci_events(self, data):
+    def process_hci_events(self, data, gateway_id = DOMAIN):
         """Parse HCI events."""
         self.evt_cnt += 1
         if len(data) < 12:
@@ -579,6 +584,7 @@ class HCIdump(Thread):
                 if measuring is True:
                     self.dataqueue_meas.sync_q.put_nowait(sensor_msg)
         if tracker_msg:
+            tracker_msg[CONF_GATEWAY_ID] = gateway_id
             self.dataqueue_tracker.sync_q.put_nowait(tracker_msg)
 
     def run(self):
