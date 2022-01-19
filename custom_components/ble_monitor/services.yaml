@@ -13,7 +13,8 @@ parse_data:
       selector:
         text:
     gateway_id:
-      name: Gateway ID (only for device_tracker)
+      name: Gateway ID
+      description: Identifier of the gateway that transmits the packet (only for device_tracker).
       required: false
       example: esp32_gateway
       selector:
