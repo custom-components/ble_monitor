@@ -26,7 +26,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - b-parasite
 - Govee
 - Inkbird
-- iNode sensors
+- iNode
 - Jinou
 - Kegtron
 - Moat
