@@ -1,0 +1,95 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Passive BLE Monitor",
+        "description": "Paramétrage de la configuration de votre moniteur BLE",
+        "data": {
+          "bt_interface": "Adresse MAC de l'interface/Adaptateur Bluetooth",
+          "devices": "Dispositifs",
+          "discovery": "Découvrez automatiquement les appareils et les capteurs",
+          "decimals": "Nombre de décimales",
+          "period": "Période à utiliser pour faire la moyenne",
+          "log_spikes": "Pointes de journal",
+          "use_median": "Utilisez la médiane au lieu de la moyenne",
+          "active_scan": "Utiliser l'analyse active au lieu de l'analyse passive (affecte la batterie)",
+          "restore_state": "Restaurer l'état après un redémarrage",
+          "report_unknown": "Rapport inconnu",
+          "bt_auto_restart": "Redémarrer automatiquement l'adaptateur Bluetooth en cas d'échec"
+        }
+      },
+      "add_remove_device": {
+        "title": "Ajouter un appareil",
+        "data": {
+          "mac": "Adresse Mac",
+          "encryption_key": "Clé de cryptage",
+          "temperature_unit": "Unité de température [capteurs de température uniquement]",
+          "decimals": "Nombre de décimales",
+          "use_median": "Utilisez la médiane au lieu de la moyenne",
+          "restore_state": "Restaurer l'état après un redémarrage",
+          "reset_timer": "Minuterie de réinitialisation (en secondes, 0 = off)",
+          "track_device": "Suivre l'appareil",
+          "tracker_scan_interval": "Intervalle d'analyse du suivi de l'appareil (en secondes)",
+          "consider_home": "Temps avant d'être considéré absent (en secondes)",
+          "delete device": "Supprimer l'appareil"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "L'adresse MAC doit être au format 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_key": "La clé de chiffrement doit comporter 32 caractères hexadécimaux (24 pour les capteurs Yeelight).",
+      "cannot_change_mac": "L'adresse MAC ne peut pas être modifiée.",
+      "cannot_delete_device": "L'appareil ne peut pas être supprimé."
+    },
+    "abort": {
+      "single_instance_allowed": "Une seule configuration de moniteur BLE est autorisée."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Passive BLE Monitor options",
+        "description": "La numérisation sera redémarrée après avoir appuyé sur 'SOUMETTRE'",
+        "data": {
+          "bt_interface": "Adresse MAC de l'interface/Adaptateur Bluetooth",
+          "devices": "Dispositifs",
+          "discovery": "Découvrez automatiquement les appareils et les capteurs",
+          "decimals": "Nombre de décimales",
+          "period": "Période à utiliser pour faire la moyenne",
+          "log_spikes": "Pointes de journal",
+          "use_median": "Utilisez la médiane au lieu de la moyenne",
+          "active_scan": "Utiliser l'analyse active au lieu de l'analyse passive (affecte la batterie)",
+          "report_unknown": "Rapport inconnu",
+          "bt_auto_restart": "Redémarrer automatiquement l'adaptateur Bluetooth en cas d'échec",
+          "restore_state": "Restaurer l'état après un redémarrage",
+          "not_in_use": "YAML est utilisé, modifiez les options dans YAML"
+        }
+      },
+      "add_remove_device": {
+        "title": "Configurer l'appareil",
+        "data": {
+          "mac": "Adresse Mac",
+          "encryption_key": "Clé de chiffrement (définie sur '-' pour supprimer)",
+          "temperature_unit": "Unité de température",
+          "decimals": "Nombre de décimales",
+          "use_median": "Utilisez la médiane au lieu de la moyenne",
+          "restore_state": "Restaurer l'état après un redémarrage",
+          "reset_timer": "Minuterie de réinitialisation (en secondes, 0 = off)",
+          "track_device": "Suivre l'appareil",
+          "tracker_scan_interval": "Intervalle d'analyse du suivi de l'appareil (en secondes)",
+          "consider_home": "Temps avant d'être considéré absent (en secondes)",
+          "delete device": "Supprimer l'appareil"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "L'adresse MAC doit être au format 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_key": "La clé de chiffrement doit comporter 32 caractères hexadécimaux (24 pour les capteurs Yeelight).",
+      "cannot_change_mac": "L'adresse MAC ne peut pas être modifiée.",
+      "cannot_delete_device": "L'appareil ne peut pas être supprimé."
+    },
+    "abort": {
+      "not_in_use": "Vous avez configuré le moniteur BLE dans YAML. Veuillez modifier vos options dans YAML."
+    }
+  }
+}
