@@ -59,6 +59,7 @@ CONF_DEVICE_TRACKER_CONSIDER_HOME = "consider_home"
 CONF_DEVICE_DELETE_DEVICE = "delete device"
 CONF_PACKET = "packet"
 CONF_GATEWAY_ID = "gateway_id"
+CONF_UUID = "uuid"
 CONFIG_IS_FLOW = "is_flow"
 
 SERVICE_CLEANUP_ENTRIES = "cleanup_entries"
@@ -76,6 +77,7 @@ DEFAULT_REPORT_UNKNOWN = "Off"
 DEFAULT_DISCOVERY = True
 DEFAULT_RESTORE_STATE = False
 DEFAULT_DEVICE_MAC = ""
+DEFAULT_DEVICE_UUID = ""
 DEFAULT_DEVICE_ENCRYPTION_KEY = ""
 DEFAULT_DEVICE_DECIMALS = "default"
 DEFAULT_DEVICE_USE_MEDIAN = "default"
@@ -104,6 +106,9 @@ CONF_TMIN_PROBES = 0.0
 CONF_TMAX_PROBES = 300.0
 CONF_HMIN = 0.0
 CONF_HMAX = 99.9
+
+# Beacon types
+
 
 # Sensors with deviating temperature range
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
@@ -236,10 +241,41 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
 
 SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     BLEMonitorSensorEntityDescription(
+        key="mac",
+        sensor_class="InstantUpdateSensor",
+        name="ble mac",
+        unique_id="mac_",
+        icon="mdi:alpha-m-circle-outline",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=None,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="uuid",
+        sensor_class="InstantUpdateSensor",
+        name="ble uuid",
+        unique_id="uuid_",
+        icon="mdi:alpha-u-circle-outline",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=None,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="temperature",
         sensor_class="TemperatureSensor",
         name="ble temperature",
         unique_id="t_",
+        native_unit_of_measurement=TEMP_CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="cypress temperature",
+        sensor_class="TemperatureSensor",
+        name="ble cypress temperature",
+        unique_id="t_cypress_",
         native_unit_of_measurement=TEMP_CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -326,6 +362,15 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
+        key="cypress humidity",
+        sensor_class="HumiditySensor",
+        name="ble cypress humidity",
+        unique_id="h_cypress_",
+        native_unit_of_measurement="RH%",
+        device_class=SensorDeviceClass.HUMIDITY,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="humidity outdoor",
         sensor_class="HumiditySensor",
         name="ble humidity outdoor",
@@ -399,6 +444,38 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
         device_class=SensorDeviceClass.SIGNAL_STRENGTH,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="measured power",
+        sensor_class="MeasuringSensor",
+        name="ble measured power",
+        unique_id="measured_power_",
+        native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+        device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="major",
+        sensor_class="MeasuringSensor",
+        name="ble major",
+        unique_id="major_",
+        icon="mdi:counter",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=None,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="minor",
+        sensor_class="MeasuringSensor",
+        name="ble minor",
+        unique_id="minor_",
+        icon="mdi:counter",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=None,
         entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     BLEMonitorSensorEntityDescription(
@@ -744,6 +821,7 @@ MEASUREMENT_DICT = {
     'iBBQ-6'                  : [["temperature probe 1", "temperature probe 2", "temperature probe 3", "temperature probe 4", "temperature probe 5", "temperature probe 6", "rssi"], [], []],
     'IBS-TH'                  : [["temperature", "humidity", "battery", "rssi"], [], []],
     'BEC07-5'                 : [["temperature", "humidity", "rssi"], [], []],
+    'iBeacon'                 : [["rssi", "measured power"], ["uuid", "mac", "major", "minor", "cypress temperature", "cypress humidity"], []], # mac can be dynamic
 }
 
 
@@ -835,6 +913,7 @@ MANUFACTURER_DICT = {
     'iBBQ-6'                  : 'Inkbird',
     'IBS-TH'                  : 'Inkbird',
     'BEC07-5'                 : 'Jinou',
+    'iBeacon'                 : 'Apple',
 }
 
 # Renamed model dictionary
@@ -851,6 +930,7 @@ REPORT_UNKNOWN_LIST = [
     "Govee",
     "Inkbird",
     "iNode",
+    "iBeacon",
     "Jinou"
     "Kegtron",
     "Mi Scale",

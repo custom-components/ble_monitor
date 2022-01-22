@@ -21,6 +21,7 @@
         "title": "新增裝置",
         "data": {
           "mac": "MAC 位址",
+          "uuid": "信标 UUID",
           "encryption_key": "密鑰",
           "temperature_unit": "溫度單位 [僅針對溫度感測器]",
           "decimals": "小數點位數",
@@ -36,8 +37,10 @@
     },
     "error": {
       "invalid_mac": "MAC 位址必須為「AA:BB:CC:DD:EE:FF」格式。",
+      "invalid_uuid": "信标 UUID 的格式必须为“00000000-0000-0000-0000-000000000000”。",
       "invalid_key": "密鑰必須為 32 個十六進位字元（Yeelight 則為 24）。",
       "cannot_change_mac": "MAC 位址無法變更。",
+      "cannot_change_uuid": "信标 UUID 无法更改。",
       "cannot_delete_device": "裝置無法刪除。"
     },
     "abort": {
@@ -67,6 +70,7 @@
         "title": "設定裝置",
         "data": {
           "mac": "MAC 位址",
+          "uuid": "信标 UUID",
           "encryption_key": "密鑰（若輸入為「-」進行移除）",
           "temperature_unit": "溫度單位",
           "decimals": "小數點位數",
@@ -82,8 +86,10 @@
     },
     "error": {
       "invalid_mac": "MAC 位址必須為「AA:BB:CC:DD:EE:FF」格式。",
+      "invalid_uuid": "信标 UUID 的格式必须为“00000000-0000-0000-0000-000000000000”。",
       "invalid_key": "密鑰必須為 32 個十六進位字元（Yeelight 則為 24）。",
       "cannot_change_mac": "MAC 位址無法變更。",
+      "cannot_change_uuid": "信标 UUID 无法更改。",
       "cannot_delete_device": "裝置無法刪除。"
     },
     "abort": {

@@ -22,6 +22,7 @@
         "title": "Ajouter un appareil",
         "data": {
           "mac": "Adresse Mac",
+          "uuid": "UUID de balise",
           "encryption_key": "Clé de cryptage",
           "temperature_unit": "Unité de température [capteurs de température uniquement]",
           "decimals": "Nombre de décimales",
@@ -37,8 +38,10 @@
     },
     "error": {
       "invalid_mac": "L'adresse MAC doit être au format 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_uuid": "L'UUID de la balise doit être au format \"00000000-0000-0000-0000-000000000000\".",
       "invalid_key": "La clé de chiffrement doit comporter 32 caractères hexadécimaux (24 pour les capteurs Yeelight).",
       "cannot_change_mac": "L'adresse MAC ne peut pas être modifiée.",
+      "cannot_change_uuid": "L'UUID de la balise ne peut pas être modifié.",
       "cannot_delete_device": "L'appareil ne peut pas être supprimé."
     },
     "abort": {
@@ -69,6 +72,7 @@
         "title": "Configurer l'appareil",
         "data": {
           "mac": "Adresse Mac",
+          "uuid": "UUID de balise",
           "encryption_key": "Clé de chiffrement (définie sur '-' pour supprimer)",
           "temperature_unit": "Unité de température",
           "decimals": "Nombre de décimales",
@@ -84,8 +88,10 @@
     },
     "error": {
       "invalid_mac": "L'adresse MAC doit être au format 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_uuid": "L'UUID de la balise doit être au format \"00000000-0000-0000-0000-000000000000\".",
       "invalid_key": "La clé de chiffrement doit comporter 32 caractères hexadécimaux (24 pour les capteurs Yeelight).",
       "cannot_change_mac": "L'adresse MAC ne peut pas être modifiée.",
+      "cannot_change_uuid": "L'UUID de la balise ne peut pas être modifié.",
       "cannot_delete_device": "L'appareil ne peut pas être supprimé."
     },
     "abort": {

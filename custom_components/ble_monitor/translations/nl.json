@@ -22,6 +22,7 @@
         "title": "Apparaat toevoegen",
         "data": {
           "mac": "MAC adres",
+          "uuid": "Beacon UUID",
           "encryption_key": "Encryptie sleutel",
           "temperature_unit": "Temperatuur eenheid",
           "decimals": "Aantal decimalen",
@@ -37,8 +38,10 @@
     },
     "error": {
       "invalid_mac": "MAC adres dient opgegeven te worden in de vorm 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_uuid": "Beacon UUID moet de vorm '00000000-0000-0000-0000-000000000000' hebben.",
       "invalid_key": "Encryptie sleutel dient 32 hexadecimale karakters te hebben (24 voor Yeelight sensoren).",
       "cannot_change_mac": "MAC adres kan niet veranderd worden.",
+      "cannot_change_uuid": "Beacon UUID kan niet worden gewijzigd.",
       "cannot_delete_device": "Apparaat kon niet verwijderd worden."
     },
     "abort": {
@@ -69,6 +72,7 @@
         "title": "Configureer apparaat",
         "data": {
           "mac": "MAC adres",
+          "uuid": "Beacon UUID",
           "encryption_key": "Encryptie sleutel",
           "temperature_unit": "Temperatuur eenheid",
           "decimals": "Aantal decimalen",
@@ -84,8 +88,10 @@
     },
     "error": {
       "invalid_mac": "MAC adres dient opgegeven te worden in de vorm 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_uuid": "Beacon UUID moet de vorm '00000000-0000-0000-0000-000000000000' hebben.",
       "invalid_key": "Encryptie sleutel dient 32 hexadecimale karakters te hebben (24 voor Yeelight sensoren).",
       "cannot_change_mac": "MAC adres kan niet veranderd worden.",
+      "cannot_change_uuid": "Beacon UUID kan niet worden gewijzigd.",
       "cannot_delete_device": "Apparaat kon niet verwijderd worden."
     },
     "abort": {
