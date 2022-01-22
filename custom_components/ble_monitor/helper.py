@@ -36,6 +36,11 @@ def dict_get_or(data: dict, first: str = CONF_UUID, second: str = CONF_MAC) -> O
 
     return data[key] if key in data else None
 
+def dict_get_or_normalize(data: dict, first: str = CONF_UUID, second: str = CONF_MAC) -> Optional[str]:
+    key = dict_get_key_or(data, first, second)
+
+    return identifier_normalize(data[key]) if key in data else None
+
 def dict_get_or_clean(data: dict, first: str = CONF_UUID, second: str = CONF_MAC) -> str:
     return identifier_clean(dict_get_or(data, first, second))
 

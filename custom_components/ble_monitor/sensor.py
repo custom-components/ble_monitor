@@ -25,6 +25,7 @@ from .helper import (
     identifier_clean,
     detect_conf_type,
     dict_get_or,
+    dict_get_or_normalize,
 )
 
 from .const import (
@@ -351,7 +352,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
 
         self._extra_state_attributes = {
             'sensor type': devtype,
-            'uuid' if self.is_beacon else 'mac address': key
+            'uuid' if self.is_beacon else 'mac address': self._fkey
         }
 
         self._measurements = []
@@ -399,6 +400,9 @@ class BaseSensor(RestoreEntity, SensorEntity):
 
         for attr in restore_attr:
             if attr in old_state.attributes:
+                if attr in ['uuid', 'mac address']:
+                    old_state.attributes[attr] = identifier_normalize(old_state.attributes[attr])
+
                 self._extra_state_attributes[attr] = old_state.attributes[attr]
         self.ready_for_update = True
 
@@ -506,7 +510,7 @@ class MeasuringSensor(BaseSensor):
         self._extra_state_attributes["sensor type"] = data["type"]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
 
@@ -617,7 +621,7 @@ class TemperatureSensor(MeasuringSensor):
         self._extra_state_attributes["sensor type"] = data["type"]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         if batt_attr is not None:
@@ -665,7 +669,7 @@ class HumiditySensor(MeasuringSensor):
         self._extra_state_attributes["sensor type"] = data["type"]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         if batt_attr is not None:
@@ -690,7 +694,7 @@ class BatterySensor(MeasuringSensor):
         self._extra_state_attributes["sensor type"] = data["type"]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         self.pending_update = True
@@ -723,7 +727,7 @@ class InstantUpdateSensor(BaseSensor):
         self._extra_state_attributes["sensor type"] = data["type"]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         if batt_attr is not None:
@@ -756,7 +760,7 @@ class AccelerationSensor(InstantUpdateSensor):
         self._extra_state_attributes["acceleration x"] = data["acceleration x"]
         self._extra_state_attributes["acceleration y"] = data["acceleration y"]
         self._extra_state_attributes["acceleration z"] = data["acceleration z"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         if batt_attr is not None:
@@ -779,7 +783,7 @@ class WeightSensor(InstantUpdateSensor):
         self._state = data[self.entity_description.key]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         if self.entity_description.key == "non-stabilized weight":
@@ -816,7 +820,7 @@ class EnergySensor(InstantUpdateSensor):
         self._extra_state_attributes["sensor type"] = data["type"]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         if "energy unit" in data:
@@ -851,7 +855,7 @@ class PowerSensor(InstantUpdateSensor):
         self._extra_state_attributes["sensor type"] = data["type"]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         if "power unit" in data:
@@ -882,7 +886,7 @@ class ButtonSensor(InstantUpdateSensor):
         self._state = data[self.entity_description.key]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         if batt_attr is not None:
@@ -921,7 +925,7 @@ class DimmerSensor(InstantUpdateSensor):
         self._state = data[self._button] + " " + str(data[self._dimmer]) + " steps"
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         self._extra_state_attributes["dimmer value"] = data[self._dimmer]
@@ -966,7 +970,7 @@ class SwitchSensor(InstantUpdateSensor):
             return
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         self._extra_state_attributes["last press"] = self._state
@@ -1006,7 +1010,7 @@ class BaseRemoteSensor(InstantUpdateSensor):
         self._state = data[self._button] + " " + data[self._remote]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         self._extra_state_attributes["last remote button pressed"] = data[self._remote]
@@ -1045,7 +1049,7 @@ class VolumeDispensedSensor(InstantUpdateSensor):
         self._state = data[self.entity_description.key]
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
         self._extra_state_attributes["volume start"] = data["volume start"]

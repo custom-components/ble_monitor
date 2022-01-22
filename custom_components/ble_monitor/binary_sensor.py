@@ -25,6 +25,7 @@ from .helper import (
     identifier_clean,
     detect_conf_type,
     dict_get_or,
+    dict_get_or_normalize,
 )
 
 from .const import (
@@ -253,7 +254,7 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
 
         self._extra_state_attributes = {
             'sensor type': devtype,
-            'uuid' if self.is_beacon else 'mac address': key
+            'uuid' if self.is_beacon else 'mac address': self._fkey
         }
 
         self.ready_for_update = False
@@ -299,6 +300,9 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
 
         for attr in restore_attr:
             if attr in old_state.attributes:
+                if attr in ['uuid', 'mac address']:
+                    old_state.attributes[attr] = identifier_normalize(old_state.attributes[attr])
+
                 self._extra_state_attributes[attr] = old_state.attributes[attr]
         self.ready_for_update = True
 
@@ -382,7 +386,7 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["rssi"] = data["rssi"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or(
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
 
