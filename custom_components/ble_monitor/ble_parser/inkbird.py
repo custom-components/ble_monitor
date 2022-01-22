@@ -97,7 +97,7 @@ def parse_inkbird(self, data, source_mac, rssi):
         return None
 
     # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and inkbird_mac.lower() not in self.sensor_whitelist:
+    if self.discovery is False and source_mac.lower() not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(source_mac))
         return None
 
