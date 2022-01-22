@@ -10,6 +10,7 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.const import (
     CONF_DEVICES,
     CONF_NAME,
+    CONF_MAC,
     CONF_UNIQUE_ID,
     ATTR_BATTERY_LEVEL,
     STATE_OFF,
@@ -19,11 +20,20 @@ from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 
+from .helper import (
+    identifier_normalize,
+    identifier_clean,
+    detect_conf_type,
+    dict_get_or,
+    dict_get_or_normalize,
+)
+
 from .const import (
     CONF_PERIOD,
     CONF_RESTORE_STATE,
     CONF_DEVICE_RESTORE_STATE,
     CONF_DEVICE_RESET_TIMER,
+    CONF_UUID,
     DEFAULT_DEVICE_RESET_TIMER,
     KETTLES,
     MANUFACTURER_DICT,
@@ -91,27 +101,27 @@ class BLEupdaterBinary:
     async def async_run(self, hass):
         """Entities updater loop."""
 
-        async def async_add_binary_sensor(mac, sensortype, firmware):
+        async def async_add_binary_sensor(key, sensortype, firmware):
             device_sensors = MEASUREMENT_DICT[sensortype][2]
-            if mac not in sensors_by_mac:
+            if key not in sensors_by_key:
                 sensors = []
                 for sensor in device_sensors:
                     description = [item for item in BINARY_SENSOR_TYPES if item.key is sensor][0]
                     sensors.insert(
                         device_sensors.index(sensor),
                         globals()[description.sensor_class](
-                            self.config, mac, sensortype, firmware, description
+                            self.config, key, sensortype, firmware, description
                         ),
                     )
                 if len(sensors) != 0:
-                    sensors_by_mac[mac] = sensors
+                    sensors_by_key[key] = sensors
                     self.add_entities(sensors)
             else:
-                sensors = sensors_by_mac[mac]
+                sensors = sensors_by_key[key]
             return sensors
 
         _LOGGER.debug("Binary entities updater loop started!")
-        sensors_by_mac = {}
+        sensors_by_key = {}
         sensors = []
         batt = {}  # batteries
         mibeacon_cnt = 0
@@ -125,17 +135,17 @@ class BLEupdaterBinary:
         if self.config[CONF_DEVICES]:
             dev_registry = await hass.helpers.device_registry.async_get_registry()
             for device in self.config[CONF_DEVICES]:
-                mac = device["mac"]
+                key = dict_get_or(device)
 
                 # get sensortype and firmware from device registry to setup sensor
-                dev = dev_registry.async_get_device({(DOMAIN, mac)}, set())
+                dev = dev_registry.async_get_device({(DOMAIN, key)}, set())
                 if dev:
-                    mac = mac.replace(":", "")
+                    key = identifier_clean(key)
                     sensortype = dev.model
                     firmware = dev.sw_version
                     if sensortype and firmware:
                         sensors = await async_add_binary_sensor(
-                            mac, sensortype, firmware
+                            key, sensortype, firmware
                         )
                     else:
                         continue
@@ -164,12 +174,12 @@ class BLEupdaterBinary:
             if data:
                 _LOGGER.debug("Data binary sensor received: %s", data)
                 mibeacon_cnt += 1
-                mac = data["mac"]
+                key = dict_get_or(data)
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
                 device_sensors = MEASUREMENT_DICT[sensortype][2]
-                sensors = await async_add_binary_sensor(mac, sensortype, firmware)
+                sensors = await async_add_binary_sensor(key, sensortype, firmware)
 
                 if data["data"] is False:
                     data = None
@@ -178,8 +188,8 @@ class BLEupdaterBinary:
                 # store found readings per device
                 if "battery" in MEASUREMENT_DICT[sensortype][0]:
                     if "battery" in data:
-                        batt[mac] = int(data["battery"])
-                        batt_attr = batt[mac]
+                        batt[key] = int(data["battery"])
+                        batt_attr = batt[key]
                         for entity in sensors:
                             getattr(entity, "_extra_state_attributes")[
                                 ATTR_BATTERY_LEVEL
@@ -188,7 +198,7 @@ class BLEupdaterBinary:
                                 entity.async_schedule_update_ha_state(False)
                     else:
                         try:
-                            batt_attr = batt[mac]
+                            batt_attr = batt[key]
                         except KeyError:
                             batt_attr = None
                 # schedule an immediate update of binary sensors
@@ -210,7 +220,7 @@ class BLEupdaterBinary:
             _LOGGER.debug(
                 "%i MiBeacon BLE ADV messages processed for %i binary sensor device(s) total. Priority queue = %i",
                 mibeacon_cnt,
-                len(sensors_by_mac),
+                len(sensors_by_key),
                 len(hpriority),
             )
             mibeacon_cnt = 0
@@ -222,7 +232,7 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
     def __init__(
         self,
         config,
-        mac: str,
+        key: str,
         devtype: str,
         firmware: str,
         description: BLEMonitorBinarySensorEntityDescription,
@@ -230,8 +240,10 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         """Initialize the binary sensor."""
         self.entity_description = description
         self._config = config
-        self._mac = mac
-        self._fmac = ":".join(mac[i : i + 2] for i in range(0, len(self._mac), 2))
+        self._type = detect_conf_type(key)
+
+        self._key = key
+        self._fkey = identifier_normalize(key)
         self._state = None
 
         self._device_settings = self.get_device_settings()
@@ -239,9 +251,12 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         self._device_type = devtype
         self._device_firmware = firmware
         self._device_manufacturer = MANUFACTURER_DICT[devtype]
-        self._extra_state_attributes = {}
-        self._extra_state_attributes["sensor type"] = devtype
-        self._extra_state_attributes["mac address"] = self._fmac
+
+        self._extra_state_attributes = {
+            'sensor type': devtype,
+            'uuid' if self.is_beacon else 'mac address': self._fkey
+        }
+
         self.ready_for_update = False
         self._restore_state = self._device_settings["restore state"]
         self._reset_timer = self._device_settings["reset timer"]
@@ -252,8 +267,9 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         self._attr_should_poll = False
         self._attr_force_update = description.force_update
         self._attr_extra_state_attributes = self._extra_state_attributes
+
         self._attr_device_info = {
-            "identifiers": {(DOMAIN, self._extra_state_attributes["mac address"])},
+            "identifiers": {(DOMAIN, self._fkey.upper())},
             "name": self._device_name,
             "model": devtype,
             "sw_version": firmware,
@@ -278,10 +294,22 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
             self._state = True
         elif old_state.state == STATE_OFF:
             self._state = False
-        for attr in RESTORE_ATTRIBUTES:
+
+        restore_attr = RESTORE_ATTRIBUTES
+        restore_attr.append('mac address' if self.is_beacon else 'uuid')
+
+        for attr in restore_attr:
             if attr in old_state.attributes:
+                if attr in ['uuid', 'mac address']:
+                    old_state.attributes[attr] = identifier_normalize(old_state.attributes[attr])
+
                 self._extra_state_attributes[attr] = old_state.attributes[attr]
         self.ready_for_update = True
+
+    @property
+    def is_beacon(self):
+        """Check if entity is beacon."""
+        return self._type == CONF_UUID
 
     @property
     def pending_update(self):
@@ -306,7 +334,7 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         device_settings = {}
 
         # initial setup of device settings equal to integration settings
-        dev_name = self._mac
+        dev_name = self._key
         dev_restore_state = self._config[CONF_RESTORE_STATE]
         dev_reset_timer = DEFAULT_DEVICE_RESET_TIMER
 
@@ -320,7 +348,8 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         # overrule settings with device setting if available
         if self._config[CONF_DEVICES]:
             for device in self._config[CONF_DEVICES]:
-                if self._fmac in device["mac"].upper():
+                key = detect_conf_type(self._key)
+                if key in device and self._fkey in device[key].upper():
                     if id_selector in device:
                         # get device name (from YAML config)
                         dev_name = device[id_selector]
@@ -337,11 +366,12 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
             "reset timer": dev_reset_timer,
         }
         _LOGGER.debug(
-            "Binary sensor device with mac address %s has the following settings. "
+            "Binary sensor device with %s %s has the following settings. "
             "Name: %s. "
             "Restore state: %s. "
             "Reset Timer: %s",
-            self._fmac,
+            'uuid' if self.is_beacon else 'mac address',
+            self._fkey,
             device_settings["name"],
             device_settings["restore state"],
             device_settings["reset timer"],
@@ -356,6 +386,10 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         self._extra_state_attributes["last packet id"] = data["packet"]
         self._extra_state_attributes["rssi"] = data["rssi"]
         self._extra_state_attributes["firmware"] = data["firmware"]
+        self._extra_state_attributes['mac address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
+            data, CONF_MAC, CONF_UUID
+        )
+
         if batt_attr is not None:
             self._extra_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         if "motion timer" in data:
@@ -408,9 +442,9 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
 class MotionBinarySensor(BaseBinarySensor):
     """Representation of a Motion Binary Sensor."""
 
-    def __init__(self, config, mac, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description):
         """Initialize the sensor."""
-        super().__init__(config, mac, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description)
         self._start_timer = None
 
     def reset_state(self, event=None):

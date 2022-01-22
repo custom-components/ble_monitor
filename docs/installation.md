@@ -89,6 +89,11 @@ ble_monitor:
       track_device: True
       tracker_scan_interval: 20
       consider_home: 180
+    # ibeacon
+    - uuid: 'e2c56db5-dffb-48d2-b060-d0f5a71096e0'
+      track_device: True
+      tracker_scan_interval: 20
+      consider_home: 180
 ```
 
 Note: The encryption_key parameter is only needed for sensors, for which it is [pointed](devices) that their messages are encrypted.

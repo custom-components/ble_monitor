@@ -20,6 +20,7 @@ from .thermoplus import parse_thermoplus
 from .xiaomi import parse_xiaomi
 from .xiaogui import parse_xiaogui
 from .bparasite import parse_bparasite
+from .ibeacon import parse_ibeacon
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -74,6 +75,7 @@ class BleParser:
         # MAC address
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
         sensor_data = None
+        tracker_data = None
         complete_local_name = ""
         service_class_uuid16 = None
         service_class_uuid128 = None
@@ -139,7 +141,10 @@ class BleParser:
             elif man_spec_data:
                 # parse data for sensors with manufacturer specific data
                 comp_id = (man_spec_data[3] << 8) | man_spec_data[2]
-                if man_spec_data[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
+                if comp_id == 0x4C and man_spec_data[4] == 0x02: # iBeacon
+                    sensor_data, tracker_data = parse_ibeacon(self, man_spec_data, mac, rssi)
+                    break
+                elif man_spec_data[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
                     sensor_data = parse_kegtron(self, man_spec_data, mac, rssi)
                     break
                 elif service_class_uuid16 == 0xF0FF:
@@ -219,12 +224,16 @@ class BleParser:
             break
 
         # check for monitored device trackers
-        if mac in self.tracker_whitelist:
-            tracker_data = {
-                "is connected": True,
-                "mac": ''.join('{:02X}'.format(x) for x in mac),
-                "rssi": rssi,
-            }
+        tracker_id = tracker_data['tracker_id'] if tracker_data and 'tracker_id' in tracker_data else mac
+        if tracker_id in self.tracker_whitelist:
+            if tracker_data is not None:
+                tracker_data.update({"is connected": True})
+            else:
+                tracker_data = {
+                    "is connected": True,
+                    "mac": ''.join('{:02X}'.format(x) for x in mac),
+                    "rssi": rssi,
+                }
         else:
             tracker_data = None
 

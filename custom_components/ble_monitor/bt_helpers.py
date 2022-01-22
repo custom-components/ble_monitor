@@ -5,7 +5,6 @@ import time
 
 _LOGGER = logging.getLogger(__name__)
 
-
 # Bluetooth interfaces available on the system
 def hci_get_mac(interface_list=[0]):
     """Get dict of available bluetooth interfaces, returns hci and mac."""

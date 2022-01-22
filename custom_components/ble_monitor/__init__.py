@@ -51,6 +51,7 @@ from .const import (
     CONF_REPORT_UNKNOWN,
     CONF_RESTORE_STATE,
     CONF_USE_MEDIAN,
+    CONF_UUID,
     CONFIG_IS_FLOW,
     DEFAULT_ACTIVE_SCAN,
     DEFAULT_BATT_ENTITIES,
@@ -85,6 +86,13 @@ from .bt_helpers import (
     reset_bluetooth
 )
 
+from .helper import (
+    config_validation_uuid,
+    identifier_clean,
+    dict_get_or,
+    dict_get_or_clean,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_YAML = {}
@@ -93,6 +101,7 @@ UPDATE_UNLISTENER = None
 DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_MAC): cv.matches_regex(MAC_REGEX),
+        vol.Optional(CONF_UUID): config_validation_uuid,
         vol.Optional(CONF_NAME): cv.string,
         vol.Optional(CONF_DEVICE_ENCRYPTION_KEY): vol.Any(
             cv.matches_regex(AES128KEY24_REGEX), cv.matches_regex(AES128KEY32_REGEX)
@@ -513,9 +522,9 @@ class HCIdump(Thread):
         if self.config[CONF_DEVICES]:
             for device in self.config[CONF_DEVICES]:
                 if CONF_DEVICE_ENCRYPTION_KEY in device and device[CONF_DEVICE_ENCRYPTION_KEY]:
-                    p_mac = bytes.fromhex(device["mac"].replace(":", "").lower())
+                    p_id = bytes.fromhex(dict_get_or_clean(device).lower())
                     p_key = bytes.fromhex(device[CONF_DEVICE_ENCRYPTION_KEY].lower())
-                    self.aeskeys[p_mac] = p_key
+                    self.aeskeys[p_id] = p_key
                 else:
                     continue
         _LOGGER.debug("%s encryptors mac:key pairs loaded", len(self.aeskeys))
@@ -527,23 +536,23 @@ class HCIdump(Thread):
             self.discovery = False
             if self.config[CONF_DEVICES]:
                 for device in self.config[CONF_DEVICES]:
-                    self.sensor_whitelist.append(device["mac"])
+                    self.sensor_whitelist.append(dict_get_or(device))
 
         # remove duplicates from sensor whitelist
         self.sensor_whitelist = list(dict.fromkeys(self.sensor_whitelist))
         _LOGGER.debug(
             "sensor whitelist: [%s]", ", ".join(self.sensor_whitelist).upper()
         )
-        for i, mac in enumerate(self.sensor_whitelist):
-            self.sensor_whitelist[i] = bytes.fromhex(mac.replace(":", ""))
+        for i, key in enumerate(self.sensor_whitelist):
+            self.sensor_whitelist[i] = bytes.fromhex(identifier_clean(key))
         _LOGGER.debug("%s sensor whitelist item(s) loaded", len(self.sensor_whitelist))
 
         # prepare device tracker list to speedup parser
         if self.config[CONF_DEVICES]:
             for device in self.config[CONF_DEVICES]:
                 if CONF_DEVICE_TRACK in device and device[CONF_DEVICE_TRACK]:
-                    track_mac = bytes.fromhex(device["mac"].replace(":", ""))
-                    self.tracker_whitelist.append(track_mac)
+                    track_key = bytes.fromhex(dict_get_or_clean(device))
+                    self.tracker_whitelist.append(track_key)
                 else:
                     continue
         _LOGGER.debug(
