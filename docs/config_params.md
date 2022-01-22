@@ -66,6 +66,7 @@ ble_monitor:
   devices:
     - mac: '58:C1:38:2F:86:6C'
     - mac: 'C4:FA:64:D1:61:7D'
+    - uuid: 'e2c56db5-dffb-48d2-b060-d0f5a71096e0'
 ```
 
 Data from sensors with other addresses will be ignored. Default value: True
@@ -142,11 +143,20 @@ ble_monitor:
       track_device: True
       tracker_scan_interval: 20
       consider_home: 180
+    # ibeacon
+    - uuid: 'e2c56db5-dffb-48d2-b060-d0f5a71096e0'
+      track_device: True
+      tracker_scan_interval: 20
+      consider_home: 180
 ```
 
 ### mac
 
-   (string)(Required) The `mac` option (`MAC address` in the UI) is used to identify your device based on its mac-address. This allows you to define other additional options for this specific device, to track it and/or to whitelist it with the `discovery` option. You can find the MAC address in the attributes of your sensor (`Developers Tools` --> `States`). For deleting devices see the instructions [in the FAQ](faq#how-to-remove-devices-and-sensors).
+   (string)(Required if none uuid) The `mac` option (`MAC address` in the UI) is used to identify your device based on its mac-address. This allows you to define other additional options for this specific device, to track it and/or to whitelist it with the `discovery` option. You can find the MAC address in the attributes of your sensor (`Developers Tools` --> `States`). For deleting devices see the instructions [in the FAQ](faq#how-to-remove-devices-and-sensors).
+
+### uuid
+
+   (string)(Required if none mac)(Priority higher than mac if both are specified.) The `uuid` option (`Beacon UUID` in the UI) is used to identify your device based on its beacon uuid. This allows you to define other additional options for this specific device, to track it and/or to whitelist it with the `discovery` option. You can find the Beacon UUID and MAC address(may be dynamic) in the attributes of your sensor (`Developers Tools` --> `States`). For deleting devices see the instructions [in the FAQ](faq#how-to-remove-devices-and-sensors).
 
 ### name
 
@@ -244,6 +254,10 @@ ble_monitor:
 ble_monitor:
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
+      track_device: True
+      tracker_scan_interval: 20
+      consider_home: 180
+    - uuid: 'e2c56db5-dffb-48d2-b060-d0f5a71096e0'
       track_device: True
       tracker_scan_interval: 20
       consider_home: 180
