@@ -21,6 +21,7 @@ from .xiaomi import parse_xiaomi
 from .xiaogui import parse_xiaogui
 from .bparasite import parse_bparasite
 from .ibeacon import parse_ibeacon
+from .altbeacon import parse_altbeacon
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -145,6 +146,10 @@ class BleParser:
                     comp_id = (man_spec_data[3] << 8) | man_spec_data[2]
                     if comp_id == 0x4C and man_spec_data[4] == 0x02:  # iBeacon
                         sensor_data, tracker_data = parse_ibeacon(self, man_spec_data, mac, rssi)
+                        break
+                    elif man_spec_data[0] == 0x1B and man_spec_data[1] == 0xFF \
+                            and ((man_spec_data[4] << 8) | man_spec_data[5]) == 0xBEAC: # AltBeacon
+                        sensor_data, tracker_data = parse_altbeacon(self, man_spec_data, comp_id, mac, rssi)
                         break
                     elif man_spec_data[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
                         sensor_data = parse_kegtron(self, man_spec_data, mac, rssi)

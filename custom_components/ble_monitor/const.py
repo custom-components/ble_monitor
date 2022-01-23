@@ -822,6 +822,7 @@ MEASUREMENT_DICT = {
     'IBS-TH'                  : [["temperature", "humidity", "battery", "rssi"], [], []],
     'BEC07-5'                 : [["temperature", "humidity", "rssi"], [], []],
     'iBeacon'                 : [["rssi", "measured power"], ["uuid", "mac", "major", "minor", "cypress temperature", "cypress humidity"], []], # mac can be dynamic
+    'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []], # mac can be dynamic
 }
 
 
@@ -914,6 +915,7 @@ MANUFACTURER_DICT = {
     'IBS-TH'                  : 'Inkbird',
     'BEC07-5'                 : 'Jinou',
     'iBeacon'                 : 'Apple',
+    'AltBeacon'               : 'Radius Networks',
 }
 
 # Renamed model dictionary
