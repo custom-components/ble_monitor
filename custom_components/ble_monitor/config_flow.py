@@ -408,6 +408,11 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
             if user_input[CONF_DEVICES] in self._devices:
                 self._sel_device = self._devices[user_input[CONF_DEVICES]]
                 return await self.async_step_add_remove_device()
+            if (
+                "disable" in user_input[CONF_BT_INTERFACE]
+                and not len(user_input[CONF_BT_INTERFACE]) == 1
+            ):
+                errors[CONF_BT_INTERFACE] = "cannot_disable_bt_interface"
             await self.async_set_unique_id(DOMAIN_TITLE)
             self._abort_if_unique_id_configured()
             return self._create_entry(user_input)
@@ -516,6 +521,8 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
             if user_input[CONF_DEVICES] in self._devices:
                 self._sel_device = self._devices[user_input[CONF_DEVICES]]
                 return await self.async_step_add_remove_device()
+            if "disable" in user_input[CONF_BT_INTERFACE] and not len(user_input[CONF_BT_INTERFACE]) == 1:
+                errors[CONF_BT_INTERFACE] = "cannot_disable_bt_interface"
             return self._create_entry(user_input)
         _LOGGER.debug("async_step_init (before): %s", self.config_entry.options)
 
