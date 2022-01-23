@@ -293,17 +293,31 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         else:
             bt_interface_list = config[CONF_BT_INTERFACE]
             for bt_mac in bt_interface_list:
-                hci = list(BT_INTERFACES.keys())[
-                    list(BT_INTERFACES.values()).index(bt_mac)
-                ]
-                hci_list.append(int(hci))
-                bt_mac_list.append(str(bt_mac))
+                try:
+                    hci = list(BT_INTERFACES.keys())[
+                        list(BT_INTERFACES.values()).index(bt_mac)
+                    ]
+                    hci_list.append(int(hci))
+                    bt_mac_list.append(str(bt_mac))
+                except:
+                    _LOGGER.error(
+                        "Bluetooth adapter with MAC address %s was not found. "
+                        "It is therefore changed back to the default adapter. "
+                        "Check the BLE monitor settings, if needed.",
+                        config[CONF_BT_INTERFACE]
+                    )
+                    default_hci = list(BT_INTERFACES.keys())[
+                        list(BT_INTERFACES.values()).index(DEFAULT_BT_INTERFACE)
+                    ]
+                    hci_list.append(int(default_hci))
+                    bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
     else:
         # Configuration in YAML
         for key, value in CONFIG_YAML.items():
             config[key] = value
         _LOGGER.info(
-            "Available Bluetooth interfaces for BLE monitor: %s", list(BT_MULTI_SELECT.values())
+            "Available Bluetooth interfaces for BLE monitor: %s",
+            list(BT_MULTI_SELECT.values())
         )
 
         if config[CONF_HCI_INTERFACE]:

@@ -8,7 +8,7 @@ _LOGGER = logging.getLogger(__name__)
 def parse_bparasite(self, data, source_mac, rssi):
     """Check for adstruc length"""
     msg_length = len(data)
-    if msg_length == 22: # TODO: Use version bits?
+    if msg_length == 22:  # TODO: Use version bits?
         bpara_mac = data[14:20]
         device_type = "b-parasite V1.1.0"
         firmware = "b-parasite V1.1.0 (with illuminance)"
@@ -53,7 +53,7 @@ def parse_bparasite(self, data, source_mac, rssi):
     except KeyError:
         # start with empty first packet
         prev_packet = None
-    
+
     if self.filter_duplicates is True:
         # only process messages with same priority that have a changed packet id
         if prev_packet == packet_id:
@@ -70,4 +70,3 @@ def parse_bparasite(self, data, source_mac, rssi):
     })
 
     return result
-
