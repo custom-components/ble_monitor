@@ -401,6 +401,15 @@ async def async_migrate_entry(hass, config_entry):
         config_entry.version = 3
         hass.config_entries.async_update_entry(config_entry, options=options)
         _LOGGER.info("Migrated config entry to version %d", config_entry.version)
+
+    if config_entry.version == 3:
+        options = dict(config_entry.options)
+        if options[CONF_BT_INTERFACE] == ["00:00:00:00:00:00"]:
+            options[CONF_BT_INTERFACE] = ["disable"]
+
+        config_entry.version = 4
+        hass.config_entries.async_update_entry(config_entry, options=options)
+        _LOGGER.info("Migrated config entry to version %d", config_entry.version)
     return True
 
 
