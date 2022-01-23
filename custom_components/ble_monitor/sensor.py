@@ -120,7 +120,7 @@ class BLEupdater:
     async def async_run(self, hass):
         """Entities updater loop."""
 
-        async def async_add_sensor(key, sensortype, firmware):
+        async def async_add_sensor(key, sensortype, firmware, manufacturer = None):
             averaging_sensors = MEASUREMENT_DICT[sensortype][0]
             instant_sensors = MEASUREMENT_DICT[sensortype][1]
             device_sensors = averaging_sensors + instant_sensors
@@ -133,7 +133,7 @@ class BLEupdater:
                     sensors.insert(
                         device_sensors.index(sensor),
                         globals()[description.sensor_class](
-                            self.config, key, sensortype, firmware, description
+                            self.config, key, sensortype, firmware, description, manufacturer
                         ),
                     )
                 if len(sensors) != 0:
@@ -174,7 +174,7 @@ class BLEupdater:
                         sensortype = RENAMED_MODEL_DICT[dev.model]
                     firmware = dev.sw_version
                     if sensortype and firmware:
-                        sensors = await async_add_sensor(key, sensortype, firmware)
+                        sensors = await async_add_sensor(key, sensortype, firmware, dev.manufacturer)
                     else:
                         continue
                 else:
@@ -208,10 +208,11 @@ class BLEupdater:
                 if data["type"] in RENAMED_MODEL_DICT.keys():
                     sensortype = RENAMED_MODEL_DICT[data["type"]]
                 firmware = data["firmware"]
+                manufacturer = data["manufacturer"] if "manufacturer" in data else None
                 averaging_sensors = MEASUREMENT_DICT[sensortype][0]
                 instant_sensors = MEASUREMENT_DICT[sensortype][1]
                 device_sensors = averaging_sensors + instant_sensors
-                sensors = await async_add_sensor(key, sensortype, firmware)
+                sensors = await async_add_sensor(key, sensortype, firmware, manufacturer)
                 if data["data"] is False:
                     data = None
                     continue
@@ -335,6 +336,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
         devtype: str,
         firmware: str,
         description: BLEMonitorSensorEntityDescription,
+        manufacturer = None,
     ) -> None:
         """Initialize the sensor."""
         self.entity_description = description
@@ -348,7 +350,9 @@ class BaseSensor(RestoreEntity, SensorEntity):
         self._device_name = self._device_settings["name"]
         self._device_type = devtype
         self._device_firmware = firmware
-        self._device_manufacturer = MANUFACTURER_DICT[devtype]
+        self._device_manufacturer = manufacturer \
+            if manufacturer is not None \
+            else MANUFACTURER_DICT[devtype]
 
         self._extra_state_attributes = {
             'sensor type': devtype,
@@ -493,9 +497,9 @@ class BaseSensor(RestoreEntity, SensorEntity):
 class MeasuringSensor(BaseSensor):
     """Base class for measuring sensor entities."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
         self._rdecimals = self._device_settings["decimals"]
         self._jagged = False
         self._use_median = self._device_settings["use median"]
@@ -568,9 +572,9 @@ class MeasuringSensor(BaseSensor):
 class TemperatureSensor(MeasuringSensor):
     """Representation of a Temperature sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
         self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
 
         if devtype in KETTLES:
@@ -633,9 +637,9 @@ class TemperatureSensor(MeasuringSensor):
 class HumiditySensor(MeasuringSensor):
     """Representation of a Humidity sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
         self._log_spikes = config[CONF_LOG_SPIKES]
         # LYWSD03MMC / MHO-C401 "jagged" humidity workaround
         if devtype in ("LYWSD03MMC", "MHO-C401"):
@@ -681,9 +685,9 @@ class HumiditySensor(MeasuringSensor):
 class BatterySensor(MeasuringSensor):
     """Representation of a Battery sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
 
     def collect(self, data, period_cnt, batt_attr=None):
         """Battery measurements collector."""
@@ -710,9 +714,9 @@ class BatterySensor(MeasuringSensor):
 class InstantUpdateSensor(BaseSensor):
     """Base class for instant updating sensor entity."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
         self._reset_timer = self._device_settings["reset timer"]
 
     def collect(self, data, period_cnt, batt_attr=None):
@@ -745,9 +749,9 @@ class InstantUpdateSensor(BaseSensor):
 class AccelerationSensor(InstantUpdateSensor):
     """Representation of a Acceleration sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
 
     def collect(self, data, period_cnt, batt_attr=None):
         """Measurements collector."""
@@ -772,9 +776,9 @@ class AccelerationSensor(InstantUpdateSensor):
 class WeightSensor(InstantUpdateSensor):
     """Representation of a Weight sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
 
     def collect(self, data, period_cnt, batt_attr=None):
         """Measurements collector."""
@@ -807,9 +811,9 @@ class WeightSensor(InstantUpdateSensor):
 class EnergySensor(InstantUpdateSensor):
     """Representation of an Energy sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
         self._rdecimals = self._device_settings["decimals"]
 
     def collect(self, data, period_cnt, batt_attr=None):
@@ -842,9 +846,9 @@ class EnergySensor(InstantUpdateSensor):
 class PowerSensor(InstantUpdateSensor):
     """Representation of a Power sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
         self._rdecimals = self._device_settings["decimals"]
 
     def collect(self, data, period_cnt, batt_attr=None):
@@ -875,9 +879,9 @@ class PowerSensor(InstantUpdateSensor):
 class ButtonSensor(InstantUpdateSensor):
     """Representation of a Button sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
 
     def collect(self, data, period_cnt, batt_attr=None):
         """Measurement collector."""
@@ -912,9 +916,9 @@ class ButtonSensor(InstantUpdateSensor):
 class DimmerSensor(InstantUpdateSensor):
     """Representation of a Dimmer sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
         self._button = "button"
         self._dimmer = self.entity_description.key
 
@@ -953,9 +957,9 @@ class DimmerSensor(InstantUpdateSensor):
 class SwitchSensor(InstantUpdateSensor):
     """Representation of a Switch sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
         self._button_switch = "button switch"
         self._button = self.entity_description.key
 
@@ -997,9 +1001,9 @@ class SwitchSensor(InstantUpdateSensor):
 class BaseRemoteSensor(InstantUpdateSensor):
     """Representation of a Remote sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
         self._button = "button"
         self._remote = self.entity_description.key
 
@@ -1038,9 +1042,9 @@ class BaseRemoteSensor(InstantUpdateSensor):
 class VolumeDispensedSensor(InstantUpdateSensor):
     """Representation of a Kegtron Volume dispensed sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
 
     def collect(self, data, period_cnt, batt_attr=None):
         """Measurements collector."""

@@ -1,4 +1,4 @@
-# Parser for iBeacon BLE advertisements
+# Parser for AltBeacon BLE advertisements
 import logging
 from struct import unpack
 from uuid import UUID
@@ -6,12 +6,13 @@ from typing import Final
 
 from homeassistant.const import (
     CONF_MAC,
-    CONF_TYPE,
+    CONF_TYPE
 )
 
 from .const import (
     CONF_PACKET,
     CONF_FIRMWARE,
+    CONF_MANUFACTURER,
     CONF_DATA,
     CONF_RSSI,
     CONF_UUID,
@@ -19,16 +20,17 @@ from .const import (
     CONF_MAJOR,
     CONF_MINOR,
     CONF_MEASURED_POWER,
-    CONF_CYPRESS_TEMPERATURE,
-    CONF_CYPRESS_HUMIDITY,
+
+    MANUFACTURER_DICT,
+    DEFAULT_MANUFACTURER,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-DEVICE_TYPE: Final = "iBeacon"
+DEVICE_TYPE: Final = "AltBeacon"
 
-def parse_ibeacon(self, data: str, source_mac: str, rssi: float):
-    if data[5] == 0x15 and len(data) >= 27:
+def parse_altbeacon(self, data: str, comp_id: int, source_mac: str, rssi: float):
+    if len(data) >= 27:
         uuid = data[6:22]
         (major, minor, power) = unpack(">hhb", data[22:27])
 
@@ -40,14 +42,15 @@ def parse_ibeacon(self, data: str, source_mac: str, rssi: float):
             CONF_MAJOR: major,
             CONF_MINOR: minor,
             CONF_MEASURED_POWER: power,
-            CONF_CYPRESS_TEMPERATURE: 175.72 * ((minor & 0xff) * 256) / 65536 - 46.85,
-            CONF_CYPRESS_HUMIDITY: 125.0 * (minor & 0xff00) / 65536 - 6,
         }
 
         sensor_data = {
             CONF_TYPE: DEVICE_TYPE,
             CONF_PACKET: "no packet id",
             CONF_FIRMWARE: DEVICE_TYPE,
+            CONF_MANUFACTURER: MANUFACTURER_DICT[comp_id] \
+                if comp_id in MANUFACTURER_DICT \
+                else DEFAULT_MANUFACTURER,
             CONF_DATA: True
         } | tracker_data
     else:
@@ -61,7 +64,7 @@ def parse_ibeacon(self, data: str, source_mac: str, rssi: float):
             )
         return None, None
 
-    # check for UUID presence in sensor whitelist, if needed
+     # check for UUID presence in sensor whitelist, if needed
     if self.discovery is False and uuid and uuid not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. UUID: %s is not whitelisted!", to_uuid(uuid))
 

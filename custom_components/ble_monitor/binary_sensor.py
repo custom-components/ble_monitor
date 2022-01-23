@@ -101,7 +101,7 @@ class BLEupdaterBinary:
     async def async_run(self, hass):
         """Entities updater loop."""
 
-        async def async_add_binary_sensor(key, sensortype, firmware):
+        async def async_add_binary_sensor(key, sensortype, firmware, manufacturer = None):
             device_sensors = MEASUREMENT_DICT[sensortype][2]
             if key not in sensors_by_key:
                 sensors = []
@@ -110,7 +110,7 @@ class BLEupdaterBinary:
                     sensors.insert(
                         device_sensors.index(sensor),
                         globals()[description.sensor_class](
-                            self.config, key, sensortype, firmware, description
+                            self.config, key, sensortype, firmware, description, manufacturer
                         ),
                     )
                 if len(sensors) != 0:
@@ -145,7 +145,7 @@ class BLEupdaterBinary:
                     firmware = dev.sw_version
                     if sensortype and firmware:
                         sensors = await async_add_binary_sensor(
-                            key, sensortype, firmware
+                            key, sensortype, firmware, dev.manufacturer
                         )
                     else:
                         continue
@@ -178,8 +178,9 @@ class BLEupdaterBinary:
                 batt_attr = None
                 sensortype = data["type"]
                 firmware = data["firmware"]
+                manufacturer = data["manufacturer"] if "manufacturer" in data else None
                 device_sensors = MEASUREMENT_DICT[sensortype][2]
-                sensors = await async_add_binary_sensor(key, sensortype, firmware)
+                sensors = await async_add_binary_sensor(key, sensortype, firmware, manufacturer)
 
                 if data["data"] is False:
                     data = None
@@ -236,6 +237,7 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         devtype: str,
         firmware: str,
         description: BLEMonitorBinarySensorEntityDescription,
+        manufacturer = None
     ) -> None:
         """Initialize the binary sensor."""
         self.entity_description = description
@@ -250,7 +252,9 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         self._device_name = self._device_settings["name"]
         self._device_type = devtype
         self._device_firmware = firmware
-        self._device_manufacturer = MANUFACTURER_DICT[devtype]
+        self._device_manufacturer = manufacturer \
+            if manufacturer is not None \
+            else MANUFACTURER_DICT[devtype]
 
         self._extra_state_attributes = {
             'sensor type': devtype,
@@ -443,9 +447,9 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
 class MotionBinarySensor(BaseBinarySensor):
     """Representation of a Motion Binary Sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description):
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description)
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
         self._start_timer = None
 
     def reset_state(self, event=None):
