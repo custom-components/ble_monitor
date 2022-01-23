@@ -42,7 +42,8 @@
       "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for Yeelight sensors).",
       "cannot_change_mac": "MAC address cannot be changed.",
       "cannot_change_uuid": "Beacon UUID cannot be changed.",
-      "cannot_delete_device": "Device can't be deleted."
+      "cannot_delete_device": "Device can't be deleted.",
+      "cannot_disable_bt_interface": "Can't disable BT interface, while one or more of the BT interfaces are still selected. Deselect all BT interfaces."
     },
     "abort": {
       "single_instance_allowed": "Only a single configuration of BLE monitor is allowed."
@@ -92,7 +93,8 @@
       "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for for Yeelight sensors).",
       "cannot_change_mac": "MAC address cannot be changed.",
       "cannot_change_uuid": "Beacon UUID cannot be changed.",
-      "cannot_delete_device": "Device can't be deleted."
+      "cannot_delete_device": "Device can't be deleted.",
+      "cannot_disable_bt_interface": "Can't disable BT interface, while one or more of the BT interfaces are still selected. Deselect all BT interfaces."
     },
     "abort": {
       "not_in_use": "You have configured BLE monitor in YAML. Please change your options in YAML."

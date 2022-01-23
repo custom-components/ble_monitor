@@ -1,7 +1,6 @@
 """Config flow for BLE Monitor."""
 import copy
 import logging
-import re
 import voluptuous as vol
 
 from homeassistant.core import callback
@@ -19,19 +18,15 @@ from homeassistant.const import (
 )
 
 from .helper import (
-    validate_mac,
-    validate_uuid,
-    validate_key,
-
-    identifier_normalize,
     detect_conf_type,
     dict_get_key_or,
     dict_get_or,
+    validate_mac,
+    validate_uuid,
+    validate_key,
 )
 
 from .const import (
-    AES128KEY24_REGEX,
-    AES128KEY32_REGEX,
     CONF_ACTIVE_SCAN,
     CONF_BT_AUTO_RESTART,
     CONF_BT_INTERFACE,
@@ -73,7 +68,6 @@ from .const import (
     DEFAULT_RESTORE_STATE,
     DEFAULT_USE_MEDIAN,
     DOMAIN,
-    MAC_REGEX,
     REPORT_UNKNOWN_LIST,
 )
 
@@ -414,6 +408,11 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
             if user_input[CONF_DEVICES] in self._devices:
                 self._sel_device = self._devices[user_input[CONF_DEVICES]]
                 return await self.async_step_add_remove_device()
+            if (
+                "disable" in user_input[CONF_BT_INTERFACE]
+                and not len(user_input[CONF_BT_INTERFACE]) == 1
+            ):
+                errors[CONF_BT_INTERFACE] = "cannot_disable_bt_interface"
             await self.async_set_unique_id(DOMAIN_TITLE)
             self._abort_if_unique_id_configured()
             return self._create_entry(user_input)
@@ -522,6 +521,8 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
             if user_input[CONF_DEVICES] in self._devices:
                 self._sel_device = self._devices[user_input[CONF_DEVICES]]
                 return await self.async_step_add_remove_device()
+            if "disable" in user_input[CONF_BT_INTERFACE] and not len(user_input[CONF_BT_INTERFACE]) == 1:
+                errors[CONF_BT_INTERFACE] = "cannot_disable_bt_interface"
             return self._create_entry(user_input)
         _LOGGER.debug("async_step_init (before): %s", self.config_entry.options)
 

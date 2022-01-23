@@ -42,7 +42,8 @@
       "invalid_key": "Encryptie sleutel dient 32 hexadecimale karakters te hebben (24 voor Yeelight sensoren).",
       "cannot_change_mac": "MAC adres kan niet veranderd worden.",
       "cannot_change_uuid": "Beacon UUID kan niet worden gewijzigd.",
-      "cannot_delete_device": "Apparaat kon niet verwijderd worden."
+      "cannot_delete_device": "Apparaat kon niet verwijderd worden.",
+      "cannot_disable_bt_interface": "disable BT interface kan niet geselecteerd worden als er nog een BT interface is geselecteerd. Deselecteer alle BT interfaces."
     },
     "abort": {
       "single_instance_allowed": "Slechts één instantie van BLE monitor is toegestaan."
@@ -92,7 +93,8 @@
       "invalid_key": "Encryptie sleutel dient 32 hexadecimale karakters te hebben (24 voor Yeelight sensoren).",
       "cannot_change_mac": "MAC adres kan niet veranderd worden.",
       "cannot_change_uuid": "Beacon UUID kan niet worden gewijzigd.",
-      "cannot_delete_device": "Apparaat kon niet verwijderd worden."
+      "cannot_delete_device": "Apparaat kon niet verwijderd worden.",
+      "cannot_disable_bt_interface": "disable BT interface kan niet geselecteerd worden als er nog een BT interface is geselecteerd. Deselecteer alle BT interfaces."
     },
     "abort": {
       "not_in_use": "Je hebt BLE monitor in YAML geconfigureerd. Pas je instellingen aan in YAML."

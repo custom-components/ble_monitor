@@ -378,7 +378,7 @@ If you don't have a device (ceiling light) to pair your remote/dimmer with, you 
 
 ### How can I use my device as a tracker
 
-This integration is also capable of tracking Bluetooth devices, as long as it is using a static MAC address (public or random static (lifetime) address). To track a device, add the [mac](configuration_params#mac) address of the device to track under the [devices](configuration_params#devices) option and enable the option [track_device](configuration_params#track_device). The tracker will listen to every advertisement that is send by the device. As this can be quite often, an [tracker_scan_interval](configuration_params#tracker_scan_interval) can be set to reduce the number of state updates in Home Assistant (default 20 seconds). When no advertisments are received anymore, the device tracker entity state will turn to `Away` after the set [consider_home](configuration_params#consider_home) interval (default 180 seconds).
+This integration is also capable of tracking Bluetooth devices. You can track devices based on its MAC address, as long as it is using a static MAC address (public or random static (lifetime) address), or you can use the UUID. To track a device, add the [mac](configuration_params#mac) address or the [UUID](configuration_params#uuid) of the device to track under the [devices](configuration_params#devices) option and enable the option [track_device](configuration_params#track_device). The tracker will listen to every advertisement that is send by the device. As this can be quite often, an [tracker_scan_interval](configuration_params#tracker_scan_interval) can be set to reduce the number of state updates in Home Assistant (default 20 seconds). When no advertisments are received anymore, the device tracker entity state will turn to `Away` after the set [consider_home](configuration_params#consider_home) interval (default 180 seconds).
 
 
 ### How to remove devices and sensors
@@ -461,10 +461,6 @@ Battery level is not broadcasted by all sensors. Check the list of [supported se
 
 When the reception of data from sensors is stopped for some reason (hardware failure, errors at the system level, and so on), it may take an unacceptably long time before we notice this fact.
 [Here is](https://github.com/custom-components/ble_monitor/issues/65#issuecomment-615911228) a discussion of a solution to solve this problem using a template binary sensor, which can be used in automation to send notifications, for example.
-
-### How can I add a sensor in lovelace that shows the RSSI signal strength?
-
-All devices have a RSSI signal strength sensor that is disabled by default. You can enable the RSSI sensor by going to `configuration`, `integrations`, select `devices` on the BLE monitor integration tile and select your device. Click on the `+1 disabled entity` to show the disabled sensor and select the disabled entity. Finally, click on `Enable entity` to enable it.
 
 ## Debug
 
