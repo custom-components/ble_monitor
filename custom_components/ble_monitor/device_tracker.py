@@ -223,7 +223,8 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
         for attr in restore_attr:
             if attr in old_state.attributes:
                 if attr in ['uuid', 'mac address']:
-                    old_state.attributes[attr] = identifier_normalize(old_state.attributes[attr])
+                    self._extra_state_attributes[attr] = identifier_normalize(old_state.attributes[attr])
+                    continue
 
                 self._extra_state_attributes[attr] = old_state.attributes[attr]
 
@@ -372,7 +373,8 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
             key = CONF_MAC if attr == 'mac address' else attr
             if key in data:
                 if attr in ['uuid', 'mac address']:
-                    data[key] = identifier_normalize(data[key])
+                    self._extra_state_attributes[attr] = identifier_normalize(data[key])
+                    continue
 
                 self._extra_state_attributes[attr] = data[key]
 
