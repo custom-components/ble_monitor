@@ -915,7 +915,7 @@ MANUFACTURER_DICT = {
     'IBS-TH'                  : 'Inkbird',
     'BEC07-5'                 : 'Jinou',
     'iBeacon'                 : 'Apple',
-    'AltBeacon'               : 'AltBeacon',
+    'AltBeacon'               : 'Radius Networks',
 }
 
 # Renamed model dictionary

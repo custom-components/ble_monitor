@@ -1,5 +1,5 @@
 ---
-manufacturer: AltBeacon
+manufacturer: Radius Networks
 name: AltBeacon
 model: AltBeacon
 image: AltBeacon.jpg
