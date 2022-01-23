@@ -372,7 +372,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     blemonitor = BLEmonitor(config)
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
-    if not config[CONF_HCI_INTERFACE] == "disable":
+    if not "disable" in config[CONF_HCI_INTERFACE]:
         blemonitor.start()
 
     hass.data[DOMAIN] = {}
