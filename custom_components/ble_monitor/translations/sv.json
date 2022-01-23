@@ -1,0 +1,95 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Passiv BLE övervakare",
+        "description": " Ställ in din konfiguration för BLE övervakaren",
+        "data": {
+          "bt_interface": "MAC-adress för Bluetooth gränssnittet/adaptern",
+          "devices": "Enheter",
+          "discovery": "Upptäck enhter och sensorer automatiskt",
+          "decimals": "Siffror i decimaler",
+          "period": "Period to use for averaging",
+          "log_spikes": "Log spikes",
+          "use_median": "Använd medianvärde istället för medelvärde",
+          "active_scan": "Använd aktiv sökning istället för passiv sökning (Påverkar batteriet)",
+          "restore_state": "Återställ tillstånd efter omstart",
+          "report_unknown": " Rapportera okänd",
+          "bt_auto_restart": "Automatisk omstart för adaptern om misslyckad start"
+        }
+      },
+      "add_remove_device": {
+        "title": "Lägg till enhet",
+        "data": {
+          "mac": "MAC-adress",
+          "encryption_key": " Krypteringsnyckel",
+          "temperature_unit": "Temperaturenhet [Endast för temperatursensorer]",
+          "decimals": "Siffror i decimaler",
+          "use_median": "Använd medianvärde istället för medelvärde",
+          "restore_state": "Återställ tillstånd efter omstart",
+          "reset_timer": "Återställ timer (i sekunder, 0 = av)",
+          "track_device": "Följ enhet",
+          "tracker_scan_interval": "Enhetsföljning skanningsintervall (i sekunder)",
+          "consider_home": "Enhetsföljningstid att konstatera hemma (i sekunder)",
+          "delete device": "Radera enhet"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "MAC-adressen måste vara i formatet 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for Yeelight sensors).",
+      "cannot_change_mac": "MAC address cannot be changed.",
+      "cannot_delete_device": "Device can't be deleted."
+    },
+    "abort": {
+      "single_instance_allowed": "Bara en konfiguration för BLE övervakaren är tillåten."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Passiv BLE övervakare alternativ",
+        "description": "Sökning kommer startas om efter att du har tryckt på 'SUBMIT'",
+        "data": {
+          "bt_interface": "MAC-adress för Bluetooth gränssnittet/adaptern",
+          "devices": "Enheter",
+          "discovery": "Upptäck enhter och sensorer automatiskt",
+          "decimals": "Siffror i decimaler",
+          "period": "Period to use for averaging",
+          "log_spikes": "Logga spikar",
+          "use_median": "Använd medianvärde istället för medelvärde",
+          "active_scan": "Använd aktiv sökning istället för passiv sökning (Påverkar batteriet)",
+          "report_unknown": "Rapportera okänd",
+          "bt_auto_restart": "Automatisk omstart för adaptern om misslyckad start",
+          "restore_state": "Återställ tillstånd efter omstart",
+          "not_in_use": "YAML is used, change options in YAML"
+        }
+      },
+      "add_remove_device": {
+        "title": "Konfigurera enhet",
+        "data": {
+          "mac": "MAC-adress",
+          "encryption_key": "Krypteringsnyckel (sätt - för att ta bort)",
+          "temperature_unit": "Temperaturenhet",
+          "decimals": "Siffror i decimaler",
+          "use_median": "Använd medianvärde istället för medelvärde",
+          "restore_state": "Återställ tillstånd efter omstart",
+          "reset_timer": "Återställ timer (i sekunder, 0 = av)",
+          "track_device": "Följ enhet",
+          "tracker_scan_interval": "Enhetsföljning skanningsintervall (i sekunder)",
+          "consider_home": "Enhetsföljningstid att konstatera hemma (i sekunder)",
+          "delete device": "Radera enhet"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "MAC-adressen måste vara i formatet 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_key": "Krypteringsnyckeln måste vara 32 hexadecimal tecken (24 för Yeelight sensors).",
+      "cannot_change_mac": "MAC-adressen kan inte ändras.",
+      "cannot_delete_device": "Enheten kan inte raderas."
+    },
+    "abort": {
+      "not_in_use": " Du har konfigurerat BLE övervakaren i YAML. Var snäll att ändra dina alternativ i YAML."
+    }
+  }
+}
