@@ -5,6 +5,7 @@ import time
 
 _LOGGER = logging.getLogger(__name__)
 
+
 # Bluetooth interfaces available on the system
 def hci_get_mac(interface_list=[0]):
     """Get dict of available bluetooth interfaces, returns hci and mac."""
@@ -218,11 +219,12 @@ try:
     DEFAULT_BT_INTERFACE = list(BT_INTERFACES.items())[0][1]
     DEFAULT_HCI_INTERFACE = list(BT_INTERFACES.items())[0][0]
 except (IndexError, OSError, subprocess.CalledProcessError):
-    BT_INTERFACES = {0: "00:00:00:00:00:00"}
-    DEFAULT_BT_INTERFACE = "00:00:00:00:00:00"
-    DEFAULT_HCI_INTERFACE = 0
+    BT_INTERFACES = {}
+    DEFAULT_BT_INTERFACE = "disable"
+    DEFAULT_HCI_INTERFACE = "disable"
     _LOGGER.debug(
         "No Bluetooth interface found. Make sure Bluetooth is installed on your system"
     )
 
 BT_MULTI_SELECT = dict([(v, v + ' (hci' + str(k) + ')') for k, v in BT_INTERFACES.items()])
+BT_MULTI_SELECT["disable"] = "Don't use Bluetooth adapter"

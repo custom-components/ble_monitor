@@ -1,7 +1,6 @@
 """Config flow for BLE Monitor."""
 import copy
 import logging
-import re
 import voluptuous as vol
 
 from homeassistant.core import callback
@@ -19,19 +18,15 @@ from homeassistant.const import (
 )
 
 from .helper import (
-    validate_mac,
-    validate_uuid,
-    validate_key,
-
-    identifier_normalize,
     detect_conf_type,
     dict_get_key_or,
     dict_get_or,
+    validate_mac,
+    validate_uuid,
+    validate_key,
 )
 
 from .const import (
-    AES128KEY24_REGEX,
-    AES128KEY32_REGEX,
     CONF_ACTIVE_SCAN,
     CONF_BT_AUTO_RESTART,
     CONF_BT_INTERFACE,
@@ -73,7 +68,6 @@ from .const import (
     DEFAULT_RESTORE_STATE,
     DEFAULT_USE_MEDIAN,
     DOMAIN,
-    MAC_REGEX,
     REPORT_UNKNOWN_LIST,
 )
 

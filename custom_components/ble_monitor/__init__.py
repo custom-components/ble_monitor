@@ -138,6 +138,15 @@ CONFIG_SCHEMA = vol.Schema(
             vol.Schema(
                 {
                     vol.Optional(
+                        CONF_BT_INTERFACE, default=DEFAULT_BT_INTERFACE
+                    ): vol.Any(vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]), "disable"),
+                    vol.Optional(
+                        CONF_HCI_INTERFACE, default=[]
+                    ): vol.Any(vol.All(cv.ensure_list, [cv.positive_int]), "disable"),
+                    vol.Optional(
+                        CONF_BT_AUTO_RESTART, default=DEFAULT_BT_AUTO_RESTART
+                    ): cv.boolean,
+                    vol.Optional(
                         CONF_DECIMALS, default=DEFAULT_DECIMALS
                     ): cv.positive_int,
                     vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
@@ -150,12 +159,6 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(
                         CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN
                     ): cv.boolean,
-                    vol.Optional(CONF_HCI_INTERFACE, default=[]): vol.All(
-                        cv.ensure_list, [cv.positive_int]
-                    ),
-                    vol.Optional(
-                        CONF_BT_INTERFACE, default=DEFAULT_BT_INTERFACE
-                    ): vol.All(cv.ensure_list, [cv.matches_regex(MAC_REGEX)]),
                     vol.Optional(
                         CONF_BATT_ENTITIES, default=DEFAULT_BATT_ENTITIES
                     ): cv.boolean,
@@ -169,9 +172,6 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(
                         CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN
                     ): vol.In(REPORT_UNKNOWN_LIST),
-                    vol.Optional(
-                        CONF_BT_AUTO_RESTART, default=DEFAULT_BT_AUTO_RESTART
-                    ): cv.boolean,
                 }
             ),
         )
@@ -285,6 +285,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             ]
             hci_list.append(int(default_hci))
             bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
+        elif config[CONF_BT_INTERFACE] == ["disable"]:
+            _LOGGER.debug("Bluetooth interface is disabled")
+            default_hci = None
+            hci_list = ["disable"]
+            bt_mac_list = ["disable"]
         else:
             bt_interface_list = config[CONF_BT_INTERFACE]
             for bt_mac in bt_interface_list:
@@ -337,7 +342,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         hci_list.append(int(default_hci))
         bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
         _LOGGER.warning(
-            "No configured Bluetooth interfaces was found, using default interface instead"
+            "No configured Bluetooth interface was found, using default interface instead"
         )
 
     config[CONF_HCI_INTERFACE] = hci_list
@@ -353,7 +358,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     blemonitor = BLEmonitor(config)
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
-    blemonitor.start()
+    if not config[CONF_BT_INTERFACE] == "disable":
+        blemonitor.start()
 
     hass.data[DOMAIN] = {}
     hass.data[DOMAIN]["blemonitor"] = blemonitor
@@ -569,7 +575,7 @@ class HCIdump(Thread):
             aeskeys=self.aeskeys,
         )
 
-    def process_hci_events(self, data, gateway_id = DOMAIN):
+    def process_hci_events(self, data, gateway_id=DOMAIN):
         """Parse HCI events."""
         self.evt_cnt += 1
         if len(data) < 12:
