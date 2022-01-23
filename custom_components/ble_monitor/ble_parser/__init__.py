@@ -147,8 +147,7 @@ class BleParser:
                     if comp_id == 0x4C and man_spec_data[4] == 0x02:  # iBeacon
                         sensor_data, tracker_data = parse_ibeacon(self, man_spec_data, mac, rssi)
                         break
-                    elif man_spec_data[0] == 0x1B and man_spec_data[1] == 0xFF \
-                            and ((man_spec_data[4] << 8) | man_spec_data[5]) == 0xBEAC: # AltBeacon
+                    elif man_spec_data[0] == 0x1B and ((man_spec_data[4] << 8) | man_spec_data[5]) == 0xBEAC: # AltBeacon
                         sensor_data, tracker_data = parse_altbeacon(self, man_spec_data, comp_id, mac, rssi)
                         break
                     elif man_spec_data[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
