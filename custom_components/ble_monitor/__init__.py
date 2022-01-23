@@ -299,7 +299,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                     ]
                     hci_list.append(int(hci))
                     bt_mac_list.append(str(bt_mac))
-                except:
+                except ValueError:
                     _LOGGER.error(
                         "Bluetooth adapter with MAC address %s was not found. "
                         "It is therefore changed back to the default adapter. "
@@ -372,7 +372,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     blemonitor = BLEmonitor(config)
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
-    if not config[CONF_BT_INTERFACE] == "disable":
+    if not config[CONF_HCI_INTERFACE] == "disable":
         blemonitor.start()
 
     hass.data[DOMAIN] = {}
