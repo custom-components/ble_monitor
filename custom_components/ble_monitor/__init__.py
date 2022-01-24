@@ -372,8 +372,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     blemonitor = BLEmonitor(config)
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
-    if not "disable" in config[CONF_HCI_INTERFACE]:
-        blemonitor.start()
+    blemonitor.start()
 
     hass.data[DOMAIN] = {}
     hass.data[DOMAIN]["blemonitor"] = blemonitor
@@ -544,7 +543,8 @@ class HCIdump(Thread):
         if self.config[CONF_REPORT_UNKNOWN]:
             self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
             _LOGGER.info(
-                "Attention! Option report_unknown is enabled for %s sensors, be ready for a huge output",
+                "Attention! Option report_unknown is enabled for %s sensors, "
+                "be ready for a huge output",
                 self.report_unknown,
             )
         # prepare device:key lists to speedup parser
@@ -636,82 +636,86 @@ class HCIdump(Thread):
             if self._event_loop is None:
                 self._event_loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(self._event_loop)
-            for hci in self._interfaces:
-                try:
-                    mysocket[hci] = aiobs.create_bt_socket(hci)
-                except OSError as error:
-                    _LOGGER.error("HCIdump thread: OS error (hci%i): %s", hci, error)
-                else:
-                    fac[hci] = getattr(
-                        self._event_loop, "_create_connection_transport"
-                    )(mysocket[hci], aiobs.BLEScanRequester, None, None)
-                    conn[hci], btctrl[hci] = self._event_loop.run_until_complete(
-                        fac[hci]
-                    )
-                    _LOGGER.debug("HCIdump thread: connected to hci%i", hci)
-                    btctrl[hci].process = self.process_hci_events
+            if "disable" not in self.config[CONF_BT_INTERFACE]:
+                for hci in self._interfaces:
                     try:
-                        self._event_loop.run_until_complete(
-                            btctrl[hci].send_scan_request(self._active)
+                        mysocket[hci] = aiobs.create_bt_socket(hci)
+                    except OSError as error:
+                        _LOGGER.error("HCIdump thread: OS error (hci%i): %s", hci, error)
+                    else:
+                        fac[hci] = getattr(
+                            self._event_loop, "_create_connection_transport"
+                        )(mysocket[hci], aiobs.BLEScanRequester, None, None)
+                        conn[hci], btctrl[hci] = self._event_loop.run_until_complete(
+                            fac[hci]
                         )
-                    except RuntimeError as error:
-                        if self.config[CONF_BT_AUTO_RESTART] is True:
-                            ts_now = dt_util.now()
-                            if (ts_now - self.last_bt_reset).seconds > 60:
+                        _LOGGER.debug("HCIdump thread: connected to hci%i", hci)
+                        btctrl[hci].process = self.process_hci_events
+                        try:
+                            self._event_loop.run_until_complete(
+                                btctrl[hci].send_scan_request(self._active)
+                            )
+                        except RuntimeError as error:
+                            if self.config[CONF_BT_AUTO_RESTART] is True:
+                                ts_now = dt_util.now()
+                                if (ts_now - self.last_bt_reset).seconds > 60:
+                                    _LOGGER.error(
+                                        "HCIdump thread: Runtime error while sending scan request on hci%i: %s. "
+                                        "Resetting Bluetooth adapter %s and trying again.",
+                                        hci,
+                                        error,
+                                        BT_INTERFACES[hci],
+                                    )
+                                    reset_bluetooth(hci)
+                                    self.last_bt_reset = ts_now
+                            else:
                                 _LOGGER.error(
-                                    "HCIdump thread: Runtime error while sending scan request on hci%i: %s. Resetting Bluetooth adapter %s and trying again.",
+                                    "HCIdump thread: Runtime error while sending scan request on hci%i: %s.",
                                     hci,
                                     error,
-                                    BT_INTERFACES[hci],
                                 )
-                                reset_bluetooth(hci)
-                                self.last_bt_reset = ts_now
-                        else:
-                            _LOGGER.error(
-                                "HCIdump thread: Runtime error while sending scan request on hci%i: %s.",
-                                hci,
-                                error,
-                            )
             _LOGGER.debug("HCIdump thread: start main event_loop")
             try:
                 self._event_loop.run_forever()
             finally:
                 _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
-                for hci in self._interfaces:
-                    try:
-                        self._event_loop.run_until_complete(
-                            btctrl[hci].stop_scan_request()
-                        )
-                    except RuntimeError as error:
-                        if self.config[CONF_BT_AUTO_RESTART] is True:
-                            ts_now = dt_util.now()
-                            if (ts_now - self.last_bt_reset).seconds > 60:
+                if "disable" not in self.config[CONF_BT_INTERFACE]:
+                    for hci in self._interfaces:
+                        try:
+                            self._event_loop.run_until_complete(
+                                btctrl[hci].stop_scan_request()
+                            )
+                        except RuntimeError as error:
+                            if self.config[CONF_BT_AUTO_RESTART] is True:
+                                ts_now = dt_util.now()
+                                if (ts_now - self.last_bt_reset).seconds > 60:
+                                    _LOGGER.error(
+                                        "HCIdump thread: Runtime error while stop scan request on hci%i: %s "
+                                        "Resetting Bluetooth adapter %s and trying again.",
+                                        hci,
+                                        error,
+                                        BT_INTERFACES[hci],
+                                    )
+                                    reset_bluetooth(hci)
+                                    self.last_bt_reset = ts_now
+                            else:
                                 _LOGGER.error(
-                                    "HCIdump thread: Runtime error while stop scan request on hci%i: %s Resetting Bluetooth adapter %s and trying again.",
+                                    "HCIdump thread: Runtime error while stop scan request on hci%i: %s.",
                                     hci,
                                     error,
-                                    BT_INTERFACES[hci],
                                 )
-                                reset_bluetooth(hci)
-                                self.last_bt_reset = ts_now
-                        else:
-                            _LOGGER.error(
-                                "HCIdump thread: Runtime error while stop scan request on hci%i: %s.",
+                        except KeyError:
+                            _LOGGER.debug(
+                                "HCIdump thread: Key error while stop scan request on hci%i",
                                 hci,
-                                error,
                             )
-                    except KeyError:
-                        _LOGGER.debug(
-                            "HCIdump thread: Key error while stop scan request on hci%i",
-                            hci,
-                        )
-                    try:
-                        conn[hci].close()
-                    except KeyError:
-                        _LOGGER.debug(
-                            "HCIdump thread: Key error while closing connection on hci%i",
-                            hci,
-                        )
+                        try:
+                            conn[hci].close()
+                        except KeyError:
+                            _LOGGER.debug(
+                                "HCIdump thread: Key error while closing connection on hci%i",
+                                hci,
+                            )
                 self._event_loop.run_until_complete(asyncio.sleep(0))
             if self._joining is True:
                 break
