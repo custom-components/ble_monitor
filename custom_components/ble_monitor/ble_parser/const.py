@@ -1,11 +1,11 @@
 from typing import Final
-from homeassistant.const import CONF_SERVICE_DATA, ATTR_MANUFACTURER
 
+CONF_MAC: Final = "mac"
+CONF_TYPE: Final = "type"
 CONF_PACKET: Final = "packet"
 CONF_FIRMWARE: Final = "firmware"
-CONF_PACKET: Final = "packet"
-CONF_DATA: Final = CONF_SERVICE_DATA
-CONF_MANUFACTURER: Final = ATTR_MANUFACTURER
+CONF_DATA: Final = "data"
+CONF_MANUFACTURER: Final = "manufacturer"
 CONF_RSSI: Final = "rssi"
 
 CONF_UUID: Final = "uuid"
@@ -554,5 +554,5 @@ MANUFACTURER_DICT: Final = {
     0x0215: "Lukoton Experience Oy",
     0x0216: "MTI Ltd",
     0x0217: "Tech4home, Lda",
-    0x0216: "Hiotech AB",
+    0x0218: "Hiotech AB",
 }

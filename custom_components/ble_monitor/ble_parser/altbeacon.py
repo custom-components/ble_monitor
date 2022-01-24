@@ -1,15 +1,12 @@
-# Parser for AltBeacon BLE advertisements
+"""Parser for AltBeacon BLE advertisements"""
 import logging
 from struct import unpack
 from uuid import UUID
 from typing import Final
 
-from homeassistant.const import (
-    CONF_MAC,
-    CONF_TYPE
-)
-
 from .const import (
+    CONF_MAC,
+    CONF_TYPE,
     CONF_PACKET,
     CONF_FIRMWARE,
     CONF_MANUFACTURER,
@@ -28,6 +25,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 DEVICE_TYPE: Final = "AltBeacon"
+
 
 def parse_altbeacon(self, data: str, comp_id: int, source_mac: str, rssi: float):
     if len(data) >= 27:
@@ -64,7 +62,7 @@ def parse_altbeacon(self, data: str, comp_id: int, source_mac: str, rssi: float)
             )
         return None, None
 
-     # check for UUID presence in sensor whitelist, if needed
+    # check for UUID presence in sensor whitelist, if needed
     if self.discovery is False and uuid and uuid not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. UUID: %s is not whitelisted!", to_uuid(uuid))
 
@@ -72,8 +70,10 @@ def parse_altbeacon(self, data: str, comp_id: int, source_mac: str, rssi: float)
 
     return sensor_data, tracker_data
 
+
 def to_uuid(uuid: str) -> str:
     return str(UUID(''.join('{:02X}'.format(x) for x in uuid)))
+
 
 def to_mac(addr: str) -> str:
     return ':'.join('{:02x}'.format(x) for x in addr).upper()

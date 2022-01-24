@@ -1,15 +1,12 @@
-# Parser for iBeacon BLE advertisements
+"""Parser for iBeacon BLE advertisements"""
 import logging
 from struct import unpack
 from uuid import UUID
 from typing import Final
 
-from homeassistant.const import (
+from .const import (
     CONF_MAC,
     CONF_TYPE,
-)
-
-from .const import (
     CONF_PACKET,
     CONF_FIRMWARE,
     CONF_DATA,
@@ -26,6 +23,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 DEVICE_TYPE: Final = "iBeacon"
+
 
 def parse_ibeacon(self, data: str, source_mac: str, rssi: float):
     if data[5] == 0x15 and len(data) >= 27:
@@ -69,8 +67,10 @@ def parse_ibeacon(self, data: str, source_mac: str, rssi: float):
 
     return sensor_data, tracker_data
 
+
 def to_uuid(uuid: str) -> str:
     return str(UUID(''.join('{:02X}'.format(x) for x in uuid)))
+
 
 def to_mac(addr: str) -> str:
     return ':'.join('{:02x}'.format(x) for x in addr).upper()
