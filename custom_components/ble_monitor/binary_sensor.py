@@ -138,7 +138,7 @@ class BLEupdaterBinary:
                 key = dict_get_or(device)
 
                 # get sensortype and firmware from device registry to setup sensor
-                dev = dev_registry.async_get_device({(DOMAIN, key)}, set())
+                dev = dev_registry.async_get_device({(DOMAIN, key.upper())}, set())
                 if dev:
                     key = identifier_clean(key)
                     sensortype = dev.model
@@ -353,8 +353,7 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         # overrule settings with device setting if available
         if self._config[CONF_DEVICES]:
             for device in self._config[CONF_DEVICES]:
-                key = detect_conf_type(self._key)
-                if key in device and self._fkey in device[key].upper():
+                if self._fkey.upper() == dict_get_or(device).upper():
                     if id_selector in device:
                         # get device name (from YAML config)
                         dev_name = device[id_selector]
