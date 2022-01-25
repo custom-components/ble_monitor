@@ -147,7 +147,7 @@ class BleParser:
                     if comp_id == 0x4C and man_spec_data[4] == 0x02:  # iBeacon
                         sensor_data, tracker_data = parse_ibeacon(self, man_spec_data, mac, rssi)
                         break
-                    elif man_spec_data[0] == 0x1B and ((man_spec_data[4] << 8) | man_spec_data[5]) == 0xBEAC: # AltBeacon
+                    elif man_spec_data[0] == 0x1B and ((man_spec_data[4] << 8) | man_spec_data[5]) == 0xBEAC:  # AltBeacon
                         sensor_data, tracker_data = parse_altbeacon(self, man_spec_data, comp_id, mac, rssi)
                         break
                     elif man_spec_data[0] == 0x1E and comp_id == 0xFFFF:  # Kegtron
@@ -157,7 +157,7 @@ class BleParser:
                         if man_spec_data[0] in [0x15, 0x17] and comp_id in [0x0010, 0x0011, 0x0015]:  # Thermoplus
                             sensor_data = parse_thermoplus(self, man_spec_data, mac, rssi)
                             break
-                        elif man_spec_data[0] in [0x0F, 0x13, 0x17] and (
+                        elif man_spec_data[0] in [0x0D, 0x0F, 0x13, 0x17] and (
                             comp_id in [0x0000, 0x0001] or complete_local_name == "iBBQ"
                         ):  # Inkbird iBBQ
                             sensor_data = parse_inkbird(self, man_spec_data, mac, rssi)
@@ -197,7 +197,9 @@ class BleParser:
                     elif man_spec_data[0] == 0x0E and man_spec_data[3] == 0x82:  # iNode
                         sensor_data = parse_inode(self, man_spec_data, mac, rssi)
                         break
-                    elif man_spec_data[0] == 0x19 and man_spec_data[3] in [0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x9A, 0x9B, 0x9C, 0x9D]:  # iNode Care Sensors
+                    elif man_spec_data[0] == 0x19 and man_spec_data[3] in [
+                        0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x9A, 0x9B, 0x9C, 0x9D
+                    ]:  # iNode Care Sensors
                         sensor_data = parse_inode(self, man_spec_data, mac, rssi)
                         break
                     elif man_spec_data[0] == 0x0E and service_class_uuid16 == 0x20AA:  # Jinou BEC07-5
@@ -205,9 +207,6 @@ class BleParser:
                         break
                     elif man_spec_data[0] == 0x15 and comp_id == 0x1000:  # Moat S2
                         sensor_data = parse_moat(self, man_spec_data, mac, rssi)
-                        break
-                    elif man_spec_data[0] == 0x11 and comp_id == 0x0133:  # BlueMaestro
-                        sensor_data = parse_bluemaestro(self, man_spec_data, mac, rssi)
                         break
                     elif man_spec_data[0] == 0x11 and comp_id == 0x0133:  # BlueMaestro
                         sensor_data = parse_bluemaestro(self, man_spec_data, mac, rssi)
