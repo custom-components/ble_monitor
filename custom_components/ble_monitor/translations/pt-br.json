@@ -1,0 +1,104 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "title": "Monitor BLE passivo",
+          "description": "Configurar seu monitor BLE",
+          "data": {
+            "bt_interface": "Endereço MAC da interface/adaptador Bluetooth",
+            "devices": "Dispositivos",
+            "discovery": "Descubra dispositivos e sensores automaticamente",
+            "decimals": "Número de decimais",
+            "period": "Período a ser usado para calcular a média",
+            "log_spikes": "Logs de registro",
+            "use_median": "Use mediana em vez de média",
+            "active_scan": "Use varredura ativa em vez de varredura passiva (afeta a bateria)",
+            "restore_state": "Restaurar estado após uma reinicialização",
+            "report_unknown": "Relatório desconhecido",
+            "bt_auto_restart": "Reinicie automaticamente o adaptador Bluetooth em caso de falha"
+          }
+        },
+        "add_remove_device": {
+          "title": "Adicionar Dispositivo",
+          "data": {
+            "mac": "Endereço MAC",
+            "uuid": "Beacon UUID",
+            "encryption_key": "Chave de encriptação",
+            "temperature_unit": "Unidade de temperatura [somente sensores de temperatura]",
+            "decimals": "Número de decimais",
+            "use_median": "Use mediana em vez de média",
+            "restore_state": "Restaurar estado após uma reinicialização",
+            "reset_timer": "Redefinir temporizador (em segundos, 0 = desligado)",
+            "track_device": "Rastrear dispositivo",
+            "tracker_scan_interval": "Intervalo de verificação do rastreador de dispositivo (em segundos)",
+            "consider_home": "O rastreador do dispositivo considera o intervalo inicial (em segundos)",
+            "delete device": "Excluir dispositivo"
+          }
+        }
+      },
+      "error": {
+        "invalid_mac": "O endereço MAC deve estar no formato 'AA:BB:CC:DD:EE:FF'.",
+        "invalid_uuid": "O UUID do Beacon deve estar no formato '00000000-0000-0000-0000-000000000000'.",
+        "invalid_key": "A chave de criptografia deve ter 32 caracteres hexadecimais (24 para sensores Yeelight).",
+        "cannot_change_mac": "O endereço MAC não pode ser alterado.",
+        "cannot_change_uuid": "O UUID do Beacon não pode ser alterado.",
+        "cannot_delete_device": "O dispositivo não pode ser excluído.",
+        "cannot_disable_bt_interface": "Não é possível desabilitar a interface BT enquanto uma ou mais interfaces BT ainda estão selecionadas. Desmarque todas as interfaces BT."
+      },
+      "abort": {
+        "single_instance_allowed": "Apenas uma única configuração do monitor BLE é permitida."
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "title": "Opções de monitor BLE passivo",
+          "description": "A digitalização será reiniciada após pressionar 'ENVIAR'",
+          "data": {
+            "bt_interface": "Endereço MAC da interface/adaptador Bluetooth",
+            "devices": "Dispositivos",
+            "discovery": "Descubra dispositivos e sensores automaticamente",
+            "decimals": "Número de decimais",
+            "period": "Período a ser usado para calcular a média",
+            "log_spikes": "Logs de registro",
+            "use_median": "Use mediana em vez de média",
+            "active_scan": "Use varredura ativa em vez de varredura passiva (afeta a bateria)",
+            "report_unknown": "Relatório desconhecido",
+            "bt_auto_restart": "Reinicie automaticamente o adaptador Bluetooth em caso de falha",
+            "restore_state": "Restaurar estado após uma reinicialização",
+            "not_in_use": "YAML é usado, altere as opções em YAML"
+          }
+        },
+        "add_remove_device": {
+          "title": "Configurar dispositivo",
+          "data": {
+            "mac": "Endereço MAC",
+            "uuid": "Beacon UUID",
+            "encryption_key": "Chave de criptografia (definida como '-' para remover)",
+            "temperature_unit": "Unidade de temperatura",
+            "decimals": "Número de decimais",
+            "use_median": "Use mediana em vez de média",
+            "restore_state": "Restaurar estado após uma reinicialização",
+            "reset_timer": "Redefinir temporizador (em segundos, 0 = desligado)",
+            "track_device": "Rastrear dispositivo",
+            "tracker_scan_interval": "Intervalo de verificação do rastreador de dispositivo (em segundos)",
+            "consider_home": "O rastreador do dispositivo considera o intervalo inicial (em segundos)",
+            "delete device": "Excluir dispositivo"
+          }
+        }
+      },
+      "error": {
+        "invalid_mac": "O endereço MAC deve estar no formato 'AA:BB:CC:DD:EE:FF'.",
+        "invalid_uuid": "O UUID do Beacon deve estar no formato '00000000-0000-0000-0000-000000000000'.",
+        "invalid_key": "A chave de criptografia deve ter 32 caracteres hexadecimais (24 para sensores Yeelight).",
+        "cannot_change_mac": "O endereço MAC não pode ser alterado.",
+        "cannot_change_uuid": "O UUID do Beacon não pode ser alterado.",
+        "cannot_delete_device": "O dispositivo não pode ser excluído.",
+        "cannot_disable_bt_interface": "Não é possível desabilitar a interface BT enquanto uma ou mais interfaces BT ainda estão selecionadas. Desmarque todas as interfaces BT."
+      },
+      "abort": {
+        "not_in_use": "Você configurou o monitor BLE em YAML. Altere suas opções em YAML."
+      }
+    }
+  }
+  
