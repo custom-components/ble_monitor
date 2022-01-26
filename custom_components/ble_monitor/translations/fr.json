@@ -10,7 +10,7 @@
           "discovery": "Découvrez automatiquement les appareils et les capteurs",
           "decimals": "Nombre de décimales",
           "period": "Période à utiliser pour faire la moyenne",
-          "log_spikes": "Pointes de journal",
+          "log_spikes": "Log avancée",
           "use_median": "Utilisez la médiane au lieu de la moyenne",
           "active_scan": "Utiliser l'analyse active au lieu de l'analyse passive (affecte la batterie)",
           "restore_state": "Restaurer l'état après un redémarrage",
@@ -42,7 +42,8 @@
       "invalid_key": "La clé de chiffrement doit comporter 32 caractères hexadécimaux (24 pour les capteurs Yeelight).",
       "cannot_change_mac": "L'adresse MAC ne peut pas être modifiée.",
       "cannot_change_uuid": "L'UUID de la balise ne peut pas être modifié.",
-      "cannot_delete_device": "L'appareil ne peut pas être supprimé."
+      "cannot_delete_device": "L'appareil ne peut pas être supprimé.",
+      "cannot_disable_bt_interface": "Impossible de désactiver l'interface BT, alors qu'une ou plusieurs des interfaces BT sont toujours sélectionnées. Désélectionnez toutes les interfaces BT."
     },
     "abort": {
       "single_instance_allowed": "Une seule configuration de moniteur BLE est autorisée."
@@ -59,7 +60,7 @@
           "discovery": "Découvrez automatiquement les appareils et les capteurs",
           "decimals": "Nombre de décimales",
           "period": "Période à utiliser pour faire la moyenne",
-          "log_spikes": "Pointes de journal",
+          "log_spikes": "Log avancée",
           "use_median": "Utilisez la médiane au lieu de la moyenne",
           "active_scan": "Utiliser l'analyse active au lieu de l'analyse passive (affecte la batterie)",
           "report_unknown": "Rapport inconnu",
@@ -92,7 +93,8 @@
       "invalid_key": "La clé de chiffrement doit comporter 32 caractères hexadécimaux (24 pour les capteurs Yeelight).",
       "cannot_change_mac": "L'adresse MAC ne peut pas être modifiée.",
       "cannot_change_uuid": "L'UUID de la balise ne peut pas être modifié.",
-      "cannot_delete_device": "L'appareil ne peut pas être supprimé."
+      "cannot_delete_device": "L'appareil ne peut pas être supprimé.",
+      "cannot_disable_bt_interface": "Impossible de désactiver l'interface BT, alors qu'une ou plusieurs des interfaces BT sont toujours sélectionnées. Désélectionnez toutes les interfaces BT."
     },
     "abort": {
       "not_in_use": "Vous avez configuré le moniteur BLE dans YAML. Veuillez modifier vos options dans YAML."
