@@ -2,7 +2,7 @@
 manufacturer: Inkbird
 name: Inkbird iBBQ-1
 model: iBBQ-1
-image: Inkbird_iBBQ-2.png
+image: Inkbird_iBBQ-1.jpg
 physical_description:
 broadcasted_properties:
   - temperature probe
