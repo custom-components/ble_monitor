@@ -458,7 +458,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     ),
     BLEMonitorSensorEntityDescription(
         key="major",
-        sensor_class="MeasuringSensor",
+        sensor_class="StateChangedSensor",
         name="ble major",
         unique_id="major_",
         icon="mdi:counter",
@@ -469,7 +469,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     ),
     BLEMonitorSensorEntityDescription(
         key="minor",
-        sensor_class="MeasuringSensor",
+        sensor_class="StateChangedSensor",
         name="ble minor",
         unique_id="minor_",
         icon="mdi:counter",
@@ -822,7 +822,7 @@ MEASUREMENT_DICT = {
     'iBBQ-6'                  : [["temperature probe 1", "temperature probe 2", "temperature probe 3", "temperature probe 4", "temperature probe 5", "temperature probe 6", "rssi"], [], []],
     'IBS-TH'                  : [["temperature", "humidity", "battery", "rssi"], [], []],
     'BEC07-5'                 : [["temperature", "humidity", "rssi"], [], []],
-    'iBeacon'                 : [["rssi", "measured power"], ["uuid", "mac", "major", "minor", "cypress temperature", "cypress humidity"], []], # mac can be dynamic
+    'iBeacon'                 : [["rssi", "measured power", "cypress temperature", "cypress humidity"], ["uuid", "mac", "major", "minor"], []], # mac can be dynamic
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []], # mac can be dynamic
 }
 
