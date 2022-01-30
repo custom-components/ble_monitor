@@ -24,11 +24,10 @@ _LOGGER = logging.getLogger(__name__)
 
 DEVICE_TYPE: Final = "iBeacon"
 
-
 def parse_ibeacon(self, data: str, source_mac: str, rssi: float):
     if data[5] == 0x15 and len(data) >= 27:
         uuid = data[6:22]
-        (major, minor, power) = unpack(">hhb", data[22:27])
+        (major, minor, power) = unpack(">HHb", data[22:27])
 
         tracker_data = {
             CONF_RSSI: rssi,
