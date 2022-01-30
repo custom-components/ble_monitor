@@ -294,6 +294,8 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |**voltage
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
+    # |  |--StateChangedSensor (Class)
+    # |  |  |**only state changed
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
     # |  |--WeightSensor (Class)
@@ -745,6 +747,20 @@ class InstantUpdateSensor(BaseSensor):
         self.rssi_values.clear()
         self.pending_update = False
 
+class StateChangedSensor(InstantUpdateSensor):
+    """Representation of a State changed sensor."""
+
+    def __init__(self, config, key, devtype, firmware, description, manufacturer = None):
+        """Initialize the sensor."""
+        super().__init__(config, key, devtype, firmware, description, manufacturer)
+
+    def collect(self, data, period_cnt, batt_attr=None):
+        """Measurements collector."""
+        if self.enabled is False or self._state == data[self.entity_description.key]:
+            self.pending_update = False
+            return
+
+        super().collect(data, period_cnt, batt_attr)
 
 class AccelerationSensor(InstantUpdateSensor):
     """Representation of a Acceleration sensor."""
