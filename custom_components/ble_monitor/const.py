@@ -242,7 +242,7 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
 SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     BLEMonitorSensorEntityDescription(
         key="mac",
-        sensor_class="InstantUpdateSensor",
+        sensor_class="StateChangedSensor",
         name="ble mac",
         unique_id="mac_",
         icon="mdi:alpha-m-circle-outline",
@@ -253,7 +253,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     ),
     BLEMonitorSensorEntityDescription(
         key="uuid",
-        sensor_class="InstantUpdateSensor",
+        sensor_class="StateChangedSensor",
         name="ble uuid",
         unique_id="uuid_",
         icon="mdi:alpha-u-circle-outline",
