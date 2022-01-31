@@ -117,7 +117,12 @@ sudo apt-get install rfkill
 ```
 
 
-**5 Using the LinuxServer.io image?**
+**5 Reboot your system (cold reboot)**
+
+Perform a [cold reboot of the entire system](https://unix.stackexchange.com/questions/608116/bluetooth-wont-turn-on-on-ubuntu-20-04/608489#608489). It's not sufficient to only reboot Home Assisistant, but restart the entire machine with a cold reboot (turning it off, and than turn it on). 
+
+
+**6 Using the LinuxServer.io image?**
 
 Some users have mentioned that the [linuxserver image](https://docs.linuxserver.io/images/docker-homeassistant) is causing the issue. Using the original Home Assistant image by using `docker pull homeassistant/home-assistant` solved this issue for some people.
 
