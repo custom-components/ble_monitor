@@ -22,6 +22,7 @@ from .xiaogui import parse_xiaogui
 from .bparasite import parse_bparasite
 from .ibeacon import parse_ibeacon
 from .altbeacon import parse_altbeacon
+from .sensirion import parse_sensirion
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -210,6 +211,9 @@ class BleParser:
                         break
                     elif man_spec_data[0] in [0x06, 0x08] and service_class_uuid128 == b'\xb0\x0a\x09\xec\xd7\x9d\xb8\x93\xba\x42\xd6\x11\x00\x00\x09\xef':  # Sensorpush
                         sensor_data = parse_sensorpush(self, man_spec_data, mac, rssi)
+                        break
+                    elif comp_id == 0x06D5:  # Sensirion
+                        sensor_data = parse_sensirion(self, man_spec_data, complete_local_name, mac, rssi)
                         break
                     else:
                         unknown_sensor = True
