@@ -627,6 +627,7 @@ class HCIdump(Thread):
 
     def run(self):
         """Run HCIdump thread."""
+        interface_is_ok = {}
         while True:
             _LOGGER.debug("HCIdump thread: Run")
             mysocket = {}
@@ -635,7 +636,7 @@ class HCIdump(Thread):
             btctrl = {}
             if self._event_loop is None:
                 self._event_loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(self._event_loop)
+            asyncio.set_event_loop(self._event_loop)
             if "disable" not in self.config[CONF_BT_INTERFACE]:
                 for hci in self._interfaces:
                     try:
@@ -649,26 +650,36 @@ class HCIdump(Thread):
                         conn[hci], btctrl[hci] = self._event_loop.run_until_complete(
                             fac[hci]
                         )
-                        _LOGGER.debug("HCIdump thread: connected to hci%i", hci)
-                        btctrl[hci].process = self.process_hci_events
+                        interface_is_ok[hci] = False
+                        # Wait up to five seconds for aioblescan BLEScanRequester to initialize
+                        initialized_evt = getattr(btctrl[hci], "_initialized")
                         try:
-                            self._event_loop.run_until_complete(
-                                btctrl[hci].send_scan_request(self._active)
+                            self._event_loop.run_until_complete(asyncio.wait_for(initialized_evt.wait(), 5))
+                        except asyncio.TimeoutError:
+                            _LOGGER.error(
+                                "HCIdump thread: Something wrong - interface hci%i not ready,"
+                                " and will be skipped for current scan period.",
+                                hci,
                             )
-                        except RuntimeError as error:
                             if self.config[CONF_BT_AUTO_RESTART] is True:
                                 ts_now = dt_util.now()
                                 if (ts_now - self.last_bt_reset).seconds > 60:
                                     _LOGGER.error(
-                                        "HCIdump thread: Runtime error while sending scan request on hci%i: %s. "
-                                        "Resetting Bluetooth adapter %s and trying again.",
-                                        hci,
-                                        error,
+                                        "HCIdump thread: Trying to reset Bluetooth adapter %s,"
+                                        " will try to use it next scan period.",
                                         BT_INTERFACES[hci],
                                     )
                                     reset_bluetooth(hci)
                                     self.last_bt_reset = ts_now
-                            else:
+                        else:
+                            btctrl[hci].process = self.process_hci_events
+                            _LOGGER.debug("HCIdump thread: connected to hci%i", hci)
+                            try:
+                                self._event_loop.run_until_complete(
+                                    btctrl[hci].send_scan_request(self._active)
+                                )
+                                interface_is_ok[hci] = True
+                            except RuntimeError as error:
                                 _LOGGER.error(
                                     "HCIdump thread: Runtime error while sending scan request on hci%i: %s.",
                                     hci,
@@ -681,34 +692,22 @@ class HCIdump(Thread):
                 _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing")
                 if "disable" not in self.config[CONF_BT_INTERFACE]:
                     for hci in self._interfaces:
-                        try:
-                            self._event_loop.run_until_complete(
-                                btctrl[hci].stop_scan_request()
-                            )
-                        except RuntimeError as error:
-                            if self.config[CONF_BT_AUTO_RESTART] is True:
-                                ts_now = dt_util.now()
-                                if (ts_now - self.last_bt_reset).seconds > 60:
-                                    _LOGGER.error(
-                                        "HCIdump thread: Runtime error while stop scan request on hci%i: %s "
-                                        "Resetting Bluetooth adapter %s and trying again.",
-                                        hci,
-                                        error,
-                                        BT_INTERFACES[hci],
-                                    )
-                                    reset_bluetooth(hci)
-                                    self.last_bt_reset = ts_now
-                            else:
+                        if interface_is_ok[hci] is True:
+                            try:
+                                self._event_loop.run_until_complete(
+                                    btctrl[hci].stop_scan_request()
+                                )
+                            except RuntimeError as error:
                                 _LOGGER.error(
                                     "HCIdump thread: Runtime error while stop scan request on hci%i: %s.",
                                     hci,
                                     error,
                                 )
-                        except KeyError:
-                            _LOGGER.debug(
-                                "HCIdump thread: Key error while stop scan request on hci%i",
-                                hci,
-                            )
+                            except KeyError:
+                                _LOGGER.debug(
+                                    "HCIdump thread: Key error while stop scan request on hci%i",
+                                    hci,
+                                )
                         try:
                             conn[hci].close()
                         except KeyError:
