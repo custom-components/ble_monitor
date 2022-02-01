@@ -1,4 +1,4 @@
-# Parser for Teltonika BLE advertisements
+"""Parser for Teltonika BLE advertisements"""
 import logging
 from struct import unpack
 
@@ -6,9 +6,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
+    """Teltonika parser"""
     result = {"firmware": "Teltonika"}
     teltonika_mac = source_mac
-    print(data.hex())
+
     if complete_local_name == "PUCK_T1":
         device_type = "Blue Puck T"
     elif complete_local_name == "PUCK_TH":

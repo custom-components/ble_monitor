@@ -15,7 +15,7 @@ def parse_xiaogui(self, data, source_mac, rssi):
         xiaogui_mac = data[11:]
 
         if xiaogui_mac != source_mac:
-            print("Xiaogui MAC address doesn't match data MAC address. Data: %s", data.hex())
+            _LOGGER.error("Xiaogui MAC address doesn't match data MAC address. Data: %s", data.hex())
             return None
 
         result = {
@@ -44,7 +44,8 @@ def parse_xiaogui(self, data, source_mac, rssi):
             result.update({"stabilized": 1})
         else:
             _LOGGER.error(
-                "Stabilized byte of Xiaogui scale is reporting a new value, please report an issue to the developers with this error: Payload is %s",
+                "Stabilized byte of Xiaogui scale is reporting a new value, "
+                "please report an issue to the developers with this error: Payload is %s",
                 data.hex()
             )
             result.update({"data": False})
