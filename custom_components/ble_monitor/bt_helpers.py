@@ -81,11 +81,15 @@ def rfkill_block_bluetooth():
 def rfkill_unblock_bluetooth():
     """Execute the rfkill unblock bluetooth command."""
     _LOGGER.debug("rfkill unblock bluetooth.....")
-    command = subprocess.run(["rfkill", "unblock", "bluetooth"], stderr=subprocess.PIPE, check=True)
-    stderr = command.stderr
-    if command.returncode != 0:
-        _LOGGER.error("executing rfkill unblock bluetooth failed: %s", stderr)
-        return
+    try:
+        command = subprocess.run(["rfkill", "unblock", "bluetooth"], stderr=subprocess.PIPE, check=True)
+        stderr = command.stderr
+    except subprocess.CalledProcessError as error:
+        _LOGGER.error("executing rfkill unblock bluetooth failed: %s", error)
+    else:
+        if command.returncode != 0:
+            _LOGGER.error("executing rfkill unblock bluetooth failed: %s", stderr)
+    return
 
 
 # Bluetoothctl commands
@@ -148,7 +152,7 @@ def reset_bluetooth(hci):
     _LOGGER.debug("resetting Bluetooth")
 
     # Select the Bluetooth adapter and retreive the state of the adapter
-    mac = hci_get_mac([hci])[0]
+    mac = hci_get_mac([hci])[hci]
     if not mac:
         _LOGGER.error(
             "HCI%i seems not to exist (anymore), check BT interface mac address in your settings ",
