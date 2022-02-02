@@ -7,18 +7,19 @@ _LOGGER = logging.getLogger(__name__)
 
 
 # Bluetooth interfaces available on the system
-def hci_get_mac(interface_list=[0]):
+def hci_get_mac(iface_list=None):
     """Get dict of available bluetooth interfaces, returns hci and mac."""
+    interface_list = iface_list or [0]
     btaddress_dict = {}
     output = subprocess.run(
         ["hciconfig"], stdout=subprocess.PIPE, check=True
     ).stdout.decode("utf-8")
 
     for interface in interface_list:
-        hci_id = "hci{}".format(interface)
+        hci_id = f'hci{interface}'
         try:
             btaddress_dict[interface] = (
-                output.split("{}:".format(hci_id))[1]
+                output.split(f'{hci_id}:')[1]
                 .split("BD Address: ")[1]
                 .split(" ")[0]
                 .strip()
@@ -40,29 +41,23 @@ def rfkill_list_bluetooth(hci):
     stderr = output.stderr
     if output.returncode != 0:
         _LOGGER.error("executing rfkill list bluetooth failed: %s", stderr)
-        return "Uknown", "Uknown"
-    hci_id = "hci{}".format(hci)
+        return "Unknown", "Unknown"
+    hci_id = f'hci{hci}'
     try:
         soft_blocked = (
-            stdout.split("{}:".format(hci_id))[1]
+            stdout.split(f'{hci_id}:')[1]
             .split("Soft blocked: ")[1]
             .split("\n")[0]
             .strip()
         )
         hard_blocked = (
-            stdout.split("{}:".format(hci_id))[1]
+            stdout.split(f'{hci_id}:')[1]
             .split("Hard blocked: ")[1]
             .split("\n")[0]
             .strip()
         )
-        if soft_blocked == "yes":
-            soft_block = True
-        else:
-            soft_block = False
-        if hard_blocked == "yes":
-            hard_block = True
-        else:
-            hard_block = False
+        soft_block = bool(soft_blocked == "yes")
+        hard_block = bool(hard_blocked == "yes")
     except IndexError:
         pass
     return soft_block, hard_block
@@ -75,7 +70,6 @@ def rfkill_block_bluetooth():
     stderr = command.stderr
     if command.returncode != 0:
         _LOGGER.error("executing rfkill block bluetooth failed: %s", stderr)
-        return
 
 
 def rfkill_unblock_bluetooth():
@@ -89,7 +83,6 @@ def rfkill_unblock_bluetooth():
     else:
         if command.returncode != 0:
             _LOGGER.error("executing rfkill unblock bluetooth failed: %s", stderr)
-    return
 
 
 # Bluetoothctl commands
@@ -100,14 +93,13 @@ def bluetoothctl_select(mac):
     stderr = command.stderr
     if command.returncode != 0:
         _LOGGER.error("executing bluetoothctl select failed: %s", stderr)
-        return
 
 
-def bluetoothctl_show():
+def bluetoothctl_show(mac=""):
     """Execute the bluetoothctl show command."""
     _LOGGER.debug("bluetoothctl show.....")
     output = subprocess.run(
-        ["bluetoothctl", "show"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
+        ["bluetoothctl", "show", mac], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
     )
     stdout = output.stdout.decode("utf-8")
     stderr = output.stderr
@@ -120,10 +112,7 @@ def bluetoothctl_show():
             .split("\n")[0]
             .strip()
         )
-        if power_state == "on" or "yes":
-            power = True
-        else:
-            power = False
+        power = bool(power_state in ["on", "yes"])
     return power
 
 
@@ -134,7 +123,6 @@ def bluetoothctl_power_off():
     stderr = command.stderr
     if command.returncode != 0:
         _LOGGER.error("executing bluetoothctl power off failed: %s", stderr)
-        return
 
 
 def bluetoothctl_power_on():
@@ -144,7 +132,6 @@ def bluetoothctl_power_on():
     stderr = command.stderr
     if command.returncode != 0:
         _LOGGER.error("executing bluetoothctl power on failed: s%s", stderr)
-        return
 
 
 def reset_bluetooth(hci):
@@ -161,7 +148,7 @@ def reset_bluetooth(hci):
         return
 
     bluetoothctl_select(mac)
-    power_state_before = bluetoothctl_show()
+    power_state_before = bluetoothctl_show(mac)
     if power_state_before is True:
         _LOGGER.debug("Power state of bluetooth adapter is on before resetting Bluetooth")
     elif power_state_before is False:
@@ -170,7 +157,8 @@ def reset_bluetooth(hci):
         )
     else:
         _LOGGER.debug(
-            "Power state of bluetooth adapter before resetting Bluetooth could not be determined, trying to turn it back on anyways."
+            "Power state of bluetooth adapter before resetting Bluetooth could not be determined,"
+            " trying to turn it back on anyways."
         )
 
     soft_block, hard_block = rfkill_list_bluetooth(hci)
@@ -193,7 +181,7 @@ def reset_bluetooth(hci):
     time.sleep(5)
 
     # Check the state after the reset
-    power_state_after = bluetoothctl_show()
+    power_state_after = bluetoothctl_show(mac)
     if power_state_after is True:
         _LOGGER.debug("Power state of bluetooth adapter is on after resetting Bluetooth")
     elif power_state_after is False:
