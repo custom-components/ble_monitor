@@ -26,6 +26,7 @@ from homeassistant.const import (
     SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     TEMP_CELSIUS,
     VOLUME_LITERS,
+    CONCENTRATION_PARTS_PER_MILLION,
     Platform,
 )
 
@@ -726,6 +727,16 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         device_class=None,
         state_class=SensorStateClass.MEASUREMENT,
     ),
+    BLEMonitorSensorEntityDescription(
+        key="co2",
+        sensor_class="MeasuringSensor",
+        name="co2 sensor",
+        unique_id="co2_",
+        icon="mdi:molecule-co2",
+        native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
+        device_class=SensorDeviceClass.CO2,
+     
+    ),
 )
 
 
@@ -825,6 +836,7 @@ MEASUREMENT_DICT = {
     'BEC07-5'                 : [["temperature", "humidity", "rssi"], [], []],
     'iBeacon'                 : [["rssi", "measured power", "cypress temperature", "cypress humidity"], ["uuid", "mac", "major", "minor"], []], # mac can be dynamic
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []], # mac can be dynamic
+    'MyCO2'                   : [["temperature", "humidity", "co2", "rssi"], [], []],
 }
 
 
@@ -906,6 +918,7 @@ MANUFACTURER_DICT = {
     'Blue Puck RHT'           : 'Teltonika',
     'HTP.xw'                  : 'SensorPush',
     'HT.w'                    : 'SensorPush',
+    'MyCO2'                   : 'Sensirion',
     'Moat S2'                 : 'Moat',
     'Tempo Disc THD'          : 'BlueMaestro',
     'Tempo Disc THPD'         : 'BlueMaestro',
@@ -945,6 +958,7 @@ REPORT_UNKNOWN_LIST = [
     "Qingping",
     "rbaron",
     "Ruuvitag",
+    "Sensirion",
     "SensorPush",
     "Teltonika",
     "Thermoplus",
