@@ -76,7 +76,7 @@ def parse_oral_b(self, data, source_mac, rssi):
         return None
 
     # check for MAC presence in whitelist, if needed
-    if self.discovery is False and oral_b_mac.lower() not in self.sensor_whitelist:
+    if self.discovery is False and oral_b_mac not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(oral_b_mac))
         return None
 

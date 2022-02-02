@@ -80,7 +80,7 @@ class BleParser:
         complete_local_name = ""
         service_class_uuid16 = None
         service_class_uuid128 = None
-        service_data = b''
+        service_data_list = []
         man_spec_data_list = []
         unknown_sensor = False
 
@@ -104,8 +104,7 @@ class BleParser:
                     complete_local_name = adstruct[2:].decode("utf-8")
                 elif adstuct_type == 0x16 and adstuct_size > 4:
                     # AD type 'Service Data - 16-bit UUID'
-                    uuid16 = (adstruct[3] << 8) | adstruct[2]
-                    service_data += adstruct
+                    service_data_list.append(adstruct)
                 elif adstuct_type == 0xFF:
                     # AD type 'Manufacturer Specific Data'
                     man_spec_data_list.append(adstruct)
@@ -114,32 +113,36 @@ class BleParser:
             adpayload_start += adstuct_size
 
         while not sensor_data:
-            if service_data:
-                # parse data for sensors with service data
-                if uuid16 == 0xFFF9 or uuid16 == 0xFDCD:  # UUID16 = Cleargrass or Qingping
-                    sensor_data = parse_qingping(self, service_data, mac, rssi)
-                    break
-                elif uuid16 == 0x181A:  # UUID16 = ATC or b-parasite
-                    if len(service_data) == 22 or len(service_data) == 20:
-                        sensor_data = parse_bparasite(self, service_data, mac, rssi)
+            if service_data_list:
+                for service_data in service_data_list:
+                    # parse data for sensors with service data
+                    uuid16 = (service_data[3] << 8) | service_data[2]
+                    if uuid16 == 0xFFF9 or uuid16 == 0xFDCD:  # UUID16 = Cleargrass or Qingping
+                        sensor_data = parse_qingping(self, service_data, mac, rssi)
+                        break
+                    elif uuid16 == 0x181A:  # UUID16 = ATC or b-parasite
+                        if len(service_data) == 22 or len(service_data) == 20:
+                            sensor_data = parse_bparasite(self, service_data, mac, rssi)
+                        else:
+                            sensor_data = parse_atc(self, service_data, mac, rssi)
+                        break
+                    elif uuid16 == 0xFE95:  # UUID16 = Xiaomi
+                        sensor_data = parse_xiaomi(self, service_data, mac, rssi)
+                        break
+                    elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Mi Scale
+                        sensor_data = parse_miscale(self, service_data, mac, rssi)
+                        break
+                    elif uuid16 == 0xFEAA:  # UUID16 = Ruuvitag V2/V4
+                        sensor_data = parse_ruuvitag(self, service_data, mac, rssi)
+                        break
+                    elif uuid16 == 0x2A6E or uuid16 == 0x2A6F:  # UUID16 = Teltonika
+                        # Teltonika can contain multiple service data payloads in one advertisement
+                        if len(service_data_list) == 2:
+                            service_data = b"".join(service_data_list)
+                        sensor_data = parse_teltonika(self, service_data, complete_local_name, mac, rssi)
+                        break
                     else:
-                        sensor_data = parse_atc(self, service_data, mac, rssi)
-                    break
-                elif uuid16 == 0xFE95:  # UUID16 = Xiaomi
-                    sensor_data = parse_xiaomi(self, service_data, mac, rssi)
-                    break
-                elif uuid16 == 0x181D or uuid16 == 0x181B:  # UUID16 = Mi Scale
-                    sensor_data = parse_miscale(self, service_data, mac, rssi)
-                    break
-                elif uuid16 == 0xFEAA:  # UUID16 = Ruuvitag V2/V4
-                    sensor_data = parse_ruuvitag(self, service_data, mac, rssi)
-                    break
-                elif uuid16 == 0x2A6E or uuid16 == 0x2A6F:  # UUID16 = Teltonika
-                    # Teltonika can contain multiple sevice data payloads in one advertisement
-                    sensor_data = parse_teltonika(self, service_data, complete_local_name, mac, rssi)
-                    break
-                else:
-                    unknown_sensor = True
+                        unknown_sensor = True
             elif man_spec_data_list:
                 for man_spec_data in man_spec_data_list:
                     # parse data for sensors with manufacturer specific data

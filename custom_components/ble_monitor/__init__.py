@@ -262,22 +262,32 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         # Configuration in UI
         for key, value in config_entry.data.items():
             config[key] = value
-
         for key, value in config_entry.options.items():
             config[key] = value
-
         config[CONFIG_IS_FLOW] = True
-        if CONF_DEVICES not in config:
-            config[CONF_DEVICES] = []
-        else:
+    else:
+        # Configuration in YAML
+        for key, value in CONFIG_YAML.items():
+            config[key] = value
+        _LOGGER.info(
+            "Available Bluetooth interfaces for BLE monitor: %s",
+            list(BT_MULTI_SELECT.values())
+        )
+
+    if CONF_DEVICES not in config:
+        config[CONF_DEVICES] = []
+
+    if config[CONFIG_IS_FLOW]:
+        # Configuration in UI
+
+        if "ids_from_name" in config:
             # device configuration is taken from yaml, but yaml config already removed
+            devlist = config[CONF_DEVICES]
             # save unique IDs (only once)
-            if "ids_from_name" in config:
-                devlist = config[CONF_DEVICES]
-                for dev_idx, dev_conf in enumerate(devlist):
-                    if CONF_NAME in dev_conf:
-                        devlist[dev_idx][CONF_UNIQUE_ID] = dev_conf[CONF_NAME]
-                del config["ids_from_name"]
+            for dev_idx, dev_conf in enumerate(devlist):
+                if CONF_NAME in dev_conf:
+                    devlist[dev_idx][CONF_UNIQUE_ID] = dev_conf[CONF_NAME]
+            del config["ids_from_name"]
 
         if not config[CONF_BT_INTERFACE]:
             default_hci = list(BT_INTERFACES.keys())[
@@ -313,41 +323,45 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                     bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
     else:
         # Configuration in YAML
-        for key, value in CONFIG_YAML.items():
-            config[key] = value
-        _LOGGER.info(
-            "Available Bluetooth interfaces for BLE monitor: %s",
-            list(BT_MULTI_SELECT.values())
-        )
-
         if config[CONF_HCI_INTERFACE]:
             # Configuration of BT interface with hci number
-            for hci in CONFIG_YAML[CONF_HCI_INTERFACE]:
-                try:
-                    hci_list.append(int(hci))
-                    bt_mac = BT_INTERFACES.get(hci)
-                    if bt_mac:
-                        bt_mac_list.append(str(bt_mac))
-                    else:
+            if "disable" in CONFIG_YAML[CONF_HCI_INTERFACE]:
+                _LOGGER.debug("Bluetooth interface is disabled")
+                default_hci = None
+                hci_list = ["disable"]
+                bt_mac_list = ["disable"]
+            else:
+                for hci in CONFIG_YAML[CONF_HCI_INTERFACE]:
+                    try:
+                        hci_list.append(int(hci))
+                        bt_mac = BT_INTERFACES.get(hci)
+                        if bt_mac:
+                            bt_mac_list.append(str(bt_mac))
+                        else:
+                            _LOGGER.error("Bluetooth interface hci%i is not available", hci)
+                    except ValueError:
                         _LOGGER.error("Bluetooth interface hci%i is not available", hci)
-                except ValueError:
-                    _LOGGER.error("Bluetooth interface hci%i is not available", hci)
         else:
             # Configuration of BT interface with mac address
-            conf_bt_interfaces = [x.upper() for x in CONFIG_YAML[CONF_BT_INTERFACE]]
-            for bt_mac in conf_bt_interfaces:
-                try:
-                    hci = list(BT_INTERFACES.keys())[
-                        list(BT_INTERFACES.values()).index(bt_mac)
-                    ]
-                    hci_list.append(int(hci))
-                    bt_mac_list.append(str(bt_mac))
-                except ValueError:
-                    _LOGGER.error(
-                        "Bluetooth interface with MAC address %s is not available",
-                        bt_mac,
-                    )
-
+            if "disable" in config[CONF_BT_INTERFACE]:
+                _LOGGER.debug("Bluetooth interface is disabled")
+                default_hci = None
+                hci_list = ["disable"]
+                bt_mac_list = ["disable"]
+            else:
+                conf_bt_interfaces = [x.upper() for x in CONFIG_YAML[CONF_BT_INTERFACE]]
+                for bt_mac in conf_bt_interfaces:
+                    try:
+                        hci = list(BT_INTERFACES.keys())[
+                            list(BT_INTERFACES.values()).index(bt_mac)
+                        ]
+                        hci_list.append(int(hci))
+                        bt_mac_list.append(str(bt_mac))
+                    except ValueError:
+                        _LOGGER.error(
+                            "Bluetooth interface with MAC address %s is not available",
+                            bt_mac,
+                        )
     if not hci_list:
         # Fall back in case no hci interfaces are added
         default_hci = list(BT_INTERFACES.keys())[
@@ -361,14 +375,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     config[CONF_HCI_INTERFACE] = hci_list
     config[CONF_BT_INTERFACE] = bt_mac_list
+    _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
 
     hass.config_entries.async_update_entry(config_entry, data={}, options=config)
-
     _LOGGER.debug("async_setup_entry: %s", config)
 
     UPDATE_UNLISTENER = config_entry.add_update_listener(_async_update_listener)
-
-    _LOGGER.debug("HCI interface is %s", config[CONF_HCI_INTERFACE])
 
     blemonitor = BLEmonitor(config)
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, blemonitor.shutdown_handler)
