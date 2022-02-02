@@ -1,8 +1,8 @@
 ---
-manufacturer: Xiaomi Aqara
-name: Lock N200
-model: ZNMS17LM
-image: ZNMS17LM.jpg
+manufacturer: Xiaomi
+name: Xiaomi Door Lock Youth Edition
+model: MJZNMSQ01YD
+image: MJZNMSQ01YD.jpg
 physical_description:
 broadcasted_properties:
   - fingerprint
@@ -70,7 +70,7 @@ broadcasted_property_notes:
     note: The timestamp of the latest lock change
 broadcast_rate:
 active_scan:
-encryption_key:
+encryption_key: Yes, we are currently investigating if it is using the new (16 bytes) or old (12 bytes) encryption type, see this [issue](https://github.com/custom-components/ble_monitor/issues/667)
 custom_firmware:
 notes: Only supports the Bluetooth version (MiHome version)
 ---
