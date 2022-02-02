@@ -45,7 +45,7 @@ def parse_bluemaestro(self, data, source_mac, rssi):
         return None
 
     # check for MAC presence in whitelist, if needed
-    if self.discovery is False and bluemaestro_mac.lower() not in self.whitelist:
+    if self.discovery is False and bluemaestro_mac not in self.sensor_whitelist:
         _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(bluemaestro_mac))
         return None
 

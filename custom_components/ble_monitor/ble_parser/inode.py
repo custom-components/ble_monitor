@@ -99,7 +99,7 @@ def parse_inode(self, data, source_mac, rssi):
             }
         )
     elif msg_length == 26 and device_id in INODE_CARE_SENSORS_IDS:
-        """iNode Care Sensors"""
+        # iNode Care Sensors
         measurements = MEASUREMENTS[device_id]
         (
             groups_battery,
