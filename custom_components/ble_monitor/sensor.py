@@ -756,7 +756,11 @@ class StateChangedSensor(InstantUpdateSensor):
 
     def collect(self, data, period_cnt, batt_attr=None):
         """Measurements collector."""
-        if self.enabled is False or self._state == data[self.entity_description.key]:
+        state = self._state
+        if state and self.entity_description.key == CONF_UUID:
+            state = identifier_clean(state)
+
+        if self.enabled is False or state == data[self.entity_description.key]:
             self.pending_update = False
             return
 
