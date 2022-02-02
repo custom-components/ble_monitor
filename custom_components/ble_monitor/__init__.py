@@ -655,7 +655,8 @@ class HCIdump(Thread):
                         # Wait up to five seconds for aioblescan BLEScanRequester to initialize
                         initialized_evt[hci] = getattr(btctrl[hci], "_initialized")
                         _LOGGER.debug(
-                            "HCIdump thread: aioblescan BLEScanRequester._initialized is %s for hci%i",
+                            "HCIdump thread: aioblescan BLEScanRequester._initialized is %s for hci%i, "
+                            " waiting for connection...",
                             initialized_evt[hci].is_set(),
                             hci,
                         )
@@ -682,11 +683,12 @@ class HCIdump(Thread):
                                 )
                             else:
                                 interface_is_ok[hci] = True
-                        _LOGGER.debug(
-                            "HCIdump thread: aioblescan BLEScanRequester._initialized is %s for hci%i",
-                            initialized_evt[hci].is_set(),
-                            hci,
-                        )
+                                _LOGGER.debug(
+                                    "HCIdump thread: aioblescan BLEScanRequester._initialized is %s for hci%i, "
+                                    " connection established, send_scan_request succeeded.",
+                                    initialized_evt[hci].is_set(),
+                                    hci,
+                                )
                     if (self.config[CONF_BT_AUTO_RESTART] is True) and (interface_is_ok[hci] is False):
                         ts_now = dt_util.now()
                         if (ts_now - self.last_bt_reset).seconds > 60:
