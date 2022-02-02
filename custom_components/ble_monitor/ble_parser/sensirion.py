@@ -21,22 +21,22 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
         return None
     
     # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and source_mac.lower() not in self.sensor_whitelist:
+    if self.discovery is False and source_mac not in self.sensor_whitelist:
         _LOGGER.debug(
             "Discovery is disabled. MAC: %s is not whitelisted!", to_mac(source_mac))
         return None
         
     # not all of the following values are used yet, but this explains the full protocol
+    # bytes 1+2 (length and type) are part of the header
     advertisementLength = data[0]  # redundant
-    advertisementType0 = data[1]   # redundant (see below)
-    companyId = data[2:3]  # redundant
-    byte_data = data[4:]
-    advertisementType = int(byte_data[0])
-    advSampleType = int(byte_data[1])
-    deviceName = f'{byte_data[2]:x}:{byte_data[3]:x}'  # shown in Sensirion MyAmbience app
+    advertisementType0 = data[1]   # redundant (also encoded in body - see below)
+    companyId = data[2:3]  # redundant (already part of the metadata)
+    advertisementType = int(data[4])
+    advSampleType = int(data[5])
+    deviceName = f'{data[6]:x}:{data[7]:x}'  # as shown in Sensirion MyAmbience app (last 4 bytes of MAC address)
 
     if(advertisementType == 0):
-        samples = _parse_dataType(advSampleType, byte_data[4:])
+        samples = _parse_dataType(advSampleType, data[8:])
         
         if not samples:
             return None
@@ -83,12 +83,12 @@ def _decodeSimple(byte_data):
 
 def _decodeTemperatureV1(byte_data):
     # GadgetBle::_convertTemperatureV1 - return static_cast<uint16_t>((((value + 45) / 175) * 65535) + 0.5f);
-    return (int.from_bytes(byte_data, byteorder='little') / 65535) * 175 - 45
+    return round((int.from_bytes(byte_data, byteorder='little') / 65535) * 175 - 45, 2)
 
 
 def _decodeHumidityV1(byte_data):
     # GadgetBle::_convertHumidityV1 - return static_cast<uint16_t>(((value / 100) * 65535) + 0.5f);
-    return (int.from_bytes(byte_data, byteorder='little') / 65535) * 100
+    return round((int.from_bytes(byte_data, byteorder='little') / 65535) * 100, 2)
 
 
 def _decodeHumidityV2(byte_data):
