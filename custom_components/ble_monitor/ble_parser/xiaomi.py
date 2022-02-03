@@ -498,17 +498,17 @@ def obj1018(xobj):
 
 def obj1019(xobj):
     # Door
-    open = xobj[0]
-    if open == 0:
+    open_obj = xobj[0]
+    if open_obj == 0:
         opening = 1
         status = "opened"
-    elif open == 1:
+    elif open_obj == 1:
         opening = 0
         status = "closed"
-    elif open == 2:
+    elif open_obj == 2:
         opening = 1
         status = "closing timeout"
-    elif open == 3:
+    elif open_obj == 3:
         opening = 1
         status = "device reset"
     else:
@@ -770,7 +770,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
 
     result = {
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in xiaomi_mac),
+        "mac": ''.join(f'{i:02X}' for i in xiaomi_mac),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,
@@ -791,14 +791,14 @@ def parse_xiaomi(self, data, source_mac, rssi):
             if payload_length < next_start:
                 _LOGGER.debug("Invalid payload data length, payload: %s", payload.hex())
                 break
-            object = payload[payload_start + 3:next_start]
+            dobject = payload[payload_start + 3:next_start]
             if obj_length != 0:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
                     if hex(obj_typecode) in ["0x1001", "0xf"]:
-                        result.update(resfunc(object, device_type))
+                        result.update(resfunc(dobject, device_type))
                     else:
-                        result.update(resfunc(object))
+                        result.update(resfunc(dobject))
                 else:
                     if self.report_unknown == "Xiaomi":
                         _LOGGER.info("%s, UNKNOWN dataobject in payload! Adv: %s", sinfo, data.hex())
@@ -886,4 +886,4 @@ def decrypt_mibeacon_legacy(self, data, i, xiaomi_mac):
 
 def to_mac(addr: int):
     """Return formatted MAC address"""
-    return ':'.join('{:02x}'.format(x) for x in addr).upper()
+    return ':'.join(f'{i:02X}' for i in addr)
