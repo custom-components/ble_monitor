@@ -9,6 +9,7 @@ _LOGGER = logging.getLogger(__name__)
 # Bluetooth interfaces available on the system
 def hci_get_mac(iface_list=None):
     """Get dict of available bluetooth interfaces, returns hci and mac."""
+    # Result example: {0: 'F2:67:F3:5B:4D:FC', 1: '00:1A:7D:DA:71:11'}
     interface_list = iface_list or [0]
     btaddress_dict = {}
     output = subprocess.run(
@@ -88,6 +89,7 @@ def rfkill_unblock_bluetooth():
 # Bluetoothctl commands
 def bluetoothctl_select(mac):
     """Execute the bluetoothctl select command."""
+    # Actually doesnt work for multi interface systems
     _LOGGER.debug("bluetoothctl select %s", mac)
     command = subprocess.run(["bluetoothctl", "select", mac], stderr=subprocess.PIPE, check=True)
     stderr = command.stderr
