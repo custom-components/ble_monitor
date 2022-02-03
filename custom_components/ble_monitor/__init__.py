@@ -701,7 +701,7 @@ class HCIdump(Thread):
                                     initialized_evt[hci].is_set(),
                                     hci,
                                 )
-                    if (self.config[CONF_BT_AUTO_RESTART] is True) and (interface_is_ok[hci] is False):
+                    if (interface_is_ok[hci] is False) and (self.config[CONF_BT_AUTO_RESTART] is True):
                         ts_now = dt_util.now()
                         if (ts_now - self.last_bt_reset).seconds > 60:
                             _LOGGER.error(

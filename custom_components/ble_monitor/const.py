@@ -768,6 +768,7 @@ MEASUREMENT_DICT = {
     'ZNMS16LM'                : [["battery", "rssi"], [], ["lock", "fingerprint"]],
     'ZNMS17LM'                : [["battery", "rssi"], [], ["lock", "fingerprint"]],
     'MJZNMSQ01YD'             : [["battery", "rssi"], [], ["lock", "fingerprint"]],
+    'XMZNMST02YD'             : [["battery", "rssi"], [], ["lock", "fingerprint"]],
     'CGC1'                    : [["temperature", "humidity", "battery", "rssi"], [], []],
     'CGD1'                    : [["temperature", "humidity", "battery", "rssi"], [], []],
     'CGDK2'                   : [["temperature", "humidity", "battery", "rssi"], [], []],
@@ -834,8 +835,8 @@ MEASUREMENT_DICT = {
     'iBBQ-6'                  : [["temperature probe 1", "temperature probe 2", "temperature probe 3", "temperature probe 4", "temperature probe 5", "temperature probe 6", "rssi"], [], []],
     'IBS-TH'                  : [["temperature", "humidity", "battery", "rssi"], [], []],
     'BEC07-5'                 : [["temperature", "humidity", "rssi"], [], []],
-    'iBeacon'                 : [["rssi", "measured power", "cypress temperature", "cypress humidity"], ["uuid", "mac", "major", "minor"], []], # mac can be dynamic
-    'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []], # mac can be dynamic
+    'iBeacon'                 : [["rssi", "measured power", "cypress temperature", "cypress humidity"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
+    'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'MyCO2'                   : [["temperature", "humidity", "co2", "rssi"], [], []],
 }
 
@@ -864,6 +865,7 @@ MANUFACTURER_DICT = {
     'ZNMS16LM'                : 'Xiaomi Aqara',
     'ZNMS17LM'                : 'Xiaomi Aqara',
     'MJZNMSQ01YD'             : 'Xiaomi',
+    'XMZNMST02YD'             : 'Xiaomi',
     'CGC1'                    : 'Qingping',
     'CGD1'                    : 'Qingping',
     'CGDK2'                   : 'Qingping',
