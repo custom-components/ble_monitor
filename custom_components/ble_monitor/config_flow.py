@@ -379,7 +379,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
 class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOMAIN):
     """BLEMonitor config flow."""
 
-    VERSION = 4
+    VERSION = 5
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
 
     @staticmethod
