@@ -435,6 +435,15 @@ async def async_migrate_entry(hass, config_entry):
         config_entry.version = 4
         hass.config_entries.async_update_entry(config_entry, options=options)
         _LOGGER.info("Migrated config entry to version %d", config_entry.version)
+
+    if config_entry.version == 4:
+        options = dict(config_entry.options)
+        if CONF_BT_AUTO_RESTART not in options:
+            options[CONF_BT_AUTO_RESTART] = DEFAULT_BT_AUTO_RESTART
+
+        config_entry.version = 5
+        hass.config_entries.async_update_entry(config_entry, options=options)
+        _LOGGER.info("Migrated config entry to version %d", config_entry.version)
     return True
 
 

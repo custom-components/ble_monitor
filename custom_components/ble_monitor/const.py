@@ -773,7 +773,7 @@ MEASUREMENT_DICT = {
     'CGD1'                    : [["temperature", "humidity", "battery", "rssi"], [], []],
     'CGDK2'                   : [["temperature", "humidity", "battery", "rssi"], [], []],
     'CGG1'                    : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
-    'CGG1-ENCRYPTED'          : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'CGG1-ENCRYPTED'          : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'CGH1'                    : [["battery", "rssi"], [], ["opening"]],
     'CGP1W'                   : [["temperature", "humidity", "battery", "pressure", "rssi"], [], []],
     'CGPR1'                   : [["illuminance", "battery", "rssi"], [], ["light", "motion"]],
