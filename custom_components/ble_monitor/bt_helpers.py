@@ -2,31 +2,29 @@
 import logging
 import subprocess
 import time
+from pydbus import SystemBus
 
 _LOGGER = logging.getLogger(__name__)
+BUS_NAME = 'org.bluez'
+OBJ_MANAGER = 'org.freedesktop.DBus.ObjectManager'
 
 
 # Bluetooth interfaces available on the system
 def hci_get_mac(iface_list=None):
     """Get dict of available bluetooth interfaces, returns hci and mac."""
     # Result example: {0: 'F2:67:F3:5B:4D:FC', 1: '00:1A:7D:DA:71:11'}
-    interface_list = iface_list or [0]
+    q_iface_list = iface_list or [0]
     btaddress_dict = {}
-    output = subprocess.run(
-        ["hciconfig"], stdout=subprocess.PIPE, check=True
-    ).stdout.decode("utf-8")
-
-    for interface in interface_list:
-        hci_id = f'hci{interface}'
-        try:
-            btaddress_dict[interface] = (
-                output.split(f'{hci_id}:')[1]
-                .split("BD Address: ")[1]
-                .split(" ")[0]
-                .strip()
-            )
-        except IndexError:
-            pass
+    bus = SystemBus()
+    bluez = bus.get(BUS_NAME, '/')
+    manager = bluez[OBJ_MANAGER]
+    managed_objects = manager.GetManagedObjects()
+    for path, _ in managed_objects.items():
+        if "hci" in path:
+            adapter = bus.get(BUS_NAME, path)
+            hci_idx = int(path.split("hci")[1])  # int(path[-1]) works only for 0..9
+            if hci_idx in q_iface_list:
+                btaddress_dict[hci_idx] = adapter.Address
     return btaddress_dict
 
 # rfkill commands
