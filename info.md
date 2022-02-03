@@ -36,6 +36,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Oral-B
 - Qingping
 - Ruuvitag
+- Sensirion
 - SensorPush
 - Teltonika
 - Thermoplus
