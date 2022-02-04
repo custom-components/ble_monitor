@@ -267,9 +267,9 @@ The BLE advertisements from some devices are encrypted. To decrypt these message
 Get the encryption key with a python script called [Xiaomi Cloud Token Extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor). The script logs in on the Xiaomi Cloud (password of your Xiaomi account is required) and extracts information. You will get a list of all devices that are added to the MiHome app. Look for your sensor in the list and copy the `BLE KEY`. If the key ends with `FFFFFFFF`, the sensor does not require an encryption key. This method works on Windows (use the exe file) as well as Linux (or any platform that runs python).
 
 
-**2. TelinkFlasher (WebBluetooth)**
+**2a. TelinkFlasher (atc1441)**
 
-Get the encryption key with the online tool on the [TelinkFlasher website](https://atc1441.github.io/Temp_universal_mi_activate.html). This lets you activate devices without ever touching Xiaomi servers.
+Get the encryption key with the online tool on the [TelinkFlasher website by atc1441](https://atc1441.github.io/Temp_universal_mi_activate.html). This lets you activate devices without ever touching Xiaomi servers.
 
 Note that even though most functionality there (flashing) is only for LYWSD03MMC sensors, this particular version of the page has been modified to allow activation of any device.
 
@@ -283,6 +283,11 @@ Note that even though most functionality there (flashing) is only for LYWSD03MMC
 - Once connected, click the [Do Activation] button (2) and wait until the "Mi Bind Key" (3) shows the information.
 
 Note that this last step will generate a new encryption key, which means it won't be connected to the MiHome app anymore.
+
+
+**2b. TelinkFlasher (pvvx)**
+
+When you have a LYWSD03MMC, MHO-C401 or Qingping CGG1, you can also use the [Telink Flasher website by pvvx](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html). When you are using ATC firmware by pvvx, you can use this Telink Flaser also for setting and getting the encryption key in ATC firmware, for increased security. 
 
 
 **3. MiHome mod (Android only)**
