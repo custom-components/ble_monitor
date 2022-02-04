@@ -21,11 +21,16 @@ def parse_qingping(self, data, source_mac, rssi):
             device_type = "CGPR1"
         elif device_id == 0x0C:
             device_type = "CGD1"
+        elif device_id == 0x0E:
+            device_type = "CGDN1"
         else:
             device_type = None
 
-        qingping_mac_reversed = data[6:12]
-        qingping_mac = qingping_mac_reversed[::-1]
+        if device_type == "CGDN1":
+            qingping_mac = source_mac
+        else:
+            qingping_mac_reversed = data[6:12]
+            qingping_mac = qingping_mac_reversed[::-1]
 
         result = {
             "rssi": rssi,
@@ -61,6 +66,12 @@ def parse_qingping(self, data, source_mac, rssi):
                 elif xdata_id == 0x11 and xdata_size == 1:
                     light = data[xdata_point]
                     result.update({"light": light})
+                elif xdata_id == 0x12 and xdata_size == 4:
+                    (pm2_5, pm10) = unpack("<HH", data[xdata_point:xdata_point + xdata_size])
+                    result.update({"pm2.5": pm2_5, "pm10": pm10})
+                elif xdata_id == 0x13 and xdata_size == 2:
+                    (co2,) = unpack("<H", data[xdata_point:xdata_point + xdata_size])
+                    result.update({"co2": co2})
                 elif xdata_id == 0x0F and xdata_size == 1:
                     packet_id = data[xdata_point]
                     result.update({"packet": packet_id})
