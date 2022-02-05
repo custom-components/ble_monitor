@@ -13,8 +13,10 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    CONDUCTIVITY,
+    CONCENTRATION_PARTS_PER_MILLION,
+    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER,
+    CONDUCTIVITY,
     ELECTRIC_POTENTIAL_VOLT,
     ENERGY_KILO_WATT_HOUR,
     ENTITY_CATEGORY_DIAGNOSTIC,
@@ -26,7 +28,6 @@ from homeassistant.const import (
     SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     TEMP_CELSIUS,
     VOLUME_LITERS,
-    CONCENTRATION_PARTS_PER_MILLION,
     Platform,
 )
 
@@ -735,7 +736,24 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:molecule-co2",
         native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
         device_class=SensorDeviceClass.CO2,
-     
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="pm2.5",
+        sensor_class="MeasuringSensor",
+        name="PM2.5 sensor",
+        unique_id="pm25_",
+        icon="mdi:molecule-co2",
+        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        device_class=SensorDeviceClass.PM25,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="pm10",
+        sensor_class="MeasuringSensor",
+        name="PM10 sensor",
+        unique_id="pm10_",
+        icon="mdi:molecule-co2",
+        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        device_class=SensorDeviceClass.PM10,
     ),
 )
 
@@ -777,6 +795,7 @@ MEASUREMENT_DICT = {
     'CGH1'                    : [["battery", "rssi"], [], ["opening"]],
     'CGP1W'                   : [["temperature", "humidity", "battery", "pressure", "rssi"], [], []],
     'CGPR1'                   : [["illuminance", "battery", "rssi"], [], ["light", "motion"]],
+    'CGDN1'                   : [["temperature", "humidity", "co2", "pm2.5", "pm10", "battery", "rssi"], [], []],
     'MHO-C401'                : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'MHO-C303'                : [["temperature", "humidity", "battery", "rssi"], [], []],
     'JQJCY01YM'               : [["temperature", "humidity", "battery", "formaldehyde", "rssi"], [], []],
@@ -874,6 +893,7 @@ MANUFACTURER_DICT = {
     'CGH1'                    : 'Qingping',
     'CGP1W'                   : 'Qingping',
     'CGPR1'                   : 'Qingping',
+    'CGDN1'                   : 'Qingping',
     'MHO-C401'                : 'Miaomiaoce',
     'MHO-C303'                : 'Miaomiaoce',
     'JQJCY01YM'               : 'Honeywell',
