@@ -3,6 +3,7 @@ import logging
 import time
 from btsocket import btmgmt_sync
 from btsocket import btmgmt_protocol
+from btsocket.btmgmt_socket import BluetoothSocketError
 import pyric.utils.rfkill as rfkill
 
 _LOGGER = logging.getLogger(__name__)
@@ -77,7 +78,11 @@ class MGMTBluetoothCtl:
 def hci_get_mac(iface_list=None):
     """Get dict of available bluetooth interfaces, returns hci and mac."""
     # Result example: {0: 'F2:67:F3:5B:4D:FC', 1: '00:1A:7D:DA:71:11'}
-    btctl = MGMTBluetoothCtl(0)
+    try:
+        btctl = MGMTBluetoothCtl(0)
+    except BluetoothSocketError as error:
+        _LOGGER.debug(error)
+        return {}
     q_iface_list = iface_list or [0]
     btaddress_dict = {}
     for hci_idx in q_iface_list:
