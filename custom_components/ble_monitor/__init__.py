@@ -316,11 +316,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                         "Check the BLE monitor settings, if needed.",
                         config[CONF_BT_INTERFACE]
                     )
-                    default_hci = list(BT_INTERFACES.keys())[
-                        list(BT_INTERFACES.values()).index(DEFAULT_BT_INTERFACE)
-                    ]
-                    hci_list.append(int(default_hci))
-                    bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
+                    try:
+                        default_hci = list(BT_INTERFACES.keys())[
+                            list(BT_INTERFACES.values()).index(DEFAULT_BT_INTERFACE)
+                        ]
+                        hci_list.append(int(default_hci))
+                        bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
+                    except ValueError:
+                        pass
     else:
         # Configuration in YAML
         if config[CONF_HCI_INTERFACE]:
