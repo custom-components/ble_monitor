@@ -1,222 +1,138 @@
-"""Helpers for ble_monitor."""
+"""BT helpers for ble_monitor."""
 import logging
-import subprocess
 import time
 from pydbus import SystemBus
+from pyric.utils import rfkill
 
 _LOGGER = logging.getLogger(__name__)
 BUS_NAME = 'org.bluez'
 OBJ_MANAGER = 'org.freedesktop.DBus.ObjectManager'
 
 
+# check rfkill state
+def rfkill_list_bluetooth(hci):
+    """Execute the rfkill list bluetooth command."""
+    hci_idx = f'hci{hci}'
+    rfkill_dict = rfkill.rfkill_list()
+    try:
+        rfkill_hci_state = rfkill_dict[hci_idx]
+    except IndexError:
+        _LOGGER.error('RF kill switch check failed - no data for %s. Available data: %s', hci_idx, rfkill_dict)
+    soft_block = rfkill_hci_state["soft"]
+    hard_block = rfkill_hci_state["hard"]
+    return soft_block, hard_block
+
+
+class DBusBluetoothCtl:
+    """Class to control interfaces using the BlueZ DBus API"""
+
+    def __init__(self, hci):
+        bus = SystemBus()
+        bluez = bus.get(BUS_NAME, '/')
+        manager = bluez[OBJ_MANAGER]
+        managed_objects = manager.GetManagedObjects()
+        self._adapter = None
+        self.mac = None
+        self.presented_list = {}
+        for path, _ in managed_objects.items():
+            if "hci" in path:
+                hci_idx = int(path.split("hci")[1])  # int(path[-1]) works only for 0..9
+                self._adapter = bus.get(BUS_NAME, path)
+                self.presented_list[hci_idx] = self._adapter.Address
+                if hci == hci_idx:
+                    self.mac = self._adapter.Address
+                    return
+
+    @property
+    def powered(self):
+        """Powered state of the interface"""
+        if self.mac is not None:
+            return self._adapter.Powered
+        return None
+
+    @powered.setter
+    def powered(self, new_state):
+        self._adapter.Powered = new_state
+
+
 # Bluetooth interfaces available on the system
 def hci_get_mac(iface_list=None):
     """Get dict of available bluetooth interfaces, returns hci and mac."""
     # Result example: {0: 'F2:67:F3:5B:4D:FC', 1: '00:1A:7D:DA:71:11'}
+    btctl = DBusBluetoothCtl(0)
     q_iface_list = iface_list or [0]
     btaddress_dict = {}
-    bus = SystemBus()
-    bluez = bus.get(BUS_NAME, '/')
-    manager = bluez[OBJ_MANAGER]
-    managed_objects = manager.GetManagedObjects()
-    for path, _ in managed_objects.items():
-        if "hci" in path:
-            adapter = bus.get(BUS_NAME, path)
-            hci_idx = int(path.split("hci")[1])  # int(path[-1]) works only for 0..9
-            if hci_idx in q_iface_list:
-                btaddress_dict[hci_idx] = adapter.Address
+    for hci_idx in q_iface_list:
+        try:
+            btaddress_dict[hci_idx] = btctl.presented_list[hci_idx]
+        except IndexError:
+            pass
     return btaddress_dict
-
-# rfkill commands
-
-
-def rfkill_list_bluetooth(hci):
-    """Execute the rfkill list bluetooth command."""
-    _LOGGER.debug("rfkill list bluetooth.....")
-    output = subprocess.run(
-        ["rfkill", "list", "bluetooth"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
-    )
-    stdout = output.stdout.decode("utf-8")
-    stderr = output.stderr
-    if output.returncode != 0:
-        _LOGGER.error("executing rfkill list bluetooth failed: %s", stderr)
-        return "Unknown", "Unknown"
-    hci_id = f'hci{hci}'
-    try:
-        soft_blocked = (
-            stdout.split(f'{hci_id}:')[1]
-            .split("Soft blocked: ")[1]
-            .split("\n")[0]
-            .strip()
-        )
-        hard_blocked = (
-            stdout.split(f'{hci_id}:')[1]
-            .split("Hard blocked: ")[1]
-            .split("\n")[0]
-            .strip()
-        )
-        soft_block = bool(soft_blocked == "yes")
-        hard_block = bool(hard_blocked == "yes")
-    except IndexError:
-        pass
-    return soft_block, hard_block
-
-
-def rfkill_block_bluetooth():
-    """Execute the rfkill block bluetooth command."""
-    _LOGGER.debug("rfkill block bluetooth.....")
-    command = subprocess.run(["rfkill", "block", "bluetooth"], stderr=subprocess.PIPE, check=True)
-    stderr = command.stderr
-    if command.returncode != 0:
-        _LOGGER.error("executing rfkill block bluetooth failed: %s", stderr)
-
-
-def rfkill_unblock_bluetooth():
-    """Execute the rfkill unblock bluetooth command."""
-    _LOGGER.debug("rfkill unblock bluetooth.....")
-    try:
-        command = subprocess.run(["rfkill", "unblock", "bluetooth"], stderr=subprocess.PIPE, check=True)
-        stderr = command.stderr
-    except subprocess.CalledProcessError as error:
-        _LOGGER.error("executing rfkill unblock bluetooth failed: %s", error)
-    else:
-        if command.returncode != 0:
-            _LOGGER.error("executing rfkill unblock bluetooth failed: %s", stderr)
-
-
-# Bluetoothctl commands
-def bluetoothctl_select(mac):
-    """Execute the bluetoothctl select command."""
-    # Actually doesnt work for multi interface systems
-    _LOGGER.debug("bluetoothctl select %s", mac)
-    command = subprocess.run(["bluetoothctl", "select", mac], stderr=subprocess.PIPE, check=True)
-    stderr = command.stderr
-    if command.returncode != 0:
-        _LOGGER.error("executing bluetoothctl select failed: %s", stderr)
-
-
-def bluetoothctl_show(mac=""):
-    """Execute the bluetoothctl show command."""
-    _LOGGER.debug("bluetoothctl show.....")
-    output = subprocess.run(
-        ["bluetoothctl", "show", mac], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
-    )
-    stdout = output.stdout.decode("utf-8")
-    stderr = output.stderr
-    if output.returncode != 0:
-        _LOGGER.error("executing rfkill list bluetooth failed: %s", stderr)
-        power = "Unknown"
-    else:
-        power_state = (
-            stdout.split("Powered: ")[1]
-            .split("\n")[0]
-            .strip()
-        )
-        power = bool(power_state in ["on", "yes"])
-    return power
-
-
-def bluetoothctl_power_off():
-    """Execute the bluetoothctl power off command."""
-    _LOGGER.debug("bluetoothctl power off.....")
-    command = subprocess.run(["bluetoothctl", "power", "off"], stderr=subprocess.PIPE, check=True)
-    stderr = command.stderr
-    if command.returncode != 0:
-        _LOGGER.error("executing bluetoothctl power off failed: %s", stderr)
-
-
-def bluetoothctl_power_on():
-    """Execute the bluetoothctl power on command."""
-    _LOGGER.debug("bluetoothctl power on.....")
-    command = subprocess.run(["bluetoothctl", "power", "on"], stderr=subprocess.PIPE, check=True)
-    stderr = command.stderr
-    if command.returncode != 0:
-        _LOGGER.error("executing bluetoothctl power on failed: s%s", stderr)
 
 
 def reset_bluetooth(hci):
     """Resetting the Bluetooth adapter."""
     _LOGGER.debug("resetting Bluetooth")
 
-    # Select the Bluetooth adapter and retreive the state of the adapter
-    mac = hci_get_mac([hci])[hci]
-    if not mac:
+    soft_block, hard_block = rfkill_list_bluetooth(hci)
+    if soft_block is True:
+        _LOGGER.warning("bluetooth adapter is soft blocked!")
+        return
+    if hard_block is True:
+        _LOGGER.warning("bluetooth adapter is hard blocked!")
+        return
+
+    adapter = DBusBluetoothCtl(hci)
+
+    if adapter.mac is None:
         _LOGGER.error(
-            "HCI%i seems not to exist (anymore), check BT interface mac address in your settings ",
-            hci
+            "hci%i seems not to exist (anymore), check BT interface mac address in your settings. "
+            "Available adapters: %s ",
+            hci,
+            adapter.presented_list,
         )
         return
 
-    bluetoothctl_select(mac)
-    power_state_before = bluetoothctl_show(mac)
-    if power_state_before is True:
-        _LOGGER.debug("Power state of bluetooth adapter is on before resetting Bluetooth")
-    elif power_state_before is False:
+    pstate_before = adapter.powered
+    if pstate_before is True:
+        _LOGGER.debug("Power state of bluetooth adapter is ON.")
+        adapter.powered = False
+        time.sleep(2)
+    elif pstate_before is False:
         _LOGGER.debug(
-            "Power state of bluetooth adapter is off before resetting Bluetooth, trying to turn it back on."
+            "Power state of bluetooth adapter is OFF, trying to turn it back ON."
         )
     else:
         _LOGGER.debug(
-            "Power state of bluetooth adapter before resetting Bluetooth could not be determined,"
-            " trying to turn it back on anyways."
+            "Power state of bluetooth adapter could not be determined."
         )
+        return
 
-    soft_block, hard_block = rfkill_list_bluetooth(hci)
-    if soft_block is True:
-        _LOGGER.debug("bluetooth adapter is soft blocked before reset")
-    elif soft_block is False:
-        _LOGGER.debug("bluetooth adapter is not soft blocked before reset")
-    else:
-        _LOGGER.debug("bluetooth adapter soft blocked state could not be determined before reset")
-    if hard_block is True:
-        _LOGGER.debug("bluetooth adapter is hard blocked before reset")
-    elif hard_block is False:
-        _LOGGER.debug("bluetooth adapter is not hard blocked before reset")
-    else:
-        _LOGGER.debug("bluetooth adapter hard blocked state could not be determined before reset")
-
-    # Turn the power on and unblock bluetooth adapter
-    bluetoothctl_power_on()
-    rfkill_unblock_bluetooth()
-    time.sleep(5)
+    adapter.powered = True
+    time.sleep(3)
 
     # Check the state after the reset
-    power_state_after = bluetoothctl_show(mac)
-    if power_state_after is True:
-        _LOGGER.debug("Power state of bluetooth adapter is on after resetting Bluetooth")
-    elif power_state_after is False:
-        _LOGGER.debug("Power state of bluetooth adapter is still off after resetting Bluetooth.")
+    pstate_after = adapter.powered
+    if pstate_after is True:
+        _LOGGER.debug("Power state of bluetooth adapter is ON after resetting.")
+    elif pstate_after is False:
+        _LOGGER.debug("Power state of bluetooth adapter is OFF after resetting.")
     else:
         _LOGGER.debug(
-            "Power state of bluetooth adapter after resetting Bluetooth could not be determined."
+            "Power state of bluetooth adapter could not be determined after resetting."
         )
 
-    soft_block, hard_block = rfkill_list_bluetooth(hci)
-    if soft_block is True:
-        _LOGGER.debug("bluetooth adapter is still soft blocked after reset")
-    elif soft_block is False:
-        _LOGGER.debug("bluetooth adapter is not soft blocked after reset")
-    else:
-        _LOGGER.debug("bluetooth adapter soft blocked state could not be determined after reset")
-    if hard_block is True:
-        _LOGGER.debug("bluetooth adapter is still hard blocked after reset")
-    elif hard_block is False:
-        _LOGGER.debug("bluetooth adapter is not hard blocked after reset")
-    else:
-        _LOGGER.debug("bluetooth adapter hard blocked state could not be determined after reset")
 
-
-try:
-    BT_INTERFACES = hci_get_mac([0, 1, 2, 3])
+BT_INTERFACES = hci_get_mac([0, 1, 2, 3])
+if BT_INTERFACES:
     DEFAULT_BT_INTERFACE = list(BT_INTERFACES.items())[0][1]
     DEFAULT_HCI_INTERFACE = list(BT_INTERFACES.items())[0][0]
-except (IndexError, OSError, subprocess.CalledProcessError):
-    BT_INTERFACES = {}
+    BT_MULTI_SELECT = {value: f'{value} (hci{key})' for (key, value) in BT_INTERFACES.items()}
+else:
     DEFAULT_BT_INTERFACE = "disable"
     DEFAULT_HCI_INTERFACE = "disable"
+    BT_MULTI_SELECT = {}
     _LOGGER.debug(
         "No Bluetooth interface found. Make sure Bluetooth is installed on your system"
     )
-
-BT_MULTI_SELECT = dict([(v, v + ' (hci' + str(k) + ')') for k, v in BT_INTERFACES.items()])
 BT_MULTI_SELECT["disable"] = "Don't use Bluetooth adapter"
