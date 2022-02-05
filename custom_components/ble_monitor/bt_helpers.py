@@ -15,8 +15,9 @@ def rfkill_list_bluetooth(hci):
     rfkill_dict = rfkill.rfkill_list()
     try:
         rfkill_hci_state = rfkill_dict[hci_idx]
-    except IndexError:
+    except KeyError:
         _LOGGER.error('RF kill switch check failed - no data for %s. Available data: %s', hci_idx, rfkill_dict)
+        return None, None
     soft_block = rfkill_hci_state["soft"]
     hard_block = rfkill_hci_state["hard"]
     return soft_block, hard_block
