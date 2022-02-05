@@ -1,12 +1,11 @@
 """BT helpers for ble_monitor."""
 import logging
 import time
-from pydbus import SystemBus
-from pyric.utils import rfkill
+from btsocket import btmgmt_sync
+from btsocket import btmgmt_protocol
+import pyric.utils.rfkill as rfkill
 
 _LOGGER = logging.getLogger(__name__)
-BUS_NAME = 'org.bluez'
-OBJ_MANAGER = 'org.freedesktop.DBus.ObjectManager'
 
 
 # check rfkill state
@@ -23,49 +22,67 @@ def rfkill_list_bluetooth(hci):
     return soft_block, hard_block
 
 
-class DBusBluetoothCtl:
-    """Class to control interfaces using the BlueZ DBus API"""
+class MGMTBluetoothCtl:
+    """Class to control interfaces using the BlueZ management API"""
 
     def __init__(self, hci):
-        bus = SystemBus()
-        bluez = bus.get(BUS_NAME, '/')
-        manager = bluez[OBJ_MANAGER]
-        managed_objects = manager.GetManagedObjects()
-        self._adapter = None
+        self.idx = None
         self.mac = None
         self.presented_list = {}
-        for path, _ in managed_objects.items():
-            if "hci" in path:
-                hci_idx = int(path.split("hci")[1])  # int(path[-1]) works only for 0..9
-                self._adapter = bus.get(BUS_NAME, path)
-                self.presented_list[hci_idx] = self._adapter.Address
-                if hci == hci_idx:
-                    self.mac = self._adapter.Address
-                    return
+        idxdata = btmgmt_sync.send('ReadControllerIndexList', None)
+        if idxdata.event_frame.status.value != 0x00:  # 0x00 - Success
+            _LOGGER.error(
+                "Unable to get hci controllers index list! Event frame status: %s",
+                idxdata.event_frame.status,
+            )
+            return
+        if idxdata.cmd_response_frame.num_controllers == 0:
+            _LOGGER.warning("There are no BT controllers present in the system!")
+            return
+        hci_idx_list = getattr(idxdata.cmd_response_frame, "controller_index[i]")
+        for idx in hci_idx_list:
+            hci_info = btmgmt_sync.send('ReadControllerInformation', idx)
+            _LOGGER.debug(hci_info)
+            bt_le = hci_info.cmd_response_frame.current_settings.get(
+                btmgmt_protocol.SupportedSettings.LowEnergy
+            )
+            if bt_le is not True:
+                _LOGGER.warning("hci%i has no (or disabled) BT LE capabilities.")
+                continue
+            self.presented_list[idx] = hci_info.cmd_response_frame.address
+            if hci == idx:
+                self.idx = idx
+                self.mac = hci_info.cmd_response_frame.address
 
     @property
     def powered(self):
         """Powered state of the interface"""
-        if self.mac is not None:
-            return self._adapter.Powered
+        if self.idx is not None:
+            response = btmgmt_sync.send('ReadControllerInformation', self.idx)
+            return response.cmd_response_frame.current_settings.get(
+                btmgmt_protocol.SupportedSettings.Powered
+            )
         return None
 
     @powered.setter
     def powered(self, new_state):
-        self._adapter.Powered = new_state
+        response = btmgmt_sync.send('SetPowered', self.idx, int(new_state is True))
+        if response.event_frame.status.value == 0x00:  # 0x00 - Success
+            return True
+        return False
 
 
 # Bluetooth interfaces available on the system
 def hci_get_mac(iface_list=None):
     """Get dict of available bluetooth interfaces, returns hci and mac."""
     # Result example: {0: 'F2:67:F3:5B:4D:FC', 1: '00:1A:7D:DA:71:11'}
-    btctl = DBusBluetoothCtl(0)
+    btctl = MGMTBluetoothCtl(0)
     q_iface_list = iface_list or [0]
     btaddress_dict = {}
     for hci_idx in q_iface_list:
         try:
             btaddress_dict[hci_idx] = btctl.presented_list[hci_idx]
-        except IndexError:
+        except KeyError:
             pass
     return btaddress_dict
 
@@ -82,7 +99,7 @@ def reset_bluetooth(hci):
         _LOGGER.warning("bluetooth adapter is hard blocked!")
         return
 
-    adapter = DBusBluetoothCtl(hci)
+    adapter = MGMTBluetoothCtl(hci)
 
     if adapter.mac is None:
         _LOGGER.error(
