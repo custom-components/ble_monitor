@@ -27,9 +27,10 @@ def rfkill_list_bluetooth(hci):
 class MGMTBluetoothCtl:
     """Class to control interfaces using the BlueZ management API"""
 
-    def __init__(self, hci):
+    def __init__(self, hci=None):
         self.idx = None
         self.mac = None
+        self._hci = hci
         self.presented_list = {}
         idxdata = btmgmt_sync.send('ReadControllerIndexList', None)
         if idxdata.event_frame.status.value != 0x00:  # 0x00 - Success
@@ -79,9 +80,9 @@ def hci_get_mac(iface_list=None):
     """Get dict of available bluetooth interfaces, returns hci and mac."""
     # Result example: {0: 'F2:67:F3:5B:4D:FC', 1: '00:1A:7D:DA:71:11'}
     try:
-        btctl = MGMTBluetoothCtl(0)
+        btctl = MGMTBluetoothCtl()
     except BluetoothSocketError as error:
-        _LOGGER.debug(error)
+        _LOGGER.debug("BluetoothSocketError: %s", error)
         return {}
     q_iface_list = iface_list or [0]
     btaddress_dict = {}
@@ -95,14 +96,14 @@ def hci_get_mac(iface_list=None):
 
 def reset_bluetooth(hci):
     """Resetting the Bluetooth adapter."""
-    _LOGGER.debug("resetting Bluetooth")
+    _LOGGER.debug("Power cycling Bluetooth adapter hci%i", hci)
 
     soft_block, hard_block = rfkill_list_bluetooth(hci)
     if soft_block is True:
-        _LOGGER.warning("bluetooth adapter is soft blocked!")
+        _LOGGER.warning("Bluetooth adapter hci%i is soft blocked!", hci)
         return
     if hard_block is True:
-        _LOGGER.warning("bluetooth adapter is hard blocked!")
+        _LOGGER.warning("Bluetooth adapter hci%i is hard blocked!", hci)
         return
 
     adapter = MGMTBluetoothCtl(hci)
@@ -118,12 +119,13 @@ def reset_bluetooth(hci):
 
     pstate_before = adapter.powered
     if pstate_before is True:
-        _LOGGER.debug("Power state of bluetooth adapter is ON.")
+        _LOGGER.debug("Current power state of bluetooth adapter is ON.")
         adapter.powered = False
         time.sleep(2)
     elif pstate_before is False:
-        _LOGGER.debug(
-            "Power state of bluetooth adapter is OFF, trying to turn it back ON."
+        _LOGGER.warning(
+            "Current power state of bluetooth adapter hci%i is OFF, trying to turn it back ON.",
+            hci
         )
     else:
         _LOGGER.debug(
@@ -137,12 +139,18 @@ def reset_bluetooth(hci):
     # Check the state after the reset
     pstate_after = adapter.powered
     if pstate_after is True:
-        _LOGGER.debug("Power state of bluetooth adapter is ON after resetting.")
+        if pstate_before is False:
+            _LOGGER.warning("Bluetooth adapter hci%i successfuly turned back ON.", hci)
+        else:
+            _LOGGER.debug("Power state of bluetooth adapter is ON after power cycle.")
     elif pstate_after is False:
-        _LOGGER.debug("Power state of bluetooth adapter is OFF after resetting.")
+        _LOGGER.warning(
+            "Power state of bluetooth adapter hci%i is OFF after power cycle.",
+            hci
+        )
     else:
         _LOGGER.debug(
-            "Power state of bluetooth adapter could not be determined after resetting."
+            "Power state of bluetooth adapter could not be determined after power cycle."
         )
 
 
@@ -156,6 +164,6 @@ else:
     DEFAULT_HCI_INTERFACE = "disable"
     BT_MULTI_SELECT = {}
     _LOGGER.debug(
-        "No Bluetooth interface found. Make sure Bluetooth is installed on your system"
+        "No Bluetooth LE adapter found. Make sure Bluetooth is installed on your system."
     )
 BT_MULTI_SELECT["disable"] = "Don't use Bluetooth adapter"

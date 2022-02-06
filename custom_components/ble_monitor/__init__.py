@@ -658,6 +658,7 @@ class HCIdump(Thread):
             conn = {}
             btctrl = {}
             interface_is_ok = {}
+            interfaces_to_reset = []
             initialized_evt = {}
             if self._event_loop is None:
                 self._event_loop = asyncio.new_event_loop()
@@ -679,7 +680,7 @@ class HCIdump(Thread):
                         # Wait up to five seconds for aioblescan BLEScanRequester to initialize
                         initialized_evt[hci] = getattr(btctrl[hci], "_initialized")
                         _LOGGER.debug(
-                            "HCIdump thread: aioblescan BLEScanRequester._initialized is %s for hci%i, "
+                            "HCIdump thread: BLEScanRequester._initialized is %s for hci%i, "
                             " waiting for connection...",
                             initialized_evt[hci].is_set(),
                             hci,
@@ -708,21 +709,25 @@ class HCIdump(Thread):
                             else:
                                 interface_is_ok[hci] = True
                                 _LOGGER.debug(
-                                    "HCIdump thread: aioblescan BLEScanRequester._initialized is %s for hci%i, "
+                                    "HCIdump thread: BLEScanRequester._initialized is %s for hci%i, "
                                     " connection established, send_scan_request succeeded.",
                                     initialized_evt[hci].is_set(),
                                     hci,
                                 )
                     if (interface_is_ok[hci] is False) and (self.config[CONF_BT_AUTO_RESTART] is True):
-                        ts_now = dt_util.now()
-                        if (ts_now - self.last_bt_reset).seconds > 60:
+                        interfaces_to_reset.append(hci)
+                if interfaces_to_reset:
+                    ts_now = dt_util.now()
+                    if (ts_now - self.last_bt_reset).seconds > 60:
+                        for iface in interfaces_to_reset:
                             _LOGGER.error(
-                                "HCIdump thread: Trying to reset Bluetooth adapter %s,"
+                                "HCIdump thread: Trying to power cycle Bluetooth adapter hci%i %s,"
                                 " will try to use it next scan period.",
-                                BT_INTERFACES[hci],
+                                iface,
+                                BT_INTERFACES[iface],
                             )
-                            reset_bluetooth(hci)
-                            self.last_bt_reset = ts_now
+                            reset_bluetooth(iface)
+                        self.last_bt_reset = ts_now
             _LOGGER.debug("HCIdump thread: start main event_loop")
             try:
                 self._event_loop.run_forever()
