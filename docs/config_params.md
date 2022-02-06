@@ -59,7 +59,7 @@ ble_monitor:
 
   **Automatically restart Bluetooth adapter on failure**
   (boolean)(Optional)
-  This option allows the Bluetooth adapter to automatically restart on failures. The following commands will be used to restart Bluetooth: `bluetoothctl power on` and `rfkill unblock bluetooth`. This can help if your Bluetooth adapter fails periodically.
+  This option allows the Bluetooth adapter to automatically restart on failures. The Bluez bluetooth management API will be used to power cycle Bluetooth adapter. This can help if your Bluetooth adapter fails periodically.
 
 ```yaml
 ble_monitor:
