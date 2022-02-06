@@ -795,7 +795,7 @@ MEASUREMENT_DICT = {
     'CGH1'                    : [["battery", "rssi"], [], ["opening"]],
     'CGP1W'                   : [["temperature", "humidity", "battery", "pressure", "rssi"], [], []],
     'CGPR1'                   : [["illuminance", "battery", "rssi"], [], ["light", "motion"]],
-    'CGDN1'                   : [["temperature", "humidity", "co2", "pm2.5", "pm10", "battery", "rssi"], [], []],
+    'CGDN1'                   : [["temperature", "humidity", "co2", "pm2.5", "pm10", "rssi"], [], []],
     'MHO-C401'                : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'MHO-C303'                : [["temperature", "humidity", "battery", "rssi"], [], []],
     'JQJCY01YM'               : [["temperature", "humidity", "battery", "formaldehyde", "rssi"], [], []],
