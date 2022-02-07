@@ -7,7 +7,7 @@ physical_description:
 broadcasted_properties:
   - temperature
   - humidity
-  - co2
+  - CO2
   - PM2.5
   - PM10
   - battery
