@@ -70,7 +70,7 @@ broadcasted_property_notes:
     note: The timestamp of the latest lock change
 broadcast_rate:
 active_scan:
-encryption_key: Yes, we are currently investigating if it is using the new (16 bytes) or old (12 bytes) encryption type, see this [issue](https://github.com/custom-components/ble_monitor/issues/667)
+encryption_key: Yes, at the moment you can only get the encryption key with method 4 (intercepting the MiHome application traffic) as described in the [FAQ](https://custom-components.github.io/ble_monitor/faq#how-to-get-the-mibeacon-v4v5-encryption-key). Search for `/device/blelockbind` or `/v2/device/ble_secure_bind` endpoint. Method 3 (MiHome mod) is currently being worked on and will support extracting the encryption key for this device in the next release of MiHome mod. For further information, see this [issue](https://github.com/custom-components/ble_monitor/issues/667)
 custom_firmware:
-notes: Only supports the Bluetooth version (MiHome version)
+notes: 
 ---
