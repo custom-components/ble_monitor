@@ -21,5 +21,3 @@ class TestJinou:
         assert sensor_msg["temperature"] == 18.7
         assert sensor_msg["humidity"] == 54.2
         assert sensor_msg["rssi"] == -37
-
-    
