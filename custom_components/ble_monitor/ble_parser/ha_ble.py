@@ -62,12 +62,15 @@ def parse_ha_ble(self, service_data_list, source_mac, rssi):
                 result.update({"dewpoint": dewp})
             elif meas_type == 0x2A98 and len(xobj) == 3:
                 (flag, weight) = struct.Struct("<bH").unpack(xobj)
-                if flag == 0:
+                if flag << 0 == 0:
                     weight_unit = "kg"
                     factor = 0.005
-                else:
+                elif flag << 0 == 1:
                     weight_unit = "lbs"
                     factor = 0.01
+                else:
+                    weight_unit = "kg"
+                    factor = 0.005
                 result.update({"weight": weight * factor, "weight unit": weight_unit})
             elif meas_type == 0X2AF2 and len(xobj) == 4:
                 (enrg,) = struct.Struct("<I").unpack(xobj)
