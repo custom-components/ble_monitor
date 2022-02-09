@@ -38,13 +38,15 @@ def parse_ha_ble(self, service_data_list, source_mac, rssi):
     device_type = "HA BLE DIY"
     ha_ble_mac = source_mac
     result = {}
+    packet_id = None
 
     for service_data in service_data_list:
         if len(service_data) == service_data[0] + 1:
             meas_type = (service_data[3] << 8) | service_data[2]
             xobj = service_data[4:]
             if meas_type == 0x2A4D and len(xobj) == 1:
-                result.update({"packet": struct.Struct("<b").unpack(xobj)})
+                (packet_id,) = struct.Struct("<b").unpack(xobj)
+                result.update({"packet": packet_id})
             elif meas_type == 0x2A19 and len(xobj) == 1:
                 (batt,) = struct.Struct("<B").unpack(xobj)
                 result.update({"battery": batt})
@@ -106,7 +108,19 @@ def parse_ha_ble(self, service_data_list, source_mac, rssi):
             )
         return None
 
-    if "packet" not in result:
+    # Check for duplicate messages
+    if packet_id:
+        try:
+            prev_packet = self.lpacket_ids[ha_ble_mac]
+        except KeyError:
+            # start with empty first packet
+            prev_packet = None
+        if prev_packet == packet_id:
+            # only process new messages
+            if self.filter_duplicates is True:
+                return None
+        self.lpacket_ids[ha_ble_mac] = packet_id
+    else:
         result.update({"packet": "no packet id"})
 
     # check for MAC presence in sensor whitelist, if needed
