@@ -45,7 +45,7 @@ def parse_ha_ble(self, service_data_list, source_mac, rssi):
             meas_type = (service_data[3] << 8) | service_data[2]
             xobj = service_data[4:]
             if meas_type == 0x2A4D and len(xobj) == 1:
-                (packet_id,) = struct.Struct("<b").unpack(xobj)
+                (packet_id,) = struct.Struct("<B").unpack(xobj)
                 result.update({"packet": packet_id})
             elif meas_type == 0x2A19 and len(xobj) == 1:
                 (batt,) = struct.Struct("<B").unpack(xobj)
