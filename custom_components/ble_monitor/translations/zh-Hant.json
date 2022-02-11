@@ -5,29 +5,30 @@
         "title": "Passive BLE Monitor",
         "description": "設定 BLE monitor 選項",
         "data": {
+          "bt_interface": "藍芽介面/配接器 MAC 位址",
           "devices": "裝置",
-          "discovery": "探索",
+          "discovery": "自動探索裝置與傳感器",
           "decimals": "小數點位數",
           "period": "掃描間隔",
           "log_spikes": "紀錄日誌",
-          "use_median": "使用中位數",
-          "active_scan": "主動掃描",
-          "bt_interface": "藍芽介面 MAC 位址",
+          "use_median": "使用中位數（非平均值）",
+          "active_scan": "主動掃描（將影響電力）",
+          "restore_state": "於重啟後回復狀態",
           "report_unknown": "回報未知裝置",
-          "restore_state": "回復狀態"
+          "bt_auto_restart": "配接器失敗後自動重啟"
         }
       },
       "add_remove_device": {
         "title": "新增裝置",
         "data": {
           "mac": "MAC 位址",
-          "uuid": "信标 UUID",
+          "uuid": "信標 UUID",
           "encryption_key": "密鑰",
           "temperature_unit": "溫度單位 [僅針對溫度感測器]",
           "decimals": "小數點位數",
-          "use_median": "使用中位數",
-          "restore_state": "回復狀態",
-          "reset_timer": "人體感應器重置時間（秒、設定為 0 = 僅使用感應器訊息）",
+          "use_median": "使用中位數（非平均值）",
+          "restore_state": "於重啟後回復狀態",
+          "reset_timer": "重置計時器（秒、設定為 0 = 關閉）",
           "track_device": "追蹤裝置",
           "tracker_scan_interval": "追蹤裝置掃描間隔（秒）",
           "consider_home": "追蹤裝置視為在家（秒）",
@@ -36,12 +37,13 @@
       }  
     },
     "error": {
-      "invalid_mac": "MAC 位址必須為「AA:BB:CC:DD:EE:FF」格式。",
-      "invalid_uuid": "信标 UUID 的格式必须为“00000000-0000-0000-0000-000000000000”。",
+      "invalid_mac": "MAC 位址必須為 'AA:BB:CC:DD:EE:FF' 格式。",
+      "invalid_uuid": "信標 UUID 格式必須為 '0000000-0000-0000-0000-000000000000' 格式。",
       "invalid_key": "密鑰必須為 32 個十六進位字元（Yeelight 則為 24）。",
       "cannot_change_mac": "MAC 位址無法變更。",
-      "cannot_change_uuid": "信标 UUID 无法更改。",
-      "cannot_delete_device": "裝置無法刪除。"
+      "cannot_change_uuid": "信標 UUID 無法變更。",
+      "cannot_delete_device": "裝置無法刪除。",
+      "cannot_disable_bt_interface": "當選擇一個或以上的藍芽介面時，將無法進行關閉。請先解除選擇。"
     },
     "abort": {
       "single_instance_allowed": "BLE monitor 僅允許一組設定。"
@@ -53,16 +55,17 @@
         "title": "Passive BLE Monitor 選項",
         "description": "於按下「傳送後」將會重新開始掃描",
         "data": {
+          "bt_interface": "藍芽介面/配接器 MAC 位址",
           "devices": "裝置",
-          "discovery": "探索",
+          "discovery": "自動探索裝置與傳感器",
           "decimals": "小數點位數",
           "period": "掃描間隔",
           "log_spikes": "紀錄日誌",
-          "use_median": "使用中位數",
-          "active_scan": "主動掃描",
-          "bt_interface": "藍芽介面 MAC 位址",
+          "use_median": "使用中位數（非平均值）",
+          "active_scan": "主動掃描（將影響電力）",
           "report_unknown": "回報未知裝置",
-          "restore_state": "回復狀態",
+          "bt_auto_restart": "配接器失敗後自動重啟",
+          "restore_state": "於重啟後回復狀態",
           "not_in_use": "已使用 YAML、於 YAML 變更選項"
         }
       },
@@ -70,12 +73,12 @@
         "title": "設定裝置",
         "data": {
           "mac": "MAC 位址",
-          "uuid": "信标 UUID",
+          "uuid": "信標 UUID",
           "encryption_key": "密鑰（若輸入為「-」進行移除）",
           "temperature_unit": "溫度單位",
           "decimals": "小數點位數",
-          "use_median": "使用中位數",
-          "restore_state": "回復狀態",
+          "use_median": "使用中位數（非平均值）",
+          "restore_state": "於重啟後回復狀態",
           "reset_timer": "重置計時器（秒、設定為 0 = 關閉）",
           "track_device": "追蹤裝置",
           "tracker_scan_interval": "追蹤裝置掃描間隔（秒）",
@@ -85,12 +88,13 @@
       }  
     },
     "error": {
-      "invalid_mac": "MAC 位址必須為「AA:BB:CC:DD:EE:FF」格式。",
-      "invalid_uuid": "信标 UUID 的格式必须为“00000000-0000-0000-0000-000000000000”。",
+      "invalid_mac": "MAC 位址必須為 'AA:BB:CC:DD:EE:FF' 格式。",
+      "invalid_uuid": "信標 UUID 格式必須為 '0000000-0000-0000-0000-000000000000' 格式。",
       "invalid_key": "密鑰必須為 32 個十六進位字元（Yeelight 則為 24）。",
       "cannot_change_mac": "MAC 位址無法變更。",
-      "cannot_change_uuid": "信标 UUID 无法更改。",
-      "cannot_delete_device": "裝置無法刪除。"
+      "cannot_change_uuid": "信標 UUID 無法變更。",
+      "cannot_delete_device": "裝置無法刪除。",
+      "cannot_disable_bt_interface": "當選擇一個或以上的藍芽介面時，將無法進行關閉。請先解除選擇。"
     },
     "abort": {
       "not_in_use": "已經於 YAML 內設定 BLE monitor、請於 YAML 內變更選項"
