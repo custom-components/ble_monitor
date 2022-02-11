@@ -4,3 +4,5 @@ pytest-homeassistant-custom-component==0.5.13
 pycryptodomex==3.12.0
 janus==1.0.0
 aioblescan==0.2.12
+btsocket==0.1.0
+pyric==0.1.6.3
