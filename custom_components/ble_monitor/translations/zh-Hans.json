@@ -1,0 +1,103 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Passive BLE Monitor",
+        "description": "配置 BLE monitor",
+        "data": {
+          "bt_interface": "蓝牙接口/适配器 的 MAC 地址",
+          "devices": "设备",
+          "discovery": "自动发现设备及传感器",
+          "decimals": "小数位数",
+          "period": "用于计算平均值的周期",
+          "log_spikes": "记录尖峰",
+          "use_median": "使用中位数，而非平均数",
+          "active_scan": "积极扫描，而非被动扫描（影响电池寿命）",
+          "restore_state": "重启后恢复状态",
+          "report_unknown": "报告未知设备",
+          "bt_auto_restart": "失败时自动重启蓝牙适配器"
+        }
+      },
+      "add_remove_device": {
+        "title": "添加设备",
+        "data": {
+          "mac": "MAC 地址",
+          "uuid": "Beacon UUID",
+          "encryption_key": "加密密钥",
+          "temperature_unit": "温度单位 [只对温度传感器有效]",
+          "decimals": "小数位数",
+          "use_median": "使用中位数，而非平均值",
+          "restore_state": "重启后恢复状态",
+          "reset_timer": "重置计时器（单位：秒，设置为 0 则关闭）",
+          "track_device": "跟踪设备",
+          "tracker_scan_interval": "设备跟踪器扫描间隔（单位：秒）",
+          "consider_home": "设备跟踪器认为在家的间隔（单位：秒）",
+          "delete device": "删除设备"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "MAC 地址格式必须为 'AA:BB:CC:DD:EE:FF'。",
+      "invalid_uuid": "Beacon UUID 格式必须为 '00000000-0000-0000-0000-000000000000'。",
+      "invalid_key": "加密密钥必须为 32 位 hex（对于 Yeelight 传感器来说是 24）。",
+      "cannot_change_mac": "无法更改 MAC 地址。",
+      "cannot_change_uuid": "无法更改 Beacon UUID。",
+      "cannot_delete_device": "无法删除设备。",
+      "cannot_disable_bt_interface": "当一个或以上的蓝牙接口被选中时，无法禁用蓝牙接口。请先取消选择所有蓝牙接口。"
+    },
+    "abort": {
+      "single_instance_allowed": "BLE monitor 只允许单组配置。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Passive BLE Monitor 选项",
+        "description": "扫描会在点击「提交」后重新开始",
+        "data": {
+          "bt_interface": "蓝牙接口/适配器 的 MAC 地址",
+          "devices": "设备",
+          "discovery": "自动发现设备及传感器",
+          "decimals": "小数位数",
+          "period": "用于计算平均值的周期",
+          "log_spikes": "记录尖峰",
+          "use_median": "使用中位数，而非平均数",
+          "active_scan": "积极扫描，而非被动扫描（影响电池寿命）",
+          "report_unknown": "报告未知设备",
+          "bt_auto_restart": "失败时自动重启蓝牙适配器",
+          "restore_state": "重启后恢复状态",
+          "not_in_use": "已使用 YAML ，请在 YAML 中配置选项"
+        }
+      },
+      "add_remove_device": {
+        "title": "配置设备",
+        "data": {
+          "mac": "MAC 地址",
+          "uuid": "Beacon UUID",
+          "encryption_key": "加密密钥（设置为「-」来移除）",
+          "temperature_unit": "温度单位",
+          "decimals": "小数位数",
+          "use_median": "使用中位数，而非平均数",
+          "restore_state": "重启后恢复状态",
+          "reset_timer": "重置计时器（单位：秒，设置为 0 则关闭）",
+          "track_device": "跟踪设备",
+          "tracker_scan_interval": "设备跟踪器扫描间隔（单位：秒）",
+          "consider_home": "设备跟踪器认为在家的间隔（单位：秒）",
+          "delete device": "删除设备"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "MAC 地址格式必须为 'AA:BB:CC:DD:EE:FF'。",
+      "invalid_uuid": "Beacon UUID 格式必须为 '00000000-0000-0000-0000-000000000000'。",
+      "invalid_key": "加密密钥必须为 32 位 hex（对于 Yeelight 传感器来说是 24）。",
+      "cannot_change_mac": "无法更改 MAC 地址。",
+      "cannot_change_uuid": "无法更改 Beacon UUID。",
+      "cannot_delete_device": "无法删除设备。",
+      "cannot_disable_bt_interface": "当一个或以上的蓝牙接口被选中时，无法禁用蓝牙接口。请先取消选择所有蓝牙接口。"
+    },
+    "abort": {
+      "not_in_use": "您已经在 YAML 中配置了 BLE monitor。请在 YAML 中配置选项。"
+    }
+  }
+}
