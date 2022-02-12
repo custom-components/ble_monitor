@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Parse data from ESPHome
+title: Receive data from ESPHome (BLE Gateway)
 has_children: false
 has_toc: false
 permalink: parse_data
@@ -15,7 +15,7 @@ nav_order: 5
 
 BLE monitor has a service to parse BLE advertisements. This service can e.g. be used with ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway).
 
-You can also use this service to create support for you own home-brew sensor, as long as you make sure you follow the format of one of the existing sensors.
+You can also use this service to create support for you own home-brew sensor, as long as you make sure you follow our own [HA BLE](ha_ble) format (or the format of one of the other sensor brands).
 
 In this example you can see the BLE data packet from device with MAC address `A4:C1:38:B4:94:4C`, in the packet it's in reverse order `4C94B438C1A4`. The BLE packet should be in HCI format, with packet type HCI Event (0x04). The gateway id is optional and can e.g. be used to identify which ESPHome device did receive the message, which can be usefull for room localization.
 

@@ -19,7 +19,6 @@ from homeassistant.const import (
     CONDUCTIVITY,
     ELECTRIC_POTENTIAL_VOLT,
     ENERGY_KILO_WATT_HOUR,
-    ENTITY_CATEGORY_DIAGNOSTIC,
     LIGHT_LUX,
     MASS_KILOGRAMS,
     PERCENTAGE,
@@ -30,6 +29,7 @@ from homeassistant.const import (
     VOLUME_LITERS,
     Platform,
 )
+from homeassistant.helpers.entity import EntityCategory
 
 DOMAIN = "ble_monitor"
 PLATFORMS = [
@@ -243,28 +243,6 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
 
 SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     BLEMonitorSensorEntityDescription(
-        key="mac",
-        sensor_class="StateChangedSensor",
-        name="ble mac",
-        unique_id="mac_",
-        icon="mdi:alpha-m-circle-outline",
-        native_unit_of_measurement=None,
-        device_class=None,
-        state_class=None,
-        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-    ),
-    BLEMonitorSensorEntityDescription(
-        key="uuid",
-        sensor_class="StateChangedSensor",
-        name="ble uuid",
-        unique_id="uuid_",
-        icon="mdi:alpha-u-circle-outline",
-        native_unit_of_measurement=None,
-        device_class=None,
-        state_class=None,
-        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-    ),
-    BLEMonitorSensorEntityDescription(
         key="temperature",
         sensor_class="TemperatureSensor",
         name="ble temperature",
@@ -446,7 +424,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
         device_class=SensorDeviceClass.SIGNAL_STRENGTH,
         state_class=SensorStateClass.MEASUREMENT,
-        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     BLEMonitorSensorEntityDescription(
         key="measured power",
@@ -456,7 +434,49 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
         device_class=SensorDeviceClass.SIGNAL_STRENGTH,
         state_class=SensorStateClass.MEASUREMENT,
-        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="battery",
+        sensor_class="BatterySensor",
+        name="ble battery",
+        unique_id="batt_",
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.BATTERY,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="voltage",
+        sensor_class="MeasuringSensor",
+        name="ble voltage",
+        unique_id="v_",
+        native_unit_of_measurement=ELECTRIC_POTENTIAL_VOLT,
+        device_class=SensorDeviceClass.VOLTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="mac",
+        sensor_class="StateChangedSensor",
+        name="ble mac",
+        unique_id="mac_",
+        icon="mdi:alpha-m-circle-outline",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="uuid",
+        sensor_class="StateChangedSensor",
+        name="ble uuid",
+        unique_id="uuid_",
+        icon="mdi:alpha-u-circle-outline",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     BLEMonitorSensorEntityDescription(
         key="major",
@@ -467,7 +487,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         native_unit_of_measurement=None,
         device_class=None,
         state_class=None,
-        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     BLEMonitorSensorEntityDescription(
         key="minor",
@@ -478,27 +498,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         native_unit_of_measurement=None,
         device_class=None,
         state_class=None,
-        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-    ),
-    BLEMonitorSensorEntityDescription(
-        key="battery",
-        sensor_class="BatterySensor",
-        name="ble battery",
-        unique_id="batt_",
-        native_unit_of_measurement=PERCENTAGE,
-        device_class=SensorDeviceClass.BATTERY,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-    ),
-    BLEMonitorSensorEntityDescription(
-        key="voltage",
-        sensor_class="MeasuringSensor",
-        name="ble voltage",
-        unique_id="v_",
-        native_unit_of_measurement=ELECTRIC_POTENTIAL_VOLT,
-        device_class=SensorDeviceClass.VOLTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     BLEMonitorSensorEntityDescription(
         key="consumable",
@@ -858,6 +858,7 @@ MEASUREMENT_DICT = {
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'MyCO2'                   : [["temperature", "humidity", "co2", "rssi"], [], []],
     'HA BLE DIY'              : [["temperature", "rssi"], [], []],
+    'device tracker'          : [["rssi"], [], []],
 }
 
 
@@ -957,6 +958,7 @@ MANUFACTURER_DICT = {
     'iBeacon'                 : 'Apple',
     'AltBeacon'               : 'Radius Networks',
     'HA BLE DIY'              : 'Home Assistant DIY',
+    'device tracker'          : 'Generic BLE tracker',
 }
 
 # Renamed model dictionary
@@ -971,7 +973,6 @@ REPORT_UNKNOWN_LIST = [
     "BlueMaestro",
     "Brifit",
     "Govee",
-    "HA BLE",
     "Inkbird",
     "iNode",
     "iBeacon",

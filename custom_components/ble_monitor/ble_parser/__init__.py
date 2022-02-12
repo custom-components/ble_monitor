@@ -239,12 +239,22 @@ class BleParser:
         tracker_id = tracker_data['tracker_id'] if tracker_data and 'tracker_id' in tracker_data else mac
         if tracker_id in self.tracker_whitelist:
             if tracker_data is not None:
+                # AltBeacon and iBeacon trackers
                 tracker_data.update({"is connected": True})
             else:
                 tracker_data = {
                     "is connected": True,
                     "mac": ''.join('{:02X}'.format(x) for x in mac),
                     "rssi": rssi,
+                }
+            if sensor_data is None:
+                sensor_data = {
+                    "rssi": rssi,
+                    "mac": ''.join('{:02X}'.format(x) for x in mac),
+                    "type": "device tracker",
+                    "firmware": "Generic BLE tracker",
+                    "packet": "no packet id",
+                    "data": True,
                 }
         else:
             tracker_data = None
