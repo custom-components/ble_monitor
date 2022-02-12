@@ -971,6 +971,7 @@ REPORT_UNKNOWN_LIST = [
     "BlueMaestro",
     "Brifit",
     "Govee",
+    "HA BLE",
     "Inkbird",
     "iNode",
     "iBeacon",
