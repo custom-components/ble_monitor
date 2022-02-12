@@ -4,7 +4,9 @@ import logging
 from .atc import parse_atc
 from .bluemaestro import parse_bluemaestro
 from .brifit import parse_brifit
+from .const import GATT_CHARACTERISTICS
 from .govee import parse_govee
+from .ha_ble import parse_ha_ble
 from .inkbird import parse_inkbird
 from .inode import parse_inode
 from .jinou import parse_jinou
@@ -79,6 +81,7 @@ class BleParser:
         sensor_data = None
         tracker_data = None
         complete_local_name = ""
+        shortened_local_name = ""
         service_class_uuid16 = None
         service_class_uuid128 = None
         service_data_list = []
@@ -100,6 +103,9 @@ class BleParser:
                 elif adstuct_type == 0x06:
                     # AD type '128-bit Service Class UUIDs'
                     service_class_uuid128 = adstruct[2:]
+                elif adstuct_type == 0x08:
+                    # AD type 'shortened local name'
+                    shortened_local_name = adstruct[2:].decode("utf-8")
                 elif adstuct_type == 0x09:
                     # AD type 'complete local name'
                     complete_local_name = adstruct[2:].decode("utf-8")
@@ -135,6 +141,9 @@ class BleParser:
                         break
                     elif uuid16 == 0xFEAA:  # UUID16 = Ruuvitag V2/V4
                         sensor_data = parse_ruuvitag(self, service_data, mac, rssi)
+                        break
+                    elif uuid16 in GATT_CHARACTERISTICS and shortened_local_name == "HA_BLE":
+                        sensor_data = parse_ha_ble(self, service_data_list, mac, rssi)
                         break
                     elif uuid16 == 0x2A6E or uuid16 == 0x2A6F:  # UUID16 = Teltonika
                         # Teltonika can contain multiple service data payloads in one advertisement

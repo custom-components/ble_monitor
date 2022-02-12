@@ -857,6 +857,7 @@ MEASUREMENT_DICT = {
     'iBeacon'                 : [["rssi", "measured power", "cypress temperature", "cypress humidity"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'MyCO2'                   : [["temperature", "humidity", "co2", "rssi"], [], []],
+    'HA BLE DIY'              : [["temperature", "rssi"], [], []],
 }
 
 
@@ -955,6 +956,7 @@ MANUFACTURER_DICT = {
     'BEC07-5'                 : 'Jinou',
     'iBeacon'                 : 'Apple',
     'AltBeacon'               : 'Radius Networks',
+    'HA BLE DIY'              : 'Home Assistant DIY',
 }
 
 # Renamed model dictionary
@@ -969,6 +971,7 @@ REPORT_UNKNOWN_LIST = [
     "BlueMaestro",
     "Brifit",
     "Govee",
+    "HA BLE",
     "Inkbird",
     "iNode",
     "iBeacon",
