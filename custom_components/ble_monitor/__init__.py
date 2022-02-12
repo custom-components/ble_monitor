@@ -314,7 +314,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                         "Bluetooth adapter with MAC address %s was not found. "
                         "It is therefore changed back to the default adapter. "
                         "Check the BLE monitor settings, if needed.",
-                        config[CONF_BT_INTERFACE]
+                        bt_mac
                     )
                     try:
                         default_hci = list(BT_INTERFACES.keys())[
