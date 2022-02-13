@@ -17,7 +17,7 @@ This [Home Assistant](https://www.home-assistant.io) custom component is an alte
  [Bluetooth LE Tracker](https://www.home-assistant.io/integrations/bluetooth_le_tracker/)
  integration that are available in Home Assistant. BLE monitor supports
  [many more sensors](devices) than the build in integration from manufactures like
- [BlueMaestro, Brifit, Govee, Inkbird, iNode, Kegtron, Moat, Oral-B, Qingping, Ruuvitag, SensorPush, Teltonica, Thermoplus, Xiaomi and more](by_brand)
+ [ATC, BlueMaestro, Brifit, b-parasite, Govee, Inkbird, iNode, Jinou, Kegtron, Moat, Oral-B, Qingping, Ruuvitag, Sensirion, SensorPush, Teltonika, Thermoplus, Xiaogui, Xiaomi and even your own DIY sensors](by_brand)
  . Unlike the original `mitemp_bt` integration, which is getting its data by
  polling the device with a default five-minute interval, this custom component
  is parsing the Bluetooth Low Energy packets payload that is constantly emitted
@@ -26,9 +26,9 @@ This [Home Assistant](https://www.home-assistant.io) custom component is an alte
  battery as much as the built-in integration. It also solves connection issues
  some people have with the standard integration (due to passivity and the
  ability to collect data from multiple bt-interfaces simultaneously). Read more
- in the  [FAQ](faq#why-is-this-component-called-passive-and-what-does-this-mean)
+ in the [FAQ](faq#why-is-this-component-called-passive-and-what-does-this-mean)
  . BLE monitor also has the possibility to track BLE devices based on its (static)
- MAC address. It will listen to incoming BLE advertisements for the devices that
+ MAC address or its UUID. It will listen to incoming BLE advertisements for the devices that
  you have chosen to track.
 
 ## Credits
