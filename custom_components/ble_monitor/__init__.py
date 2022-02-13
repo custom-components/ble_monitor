@@ -301,7 +301,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             hci_list = ["disable"]
             bt_mac_list = ["disable"]
         else:
-            bt_interface_list = config[CONF_BT_INTERFACE]
+            bt_interface_list = list(set(config[CONF_BT_INTERFACE]))
             for bt_mac in bt_interface_list:
                 try:
                     hci = list(BT_INTERFACES.keys())[
