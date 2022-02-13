@@ -15,7 +15,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - [Supported devices](https://custom-components.github.io/ble_monitor/devices)
 - [FAQ](https://custom-components.github.io/ble_monitor/faq)
 - [Parse_data from ESPhome](https://custom-components.github.io/ble_monitor/parse_data)
-- [DIY sensors]((https://custom-components.github.io/ble_monitor/ha_ble)
+- [DIY sensors](https://custom-components.github.io/ble_monitor/ha_ble)
 - [Developer documentation](https://custom-components.github.io/ble_monitor/developer_docs)
 - [Forum](https://community.home-assistant.io/t/passive-ble-monitor-integration/)
 - [Report issues](https://github.com/custom-components/ble_monitor/issues)
