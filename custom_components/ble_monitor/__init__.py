@@ -555,7 +555,7 @@ class HCIdump(Thread):
         self._joining = False
         self.evt_cnt = 0
         self.config = config
-        self._interfaces = config[CONF_HCI_INTERFACE]
+        self._interfaces = list(set(config[CONF_HCI_INTERFACE]))
         self._active = int(config[CONF_ACTIVE_SCAN] is True)
         self.discovery = True
         self.filter_duplicates = True
@@ -693,6 +693,9 @@ class HCIdump(Thread):
                                 " and will be skipped for current scan period.",
                                 hci,
                             )
+                            conn[hci].close()
+                            fac[hci].close()
+                            mysocket[hci].close()
                         else:
                             btctrl[hci].process = self.process_hci_events
                             _LOGGER.debug("HCIdump thread: connected to hci%i", hci)
@@ -706,6 +709,9 @@ class HCIdump(Thread):
                                     hci,
                                     error,
                                 )
+                                conn[hci].close()
+                                fac[hci].close()
+                                mysocket[hci].close()
                             else:
                                 interface_is_ok[hci] = True
                                 _LOGGER.debug(
@@ -753,6 +759,8 @@ class HCIdump(Thread):
                                 )
                         try:
                             conn[hci].close()
+                            fac[hci].close()
+                            mysocket[hci].close()
                         except KeyError:
                             _LOGGER.debug(
                                 "HCIdump thread: Key error while closing connection on hci%i",
