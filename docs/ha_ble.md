@@ -40,7 +40,7 @@ The data format of each property is defined in the [GATT specification supplemen
 
 BLE advertisements must contain `070848415f424c45`, which means `shortened local name` = `HA_BLE`. This will make sure BLE monitor recognizes the packet. The packet id is optional (see below). The payload has to contain at least one of the above measurements. It is allowed to have multiple measurements (e.g. temperature and humidity) in one BLE advertisment. However, the data must follow the above format. 
 
-Full example payloads are given in the [test_ha_ble.py](https://github.com/custom-components/ble_monitor/blob/HA-BLE/custom_components/ble_monitor/test/test_ha_ble.py) file. 
+Full example payloads are given in the [test_ha_ble.py](https://github.com/custom-components/ble_monitor/blob/master/custom_components/ble_monitor/test/test_ha_ble.py) file. 
 
 ### packet id
 
@@ -48,6 +48,6 @@ The `packet id` is optional and is used to filter duplicate data. This allows yo
 
 ### Instructions to create a sensor in HA (temporary workaround)
 
-At the moment, a temperature sensor is added in [const.py](https://github.com/custom-components/ble_monitor/blob/30784951e9e80917ea2c1281fdf947d79ce260d0/custom_components/ble_monitor/const.py#L860) manually. You can change it to your needs by changing this line in const.py to the sensor you want (all sensors from the above table should work). 
+At the moment, a temperature sensor is added in [const.py](https://github.com/custom-components/ble_monitor/blob/master/custom_components/ble_monitor/const.py#L860) manually. You can change it to your needs by changing this line in const.py to the sensor you want (all sensors from the above table should work). 
 
 **This has to be done manually at the moment and will be lost during each update of BLE monitor.** In a future update, we will change this such that it will automatically add the correct sensor(s), based on the data received. 
