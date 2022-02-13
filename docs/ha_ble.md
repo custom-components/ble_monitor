@@ -13,9 +13,10 @@ nav_order: 6
 
 ### Introduction
 
-BLE monitor has created support for your own DIY sensors, by introducing our own BLE format that can be read by BLE monitor, called `HA BLE`. The format is following the official Bluetooth GATT Characteristic and Object Type, which can be found on page 13 and further in this document: https://btprodspecificationrefs.blob.core.windows.net/assigned-values/16-bit%20UUID%20Numbers%20Document.pdf
+BLE monitor has created support for your own DIY sensors, by introducing our own BLE format that can be read by BLE monitor, called `HA BLE`. The format is following the official Bluetooth GATT Characteristic and Object Type, which can be found on page 13 and further in this document: [16-bit UUID Numbers
+Document](https://btprodspecificationrefs.blob.core.windows.net/assigned-values/16-bit%20UUID%20Numbers%20Document.pdf)
 
-The data format of each property is defined in the GATT specification supplement: https://www.bluetooth.org/DocMan/handlers/DownloadDoc.ashx?doc_id=524815. At the moment, the following sensors are supported. If you want another sensor, let us know by creating a new issue on Github. 
+The data format of each property is defined in the [GATT specification supplement](https://www.bluetooth.org/DocMan/handlers/DownloadDoc.ashx?doc_id=524815). At the moment, the following sensors are supported. If you want another sensor, let us know by creating a new issue on Github. 
 
 | Object id | Property    | Data type        | Factor | example | result | Unit in HA |
 | --------- | ----------- | ---------------- | ------------- | ------------- | ------------- | ------------- |
@@ -24,8 +25,8 @@ The data format of each property is defined in the GATT specification supplement
 | `0x2A6E`  | temperature | sint16 (2 bytes) | 0.01 | `05166E2A3409` | 23.56 | `°C`  | 
 | `0x2A6F`  | humidity    | uint16 (2 bytes) | 0.01 | `05166F2A5419` | 64.84 | `%` | 
 | `0x2A7B`  | dewpoint    | sint8 (1 byte)   | 1    | `04167b2a18` | 24 | `°C` | 
-| `0x2A98`  | weight      | struct (1 byte, flag)) +| bit 0 of flag = 0 = 0.005 | `0616982A00AA33` | 66.13 | `kg` (bit 0 of flag = 0) | 
-|           |             | uint16 (2 bytes, weight)| bit 0 of flag = 1 = 0.01 | `0616982A01AA33` | 132.26 | `lbs` (bit 0 of flag = 1) | 
+| `0x2A98`  | weight      | struct (1 byte, flag)) +| bit 0 of flag = 0 => 0.005 | `0616982A00AA33` | 66.13 | `kg` (bit 0 of flag = 0) | 
+|           |             | uint16 (2 bytes, weight)| bit 0 of flag = 1 => 0.01 | `0616982A01AA33` | 132.26 | `lbs` (bit 0 of flag = 1) | 
 | `0X2AF2`  | energy      | uint32 (4 bytes) | 0.001| `0716F22A81121000` | 1053.313 | `kWh` | 
 | `0X2AFB`  | illuminance | uint24 (3 bytes) | 0.01 | `0616FB2A34AA00` | 435.72 | `lux`  | 
 | `0x2B05`  | power       | uint24 (3 bytes) | 0.1  | `052B510A00` | 264.1 | `W` | 
@@ -49,4 +50,4 @@ The `packet id` is optional and is used to filter duplicate data. This allows yo
 
 At the moment, a temperature sensor is added in [const.py](https://github.com/custom-components/ble_monitor/blob/30784951e9e80917ea2c1281fdf947d79ce260d0/custom_components/ble_monitor/const.py#L860) manually. You can change it to your needs by changing this line in const.py to the sensor you want (all sensors from the above table should work). 
 
-**This has to be done manually at the moment and will be lost during each update of BLE monitor. ** In a future update, we will change this such that it will automatically add the correct sensor(s), based on the data received. 
+**This has to be done manually at the moment and will be lost during each update of BLE monitor.** In a future update, we will change this such that it will automatically add the correct sensor(s), based on the data received. 
