@@ -10,14 +10,11 @@ broadcasted_properties:
   - CO2
   - PM2.5
   - PM10
-  - battery
   - rssi
 broadcasted_property_notes:
-  - property: battery
-    note: It is not known (yet) if the sensor broadcasts battery level.
 broadcast_rate:
 active_scan:
 encryption_key:
 custom_firmware:
-notes:
+notes: BLE is only working when it is paired with a companion app.
 ---
