@@ -977,6 +977,7 @@ REPORT_UNKNOWN_LIST = [
     "iBeacon",
     "Jinou"
     "Kegtron",
+    "Midea",
     "Mi Scale",
     "Moat",
     "Oral-B",

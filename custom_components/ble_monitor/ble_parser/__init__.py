@@ -11,6 +11,7 @@ from .inkbird import parse_inkbird
 from .inode import parse_inode
 from .jinou import parse_jinou
 from .kegtron import parse_kegtron
+from .midea import parse_midea
 from .miscale import parse_miscale
 from .moat import parse_moat
 from .oral_b import parse_oral_b
@@ -142,6 +143,9 @@ class BleParser:
                     elif uuid16 == 0xFEAA:  # UUID16 = Ruuvitag V2/V4
                         sensor_data = parse_ruuvitag(self, service_data, mac, rssi)
                         break
+                    elif uuid16 == 0xFD25:  # UUID16 = Midea
+                        sensor_data = parse_midea(self, service_data, mac, rssi)
+                        break
                     elif uuid16 in GATT_CHARACTERISTICS and shortened_local_name == "HA_BLE":
                         sensor_data = parse_ha_ble(self, service_data_list, mac, rssi)
                         break
@@ -226,6 +230,9 @@ class BleParser:
                         break
                     elif comp_id == 0x06D5:  # Sensirion
                         sensor_data = parse_sensirion(self, man_spec_data, complete_local_name, mac, rssi)
+                        break
+                    elif comp_id == 0x06A8:  # Midea
+                        sensor_data = parse_midea(self, man_spec_data, mac, rssi)
                         break
                     else:
                         unknown_sensor = True
