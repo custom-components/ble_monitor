@@ -414,6 +414,17 @@ class BaseSensor(RestoreEntity, SensorEntity):
         self.ready_for_update = True
 
     @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Return if the entity should be enabled when first added to the entity registry."""
+        if not self.is_beacon:
+            return True
+
+        if self.entity_description.key in ['cypress temperature', 'cypress humidity', 'uuid']:
+            return False
+
+        return True
+
+    @property
     def is_beacon(self):
         """Check if entity is beacon."""
         return self._type == CONF_UUID
