@@ -789,7 +789,7 @@ MEASUREMENT_DICT = {
     'XMZNMST02YD'             : [["battery", "rssi"], [], ["lock", "fingerprint"]],
     'CGC1'                    : [["temperature", "humidity", "battery", "rssi"], [], []],
     'CGD1'                    : [["temperature", "humidity", "battery", "rssi"], [], []],
-    'CGDK2'                   : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'CGDK2'                   : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'CGG1'                    : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'CGG1-ENCRYPTED'          : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'CGH1'                    : [["battery", "rssi"], [], ["opening"]],
