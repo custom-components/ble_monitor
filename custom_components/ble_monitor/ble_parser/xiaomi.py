@@ -606,6 +606,7 @@ xiaomi_dataobject_dict = {
 
 
 def parse_xiaomi(self, data, source_mac, rssi):
+    """Parser for Xiaomi sensors"""
     # check for adstruc length
     i = 9  # till Frame Counter
     msg_length = len(data)
@@ -697,7 +698,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
         # start with empty first packet
         prev_packet = None
 
-    if device_type in ["LYWSD03MMC", "CGG1", "MHO-C401"]:
+    if device_type in ["LYWSD03MMC", "CGG1", "MHO-C401", "CGDK2"]:
         # Check for adv priority and packet_id for devices that can also send in ATC format
         adv_priority = 19
         try:

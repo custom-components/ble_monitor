@@ -11,8 +11,6 @@ broadcasted_properties:
   - voltage
   - rssi
 broadcasted_property_notes:
-  - property: voltage
-    note: battery voltage is only available with custom firmware
 broadcast_rate: "1/10min. (battery level 1/hr.)"
 active_scan:
 encryption_key: true

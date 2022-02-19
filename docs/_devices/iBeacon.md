@@ -15,9 +15,11 @@ broadcasted_properties:
   - minor
 broadcasted_property_notes:
   - property: cypress temperature
-    note: Measured in °C. Calculated based on minor `175.72 * ((minor & 0xff) * 256) / 65536 - 46.85`
+    note: This sensor is disabled by default and can be turned on in the device menu. Measured in °C. Calculated based on minor `175.72 * ((minor & 0xff) * 256) / 65536 - 46.85`
   - property: cypress humidity
-    note: Measured in RH%. Calculated based on minor `125.0 * (minor & 0xff00) / 65536 - 6`
+    note: This sensor is disabled by default and can be turned on in the device menu. Measured in RH%. Calculated based on minor `125.0 * (minor & 0xff00) / 65536 - 6`
+  - property: uuid
+    note: This sensor is disabled by default and can be turned on in the device menu.
 broadcast_rate:
 active_scan: true
 encryption_key:
