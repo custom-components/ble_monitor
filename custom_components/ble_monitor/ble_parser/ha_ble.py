@@ -74,6 +74,9 @@ def parse_ha_ble(self, service_data_list, source_mac, rssi):
                     weight_unit = "kg"
                     factor = 0.005
                 result.update({"weight": weight * factor, "weight unit": weight_unit})
+            elif meas_type == 0X2AE2 and len(xobj) == 1:
+                (value,) = struct.Struct("<B").unpack(xobj)
+                result.update({"binary": bool(value)})
             elif meas_type == 0X2AF2 and len(xobj) == 4:
                 (enrg,) = struct.Struct("<I").unpack(xobj)
                 result.update({"energy": enrg * 0.001})

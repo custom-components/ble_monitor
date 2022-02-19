@@ -26,6 +26,7 @@ GATT_CHARACTERISTICS: Final = {
     0x2A6F: "humidity",
     0x2A7B: "dewpoint",
     0x2A98: "weight",
+    0x2AE2: "binary",
     0X2AF2: "energy",
     0X2AFB: "illuminance",
     0x2B05: "power",
