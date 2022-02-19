@@ -13,7 +13,7 @@
           "use_median": "Gebruik mediaan i.p.v. gemiddelde",
           "active_scan": "Active scan",
           "bt_interface": "MAC adres Bluetooth interface",
-          "report_unknown": "Rapporteer onbekende apparaten",
+          "report_unknown": "Raporteer onbekende BLE advertisements in de HA logs",
           "restore_state": "Herstel staat na herstart",
           "bt_auto_restart": "Herstart Bluetooth adapter automatisch bij fout"
         }
@@ -29,6 +29,7 @@
           "use_median": "Gebruik mediaan i.p.v. gemiddelde",
           "restore_state": "Herstel staat na herstart",
           "reset_timer": "Reset timer (in seconden, 0 = uit)",
+          "report_unknown": "Raporteer onbekende BLE advertisements in de HA logs",
           "track_device": "Track apparaat",
           "tracker_scan_interval": "Device tracker scan interval (in seconden)",
           "consider_home": "Device tracker beschouw thuis interval (in seconden)",
@@ -63,7 +64,7 @@
           "use_median": "Gebruik mediaan i.p.v. gemiddelde",
           "active_scan": "Active scan",
           "bt_interface": "MAC adres Bluetooth interface",
-          "report_unknown": "Rapporteer onbekende apparaten",
+          "report_unknown": "Raporteer onbekende BLE advertisements in de HA logs",
           "restore_state": "Herstel staat na herstart",
           "bt_auto_restart": "Herstart Bluetooth adapter automatisch bij fout",
           "not_in_use": "YAML is gebruikt, pas je instellingen aan in YAML"
@@ -80,6 +81,7 @@
           "use_median": "Gebruik mediaan i.p.v. gemiddelde",
           "restore_state": "Herstel staat na herstart",
           "reset_timer": "Reset timer (in seconden, 0 = uit)",
+          "report_unknown": "Raporteer onbekende BLE advertisements in de HA logs",
           "track_device": "Track apparaat",
           "tracker_scan_interval": "Device tracker scan interval (in seconden)",
           "consider_home": "Device tracker beschouw thuis interval (in seconden)",

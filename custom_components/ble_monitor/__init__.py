@@ -38,6 +38,7 @@ from .const import (
     CONF_DEVICE_DECIMALS,
     CONF_DEVICE_ENCRYPTION_KEY,
     CONF_DEVICE_USE_MEDIAN,
+    CONF_DEVICE_REPORT_UNKNOWN,
     CONF_DEVICE_RESTORE_STATE,
     CONF_DEVICE_RESET_TIMER,
     CONF_DEVICE_TRACK,
@@ -58,6 +59,7 @@ from .const import (
     DEFAULT_BT_AUTO_RESTART,
     DEFAULT_DECIMALS,
     DEFAULT_DEVICE_DECIMALS,
+    DEFAULT_DEVICE_REPORT_UNKNOWN,
     DEFAULT_DEVICE_RESTORE_STATE,
     DEFAULT_DEVICE_RESET_TIMER,
     DEFAULT_DEVICE_TRACK,
@@ -119,6 +121,7 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(
             CONF_DEVICE_RESET_TIMER, default=DEFAULT_DEVICE_RESET_TIMER
         ): cv.positive_int,
+        vol.Optional(CONF_DEVICE_REPORT_UNKNOWN, default=DEFAULT_DEVICE_REPORT_UNKNOWN): cv.boolean,
         vol.Optional(CONF_DEVICE_TRACK, default=DEFAULT_DEVICE_TRACK): cv.boolean,
         vol.Optional(
             CONF_DEVICE_TRACKER_SCAN_INTERVAL,
@@ -563,14 +566,28 @@ class HCIdump(Thread):
         self.sensor_whitelist = []
         self.tracker_whitelist = []
         self.report_unknown = False
+        self.report_unknown_whitelist = []
         self.last_bt_reset = dt_util.now()
         if self.config[CONF_REPORT_UNKNOWN]:
-            self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
-            _LOGGER.info(
-                "Attention! Option report_unknown is enabled for %s sensors, "
-                "be ready for a huge output",
-                self.report_unknown,
-            )
+            if self.config[CONF_REPORT_UNKNOWN] != "Off":
+                self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
+                _LOGGER.info(
+                    "Attention! Option report_unknown is enabled for %s sensors, "
+                    "be ready for a huge output",
+                    self.report_unknown,
+                )
+        if self.config[CONF_DEVICES]:
+            for device in self.config[CONF_DEVICES]:
+                if CONF_DEVICE_REPORT_UNKNOWN in device and device[CONF_DEVICE_REPORT_UNKNOWN]:
+                    p_id = bytes.fromhex(dict_get_or_clean(device).lower())
+                    self.report_unknown_whitelist.append(p_id)
+                else:
+                    continue
+            if self.report_unknown_whitelist:
+                _LOGGER.info(  
+                    "Attention! Option report_unknown is enabled for sensor with id(s): %s",
+                    self.report_unknown_whitelist,
+                )
         # prepare device:key lists to speedup parser
         if self.config[CONF_DEVICES]:
             for device in self.config[CONF_DEVICES]:
@@ -619,6 +636,7 @@ class HCIdump(Thread):
             filter_duplicates=self.filter_duplicates,
             sensor_whitelist=self.sensor_whitelist,
             tracker_whitelist=self.tracker_whitelist,
+            report_unknown_whitelist=self.report_unknown_whitelist,
             aeskeys=self.aeskeys,
         )
 

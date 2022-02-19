@@ -38,6 +38,7 @@ class BleParser:
         filter_duplicates=False,
         sensor_whitelist=[],
         tracker_whitelist=[],
+        report_unknown_whitelist=[],
         aeskeys={}
     ):
         self.report_unknown = report_unknown
@@ -45,6 +46,7 @@ class BleParser:
         self.filter_duplicates = filter_duplicates
         self.sensor_whitelist = sensor_whitelist
         self.tracker_whitelist = tracker_whitelist
+        self.report_unknown_whitelist = report_unknown_whitelist
         self.aeskeys = aeskeys
 
         self.lpacket_ids = {}
@@ -248,5 +250,9 @@ class BleParser:
                 }
         else:
             tracker_data = None
+
+        if self.report_unknown_whitelist:
+            if tracker_id in self.report_unknown_whitelist:
+                _LOGGER.info("BLE advertisement received from MAC/UUID %s: %s", tracker_id.hex(), data.hex())
 
         return sensor_data, tracker_data

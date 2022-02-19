@@ -53,6 +53,7 @@ CONF_RESTORE_STATE = "restore_state"
 CONF_DEVICE_ENCRYPTION_KEY = "encryption_key"
 CONF_DEVICE_DECIMALS = "decimals"
 CONF_DEVICE_USE_MEDIAN = "use_median"
+CONF_DEVICE_REPORT_UNKNOWN = "report_unknown"
 CONF_DEVICE_RESTORE_STATE = "restore_state"
 CONF_DEVICE_RESET_TIMER = "reset_timer"
 CONF_DEVICE_TRACK = "track_device"
@@ -83,6 +84,7 @@ DEFAULT_DEVICE_UUID = ""
 DEFAULT_DEVICE_ENCRYPTION_KEY = ""
 DEFAULT_DEVICE_DECIMALS = "default"
 DEFAULT_DEVICE_USE_MEDIAN = "default"
+DEFAULT_DEVICE_REPORT_UNKNOWN = False
 DEFAULT_DEVICE_RESTORE_STATE = "default"
 DEFAULT_DEVICE_RESET_TIMER = 35
 DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL = 20
@@ -967,6 +969,7 @@ RENAMED_MODEL_DICT = {
 
 # Selection list for report_uknown
 REPORT_UNKNOWN_LIST = [
+    "Off",
     "ATC",
     "BlueMaestro",
     "Brifit",
@@ -990,6 +993,5 @@ REPORT_UNKNOWN_LIST = [
     "Xiaogui",
     "Xiaomi",
     "Other",
-    "Off",
     False,
 ]
