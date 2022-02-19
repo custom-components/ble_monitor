@@ -36,6 +36,10 @@ The data format of each property is defined in the [GATT specification supplemen
 |           |             |  |  |  | |  |
 | `0x2A4D`  | packet id   | uint8 (1 byte)   | 1    | `04164D2A09` | 9 |  |
 
+**Notes**
+
+The pressure sensor unit of measurement is `hPa` in Home Assistant. It was therefore decided to use this unit in stead of `Pa`, which is the GATT specification unit of measurement. 
+
 ### Payload format
 
 BLE advertisements must contain `070848415f424c45`, which means `shortened local name` = `HA_BLE`. This will make sure BLE monitor recognizes the packet. The packet id is optional (see below). The payload has to contain at least one of the above measurements. It is allowed to have multiple measurements (e.g. temperature and humidity) in one BLE advertisment. However, the data must follow the above format. 
