@@ -122,7 +122,9 @@ Data from sensors with other addresses will be ignored. Default value: True
 ### report_unknown
 
    **Report unknown sensors**
-   (`ATC`, `BlueMaestro`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `SensorPush`, `Teltonika`, `Thermoplus`, `Xiaogui`, `Xiaomi`, `Other`, `Off` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](devices). If you set this parameter to `ATC`, `BlueMaestro`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `SensorPush`, `Teltonika`, `Thermoplus`, `Xiaogui` or `Xiaomi`, then the component will log all messages from unknown devices of the specified type to the Home Assitant log (`logger` component must be enabled at info level). When set to `Other`, all BLE advertisements will be logged. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! Details in the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Note: `report_unknown: False` can only be set in YAML and is the same as `report_unknown: Off`. Default value: `Off`
+   (`Off`, `ATC`, `BlueMaestro`, `Brifit`, `Govee`, `iNode`, `Kegtron`, `Mi Scale`, `Qingping`, `Ruuvitag`, `SensorPush`, `Teltonika`, `Thermoplus`, `Xiaogui`, `Xiaomi`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](devices). If you set this parameter to one of the sensor brands, then the component will log all messages from unknown devices of the specified brand to the Home Assitant log (`logger` component must be enabled at info level, see for instructions the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)). Using a sensor brand might not catch all BLE advertisements. 
+   
+   If you can't find the advertisements in this way, you can set this option to `Other`, which will result is all BLE advertisements being logged. You can also enable this option at device level. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! If you know the MAC address of the sensor, its advised to set this option at device level. Details in the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: `Off`
 
 
 ## Configuration parameters at device level
@@ -259,6 +261,20 @@ ble_monitor:
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
       reset_timer: 35
+```
+
+### report_unknown (device level)
+
+   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](devices). If you enable this parameter, then the component will log all messages from the MAC address or UUID in the Home Assitant log (`logger` component must be enabled at info level, see for instructions the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)). Default value: False
+
+
+```yaml
+ble_monitor:
+  devices:
+    - mac: 'A4:C1:38:2F:86:6C'
+      report_unknown: True
+    - uuid: 'e2c56db5-dffb-48d2-b060-d0f5a71096e0'
+      report_unknown: True
 ```
 
 ### track_device

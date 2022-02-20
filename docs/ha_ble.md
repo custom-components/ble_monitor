@@ -27,6 +27,7 @@ The data format of each property is defined in the [GATT specification supplemen
 | `0x2A7B`  | dewpoint    | sint8 (1 byte)   | 1    | `04167b2a18` | 24 | `°C` | 
 | `0x2A98`  | weight      | struct (1 byte, flag)) +| bit 0 of flag = 0 => 0.005 | `0616982A00AA33` | 66.13 | `kg` (bit 0 of flag = 0) | 
 |           |             | uint16 (2 bytes, weight)| bit 0 of flag = 1 => 0.01 | `0616982A01AA33` | 132.26 | `lbs` (bit 0 of flag = 1) | 
+| `0x2AE2`  | boolean     | uint8 (1 byte)   |      | `04162E2A01` | True | |
 | `0X2AF2`  | energy      | uint32 (4 bytes) | 0.001| `0716F22A81121000` | 1053.313 | `kWh` | 
 | `0X2AFB`  | illuminance | uint24 (3 bytes) | 0.01 | `0616FB2A34AA00` | 435.72 | `lux`  | 
 | `0x2B05`  | power       | uint24 (3 bytes) | 0.1  | `052B510A00` | 264.1 | `W` | 
@@ -35,6 +36,10 @@ The data format of each property is defined in the [GATT specification supplemen
 | `0x2BD7`  | pm10        | SFLOAT (2 bytes) | 1    | `0516D72BAB01`| 427 | `kg/m3` |
 |           |             |  |  |  | |  |
 | `0x2A4D`  | packet id   | uint8 (1 byte)   | 1    | `04164D2A09` | 9 |  |
+
+**Notes**
+
+The pressure sensor unit of measurement is `hPa` in Home Assistant. It was therefore decided to use this unit in stead of `Pa`, which is the GATT specification unit of measurement. 
 
 ### Payload format
 
