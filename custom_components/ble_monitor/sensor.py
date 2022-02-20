@@ -396,10 +396,6 @@ class BaseSensor(RestoreEntity, SensorEntity):
         if not old_state:
             self.ready_for_update = True
             return
-        try:
-            self._attr_native_unit_of_measurement = old_state.unit_of_measurement
-        except AttributeError:
-            pass
         self._state = old_state.state
 
         restore_attr = RESTORE_ATTRIBUTES
