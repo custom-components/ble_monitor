@@ -142,6 +142,14 @@ class BLEMonitorBinarySensorEntityDescription(
 
 BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
     BLEMonitorBinarySensorEntityDescription(
+        key="binary",
+        sensor_class="BaseBinarySensor",
+        name="ble binary",
+        unique_id="bi_",
+        device_class=None,
+        force_update=True,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
         key="remote single press",
         sensor_class="BaseBinarySensor",
         name="ble remote binary single press",
