@@ -429,10 +429,11 @@ logger:
 ```
 
 - Place your sensor extremely close to the HA host (BT interface).
-- [Enable the option](configuration_params#report_unknown) `report_unknown` by specifying the sensor type you want to get info from. If you don't know the sensor type or you can't find data you want, use `report_unkown: Other` to get all BLE advertisements.
+- If you know the MAC address (or UUID) of your sensor, it is preferred to use the `report_unknown` option at device level, by going to the BLE monitor options, and adding a device in the `devices` pull down menu. After clicking submit, a new window will open where you can add the MAC address (or UUID) and [enable the option](configuration_params#report_unknown_(device_level)) `report_unknown`. This will filter the data only for the specified MAC or UUID. 
+- If you don't know the MAC address, [enable the option](configuration_params#report_unknown) `report_unknown` at global level. First try it by specifying the sensor brand you want to get info from. If you don't know the sensor brand or you can't find data you want, use `report_unkown: Other` to get all BLE advertisements. Especially in the last case, be prepared for a huge number of log lines. 
 - Wait until a number of "BLE ADV from UNKNOWN" messages accumulate in the log.
 - Create a new [issue](https://github.com/custom-components/ble_monitor/issues), write everything you know about your sensor and attach the obtained log.
-- Do not forget to disable the `report_unknown` option (delete it or set it to `False` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.
+- Do not forget to disable the `report_unknown` option (delete it or set it to `Off` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.
 - Wait for a response from the developers.
 
 The BLE advertisements, which are collected with the above procedure, can also be collected with `hcidump` with the following command (leave it running for a couple of minutes). If you are using a full Home Assistant installation including Home Assistant OS, etc, you will have to follow [this procedure](https://developers.home-assistant.io/docs/operating-system/debugging/) first to get access to these commands.
