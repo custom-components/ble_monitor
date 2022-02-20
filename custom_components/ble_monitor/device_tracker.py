@@ -1,4 +1,4 @@
-"""Passive BLE monitor binary sensor platform."""
+"""Passive BLE monitor device tracker platform."""
 from datetime import timedelta
 import asyncio
 import logging
@@ -50,9 +50,9 @@ RESTORE_ATTRIBUTES = [
     CONF_GATEWAY_ID,
     'major',
     'minor',
-    'measured power',
-    'cypress temperature',
-    'cypress humidity'
+    'measured_power',
+    'cypress_temperature',
+    'cypress_humidity'
 ]
 
 
@@ -65,7 +65,7 @@ async def async_setup_platform(hass, conf, add_entities, discovery_info=None):
 
 
 async def async_setup_entry(hass, config_entry, add_entities):
-    """Set up the binary sensor platform."""
+    """Set up the device tracker platform."""
     _LOGGER.debug("Starting device tracker entry startup")
 
     blemonitor = hass.data[DOMAIN]["blemonitor"]
@@ -153,7 +153,7 @@ class BLEupdaterTracker:
                     data = None
                     continue
 
-                # schedule an immediate update of remote binary sensors
+                # schedule an immediate update of device tracker
                 if "is connected" in data:
                     entity = trackers[0]
                     entity.data_update(data)
@@ -211,18 +211,18 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
         if not old_state:
             self.ready_for_update = True
             return
-        if "last seen" in old_state.attributes:
-            self._last_seen = dt_util.parse_datetime(old_state.attributes["last seen"])
-            self._extra_state_attributes["last seen"] = dt_util.parse_datetime(
-                old_state.attributes["last seen"]
+        if "last_seen" in old_state.attributes:
+            self._last_seen = dt_util.parse_datetime(old_state.attributes["last_seen"])
+            self._extra_state_attributes["last_seen"] = dt_util.parse_datetime(
+                old_state.attributes["last_seen"]
             )
 
         restore_attr = RESTORE_ATTRIBUTES
-        restore_attr.append('mac address' if self.is_beacon else 'uuid')
+        restore_attr.append('mac_address' if self.is_beacon else 'uuid')
 
         for attr in restore_attr:
             if attr in old_state.attributes:
-                if attr in ['uuid', 'mac address']:
+                if attr in ['uuid', 'mac_address']:
                     self._extra_state_attributes[attr] = identifier_normalize(old_state.attributes[attr])
                     continue
 
@@ -283,8 +283,8 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
         if not self.is_beacon:
             return self._fkey
 
-        if 'mac address' in self._extra_state_attributes:
-            return self._extra_state_attributes['mac address']
+        if 'mac_address' in self._extra_state_attributes:
+            return self._extra_state_attributes['mac_address']
 
         return None
 
@@ -365,14 +365,14 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
                 self.ready_for_update = False
                 return
         self._last_seen = now
-        self._extra_state_attributes["last seen"] = self._last_seen
+        self._extra_state_attributes["last_seen"] = self._last_seen
         restore_attr = RESTORE_ATTRIBUTES
-        restore_attr.append('mac address' if self.is_beacon else 'uuid')
+        restore_attr.append('mac_address' if self.is_beacon else 'uuid')
 
         for attr in restore_attr:
-            key = CONF_MAC if attr == 'mac address' else attr
+            key = CONF_MAC if attr == 'mac_address' else attr
             if key in data:
-                if attr in ['uuid', 'mac address']:
+                if attr in ['uuid', 'mac_address']:
                     self._extra_state_attributes[attr] = identifier_normalize(data[key])
                     continue
 
