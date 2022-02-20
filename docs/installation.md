@@ -80,6 +80,7 @@ ble_monitor:
       decimals: 2
       use_median: False
       restore_state: default
+      report_unknown: False
     - mac: 'C4:3C:4D:6B:4F:F3'
       name: 'Bedroom'
       temperature_unit: F
