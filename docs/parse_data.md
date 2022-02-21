@@ -36,7 +36,7 @@ automation:
     action:
       - service: ble_monitor.parse_data
         data:
-          packet: "{{ trigger.event.data.packet }}{% endraw %}"
+          packet: "{% raw %}{{ trigger.event.data.packet }}{% endraw %}"
           gateway_id: "{% raw %}{{ trigger.event.data.gateway_id }}{% endraw %}" # Optional. If your gateway sends.
 ```
 
