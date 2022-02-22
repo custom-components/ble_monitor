@@ -25,6 +25,7 @@ In this example you can see the BLE data packet from device with MAC address `A4
 
 The example below is parsing BLE advertisements that are received by ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) and converts it to a BLE monitor sensor, if it is in the correct format of a supported sensor. 
 
+
 ```yaml
 automation:
   - alias: ESPHome BLE Advertise
@@ -35,9 +36,10 @@ automation:
     action:
       - service: ble_monitor.parse_data
         data:
-          packet: "{{ trigger.event.data.packet }}"
-          gateway_id: "{{ trigger.event.data.gateway_id }}" # Optional. If your gateway sends.
+          packet: "{% raw %}{{ trigger.event.data.packet }}{% endraw %}"
+          gateway_id: "{% raw %}{{ trigger.event.data.gateway_id }}{% endraw %}" # Optional. If your gateway sends.
 ```
+
 
 ### Example ESPHome BLE Gateway
 

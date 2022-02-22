@@ -235,7 +235,7 @@ Try to keep the distance as limited as possible.
 
 - Interference with other electrical devices.
 
-Especially SSD devices are known to affect the Bluetooth reception, try to place your SSD drive as far as possible from your Bluetooth tranceiver.
+Especially USB3 devices (and its cable connections) are known to affect the Bluetooth reception (the entire 2.4GHz band, generally speaking - that is, WiFi, ZigBee, etc.), try to place your SSD drive as far as possible from your Bluetooth tranceiver. However, better results can be achieved by using an external USB-BT adapter in combination with a number of additional interference suppression and shielding techniques. Read the following thread on the specific situation with Raspberry Pi4 and external SSD, which describes the main methods for solving problems with reception in the 2.4GHz band associated with the use of USB3 peripherals - [Migrated to PI 4, bad range? (USB3 2.4GHz interference)](https://github.com/custom-components/ble_monitor/issues/430)
 
 - Metal cases are a big problem for built-in bluetooth and wifi without an external antenna!
 
