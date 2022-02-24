@@ -398,6 +398,11 @@ class BaseSensor(RestoreEntity, SensorEntity):
             return
 
         try:
+            self._attr_native_unit_of_measurement = old_state.unit_of_measurement
+        except AttributeError:
+            pass
+
+        try:
             self._attr_native_unit_of_measurement = old_state.attributes["unit_of_measurement"]
         except AttributeError:
             pass
