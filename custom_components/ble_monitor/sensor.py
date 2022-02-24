@@ -396,6 +396,14 @@ class BaseSensor(RestoreEntity, SensorEntity):
         if not old_state:
             self.ready_for_update = True
             return
+
+        try:
+            self._attr_native_unit_of_measurement = old_state.attributes["unit_of_measurement"]
+        except AttributeError:
+            pass
+        except IndexError:
+            pass
+
         self._state = old_state.state
 
         restore_attr = RESTORE_ATTRIBUTES
@@ -614,6 +622,7 @@ class TemperatureSensor(MeasuringSensor):
 
     def collect(self, data, period_cnt, batt_attr=None):
         """Measurements collector."""
+        self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
         if self.enabled is False:
             self.pending_update = False
             return
