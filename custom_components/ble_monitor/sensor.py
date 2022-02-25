@@ -296,7 +296,11 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
     # |  |--StateChangedSensor (Class)
-    # |  |  |**only state changed
+    # |  |  |**mac
+    # |  |  |**uuid
+    # |  |  |**major
+    # |  |  |**minor
+    # |  |  |**count
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
     # |  |--WeightSensor (Class)
