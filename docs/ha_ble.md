@@ -36,7 +36,7 @@ The data format of each property is defined in the [GATT specification supplemen
 | `0x2B18`  | voltage     | uint16 (2 bytes) | 1/64 | `0516182BB400` | 2.8125 | `V` |  |
 | `0x2BD6`  | pm2.5       | SFLOAT (2 bytes) | 1    | `0516D62BD204` | 1234 | `kg/m3` | |
 | `0x2BD7`  | pm10        | SFLOAT (2 bytes) | 1    | `0516D72BAB01`| 427 | `kg/m3` | |
-|           |             |  |  |  | |  |
+|           |             |  |  |  | |  |  |
 | `0x2A4D`  | packet id   | uint8 (1 byte)   | 1    | `04164D2A09` | 9 |  | |
 
 **Notes**
