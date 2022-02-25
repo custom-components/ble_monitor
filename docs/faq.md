@@ -393,17 +393,19 @@ This integration is also capable of tracking Bluetooth devices. You can track de
 
 ### How to remove devices and sensors
 
-Removing devices can be done by removing the corresponding lines in your `configuration.yaml`. In the UI, you can delete devices by typing `-` in the `MAC address` field. Note that if the [discovery](configuration_params#discovery) option is set to `True` sensors will be discovered automatically again.
+#### 1. Remove device from configuration
 
-Unfortunately, old devices and entities are not entirely deleted by this, they will still be visible, but will be `unavailable` after a restart. The same applies for changing a name of an existing device in YAML, the entities with the old name will still remain visible, but with an `unavailable` state after a restart. To completely remove these left overs, follow the following steps.
+Removing devices can be done by removing the corresponding lines in your `configuration.yaml`. In the UI, you can delete devices by selecting the `MAC address` in the **devices** pull down menu in the BLE monitor options. Click **submit** and a new menu will open. In this menu, select **Delete device**. Note that if the [discovery](configuration_params#discovery) option is set to `True` sensors will be discovered automatically again.
 
-#### 1. Remove old entities
+In some rare cases, old devices and entities are not entirely deleted, they will still be visible, but will be `unavailable` after a restart. The same applies for changing a name of an existing device in YAML, the entities with the old name will still remain visible, but with an `unavailable` state after a restart. To completely remove these left overs, follow the following steps.
+
+#### 2. Remove old entities
 
 First, delete the old entities, by going to **configuration**, **integrations** and selecting **devices** in the BLE monitor tile. Select the device with old entities and select each unavailable entity, to delete it manually. If the delete button isn't visible, you will have to restart Home Assistant to unload the entities. Make sure all old entities are deleted before going to the next step.
 
-#### 2. Remove old devices
+#### 3. Remove old devices
 
-If the device doesn't have any entities anymore, you can delete the device as well. Unfortunately, Home Assistant doesn't have an delete option to remove the old device. To overcome this problem, we have created a `service` to help you solve this. Go to **developer tools**, **services** and select the `ble_monitor.cleanup_entries` service. Click on **Call service** and the device should be gone. If not, you probably haven't deleted all entities (go to step 1).
+If the device doesn't have any entities anymore, you can delete the device as well. Unfortunately, Home Assistant doesn't have an delete option to remove the old device. To overcome this problem, we have created a `service` to help you solve this. Go to **developer tools**, **services** and select the `ble_monitor.cleanup_entries` service. Click on **Call service** and the device should be gone. If not, you probably haven't deleted all entities (go to step 2).
 
 ### Conflicts with other components using the same BT interface
 
