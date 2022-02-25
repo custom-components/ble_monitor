@@ -18,31 +18,31 @@ Document](https://btprodspecificationrefs.blob.core.windows.net/assigned-values/
 
 The data format of each property is defined in the [GATT specification supplement](https://www.bluetooth.org/DocMan/handlers/DownloadDoc.ashx?doc_id=524815). At the moment, the following sensors are supported. If you want another sensor, let us know by creating a new issue on Github. 
 
-| Object id | Property    | Data type        | Factor | example | result | Unit in HA | Notes |
-| --------- | ----------- | ---------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| `0x2A19`  | battery     | uint8 (1 byte)   | 1    | `0416192A59` | 89 | `%` | |
-| `0x2A6D`  | pressure    | uint32 (4 bytes) | 0.001| `07166D2A78091000` | 1051.0 | `hPa` | [1] |
-| `0x2A6E`  | temperature | sint16 (2 bytes) | 0.01 | `05166E2A3409` | 23.56 | `°C`  |  |
-| `0x2A6F`  | humidity    | uint16 (2 bytes) | 0.01 | `05166F2A5419` | 64.84 | `%` |  |
-| `0x2A7B`  | dewpoint    | sint8 (1 byte)   | 1    | `04167b2a18` | 24 | `°C` |  |
-| `0x2A98`  | weight      | struct (1 byte, flag)) +| bit 0 of flag = 0 => 0.005 | `0616982A00AA33` | 66.13 | `kg` (bit 0 of flag = 0) |  |
-|           |             | uint16 (2 bytes, weight)| bit 0 of flag = 1 => 0.01 | `0616982A01AA33` | 132.26 | `lbs` (bit 0 of flag = 1) |  |
-| `0x2AE2`  | boolean     | uint8 (1 byte)   |      | `0416E22A01` | True | | |
-| `0x2AEA`  | count       | uint16 (2 bytes) | 1    | `0516EA2AFE01` | `510` | | [2] |
-| `0x2AEB`  | count       | uint24 (3 bytes) | 1    | `0616EB2AFFFFFF` | `unknown` | | [2] |
-| `0X2AF2`  | energy      | uint32 (4 bytes) | 0.001| `0716F22A81121000` | 1053.313 | `kWh` |  |
-| `0X2AFB`  | illuminance | uint24 (3 bytes) | 0.01 | `0616FB2A34AA00` | 435.72 | `lux`  |  |
-| `0x2B05`  | power       | uint24 (3 bytes) | 0.1  | `052B510A00` | 264.1 | `W` |  |
-| `0x2B18`  | voltage     | uint16 (2 bytes) | 1/64 | `0516182BB400` | 2.8125 | `V` |  |
-| `0x2BD6`  | pm2.5       | SFLOAT (2 bytes) | 1    | `0516D62BD204` | 1234 | `kg/m3` | |
-| `0x2BD7`  | pm10        | SFLOAT (2 bytes) | 1    | `0516D72BAB01`| 427 | `kg/m3` | |
-|           |             |  |  |  | |  |  |
-| `0x2A4D`  | packet id   | uint8 (1 byte)   | 1    | `04164D2A09` | 9 |  | |
+| Object id | Property    | Data type               | Factor                    | example            | result    | Unit in HA                | Notes |
+| --------- | ----------- | ----------------------- | ------------------------- | ------------------ | ----------| ------------------------- | ----- |
+| `0x2A19`  | battery     | uint8 (1 byte)          | 1                         | `0416192A59`       | 89        | `%`                       |       |
+| `0x2A6D`  | pressure    | uint32 (4 bytes)        | 0.001                     | `07166D2A78091000` | 1051.0    | `hPa`                     | [1]   |
+| `0x2A6E`  | temperature | sint16 (2 bytes)        | 0.01                      | `05166E2A3409`     | 23.56     | `°C`                      |       |
+| `0x2A6F`  | humidity    | uint16 (2 bytes)        | 0.01                      | `05166F2A5419`     | 64.84     | `%`                       |       |
+| `0x2A7B`  | dewpoint    | sint8 (1 byte)          | 1                         | `04167b2a18`       | 24        | `°C`                      |       |
+| `0x2A98`  | weight      | struct (1 byte, flag)) +| bit 0 of flag = 0 => 0.005| `0616982A00AA33`   | 66.13     | `kg` (bit 0 of flag = 0)  |       |
+|           |             | uint16 (2 bytes, weight)| bit 0 of flag = 1 => 0.01 | `0616982A01AA33`   | 132.26    | `lbs` (bit 0 of flag = 1) |       |
+| `0x2AE2`  | boolean     | uint8 (1 byte)          |                           | `0416E22A01`       | True      |                           |       |
+| `0x2AEA`  | count       | uint16 (2 bytes)        | 1                         | `0516EA2AFE01`     | 510       |                           | [2]   |
+| `0x2AEB`  | count       | uint24 (3 bytes)        | 1                         | `0616EB2AFFFFFF`   | `unknown` |                           | [2]   |
+| `0X2AF2`  | energy      | uint32 (4 bytes)        | 0.001                     | `0716F22A81121000` | 1053.313  | `kWh`                     |       |
+| `0X2AFB`  | illuminance | uint24 (3 bytes)        | 0.01                      | `0616FB2A34AA00`   | 435.72    | `lux`                     |       |
+| `0x2B05`  | power       | uint24 (3 bytes)        | 0.1                       | `052B510A00`       | 264.1     | `W`                       |       |
+| `0x2B18`  | voltage     | uint16 (2 bytes)        | 1/64                      | `0516182BB400`     | 2.8125    | `V`                       |       |
+| `0x2BD6`  | pm2.5       | SFLOAT (2 bytes)        | 1                         | `0516D62BD204`     | 1234      | `kg/m3`                   |       |
+| `0x2BD7`  | pm10        | SFLOAT (2 bytes)        | 1                         | `0516D72BAB01`     | 427       | `kg/m3`                   |       |
+|           |             |                         |                           |                    |           |                           |       |
+| `0x2A4D`  | packet id   | uint8 (1 byte)          | 1                         | `04164D2A09`       | 9         |                           |       |
 
 **Notes**
 
 - [1] The pressure sensor unit of measurement is `hPa` in Home Assistant. It was therefore decided to use this unit in stead of `Pa`, which is the GATT specification unit of measurement.
-- [2] A value of `0xFFFF` (count in uint16) and `0xFFFFFF` (count in uint24) represents "value is not known" and will report back `unknown`
+- [2] A value of `0xFFFF` (count in uint16) and `0xFFFFFF` (count in uint24) represents "value is not known" and will report back `unknown` in HA
 
 ### Payload format
 
