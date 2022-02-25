@@ -511,6 +511,16 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     BLEMonitorSensorEntityDescription(
+        key="count",
+        sensor_class="StateChangedSensor",
+        name="ble count",
+        unique_id="cnt_",
+        icon="mdi:counter",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="consumable",
         sensor_class="InstantUpdateSensor",
         name="ble consumable",

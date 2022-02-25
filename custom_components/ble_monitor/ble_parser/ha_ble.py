@@ -77,6 +77,16 @@ def parse_ha_ble(self, service_data_list, source_mac, rssi):
             elif meas_type == 0X2AE2 and len(xobj) == 1:
                 (value,) = struct.Struct("<B").unpack(xobj)
                 result.update({"binary": bool(value)})
+            elif meas_type == 0X2AEA and len(xobj) == 2:
+                (count,) = struct.Struct("<H").unpack(xobj)
+                if count == 0xFFFF:
+                    count = "unknown"
+                result.update({"count": count})
+            elif meas_type == 0X2AEB and len(xobj) == 3:
+                count = int.from_bytes(xobj, "little")
+                if count == 0xFFFFFF:
+                    count = "unknown"
+                result.update({"count": count})
             elif meas_type == 0X2AF2 and len(xobj) == 4:
                 (enrg,) = struct.Struct("<I").unpack(xobj)
                 result.update({"energy": enrg * 0.001})
