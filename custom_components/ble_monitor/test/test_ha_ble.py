@@ -159,6 +159,40 @@ class TestHaBle:
         assert sensor_msg["binary"] == 1
         assert sensor_msg["rssi"] == -52
 
+    def test_ha_ble_count16(self):
+        """Test HA BLE parser for count16 measurement"""
+        data_string = "043E1D02010000A5808FE6485411020106070848415F424C450516EA2A22FFCC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "HA BLE"
+        assert sensor_msg["type"] == "HA BLE DIY"
+        assert sensor_msg["mac"] == "5448E68F80A5"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["count"] == 65314
+        assert sensor_msg["rssi"] == -52
+
+    def test_ha_ble_count24(self):
+        """Test HA BLE parser for count24 measurement"""
+        data_string = "043E1E02010000A5808FE6485412020106070848415F424C450616EB2AFFFFFFCC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "HA BLE"
+        assert sensor_msg["type"] == "HA BLE DIY"
+        assert sensor_msg["mac"] == "5448E68F80A5"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["count"] == "unknown"
+        assert sensor_msg["rssi"] == -52
+
     def test_ha_ble_energy(self):
         """Test HA BLE parser for energy measurement"""
         data_string = "043E1F02010000A5808FE6485413020106070848415F424C450716F22A81121000CC"
