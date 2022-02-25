@@ -19,6 +19,7 @@ from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.sensor import SensorEntity
 import homeassistant.util.dt as dt_util
+from homeassistant.util.temperature import convert as convert_temp
 
 from .helper import (
     identifier_normalize,
@@ -234,9 +235,8 @@ class BLEupdater:
                         entity = sensors[device_sensors.index(measurement)]
                         entity.collect(data, period_cnt, batt_attr)
                         if (
-                            measurement in instant_sensors or (
-                                ts_now - ts_restart < timedelta(seconds=self.period)
-                            )
+                            measurement in instant_sensors
+                            or ts_now - ts_restart < timedelta(seconds=self.period)
                         ):
                             # instant measurements and measurements in the first period are updated instantly
                             if entity.pending_update is True:
@@ -296,7 +296,11 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
     # |  |--StateChangedSensor (Class)
-    # |  |  |**only state changed
+    # |  |  |**mac
+    # |  |  |**uuid
+    # |  |  |**major
+    # |  |  |**minor
+    # |  |  |**count
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
     # |  |--WeightSensor (Class)
@@ -388,29 +392,42 @@ class BaseSensor(RestoreEntity, SensorEntity):
         _LOGGER.debug("async_added_to_hass called for %s", self._attr_name)
         await super().async_added_to_hass()
 
-        # Restore the old state if available
         if self._restore_state is False:
             self.ready_for_update = True
             return
+        # Retrieve the old state from the registry
         old_state = await self.async_get_last_state()
         if not old_state:
             self.ready_for_update = True
             return
 
+        # Deprecated. Remove after HA 2022.3 has been released.
         try:
             self._attr_native_unit_of_measurement = old_state.unit_of_measurement
+            _LOGGER.warning(
+                "Future updates of BLE monitor will lose compatibility with this "
+                "version of Home Assistant. Please update Home Assistant."
+            )
         except AttributeError:
             pass
 
+        # Restore the old state and unit of measurement
         try:
-            self._attr_native_unit_of_measurement = old_state.attributes["unit_of_measurement"]
-        except AttributeError:
-            pass
-        except IndexError:
-            pass
+            if old_state.attributes["unit_of_measurement"] in [TEMP_CELSIUS, TEMP_FAHRENHEIT]:
+                # Convert old state temperature to a temperature in the device setting temperature unit
+                self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
+                self._state = convert_temp(
+                    float(old_state.state),
+                    old_state.attributes["unit_of_measurement"],
+                    self._device_settings["temperature unit"]
+                )
+            else:
+                self._attr_native_unit_of_measurement = old_state.attributes["unit_of_measurement"]
+                self._state = old_state.state
+        except (AttributeError, IndexError, ValueError):
+            self._state = old_state.state
 
-        self._state = old_state.state
-
+        # Restore the old attributes
         restore_attr = RESTORE_ATTRIBUTES
         restore_attr.append('mac_address' if self.is_beacon else 'uuid')
 
@@ -620,14 +637,13 @@ class TemperatureSensor(MeasuringSensor):
                 if self._fkey in dict_get_or(device).upper():
                     if CONF_TEMPERATURE_UNIT in device:
                         if device[CONF_TEMPERATURE_UNIT] == TEMP_FAHRENHEIT:
-                            temp_fahrenheit = temp * 9 / 5 + 32
+                            temp_fahrenheit = convert_temp(temp, TEMP_CELSIUS, TEMP_FAHRENHEIT)
                             return temp_fahrenheit
                     break
         return temp
 
     def collect(self, data, period_cnt, batt_attr=None):
         """Measurements collector."""
-        self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
         if self.enabled is False:
             self.pending_update = False
             return
