@@ -460,6 +460,10 @@ class BaseSensor(RestoreEntity, SensorEntity):
     @property
     def entity_registry_enabled_default(self) -> bool:
         """Return if the entity should be enabled when first added to the entity registry."""
+        if self.entity_description.key in ['battery']:
+            if self._device_type == "HHCCJCY01":
+                return False
+
         if not self.is_beacon:
             return True
 
