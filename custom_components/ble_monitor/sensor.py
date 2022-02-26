@@ -148,6 +148,7 @@ class BLEupdater:
         sensors_by_key = {}
         sensors = []
         batt = {}  # batteries
+        batt_cgpr1 = []
         rssi = {}  # rssi
         ble_adv_cnt = 0
 
@@ -221,8 +222,24 @@ class BLEupdater:
                 # battery attribute
                 if "battery" in device_sensors:
                     if "battery" in data:
-                        batt[key] = int(data["battery"])
-                        batt_attr = batt[key]
+                        if sensortype == "CGPR1" and firmware[0:6] == "Xiaomi":
+                            # Workaround to remove the "counter" value in battery advertisements for CGPR1
+                            old_data = batt_cgpr1.copy()
+                            batt_cgpr1.append(data["battery"])
+                            if len(batt_cgpr1) > 5:
+                                batt_cgpr1.pop(0)
+                            if data["battery"] in old_data:
+                                batt[key] = int(data["battery"])
+                                batt_attr = batt[key]
+                            else:
+                                data.pop("battery")
+                                try:
+                                    batt_attr = batt[key]
+                                except KeyError:
+                                    batt_attr = None
+                        else:
+                            batt[key] = int(data["battery"])
+                            batt_attr = batt[key]
                     else:
                         try:
                             batt_attr = batt[key]
@@ -424,7 +441,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
             else:
                 self._attr_native_unit_of_measurement = old_state.attributes["unit_of_measurement"]
                 self._state = old_state.state
-        except (AttributeError, IndexError, ValueError):
+        except (KeyError, ValueError):
             self._state = old_state.state
 
         # Restore the old attributes
