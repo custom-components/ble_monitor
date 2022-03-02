@@ -154,7 +154,7 @@ class BleParser:
                         # UUID16 = Google (used by Ruuvitag V2/V4)
                         sensor_data = parse_ruuvitag(self, service_data, mac, rssi)
                         break
-                    if uuid16 == 0xFFF9:
+                    elif uuid16 == 0xFFF9:
                         # UUID16 = FIDO (used by Cleargrass)
                         sensor_data = parse_qingping(self, service_data, mac, rssi)
                         break
@@ -213,7 +213,7 @@ class BleParser:
                         sensor_data = parse_brifit(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0xEC88 and data_len in [0x09, 0x0A, 0x0C]:
-                        # Govee H5051/H5072/H5075/H5074
+                        # Govee H5051/H5071/H5072/H5075/H5074
                         sensor_data = parse_govee(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0xFFFF and data_len == 0x1E:
