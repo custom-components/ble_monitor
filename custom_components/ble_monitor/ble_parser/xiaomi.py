@@ -1,4 +1,4 @@
-# Parser for Xiaomi MiBeacon BLE advertisements
+"""Parser for Xiaomi MiBeacon BLE advertisements"""
 import logging
 import math
 import struct

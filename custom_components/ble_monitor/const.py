@@ -111,12 +111,11 @@ CONF_TMAX_PROBES = 300.0
 CONF_HMIN = 0.0
 CONF_HMAX = 99.9
 
-# Beacon types
-
 
 # Sensors with deviating temperature range
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
 PROBES = ('iBBQ-2', 'iBBQ-4', 'H5183')
+
 
 # Sensor entity description
 @dataclass
@@ -125,6 +124,7 @@ class BLEMonitorRequiredKeysMixin:
 
     sensor_class: str
     unique_id: str
+
 
 @dataclass
 class BLEMonitorSensorEntityDescription(
@@ -840,7 +840,7 @@ MEASUREMENT_DICT = {
     'T201'                    : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'H5072/H5075'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'H5101/H5102/H5177'       : [["temperature", "humidity", "battery", "rssi"], [], []],
-    'H5051'                   : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'H5051/H5071'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'H5074'                   : [["temperature", "humidity", "battery", "rssi"], [], []],
     'H5178'                   : [["temperature", "temperature outdoor", "humidity", "humidity outdoor", "battery", "rssi"], [], []],
     'H5179'                   : [["temperature", "humidity", "battery", "rssi"], [], []],
@@ -939,7 +939,7 @@ MANUFACTURER_DICT = {
     'T201'                    : 'Brifit',
     'H5072/H5075'             : 'Govee',
     'H5101/H5102/H5177'       : 'Govee',
-    'H5051'                   : 'Govee',
+    'H5051/H5071'             : 'Govee',
     'H5074'                   : 'Govee',
     'H5178'                   : 'Govee',
     'H5179'                   : 'Govee',
@@ -982,6 +982,7 @@ MANUFACTURER_DICT = {
 # Renamed model dictionary
 RENAMED_MODEL_DICT = {
     'H5051/H5074': 'H5074',
+    'H5051': 'H5051/H5071',
     'IBS-TH2': 'IBS-TH',
 }
 

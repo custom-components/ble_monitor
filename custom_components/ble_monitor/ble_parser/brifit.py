@@ -1,4 +1,4 @@
-# Parser for Brifit BLE advertisements
+"""Parser for Brifit BLE advertisements"""
 import logging
 from struct import unpack
 
@@ -6,7 +6,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def parse_brifit(self, data, source_mac, rssi):
-    # check for adstruc length
+    """Parser for Brifit sensors"""
     msg_length = len(data)
     if msg_length == 21:
         device_id = data[2]
@@ -59,4 +59,5 @@ def parse_brifit(self, data, source_mac, rssi):
 
 
 def to_mac(addr: int):
-    return ':'.join('{:02x}'.format(x) for x in addr).upper()
+    """Convert MAC address."""
+    return ':'.join(f'{i:02X}' for i in addr)
