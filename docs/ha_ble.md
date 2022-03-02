@@ -97,7 +97,7 @@ At the moment, the following sensors are supported. An preferred data type is gi
 | `0x01`    | battery     | uint8 (1 byte)      | 1      | `020161`     | 97        | `%`        |       |
 | `0x02`    | temperature | sint16 (2 bytes)    | 0.01   | `2302CA09`   | 25.06     | `°C`       |       |
 | `0x03`    | humidity    | uint16 (2 bytes)    | 0.01   | `0303BF13`   | 50.55     | `%`        |       |
-| `0x04`    | pressure    | uint24 (3 bytes)    | 0.001  | `0404138A01` | 1008.83   | `hPa`      |       |
+| `0x04`    | pressure    | uint24 (3 bytes)    | 0.01   | `0404138A01` | 1008.83   | `hPa`      |       |
 | `0X05`    | illuminance | uint24 (3 bytes)    | 0.01   |              |           | `lux`      |       |
 | `0x06`    | weight      | uint8 (2 byte)      | 0.01   |              |           | `kg`       |       |
 | `0x07`    | weight unit | string (2 bytes)    | None   |              |           | `kg`       |       |

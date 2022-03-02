@@ -55,7 +55,7 @@ DATA_MEAS_DICT = {
     0x01: ["battery", 1],
     0x02: ["temperature", 0.01],
     0x03: ["humidity", 0.01],
-    0x04: ["pressure", 0.001],
+    0x04: ["pressure", 0.01],
     0x05: ["illuminance", 0.01],
     0x06: ["weight", 0.01],
     0x07: ["weight unit", None],
