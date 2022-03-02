@@ -13,49 +13,108 @@ nav_order: 6
 
 ### Introduction
 
-BLE monitor has created support for your own DIY sensors, by introducing our own BLE format that can be read by BLE monitor, called `HA BLE`. The format is following the official Bluetooth GATT Characteristic and Object Type, which can be found on page 13 and further in this document: [16-bit UUID Numbers
-Document](https://btprodspecificationrefs.blob.core.windows.net/assigned-values/16-bit%20UUID%20Numbers%20Document.pdf)
+BLE monitor has created support for your own DIY sensors, by introducing our own BLE format that can be read by BLE monitor, called `HA BLE`. This format tries to create a flexible format that can be customized to your own needs. At the moment, it is still Work in Progress, as sensors in HA are not created automatically. This will be added in a future release. For testing purposes, you can create sensors in HA by modifying this line in [const.py](https://github.com/custom-components/ble_monitor/blob/master/custom_components/ble_monitor/const.py#L860). Note that this file is overwritten on each BLE monitor update. 
 
-The data format of each property is defined in the [GATT specification supplement](https://www.bluetooth.org/DocMan/handlers/DownloadDoc.ashx?doc_id=524815). At the moment, the following sensors are supported. If you want another sensor, let us know by creating a new issue on Github. 
+The data format has changed from earlier versions, in BLE monitor 8.0 HA BLE is using a new, more efficient, format. Note that The old format will be deprecated soon. 
 
-| Object id | Property    | Data type               | Factor                    | example            | result    | Unit in HA                | Notes |
-| --------- | ----------- | ----------------------- | ------------------------- | ------------------ | ----------| ------------------------- | ----- |
-| `0x2A19`  | battery     | uint8 (1 byte)          | 1                         | `0416192A59`       | 89        | `%`                       |       |
-| `0x2A6D`  | pressure    | uint32 (4 bytes)        | 0.001                     | `07166D2A78091000` | 1051.0    | `hPa`                     | [1]   |
-| `0x2A6E`  | temperature | sint16 (2 bytes)        | 0.01                      | `05166E2A3409`     | 23.56     | `°C`                      |       |
-| `0x2A6F`  | humidity    | uint16 (2 bytes)        | 0.01                      | `05166F2A5419`     | 64.84     | `%`                       |       |
-| `0x2A7B`  | dewpoint    | sint8 (1 byte)          | 1                         | `04167b2a18`       | 24        | `°C`                      |       |
-| `0x2A98`  | weight      | struct (1 byte, flag)) +| bit 0 of flag = 0 => 0.005| `0616982A00AA33`   | 66.13     | `kg` (bit 0 of flag = 0)  |       |
-|           |             | uint16 (2 bytes, weight)| bit 0 of flag = 1 => 0.01 | `0616982A01AA33`   | 132.26    | `lbs` (bit 0 of flag = 1) |       |
-| `0x2AE2`  | boolean     | uint8 (1 byte)          |                           | `0416E22A01`       | True      |                           |       |
-| `0x2AEA`  | count       | uint16 (2 bytes)        | 1                         | `0516EA2AFE01`     | 510       |                           | [2]   |
-| `0x2AEB`  | count       | uint24 (3 bytes)        | 1                         | `0616EB2AFFFFFF`   | `unknown` |                           | [2]   |
-| `0X2AF2`  | energy      | uint32 (4 bytes)        | 0.001                     | `0716F22A81121000` | 1053.313  | `kWh`                     |       |
-| `0X2AFB`  | illuminance | uint24 (3 bytes)        | 0.01                      | `0616FB2A34AA00`   | 435.72    | `lux`                     |       |
-| `0x2B05`  | power       | uint24 (3 bytes)        | 0.1                       | `052B510A00`       | 264.1     | `W`                       |       |
-| `0x2B18`  | voltage     | uint16 (2 bytes)        | 1/64                      | `0516182BB400`     | 2.8125    | `V`                       |       |
-| `0x2BD6`  | pm2.5       | SFLOAT (2 bytes)        | 1                         | `0516D62BD204`     | 1234      | `kg/m3`                   |       |
-| `0x2BD7`  | pm10        | SFLOAT (2 bytes)        | 1                         | `0516D72BAB01`     | 427       | `kg/m3`                   |       |
-|           |             |                         |                           |                    |           |                           |       |
-| `0x2A4D`  | packet id   | uint8 (1 byte)          | 1                         | `04164D2A09`       | 9         |                           |       |
+The `HA BLE` format can best be explained with an example. A BLE advertisement is a long message with bytes (bytestring).  
+
+```
+043E1B02010000A5808FE648540F0201060B161C182302C4090303BF13CC
+```
+
+This message is split up in three parts, the **header**, the **advertising payload** and an **RSSI value**
+
+- Header: `043E1B02010000A5808FE648540F`
+- Adverting payload `0201060B161C182302C4090303BF13`
+- RSSI value `CC`
+
+#### Header
+The first part `043E1B02010000A5808FE648540F` is the header of the message and contains, amongst others
+
+- the length of the message in the 3rd byte (`0x1B` = 27, meaning 27 bytes after the third byte = 30 bytes in total)
+- the MAC address in reversed order in byte 8-13 (`A5808FE64854`, in reversed order, this corresponds to a MAC address `54:48:E6:8F:80:A5`)
+- the length of the advertising payload in byte 14 (`0x0F` = 15)
+
+#### Advertising payload
+The second part `0201060B161C182302C4090303BF13` contains the advertising payload, and can consist of one or more **Advertising Data (AD) elements**. Each element contains the following:
+
+- 1st byte: length of the element (excluding the length byte itself)
+- 2nd byte: AD type – specifies what data is included in the element
+- AD data – one or more bytes - the meaning is defined by AD type
+
+In the `HA BLE` format, the advertsing payload should contain the following two AD elements:
+
+- Flags (`0x01`)
+- UUID16 (`0x16`)
+
+In the example, we have:
+
+- First AD element: `020106` (always the same),
+  - `0x02` = length (2 bytes)
+    `0x01` = Flags
+    `0x06` = in bits, this is `00000110`. Bit 1 and bit 2 are 1, meaning: 
+      Bit 1: “LE General Discoverable Mode”
+      Bit 2: “BR/EDR Not Supported”
+
+- Second AD element: `0B161C182302C4090303BF13`, 
+  - `0x0B` = length (11 bytes)
+    `0x16` = UUID16
+    `0x1C182302C4090303BF13` = HA BLE data
+
+The HA BLE data is the part that contains the data. The data can contain multiple measurements. The example contains both temperature data and humidity data.
+
+- HA BLE data = `1C182302C4090303BF13`
+  - `0x1C18` = The first two byte are the UUID16, which are assinged numbers that can be found in [this official document]https://btprodspecificationrefs.blob.core.windows.net/assigned-values/16-bit%20UUID%20Numbers%20Document.pdf by the Bluetooth organization. For HA BLE we use the so called `GATT Service` = `User Data`. This part should always be `0x1C18`, as it is used to recognize a HA BLE message.
+  - `0x2302C409` = Temperature packet
+  - `0x0303BF13` = Humidity packet
+
+Lets explain how the last two data packets work. The temperature packet is used as example.
+
+- The first byte `0x23` (in bits `00100011`) is giving information about: 
+  - The object length (bit 0-4): `00011` = 3 bytes (excluding the length byte itself)
+  - The object format (bit 5-7) `001` = 1 = Signed Integer (see table below)
+
+| type | bit 5-7 | format | Data type           |
+| -----| ------- | -------| ------------------- |
+| `0`  | `000`   | uint   | unsingned integer   |
+| `1`  | `001`   | int    | signed integer      |
+| `2`  | `010`   | float  | float               |
+| `3`  | `011`   | string | string              |
+| `4`  | `100`   | MAC    | not implemented yet |
+
+- The second byte `0x02` is defining the type of measurement (temperature, see table below)
+- The remaining bytes `0xC409` is the object value (little endian), which will be multiplied with the factor in the table below to get a sufficient number of digits.
+  - The object length is telling us that the value is 2 bytes long (object length = 3 bytes minus the second byte) and the object format is telling us that the value is an Signed Integer.
+  - `0xC409` as unsigned integer in little endian is equal to 2500.
+  - The factor for a temperature measurement is 0.01, resulting in a temperature of 25.00°C
+
+At the moment, the following sensors are supported. An preferred data type is given for your convienience, which should give you a short data message and at the same time a sufficient number of digits to display your data with high accuracy in Home Assistant. But you are free to use a different data type. If you want another sensor, let us know by creating a new issue on Github. 
+
+| Object id | Property    | Preferred data type | Factor | example      | result    | Unit in HA | Notes |
+| --------- | ----------- | --------------------| -------| ------------ | ----------| -----------| ----- |
+| `0x00`    | packet id   | uint8 (1 byte)      | 1      |              |           |            | [1]   |
+| `0x01`    | battery     | uint8 (1 byte)      | 1      |              |           | `%`        |       |
+| `0x02`    | temperature | sint16 (2 bytes)    | 0.01   | `2302C409`   | 25.00     | `°C`       |       |
+| `0x03`    | humidity    | uint16 (2 bytes)    | 0.01   | `0303BF13`   | 50.55     | `%`        |       |
+| `0x04`    | pressure    | uint24 (3 bytes)    | 0.001  |              |           | `hPa`      |       |
+| `0X05`    | illuminance | uint24 (3 bytes)    | 0.01   |              |           | `lux`      |       |
+| `0x06`    | weight      | uint8 (2 byte)      | 0.01   |              |           | `kg`       |       |
+| `0x07`    | weight unit | string (2 bytes)    | None   |              |           | `kg`       |       |
+| `0x08`    | dewpoint    | sint16 (2 bytes)    | 0.01   |              |           | `°C`       |       |
+| `0x09`    | count       | uint                | 1      |              |           |            |       |
+| `0X0A`    | energy      | uint24 (3 bytes)    | 0.001  |              |           | `kWh`      |       |
+| `0x0B`    | power       | uint24 (3 bytes)    | 0.01   |              |           | `W`        |       |
+| `0x0C`    | voltage     | uint16 (2 bytes)    | 0.001  |              |           | `V`        |       |
+| `0x0D`    | pm2.5       | uint16 (2 bytes)    | 1      |              |           | `kg/m3`    |       |
+| `0x0E`    | pm10        | uint16 (2 bytes)    | 1      |              |           | `kg/m3`    |       |
+| `0x0F`    | boolean     | uint8 (1 byte)      | None   |              |           |            |       |
+
 
 **Notes**
 
-- [1] The pressure sensor unit of measurement is `hPa` in Home Assistant. It was therefore decided to use this unit in stead of `Pa`, which is the GATT specification unit of measurement.
-- [2] A value of `0xFFFF` (count in uint16) and `0xFFFFFF` (count in uint24) represents "value is not known" and will report back `unknown` in HA
-
-### Payload format
-
-BLE advertisements must contain `070848415f424c45`, which means `shortened local name` = `HA_BLE`. This will make sure BLE monitor recognizes the packet. The packet id is optional (see below). The payload has to contain at least one of the above measurements. It is allowed to have multiple measurements (e.g. temperature and humidity) in one BLE advertisment. However, the data must follow the above format. 
-
 Full example payloads are given in the [test_ha_ble.py](https://github.com/custom-components/ble_monitor/blob/master/custom_components/ble_monitor/test/test_ha_ble.py) file. 
 
-### packet id
+### 1. packet id
 
 The `packet id` is optional and is used to filter duplicate data. This allows you to send multiple advertisements that are exactly the same, to improve the chance that the advertisement arrives. BLE monitor will only process the advertisement if the `packet id` is different compared to the previous one. The `packet id` is a value between 0 (`0x00`) and 255 (`0xFF`), and should be increased on every change in data. 
-
-### Instructions to create a sensor in HA (temporary workaround)
-
-At the moment, a temperature sensor is added in [const.py](https://github.com/custom-components/ble_monitor/blob/master/custom_components/ble_monitor/const.py#L860) manually. You can change it to your needs by changing this line in const.py to the sensor you want (all sensors from the above table should work). 
-
-**This has to be done manually at the moment and will be lost during each update of BLE monitor.** In a future update, we will change this such that it will automatically add the correct sensor(s), based on the data received. 
