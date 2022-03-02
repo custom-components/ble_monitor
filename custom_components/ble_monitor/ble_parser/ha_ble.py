@@ -115,7 +115,8 @@ def parse_ha_ble(self, data, source_mac, rssi):
         return None
 
     # Check for duplicate messages
-    if packet_id:
+    if "packet" in result:
+        packet_id = result["packet"]
         try:
             prev_packet = self.lpacket_ids[ha_ble_mac]
         except KeyError:
