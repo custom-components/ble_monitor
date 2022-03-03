@@ -106,4 +106,4 @@ class TestHaBle:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["dew point"] == 17.38
-        assert sensor_msg["rssi"] == -52
+        assert sensor_msg["rssi"] == -36
