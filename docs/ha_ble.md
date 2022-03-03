@@ -75,13 +75,13 @@ Lets explain how the last two data packets work. The temperature packet is used 
   - The object length (bit 0-4): `00011` = 3 bytes (excluding the length byte itself)
   - The object format (bit 5-7) `001` = 1 = Signed Integer (see table below)
 
-| type | bit 5-7 | format | Data type           |
-| -----| ------- | -------| ------------------- |
-| `0`  | `000`   | uint   | unsingned integer   |
-| `1`  | `001`   | int    | signed integer      |
-| `2`  | `010`   | float  | float               |
-| `3`  | `011`   | string | string              |
-| `4`  | `100`   | MAC    | not implemented yet |
+| type | bit 5-7 | format | Data type              |
+| -----| ------- | -------| ---------------------- |
+| `0`  | `000`   | uint   | unsingned integer      |
+| `1`  | `001`   | int    | signed integer         |
+| `2`  | `010`   | float  | float                  |
+| `3`  | `011`   | string | string                 |
+| `4`  | `100`   | MAC    | MAC address (reversed) |
 
 - The second byte `0x02` is defining the type of measurement (temperature, see table below)
 - The remaining bytes `0xC409` is the object value (little endian), which will be multiplied with the factor in the table below to get a sufficient number of digits.
@@ -91,26 +91,27 @@ Lets explain how the last two data packets work. The temperature packet is used 
 
 At the moment, the following sensors are supported. An preferred data type is given for your convienience, which should give you a short data message and at the same time a sufficient number of digits to display your data with high accuracy in Home Assistant. But you are free to use a different data type. If you want another sensor, let us know by creating a new issue on Github. 
 
-| Object id | Property    | Preferred data type | Factor | example      | result    | Unit in HA | Notes |
-| --------- | ----------- | --------------------| -------| ------------ | ----------| -----------| ----- |
-| `0x00`    | packet id   | uint8 (1 byte)      | 1      | `020009`     | 9         |            | [1]   |
-| `0x01`    | battery     | uint8 (1 byte)      | 1      | `020161`     | 97        | `%`        |       |
-| `0x02`    | temperature | sint16 (2 bytes)    | 0.01   | `2302CA09`   | 25.06     | `°C`       |       |
-| `0x03`    | humidity    | uint16 (2 bytes)    | 0.01   | `0303BF13`   | 50.55     | `%`        |       |
-| `0x04`    | pressure    | uint24 (3 bytes)    | 0.01   | `0404138A01` | 1008.83   | `hPa`      |       |
-| `0X05`    | illuminance | uint24 (3 bytes)    | 0.01   | `0405138A14` | 13460.67  | `lux`      |       |
-| `0x06`    | weight      | uint16 (2 byte)     | 0.01   | `03065E1F`   | 80.3      | `kg`       | [2]   |
-| `0x07`    | weight unit | string (2 bytes)    | None   | `63076B67`   | "kg"      |            | [2]   |
-| `0x08`    | dewpoint    | sint16 (2 bytes)    | 0.01   | `2308CA06`   | 17.386    | `°C`       |       |
-| `0x09`    | count       | uint                | 1      | `020960`     | 96        |            |       |
-| `0X0A`    | energy      | uint24 (3 bytes)    | 0.001  | `040A138A14` | 1346.067  | `kWh`      |       |
-| `0x0B`    | power       | uint24 (3 bytes)    | 0.01   | `040B021B00` | 69.14     | `W`        |       |
-| `0x0C`    | voltage     | uint16 (2 bytes)    | 0.001  | `030C020C`   | 3.074     | `V`        |       |
-| `0x0D`    | pm2.5       | uint16 (2 bytes)    | 1      | `030D120C`   | 3090      | `kg/m3`    |       |
-| `0x0E`    | pm10        | uint16 (2 bytes)    | 1      | `030E021C`   | 7170      | `kg/m3`    |       |
-| `0x0F`    | boolean     | uint8 (1 byte)      | 1      | `020F01`     | 1 (True)  | `True`     |       |
-| `0x10`    | switch      | uint8 (1 byte)      | 1      | `021001`     | 1 (True)  | `on`       |       |
-| `0x11`    | opening     | uint8 (1 byte)      | 1      | `021100`     | 0 (false) | `closed`   |       |
+| Object id | Property    | Preferred data type | Factor | example          | result       | Unit in HA | Notes |
+| --------- | ----------- | --------------------| -------| ---------------- | -------------| -----------| ----- |
+| `0x00`    | packet id   | uint8 (1 byte)      | 1      | `020009`         | 9            |            | [1]   |
+| `0x01`    | battery     | uint8 (1 byte)      | 1      | `020161`         | 97           | `%`        |       |
+| `0x02`    | temperature | sint16 (2 bytes)    | 0.01   | `2302CA09`       | 25.06        | `°C`       |       |
+| `0x03`    | humidity    | uint16 (2 bytes)    | 0.01   | `0303BF13`       | 50.55        | `%`        |       |
+| `0x04`    | pressure    | uint24 (3 bytes)    | 0.01   | `0404138A01`     | 1008.83      | `hPa`      |       |
+| `0X05`    | illuminance | uint24 (3 bytes)    | 0.01   | `0405138A14`     | 13460.67     | `lux`      |       |
+| `0x06`    | weight      | uint16 (2 byte)     | 0.01   | `03065E1F`       | 80.3         | `kg`       | [2]   |
+| `0x07`    | weight unit | string (2 bytes)    | None   | `63076B67`       | "kg"         |            | [2]   |
+| `0x08`    | dewpoint    | sint16 (2 bytes)    | 0.01   | `2308CA06`       | 17.386       | `°C`       |       |
+| `0x09`    | count       | uint                | 1      | `020960`         | 96           |            |       |
+| `0X0A`    | energy      | uint24 (3 bytes)    | 0.001  | `040A138A14`     | 1346.067     | `kWh`      |       |
+| `0x0B`    | power       | uint24 (3 bytes)    | 0.01   | `040B021B00`     | 69.14        | `W`        |       |
+| `0x0C`    | voltage     | uint16 (2 bytes)    | 0.001  | `030C020C`       | 3.074        | `V`        |       |
+| `0x0D`    | pm2.5       | uint16 (2 bytes)    | 1      | `030D120C`       | 3090         | `kg/m3`    |       |
+| `0x0E`    | pm10        | uint16 (2 bytes)    | 1      | `030E021C`       | 7170         | `kg/m3`    |       |
+| `0x0F`    | boolean     | uint8 (1 byte)      | 1      | `020F01`         | 1 (True)     | `True`     |       |
+| `0x10`    | switch      | uint8 (1 byte)      | 1      | `021001`         | 1 (True)     | `on`       |       |
+| `0x11`    | opening     | uint8 (1 byte)      | 1      | `021100`         | 0 (false)    | `closed`   |       |
+|           | mac         | 6 bytes (reversed)  |        | `86A6808FE64854` | 5448E68F80A6 |            | [3]   |
 
 
 **Notes**
@@ -121,9 +122,13 @@ Full example payloads are given in the [test_ha_ble.py](https://github.com/custo
 
 The `packet id` is optional and is used to filter duplicate data. This allows you to send multiple advertisements that are exactly the same, to improve the chance that the advertisement arrives. BLE monitor will only process the advertisement if the `packet id` is different compared to the previous one. The `packet id` is a value between 0 (`0x00`) and 255 (`0xFF`), and should be increased on every change in data.
 
-
 ***2. weight (unit)***
+
 The `weight unit` is in `kg` by default, but can be set the the weight unit property. Examples of `weight unit` packets are:
 - kg (`63076B67`)
 - lbs (`64076C6273`)
 - jin (`64076A696E`)
+
+***3. mac***
+
+You don't have to specify the `mac` address in the advertising payload, as it is already included in the [header](#header). However, you can overwrite the `mac` by specifying it in the advertising payload. To do this, set the first byte to `0x86` (meaning: object type = 4 (`mac`) and object length = 6), followed by the MAC in reversed order. No Object id is needed.

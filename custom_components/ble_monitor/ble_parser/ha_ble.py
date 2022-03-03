@@ -37,9 +37,13 @@ def parse_string(data_obj, factor=None):
     return data_obj.decode('UTF-8')
 
 
-def parse_mac(data_obj, factor=None):
+def parse_mac(data_obj):
     """convert bytes to mac"""
-    return data_obj  # TO DO
+    if len(data_obj) == 6:
+        return ''.join(f'{i:02X}' for i in data_obj[::-1])
+    else:
+        _LOGGER.error("MAC address has to be 6 bytes long")
+        return None
 
 
 dispatch = {
@@ -76,7 +80,7 @@ def parse_ha_ble(self, data, source_mac, rssi):
     """Home Assistant BLE parser"""
     firmware = "HA BLE"
     device_type = "HA BLE DIY"
-    ha_ble_mac = source_mac
+    ha_ble_mac = ''.join(f'{i:02X}' for i in source_mac)
     result = {}
     packet_id = None
 
@@ -95,12 +99,20 @@ def parse_ha_ble(self, data, source_mac, rssi):
             break
 
         if obj_data_length != 0:
-            if obj_meas_type in DATA_MEAS_DICT:
-                meas_data = payload[payload_start + 2:next_start]
-                meas_type = DATA_MEAS_DICT[obj_meas_type][0]
-                meas_factor = DATA_MEAS_DICT[obj_meas_type][1]
-                meas = dispatch[obj_data_format](meas_data, meas_factor)
-                result.update({meas_type: meas})
+            if obj_data_format <= 3:
+                if obj_meas_type in DATA_MEAS_DICT:
+                    meas_data = payload[payload_start + 2:next_start]
+                    meas_type = DATA_MEAS_DICT[obj_meas_type][0]
+                    meas_factor = DATA_MEAS_DICT[obj_meas_type][1]
+                    meas = dispatch[obj_data_format](meas_data, meas_factor)
+                    result.update({meas_type: meas})
+                else:
+                    if self.report_unknown == "HA BLE":
+                        _LOGGER.error("UNKNOWN dataobject in HA BLE payload! Adv: %s", data.hex())
+            elif obj_data_format == 4:
+                data_mac = dispatch[obj_data_format](payload[payload_start + 1:next_start])
+                if data_mac:
+                    ha_ble_mac = data_mac
             else:
                 if self.report_unknown == "HA BLE":
                     _LOGGER.error("UNKNOWN dataobject in HA BLE payload! Adv: %s", data.hex())
@@ -139,7 +151,7 @@ def parse_ha_ble(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join(f'{i:02X}' for i in ha_ble_mac),
+        "mac": ha_ble_mac,
         "type": device_type,
         "firmware": firmware,
         "data": True

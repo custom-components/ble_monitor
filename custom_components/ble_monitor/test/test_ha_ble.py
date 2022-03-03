@@ -227,3 +227,20 @@ class TestHaBle:
         assert sensor_msg["data"]
         assert sensor_msg["opening"] == 0
         assert sensor_msg["rssi"] == -52
+
+    def test_ha_ble_modified_mac(self):
+        """Test HA BLE parser for binary sensor with modified MAC"""
+        data_string = "043E1D02010000A5808FE64854110201060D161C18020F0186A6808FE64854CC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "HA BLE"
+        assert sensor_msg["type"] == "HA BLE DIY"
+        assert sensor_msg["mac"] == "5448E68F80A6"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["binary"] == 1
+        assert sensor_msg["rssi"] == -52
