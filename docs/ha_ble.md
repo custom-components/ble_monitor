@@ -98,23 +98,32 @@ At the moment, the following sensors are supported. An preferred data type is gi
 | `0x02`    | temperature | sint16 (2 bytes)    | 0.01   | `2302CA09`   | 25.06     | `°C`       |       |
 | `0x03`    | humidity    | uint16 (2 bytes)    | 0.01   | `0303BF13`   | 50.55     | `%`        |       |
 | `0x04`    | pressure    | uint24 (3 bytes)    | 0.01   | `0404138A01` | 1008.83   | `hPa`      |       |
-| `0X05`    | illuminance | uint24 (3 bytes)    | 0.01   |              |           | `lux`      |       |
-| `0x06`    | weight      | uint8 (2 byte)      | 0.01   |              |           | `kg`       |       |
-| `0x07`    | weight unit | string (2 bytes)    | None   |              |           | `kg`       |       |
-| `0x08`    | dewpoint    | sint16 (2 bytes)    | 0.01   |              |           | `°C`       |       |
-| `0x09`    | count       | uint                | 1      |              |           |            |       |
+| `0X05`    | illuminance | uint24 (3 bytes)    | 0.01   | `0405138A14` | 13460.67  | `lux`      |       |
+| `0x06`    | weight      | uint16 (2 byte)     | 0.01   | `03065E1F`   | 80.3      | `kg`       | [2]   |
+| `0x07`    | weight unit | string (2 bytes)    | None   | `63076B67`   | "kg"      |            | [2]   |
+| `0x08`    | dewpoint    | sint16 (2 bytes)    | 0.01   | `2308CA06`   | 17.386    | `°C`       |       |
+| `0x09`    | count       | uint                | 1      | `020960`     | 96        |            |       |
 | `0X0A`    | energy      | uint24 (3 bytes)    | 0.001  |              |           | `kWh`      |       |
 | `0x0B`    | power       | uint24 (3 bytes)    | 0.01   |              |           | `W`        |       |
 | `0x0C`    | voltage     | uint16 (2 bytes)    | 0.001  |              |           | `V`        |       |
 | `0x0D`    | pm2.5       | uint16 (2 bytes)    | 1      |              |           | `kg/m3`    |       |
 | `0x0E`    | pm10        | uint16 (2 bytes)    | 1      |              |           | `kg/m3`    |       |
 | `0x0F`    | boolean     | uint8 (1 byte)      | None   |              |           |            |       |
+| `0x10`    | switch      | uint8 (1 byte)      | None   |              |           |            |       |
+| `0x11`    | opening     | uint8 (1 byte)      | None   |              |           |            |       |
 
 
 **Notes**
 
 Full example payloads are given in the [test_ha_ble.py](https://github.com/custom-components/ble_monitor/blob/master/custom_components/ble_monitor/test/test_ha_ble.py) file. 
 
-### 1. packet id
+***1. packet id***
 
-The `packet id` is optional and is used to filter duplicate data. This allows you to send multiple advertisements that are exactly the same, to improve the chance that the advertisement arrives. BLE monitor will only process the advertisement if the `packet id` is different compared to the previous one. The `packet id` is a value between 0 (`0x00`) and 255 (`0xFF`), and should be increased on every change in data. 
+The `packet id` is optional and is used to filter duplicate data. This allows you to send multiple advertisements that are exactly the same, to improve the chance that the advertisement arrives. BLE monitor will only process the advertisement if the `packet id` is different compared to the previous one. The `packet id` is a value between 0 (`0x00`) and 255 (`0xFF`), and should be increased on every change in data.
+
+
+***2. weight (unit)***
+The `weight unit` is in `kg` by default, but can be set the the weight unit property. Examples of `weight unit` packets are:
+- kg (`63076B67`)
+- lbs (`64076C6273`)
+- jin (`64076A696E`)

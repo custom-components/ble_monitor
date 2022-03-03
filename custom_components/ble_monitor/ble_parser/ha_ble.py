@@ -67,6 +67,8 @@ DATA_MEAS_DICT = {
     0x0D: ["pm2.5", 1],
     0x0E: ["pm10", 1],
     0x0F: ["binary", None],
+    0x10: ["switch", None],
+    0x11: ["opening", None],
 }
 
 
