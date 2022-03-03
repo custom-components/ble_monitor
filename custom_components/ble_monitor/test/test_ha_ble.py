@@ -107,3 +107,54 @@ class TestHaBle:
         assert sensor_msg["data"]
         assert sensor_msg["dew point"] == 17.38
         assert sensor_msg["rssi"] == -36
+
+    def test_ha_ble_binary(self):
+        """Test HA BLE parser for binary sensor measurement"""
+        data_string = "043E1602010000A5808FE648540A02010606161C18020F01CC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "HA BLE"
+        assert sensor_msg["type"] == "HA BLE DIY"
+        assert sensor_msg["mac"] == "5448E68F80A5"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["binary"] == 1
+        assert sensor_msg["rssi"] == -52
+
+    def test_ha_ble_switch(self):
+        """Test HA BLE parser for dew point measurement"""
+        data_string = "043E1602010000A5808FE648540A02010606161C18021001DC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "HA BLE"
+        assert sensor_msg["type"] == "HA BLE DIY"
+        assert sensor_msg["mac"] == "5448E68F80A5"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["switch"] == 1
+        assert sensor_msg["rssi"] == -36
+
+    def test_ha_ble_opening(self):
+        """Test HA BLE parser for dew point measurement"""
+        data_string = "043E1602010000A5808FE648540A02010606161C18021100CC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "HA BLE"
+        assert sensor_msg["type"] == "HA BLE DIY"
+        assert sensor_msg["mac"] == "5448E68F80A5"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["opening"] == 0
+        assert sensor_msg["rssi"] == -52
