@@ -66,9 +66,9 @@ DATA_MEAS_DICT = {
     0x0C: ["voltage", 0.001],
     0x0D: ["pm2.5", 1],
     0x0E: ["pm10", 1],
-    0x0F: ["binary", None],
-    0x10: ["switch", None],
-    0x11: ["opening", None],
+    0x0F: ["binary", 1],
+    0x10: ["switch", 1],
+    0x11: ["opening", 1],
 }
 
 

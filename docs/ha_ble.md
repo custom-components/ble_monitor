@@ -108,9 +108,9 @@ At the moment, the following sensors are supported. An preferred data type is gi
 | `0x0C`    | voltage     | uint16 (2 bytes)    | 0.001  |              |           | `V`        |       |
 | `0x0D`    | pm2.5       | uint16 (2 bytes)    | 1      |              |           | `kg/m3`    |       |
 | `0x0E`    | pm10        | uint16 (2 bytes)    | 1      |              |           | `kg/m3`    |       |
-| `0x0F`    | boolean     | uint8 (1 byte)      | None   |              |           |            |       |
-| `0x10`    | switch      | uint8 (1 byte)      | None   |              |           |            |       |
-| `0x11`    | opening     | uint8 (1 byte)      | None   |              |           |            |       |
+| `0x0F`    | boolean     | uint8 (1 byte)      | 1      | `020F01`     | 1 (True)  | `True`     |       |
+| `0x10`    | switch      | uint8 (1 byte)      | 1      | `021001`     | 1 (True)  | `on`       |       |
+| `0x11`    | opening     | uint8 (1 byte)      | 1      | `021100`     | 0 (false) | `closed`   |       |
 
 
 **Notes**
