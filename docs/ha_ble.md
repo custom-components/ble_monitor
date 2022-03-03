@@ -103,11 +103,11 @@ At the moment, the following sensors are supported. An preferred data type is gi
 | `0x07`    | weight unit | string (2 bytes)    | None   | `63076B67`   | "kg"      |            | [2]   |
 | `0x08`    | dewpoint    | sint16 (2 bytes)    | 0.01   | `2308CA06`   | 17.386    | `°C`       |       |
 | `0x09`    | count       | uint                | 1      | `020960`     | 96        |            |       |
-| `0X0A`    | energy      | uint24 (3 bytes)    | 0.001  |              |           | `kWh`      |       |
-| `0x0B`    | power       | uint24 (3 bytes)    | 0.01   |              |           | `W`        |       |
-| `0x0C`    | voltage     | uint16 (2 bytes)    | 0.001  |              |           | `V`        |       |
-| `0x0D`    | pm2.5       | uint16 (2 bytes)    | 1      |              |           | `kg/m3`    |       |
-| `0x0E`    | pm10        | uint16 (2 bytes)    | 1      |              |           | `kg/m3`    |       |
+| `0X0A`    | energy      | uint24 (3 bytes)    | 0.001  | `040A138A14` | 1346.067  | `kWh`      |       |
+| `0x0B`    | power       | uint24 (3 bytes)    | 0.01   | `040B021B00` | 69.14     | `W`        |       |
+| `0x0C`    | voltage     | uint16 (2 bytes)    | 0.001  | `030C020C`   | 3.074     | `V`        |       |
+| `0x0D`    | pm2.5       | uint16 (2 bytes)    | 1      | `030D120C`   | 3090      | `kg/m3`    |       |
+| `0x0E`    | pm10        | uint16 (2 bytes)    | 1      | `030E021C`   | 7170      | `kg/m3`    |       |
 | `0x0F`    | boolean     | uint8 (1 byte)      | 1      | `020F01`     | 1 (True)  | `True`     |       |
 | `0x10`    | switch      | uint8 (1 byte)      | 1      | `021001`     | 1 (True)  | `on`       |       |
 | `0x11`    | opening     | uint8 (1 byte)      | 1      | `021100`     | 0 (false) | `closed`   |       |
