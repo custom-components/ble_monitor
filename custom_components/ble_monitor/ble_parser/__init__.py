@@ -275,7 +275,7 @@ class BleParser:
                         break
 
                     # Filter on other parts of the manufacturer specific data
-                    elif ((man_spec_data[4] << 8) | man_spec_data[5]) == 0xBEAC and data_len == 0x1B:
+                    elif data_len == 0x1B and ((man_spec_data[4] << 8) | man_spec_data[5]) == 0xBEAC:
                         # AltBeacon
                         sensor_data, tracker_data = parse_altbeacon(self, man_spec_data, comp_id, mac, rssi)
                         break
