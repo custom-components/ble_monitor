@@ -878,6 +878,7 @@ MEASUREMENT_DICT = {
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'MyCO2'                   : [["temperature", "humidity", "co2", "rssi"], [], []],
     'HA BLE DIY'              : [["temperature", "rssi"], [], []],
+    'EClerk Eco'              : [["temperature", "humidity", "co2", "battery", "rssi"], [], []],
 }
 
 
@@ -977,6 +978,7 @@ MANUFACTURER_DICT = {
     'iBeacon'                 : 'Apple',
     'AltBeacon'               : 'Radius Networks',
     'HA BLE DIY'              : 'Home Assistant DIY',
+    'EClerk Eco'              : 'Relsib',
 }
 
 # Renamed model dictionary
