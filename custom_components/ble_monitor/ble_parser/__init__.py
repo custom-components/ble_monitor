@@ -134,13 +134,13 @@ class BleParser:
                         else:
                             sensor_data = parse_atc(self, service_data, mac, rssi)
                         break
-                    elif uuid16 == 0x181B or uuid16 == 0x181D:
+                    elif uuid16 in [0x181B, 0x181D]:
                         # UUID16 = Body Composition and Weight Scale (used by Mi Scale)
                         sensor_data = parse_miscale(self, service_data, mac, rssi)
                         break
-                    elif uuid16 == 0x181C:
-                        # UUID16 = User Data (used by BLE HA)
-                        sensor_data = parse_ha_ble(self, service_data, mac, rssi)
+                    elif uuid16 in [0x181C, 0x181E]:
+                        # UUID16 = User Data and Bond Management (used by BLE HA)
+                        sensor_data = parse_ha_ble(self, service_data, uuid16, mac, rssi)
                         break
                     elif uuid16 == 0xFDCD:
                         # UUID16 = Qingping

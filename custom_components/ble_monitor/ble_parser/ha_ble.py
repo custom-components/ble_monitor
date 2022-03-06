@@ -1,6 +1,7 @@
 """Parser for HA BLE (DIY sensors) advertisements"""
 import logging
 import struct
+from Cryptodome.Cipher import AES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -76,15 +77,31 @@ DATA_MEAS_DICT = {
 }
 
 
-def parse_ha_ble(self, data, source_mac, rssi):
+def parse_ha_ble(self, data, uuid16, source_mac, rssi):
     """Home Assistant BLE parser"""
-    firmware = "HA BLE"
     device_type = "HA BLE DIY"
-    ha_ble_mac = ''.join(f'{i:02X}' for i in source_mac)
+    ha_ble_mac = source_mac
     result = {}
     packet_id = None
 
-    payload = data[4:]
+    if uuid16 == 0x181C:
+        # Non-encrypted HA BLE format
+        payload = data[4:]
+        firmware = "HA BLE"
+    elif uuid16 == 0x181E:
+        # Encrypted HA BLE format
+        payload = decrypt_data(self, data, ha_ble_mac)
+        firmware = "HA BLE (encrypted)"
+    else:
+        return None
+
+    if payload:
+        payload_length = len(payload)
+        print("decrypted payload", payload.hex())
+        payload_start = 0
+    else:
+        return None
+
     payload_length = len(payload)
     payload_start = 0
 
@@ -151,12 +168,53 @@ def parse_ha_ble(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ha_ble_mac,
+        "mac": ''.join(f'{i:02X}' for i in ha_ble_mac),
         "type": device_type,
         "firmware": firmware,
         "data": True
     })
     return result
+
+
+def decrypt_data(self, data, ha_ble_mac):
+    """Decrypt encrypted HA BLE advertisements"""
+    # check for minimum length of encrypted advertisement
+    if len(data) < 15:
+        _LOGGER.debug("Invalid data length (for decryption), adv: %s", data.hex())
+    # try to find encryption key for current device
+    try:
+        key = self.aeskeys[ha_ble_mac]
+        if len(key) != 16:
+            _LOGGER.error("Encryption key should be 16 bytes (32 characters) long")
+            return None
+    except KeyError:
+        # no encryption key found
+        _LOGGER.error("No encryption key found for device with MAC %s", to_mac(ha_ble_mac))
+        return None
+    uuid = data[2:4]
+    encrypted_payload = data[4:-8]
+    count_id = data[-8:-4]
+    mic = data[-4:]
+
+    # nonce: mac [6], uuid16 [2], count_id [4] (6+2+4 = 12 bytes)
+    nonce = b"".join([ha_ble_mac, uuid, count_id])
+    cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
+    cipher.update(b"\x11")
+    try:
+        decrypted_payload = cipher.decrypt_and_verify(encrypted_payload, mic)
+    except ValueError as error:
+        _LOGGER.warning("Decryption failed: %s", error)
+        _LOGGER.debug("mic: %s", mic.hex())
+        _LOGGER.debug("nonce: %s", nonce.hex())
+        _LOGGER.debug("encrypted_payload: %s", encrypted_payload.hex())
+        return None
+    if decrypted_payload is None:
+        _LOGGER.error(
+            "Decryption failed for %s, decrypted payload is None",
+            to_mac(ha_ble_mac),
+        )
+        return None
+    return decrypted_payload
 
 
 def to_mac(addr: int):
