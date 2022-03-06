@@ -39,6 +39,31 @@ class TestHaBle:
         assert sensor_msg["humidity"] == 50.55
         assert sensor_msg["rssi"] == -52
 
+    def test_ha_ble_temperature_and_humidity_encrypted(self):
+        """Test HA BLE parser for temperature and humidity (encrypted) measurement"""
+        self.aeskeys = {}
+        data_string = "043E2302010000A5808FE648541702010613161e18fba435e4d3c312fb0011223357d90a99CC"
+        data = bytes(bytearray.fromhex(data_string))
+        aeskey = "231d39c1d7cc1ab1aee224cd096db932"
+
+        p_mac = bytes.fromhex("5448E68F80A5")
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        allow_list = self.aeskeys.keys()
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys, discovery=False, sensor_whitelist=allow_list)
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "HA BLE"
+        assert sensor_msg["type"] == "HA BLE DIY"
+        assert sensor_msg["mac"] == "5448E68F80A5"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 25.06
+        assert sensor_msg["humidity"] == 50.55
+        assert sensor_msg["rssi"] == -52
+
     def test_ha_ble_pressure(self):
         """Test HA BLE parser for pressure measurement"""
         data_string = "043E1B02010000A5808FE648540F0201060B161C1802000C0404138A01DC"
