@@ -41,7 +41,7 @@ def parse_string(data_obj, factor=None):
 def parse_mac(data_obj):
     """convert bytes to mac"""
     if len(data_obj) == 6:
-        return ''.join(f'{i:02X}' for i in data_obj[::-1])
+        return data_obj[::-1]
     else:
         _LOGGER.error("MAC address has to be 6 bytes long")
         return None
