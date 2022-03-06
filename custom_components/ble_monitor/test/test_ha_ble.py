@@ -55,7 +55,7 @@ class TestHaBle:
         ble_parser = BleParser(aeskeys=self.aeskeys, discovery=False, sensor_whitelist=allow_list)
         sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
-        assert sensor_msg["firmware"] == "HA BLE"
+        assert sensor_msg["firmware"] == "HA BLE (encrypted)"
         assert sensor_msg["type"] == "HA BLE DIY"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
