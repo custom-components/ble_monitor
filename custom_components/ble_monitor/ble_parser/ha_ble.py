@@ -88,10 +88,12 @@ def parse_ha_ble(self, data, uuid16, source_mac, rssi):
         # Non-encrypted HA BLE format
         payload = data[4:]
         firmware = "HA BLE"
+        packet_id = None
     elif uuid16 == 0x181E:
         # Encrypted HA BLE format
-        payload = decrypt_data(self, data, ha_ble_mac)
+        payload, count_id = decrypt_data(self, data, ha_ble_mac)
         firmware = "HA BLE (encrypted)"
+        packet_id = parse_uint(count_id)
     else:
         return None
 
@@ -145,9 +147,12 @@ def parse_ha_ble(self, data, uuid16, source_mac, rssi):
             )
         return None
 
-    # Check for duplicate messages
-    if "packet" in result:
+    # Check for packet id in payload
+    if result.get("packet"):
         packet_id = result["packet"]
+
+    # Check for duplicate messages
+    if packet_id:
         try:
             prev_packet = self.lpacket_ids[ha_ble_mac]
         except KeyError:
@@ -159,7 +164,7 @@ def parse_ha_ble(self, data, uuid16, source_mac, rssi):
                 return None
         self.lpacket_ids[ha_ble_mac] = packet_id
     else:
-        result.update({"packet": "no packet id"})
+        packet_id = "no packet id"
 
     # check for MAC presence in sensor whitelist, if needed
     if self.discovery is False and ha_ble_mac not in self.sensor_whitelist:
@@ -169,6 +174,7 @@ def parse_ha_ble(self, data, uuid16, source_mac, rssi):
     result.update({
         "rssi": rssi,
         "mac": ''.join(f'{i:02X}' for i in ha_ble_mac),
+        "packet": packet_id,
         "type": device_type,
         "firmware": firmware,
         "data": True
@@ -214,7 +220,7 @@ def decrypt_data(self, data, ha_ble_mac):
             to_mac(ha_ble_mac),
         )
         return None
-    return decrypted_payload
+    return decrypted_payload, count_id
 
 
 def to_mac(addr: int):
