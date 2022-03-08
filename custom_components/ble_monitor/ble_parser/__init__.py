@@ -1,6 +1,7 @@
 """Parser for passive BLE advertisements."""
 import logging
 
+from .airmentor import parse_airmentor
 from .altbeacon import parse_altbeacon
 from .atc import parse_atc
 from .bluemaestro import parse_bluemaestro
@@ -203,6 +204,10 @@ class BleParser:
                     elif comp_id == 0x06D5:
                         # Sensirion
                         sensor_data = parse_sensirion(self, man_spec_data, complete_local_name, mac, rssi)
+                        break
+                    elif comp_id in [0x2121, 0x2122] and data_len == 0x0B:
+                        # Air Mentor
+                        sensor_data = parse_airmentor(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x8801 and data_len == 0x0C:
                         # Govee H5179
