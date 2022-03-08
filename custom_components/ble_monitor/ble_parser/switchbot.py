@@ -16,7 +16,7 @@ def parse_switchbot(self, data, source_mac, rssi):
         batt = (byte1 & 127)
         temp = float(byte3 - 28) + float(byte2 / 10.0)
         humi = byte4
-        device_type = "MeterTH S1"
+        device_type = "Meter TH S1"
         firmware = "Switchbot"
         result = {
             "temperature": temp,
