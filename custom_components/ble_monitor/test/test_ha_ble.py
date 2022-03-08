@@ -58,7 +58,7 @@ class TestHaBle:
         assert sensor_msg["firmware"] == "HA BLE (encrypted)"
         assert sensor_msg["type"] == "HA BLE DIY"
         assert sensor_msg["mac"] == "5448E68F80A5"
-        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["packet"] == 857870592
         assert sensor_msg["data"]
         assert sensor_msg["temperature"] == 25.06
         assert sensor_msg["humidity"] == 50.55
