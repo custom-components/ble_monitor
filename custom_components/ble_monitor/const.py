@@ -909,6 +909,7 @@ MEASUREMENT_DICT = {
     'HA BLE DIY'              : [["temperature", "rssi"], [], []],
     'EClerk Eco'              : [["temperature", "humidity", "co2", "battery", "rssi"], [], []],
     'Air Mentor Pro 2'        : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "iaq", "pm2.5", "pm10", "battery", "voltage", "rssi"], [], []],
+    'MeterTH S1'              : [["temperature", "humidity", "battery", "rssi"], [], []],
 }
 
 # Sensor manufacturer dictionary
@@ -1010,6 +1011,7 @@ MANUFACTURER_DICT = {
     'HA BLE DIY'              : 'Home Assistant DIY',
     'EClerk Eco'              : 'Relsib',
     'Air Mentor Pro 2'        : 'Air Mentor',
+    'MeterTH S1'              : 'Switchbot',
 }
 
 # Renamed model dictionary
@@ -1042,6 +1044,7 @@ REPORT_UNKNOWN_LIST = [
     "Ruuvitag",
     "Sensirion",
     "SensorPush",
+    "Switchbot",
     "Teltonika",
     "Thermoplus",
     "Xiaogui",

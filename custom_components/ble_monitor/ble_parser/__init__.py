@@ -23,6 +23,7 @@ from .relsib import parse_relsib
 from .ruuvitag import parse_ruuvitag
 from .sensorpush import parse_sensorpush
 from .sensirion import parse_sensirion
+from .switchbot import parse_switchbot
 from .teltonika import parse_teltonika
 from .thermoplus import parse_thermoplus
 from .xiaomi import parse_xiaomi
@@ -158,6 +159,10 @@ class BleParser:
                     elif uuid16 == 0xFFF9:
                         # UUID16 = FIDO (used by Cleargrass)
                         sensor_data = parse_qingping(self, service_data, mac, rssi)
+                        break
+                    elif uuid16 == 0x0D00:
+                        # UUID16 = unknown (used by Switchbot)
+                        sensor_data = parse_switchbot(self, service_data, mac, rssi)
                         break
                     elif uuid16 in GATT_CHARACTERISTICS and shortened_local_name == "HA_BLE":
                         # HA BLE

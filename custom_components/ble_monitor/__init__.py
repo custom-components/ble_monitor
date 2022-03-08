@@ -584,7 +584,7 @@ class HCIdump(Thread):
                 else:
                     continue
             if self.report_unknown_whitelist:
-                _LOGGER.info(  
+                _LOGGER.info(
                     "Attention! Option report_unknown is enabled for sensor with id(s): %s",
                     self.report_unknown_whitelist,
                 )

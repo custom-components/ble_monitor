@@ -42,6 +42,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Ruuvitag
 - Sensirion
 - SensorPush
+- Switchbot
 - Teltonika
 - Thermoplus
 - Xiaogui (Scale)
