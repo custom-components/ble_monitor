@@ -343,6 +343,15 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
+        key="temperature calibrated",
+        sensor_class="TemperatureSensor",
+        name="ble temperature calibrated",
+        unique_id="t_calibrated_",
+        native_unit_of_measurement=TEMP_CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="humidity",
         sensor_class="HumiditySensor",
         name="ble humidity",
@@ -467,6 +476,52 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     BLEMonitorSensorEntityDescription(
+        key="co2",
+        sensor_class="MeasuringSensor",
+        name="CO2",
+        unique_id="co2_",
+        icon="mdi:molecule-co2",
+        native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
+        device_class=SensorDeviceClass.CO2,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="pm2.5",
+        sensor_class="MeasuringSensor",
+        name="PM2.5",
+        unique_id="pm25_",
+        icon="mdi:molecule",
+        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        device_class=SensorDeviceClass.PM25,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="pm10",
+        sensor_class="MeasuringSensor",
+        name="PM10",
+        unique_id="pm10_",
+        icon="mdi:molecule",
+        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        device_class=SensorDeviceClass.PM10,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="tvoc",
+        sensor_class="MeasuringSensor",
+        name="TVOC",
+        unique_id="ble_tvoc_",
+        icon="mdi:molecule",
+        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        device_class=SensorDeviceClass.VOLATILE_ORGANIC_COMPOUNDS,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="aqi",
+        sensor_class="MeasuringSensor",
+        name="Air Quality Index",
+        unique_id="ble_iaq_",
+        icon="mdi:molecule",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="mac",
         sensor_class="StateChangedSensor",
         name="ble mac",
@@ -519,6 +574,16 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         native_unit_of_measurement=None,
         device_class=None,
         state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="air quality",
+        sensor_class="StateChangedSensor",
+        name="Air Quality",
+        unique_id="ble_aq_",
+        icon="mdi:molecule",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=None,
     ),
     BLEMonitorSensorEntityDescription(
         key="consumable",
@@ -748,33 +813,6 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         device_class=None,
         state_class=SensorStateClass.MEASUREMENT,
     ),
-    BLEMonitorSensorEntityDescription(
-        key="co2",
-        sensor_class="MeasuringSensor",
-        name="co2 sensor",
-        unique_id="co2_",
-        icon="mdi:molecule-co2",
-        native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
-        device_class=SensorDeviceClass.CO2,
-    ),
-    BLEMonitorSensorEntityDescription(
-        key="pm2.5",
-        sensor_class="MeasuringSensor",
-        name="PM2.5 sensor",
-        unique_id="pm25_",
-        icon="mdi:molecule-co2",
-        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
-        device_class=SensorDeviceClass.PM25,
-    ),
-    BLEMonitorSensorEntityDescription(
-        key="pm10",
-        sensor_class="MeasuringSensor",
-        name="PM10 sensor",
-        unique_id="pm10_",
-        icon="mdi:molecule-co2",
-        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
-        device_class=SensorDeviceClass.PM10,
-    ),
 )
 
 
@@ -880,8 +918,9 @@ MEASUREMENT_DICT = {
     'MyCO2'                   : [["temperature", "humidity", "co2", "rssi"], [], []],
     'HA BLE DIY'              : [["temperature", "rssi"], [], []],
     'EClerk Eco'              : [["temperature", "humidity", "co2", "battery", "rssi"], [], []],
+    'Air Mentor Pro 2'        : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "aqi", "air quality", "pm2.5", "pm10", "rssi"], [], []],
+    'Meter TH S1'             : [["temperature", "humidity", "battery", "rssi"], [], []],
 }
-
 
 # Sensor manufacturer dictionary
 MANUFACTURER_DICT = {
@@ -981,6 +1020,8 @@ MANUFACTURER_DICT = {
     'AltBeacon'               : 'Radius Networks',
     'HA BLE DIY'              : 'Home Assistant DIY',
     'EClerk Eco'              : 'Relsib',
+    'Air Mentor Pro 2'        : 'Air Mentor',
+    'Meter TH S1'             : 'Switchbot',
 }
 
 # Renamed model dictionary
@@ -993,6 +1034,7 @@ RENAMED_MODEL_DICT = {
 # Selection list for report_uknown
 REPORT_UNKNOWN_LIST = [
     "Off",
+    "Air Mentor"
     "ATC",
     "BlueMaestro",
     "Brifit",
@@ -1007,10 +1049,12 @@ REPORT_UNKNOWN_LIST = [
     "Moat",
     "Oral-B",
     "Qingping",
+    "Relsib",
     "rbaron",
     "Ruuvitag",
     "Sensirion",
     "SensorPush",
+    "Switchbot",
     "Teltonika",
     "Thermoplus",
     "Xiaogui",

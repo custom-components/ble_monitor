@@ -1,6 +1,7 @@
 """Parser for passive BLE advertisements."""
 import logging
 
+from .airmentor import parse_airmentor
 from .altbeacon import parse_altbeacon
 from .atc import parse_atc
 from .bluemaestro import parse_bluemaestro
@@ -22,6 +23,7 @@ from .relsib import parse_relsib
 from .ruuvitag import parse_ruuvitag
 from .sensorpush import parse_sensorpush
 from .sensirion import parse_sensirion
+from .switchbot import parse_switchbot
 from .teltonika import parse_teltonika
 from .thermoplus import parse_thermoplus
 from .xiaomi import parse_xiaomi
@@ -158,6 +160,10 @@ class BleParser:
                         # UUID16 = FIDO (used by Cleargrass)
                         sensor_data = parse_qingping(self, service_data, mac, rssi)
                         break
+                    elif uuid16 == 0x0D00:
+                        # UUID16 = unknown (used by Switchbot)
+                        sensor_data = parse_switchbot(self, service_data, mac, rssi)
+                        break
                     elif uuid16 in GATT_CHARACTERISTICS and shortened_local_name == "HA_BLE":
                         # HA BLE
                         sensor_data = parse_ha_ble(self, service_data_list, mac, rssi)
@@ -203,6 +209,10 @@ class BleParser:
                     elif comp_id == 0x06D5:
                         # Sensirion
                         sensor_data = parse_sensirion(self, man_spec_data, complete_local_name, mac, rssi)
+                        break
+                    elif comp_id in [0x2121, 0x2122] and data_len == 0x0B:
+                        # Air Mentor
+                        sensor_data = parse_airmentor(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x8801 and data_len == 0x0C:
                         # Govee H5179

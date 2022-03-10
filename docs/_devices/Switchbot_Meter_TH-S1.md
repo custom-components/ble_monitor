@@ -1,9 +1,9 @@
 ---
-manufacturer: Govee
-name: "Thermometer Hygrometer"
-model: H5072
-image: "Govee_H5072.jpg"
-physical_description: "Oval body, LCD screen."
+manufacturer: Switchbot
+name: Thermometer and Hygrometer
+model: Meter TH S1
+image: Switchbot_Meter_TH-S1.jpg
+physical_description: Rounded square body, LCD screen
 broadcasted_properties:
   - temperature
   - humidity

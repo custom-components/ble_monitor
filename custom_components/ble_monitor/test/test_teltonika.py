@@ -12,13 +12,13 @@ class TestTeltonika:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
-        assert sensor_msg["firmware"], "Teltonika"
-        assert sensor_msg["type"], "Blue Puck T"
-        assert sensor_msg["mac"], "C66E5493E1E7"
-        assert sensor_msg["packet"], "no packet id"
+        assert sensor_msg["firmware"] == "Teltonika"
+        assert sensor_msg["type"] == "Blue Puck T"
+        assert sensor_msg["mac"] == "C66E5493E1E7"
+        assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"], 29.5
-        assert sensor_msg["rssi"], -35
+        assert sensor_msg["temperature"] == 29.5
+        assert sensor_msg["rssi"] == -35
 
     def test_blue_coin_T(self):
         """Test Teltonika parser for Blue Coin T."""
@@ -28,13 +28,13 @@ class TestTeltonika:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
-        assert sensor_msg["firmware"], "Teltonika"
-        assert sensor_msg["type"], "Blue Coin T"
-        assert sensor_msg["mac"], "F02B026A8296"
-        assert sensor_msg["packet"], "no packet id"
+        assert sensor_msg["firmware"] == "Teltonika"
+        assert sensor_msg["type"] == "Blue Coin T"
+        assert sensor_msg["mac"] == "F02B026A8296"
+        assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"], 25.12
-        assert sensor_msg["rssi"], -47
+        assert sensor_msg["temperature"] == 25.12
+        assert sensor_msg["rssi"] == -47
 
     def test_blue_puck_RHT(self):
         """Test Teltonika parser for Blue Puck RHT."""
@@ -44,11 +44,11 @@ class TestTeltonika:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
-        assert sensor_msg["firmware"], "Teltonika"
-        assert sensor_msg["type"], "Blue Puck RHT"
-        assert sensor_msg["mac"], "F02B026A8296"
-        assert sensor_msg["packet"], "no packet id"
+        assert sensor_msg["firmware"] == "Teltonika"
+        assert sensor_msg["type"] == "Blue Puck RHT"
+        assert sensor_msg["mac"] == "F02B026A8296"
+        assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"], 11.87
-        assert sensor_msg["humidity"], 35
-        assert sensor_msg["rssi"], -67
+        assert sensor_msg["temperature"] == 11.87
+        assert sensor_msg["humidity"] == 35
+        assert sensor_msg["rssi"] == -67
