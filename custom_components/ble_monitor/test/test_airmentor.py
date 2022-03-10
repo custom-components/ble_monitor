@@ -21,7 +21,8 @@ class TestSwitchbot:
         assert sensor_msg["temperature calibrated"] == 19.89
         assert sensor_msg["humidity"] == 61.34
         assert sensor_msg["tvoc"] == 185
-        assert sensor_msg["iaq"] == 325
+        assert sensor_msg["aqi"] == 325
+        assert sensor_msg["air quality"] == "hazardous"
         assert sensor_msg["rssi"] == -52
 
     def test_air_mentor_pro_2_set_2(self):

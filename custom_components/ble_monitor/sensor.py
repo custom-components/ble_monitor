@@ -310,6 +310,11 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |--BatterySensor (Class)
     # |  |  |**battery
     # |  |**voltage
+    # |  |**CO2
+    # |  |**PM2.5
+    # |  |**PM10
+    # |  |**TVOC
+    # |  |**Air Quality Index
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
     # |  |--StateChangedSensor (Class)
@@ -318,6 +323,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |  |**major
     # |  |  |**minor
     # |  |  |**count
+    # |  |  |**air quality
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
     # |  |--WeightSensor (Class)
