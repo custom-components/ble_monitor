@@ -24,6 +24,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 
 ![BLE_sensors](https://raw.githubusercontent.com/custom-components/ble_monitor/master/pictures/sensors_2.png)
 
+- Air Mentor
 - ATC (custom firmware for Xiaomi/Qingping sensors)
 - BlueMaestro
 - Brifit
@@ -37,9 +38,11 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Moat
 - Oral-B
 - Qingping
+- Relsib
 - Ruuvitag
 - Sensirion
 - SensorPush
+- Switchbot
 - Teltonika
 - Thermoplus
 - Xiaogui (Scale)

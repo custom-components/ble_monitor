@@ -48,19 +48,22 @@ def parse_oral_b(self, data, source_mac, rssi):
         else:
             result.update({"toothbrush": 0})
 
+        tb_state = STATES.get(state, "unknown state " + str(state))
+        tb_mode = MODES.get(mode, "unknown mode " + str(mode))
+
         if sector == 254:
-            sector = "last sector"
+            tb_sector = "last sector"
         elif sector == 255:
-            sector = "no sector"
+            tb_sector = "no sector"
         else:
-            sector = "sector " + str(sector)
+            tb_sector = "sector " + str(sector)
 
         result.update({
-            "toothbrush state": STATES[state],
+            "toothbrush state": tb_state,
             "pressure": pressure,
             "counter": counter,
-            "mode": MODES[mode],
-            "sector": sector,
+            "mode": tb_mode,
+            "sector": tb_sector,
             "sector timer": sector_timer,
             "number of sectors": no_of_sectors,
         })
@@ -82,7 +85,7 @@ def parse_oral_b(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in oral_b_mac[:]),
+        "mac": ''.join(f'{i:02X}' for i in oral_b_mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,
@@ -93,4 +96,4 @@ def parse_oral_b(self, data, source_mac, rssi):
 
 def to_mac(addr: int):
     """Return formatted MAC address"""
-    return ':'.join('{:02x}'.format(x) for x in addr).upper()
+    return ':'.join(f'{i:02X}' for i in addr)
