@@ -192,11 +192,11 @@ def decrypt_data(self, data, ha_ble_mac):
         key = self.aeskeys[ha_ble_mac]
         if len(key) != 16:
             _LOGGER.error("Encryption key should be 16 bytes (32 characters) long")
-            return None
+            return None, None
     except KeyError:
         # no encryption key found
         _LOGGER.error("No encryption key found for device with MAC %s", to_mac(ha_ble_mac))
-        return None
+        return None, None
     uuid = data[2:4]
     encrypted_payload = data[4:-8]
     count_id = data[-8:-4]
@@ -219,7 +219,7 @@ def decrypt_data(self, data, ha_ble_mac):
             "Decryption failed for %s, decrypted payload is None",
             to_mac(ha_ble_mac),
         )
-        return None
+        return None, None
     return decrypted_payload, count_id
 
 
