@@ -29,14 +29,16 @@ This message is split up in three parts, the **header**, the **advertising paylo
 - Adverting payload `0201060B161C182302C4090303BF13`
 - RSSI value `CC`
 
-#### Header
+### Header
+
 The first part `043E1B02010000A5808FE648540F` is the header of the message and contains, amongst others
 
 - the length of the message in the 3rd byte (`0x1B` = 27, meaning 27 bytes after the third byte = 30 bytes in total)
 - the MAC address in reversed order in byte 8-13 (`A5808FE64854`, in reversed order, this corresponds to a MAC address `54:48:E6:8F:80:A5`)
 - the length of the advertising payload in byte 14 (`0x0F` = 15)
 
-#### Advertising payload
+### Advertising payload
+
 The second part `0201060B161C182302C4090303BF13` contains the advertising payload, and can consist of one or more **Advertising Data (AD) elements**. Each element contains the following:
 
 - 1st byte: length of the element (excluding the length byte itself)
@@ -50,22 +52,24 @@ In the `HA BLE` format, the advertsing payload should contain the following two 
 
 In the example, we have:
 
-- First AD element: `020106` (always the same),
+- First AD element: `020106` (always the same)
   - `0x02` = length (2 bytes)
     `0x01` = Flags
     `0x06` = in bits, this is `00000110`. Bit 1 and bit 2 are 1, meaning: 
       Bit 1: “LE General Discoverable Mode”
       Bit 2: “BR/EDR Not Supported”
 
-- Second AD element: `0B161C182302C4090303BF13`, 
+- Second AD element: `0B161C182302C4090303BF13` (HA BLE data) 
   - `0x0B` = length (11 bytes)
     `0x16` = UUID16
     `0x1C182302C4090303BF13` = HA BLE data
 
-The HA BLE data is the part that contains the data. The data can contain multiple measurements. The example contains both temperature data and humidity data.
+#### HA BLE data format (non-encrypted)
 
-- HA BLE data = `1C182302C4090303BF13`
-  - `0x1C18` = The first two byte are the UUID16, which are assinged numbers that can be found in [this official document]https://btprodspecificationrefs.blob.core.windows.net/assigned-values/16-bit%20UUID%20Numbers%20Document.pdf by the Bluetooth organization. For HA BLE we use the so called `GATT Service` = `User Data`. This part should always be `0x1C18`, as it is used to recognize a HA BLE message.
+The HA BLE data is the part that contains the data. The data can contain multiple measurements. We continue with the example from above.
+
+- HA BLE data = `0x1C182302C4090303BF13`
+  - `0x1C18` = The first two byte are the UUID16, which are assigned numbers that can be found in [this official document]https://btprodspecificationrefs.blob.core.windows.net/assigned-values/16-bit%20UUID%20Numbers%20Document.pdf by the Bluetooth organization. For HA BLE we use the so called `GATT Service` = `User Data` (`0x1C18`) for non-encrypted messages. For encrypted messages, we use `GATT Service` = `Bond Management` (`0x1E18`). More information about encryption can be found further down this page. This part should always be `0x1C18` (non-encrypted) or `0x1E18` (encrypted), as it is used to recognize a HA BLE message.
   - `0x2302C409` = Temperature packet
   - `0x0303BF13` = Humidity packet
 
@@ -132,3 +136,7 @@ The `weight unit` is in `kg` by default, but can be set the the weight unit prop
 ***3. mac***
 
 You don't have to specify the `mac` address in the advertising payload, as it is already included in the [header](#header). However, you can overwrite the `mac` by specifying it in the advertising payload. To do this, set the first byte to `0x86` (meaning: object type = 4 (`mac`) and object length = 6), followed by the MAC in reversed order. No Object id is needed.
+
+#### HA BLE data format (encrypted)
+
+You can also choose to send the data in an encrypted way, which gives you extra security. BLE advertisements can be read by everyone, even your neighbour with Home Assistant and BLE Monitor will be able to receive your BLE data. Howevern, when you use encryption, it will be useless for your neighbour, as long as he doesn't have the encryption key. The encryption key should be a 16 bytes long key (32 characters). More information on how to encrypt your messages will be added here soon. 

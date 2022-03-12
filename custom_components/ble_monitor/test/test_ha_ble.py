@@ -116,8 +116,8 @@ class TestHaBle:
         assert sensor_msg["weight unit"] == "kg"
         assert sensor_msg["rssi"] == -36
 
-    def test_ha_ble_dew_point(self):
-        """Test HA BLE parser for dew point measurement"""
+    def test_ha_ble_dewpoint(self):
+        """Test HA BLE parser for dewpoint measurement"""
         data_string = "043E1702010000A5808FE648540B02010607161C182308CA06DC"
         data = bytes(bytearray.fromhex(data_string))
 
@@ -130,7 +130,7 @@ class TestHaBle:
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["dew point"] == 17.38
+        assert sensor_msg["dewpoint"] == 17.38
         assert sensor_msg["rssi"] == -36
 
     def test_ha_ble_energy(self):

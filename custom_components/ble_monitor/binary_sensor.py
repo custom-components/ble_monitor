@@ -29,6 +29,8 @@ from .helper import (
 )
 
 from .const import (
+    AUTO_MANUFACTURER_DICT,
+    AUTO_BINARY_SENSOR_LIST,
     CONF_PERIOD,
     CONF_RESTORE_STATE,
     CONF_DEVICE_RESTORE_STATE,
@@ -101,28 +103,41 @@ class BLEupdaterBinary:
     async def async_run(self, hass):
         """Entities updater loop."""
 
-        async def async_add_binary_sensor(key, sensortype, firmware, manufacturer=None):
-            device_sensors = MEASUREMENT_DICT[sensortype][2]
-            if key not in sensors_by_key:
-                sensors = []
-                for sensor in device_sensors:
-                    description = [item for item in BINARY_SENSOR_TYPES if item.key is sensor][0]
-                    sensors.insert(
-                        device_sensors.index(sensor),
-                        globals()[description.sensor_class](
-                            self.config, key, sensortype, firmware, description, manufacturer
-                        ),
-                    )
-                if len(sensors) != 0:
-                    sensors_by_key[key] = sensors
-                    self.add_entities(sensors)
+        async def async_add_binary_sensor(key, sensortype, firmware, manufacturer=None, data=None):
+            if sensortype in AUTO_MANUFACTURER_DICT:
+                sensors = {}
+                for measurement in AUTO_BINARY_SENSOR_LIST:
+                    if measurement in data:
+                        if key not in sensors_by_key:
+                            sensors_by_key[key] = {}
+                        if measurement not in sensors_by_key[key]:
+                            description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
+                            sensors[measurement] = globals()[description.sensor_class](
+                                self.config, key, sensortype, firmware, description, manufacturer
+                            )
+                            self.add_entities([sensors[measurement]])
+                            sensors_by_key[key].update(sensors)
+                        else:
+                            sensors = sensors_by_key[key]
             else:
-                sensors = sensors_by_key[key]
+                device_sensors = MEASUREMENT_DICT[sensortype][2]
+                if key not in sensors_by_key:
+                    sensors = {}
+                    sensors_by_key[key] = {}
+                    for measurement in device_sensors:
+                        description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
+                        sensors[measurement] = globals()[description.sensor_class](
+                            self.config, key, sensortype, firmware, description, manufacturer
+                        )
+                        self.add_entities([sensors[measurement]])
+                    sensors_by_key[key] = sensors
+                else:
+                    sensors = sensors_by_key[key]
             return sensors
 
         _LOGGER.debug("Binary entities updater loop started!")
         sensors_by_key = {}
-        sensors = []
+        sensors = {}
         batt = {}  # batteries
         mibeacon_cnt = 0
         hpriority = []
@@ -145,17 +160,17 @@ class BLEupdaterBinary:
                     firmware = dev.sw_version
                     if sensortype and firmware:
                         sensors = await async_add_binary_sensor(
-                            key, sensortype, firmware, dev.manufacturer
+                            key, sensortype, firmware, dev.manufacturer, data
                         )
                     else:
                         continue
                 else:
                     pass
         else:
-            sensors = []
+            sensors = {}
 
         # Set up new binary sensors when first BLE advertisement is received
-        sensors = []
+        sensors = {}
         while True:
             try:
                 advevent = await asyncio.wait_for(self.dataqueue.get(), 1)
@@ -179,19 +194,23 @@ class BLEupdaterBinary:
                 sensortype = data["type"]
                 firmware = data["firmware"]
                 manufacturer = data["manufacturer"] if "manufacturer" in data else None
-                device_sensors = MEASUREMENT_DICT[sensortype][2]
-                sensors = await async_add_binary_sensor(key, sensortype, firmware, manufacturer)
+                sensors = await async_add_binary_sensor(key, sensortype, firmware, manufacturer, data)
+                device_sensors = sensors.keys()
 
                 if data["data"] is False:
                     data = None
                     continue
 
-                # store found readings per device
-                if "battery" in MEASUREMENT_DICT[sensortype][0]:
+                # battery attribute
+                if sensortype in AUTO_MANUFACTURER_DICT or (
+                    sensortype in MANUFACTURER_DICT and (
+                        "battery" in MEASUREMENT_DICT[sensortype][0]
+                    )
+                ):
                     if "battery" in data:
                         batt[key] = int(data["battery"])
                         batt_attr = batt[key]
-                        for entity in sensors:
+                        for entity in sensors.values():
                             getattr(entity, "_extra_state_attributes")[
                                 ATTR_BATTERY_LEVEL
                             ] = batt_attr
@@ -202,10 +221,11 @@ class BLEupdaterBinary:
                             batt_attr = batt[key]
                         except KeyError:
                             batt_attr = None
+
                 # schedule an immediate update of binary sensors
                 for measurement in device_sensors:
                     if measurement in data:
-                        entity = sensors[device_sensors.index(measurement)]
+                        entity = sensors[measurement]
                         entity.collect(data, batt_attr)
                         if entity.pending_update is True:
                             entity.async_schedule_update_ha_state(True)
@@ -254,7 +274,10 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         self._device_firmware = firmware
         self._device_manufacturer = manufacturer \
             if manufacturer is not None \
-            else MANUFACTURER_DICT[devtype]
+            else MANUFACTURER_DICT.get(
+                devtype,
+                AUTO_MANUFACTURER_DICT.get(devtype, None)
+            )
 
         self._extra_state_attributes = {
             'sensor_type': devtype,

@@ -64,7 +64,7 @@ DATA_MEAS_DICT = {
     0x05: ["illuminance", 0.01],
     0x06: ["weight", 0.01],
     0x07: ["weight unit", None],
-    0x08: ["dew point", 0.01],
+    0x08: ["dewpoint", 0.01],
     0x09: ["count", 1],
     0x0A: ["energy", 0.001],
     0x0B: ["power", 0.01],
