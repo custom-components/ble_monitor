@@ -93,13 +93,13 @@ def parse_ha_ble(self, data, uuid16, source_mac, rssi):
         # Encrypted HA BLE format
         payload, count_id = decrypt_data(self, data, ha_ble_mac)
         firmware = "HA BLE (encrypted)"
-        packet_id = parse_uint(count_id)
+        if count_id:
+            packet_id = parse_uint(count_id)
     else:
         return None
 
     if payload:
         payload_length = len(payload)
-        print("decrypted payload", payload.hex())
         payload_start = 0
     else:
         return None
