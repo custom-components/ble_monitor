@@ -28,6 +28,9 @@ import homeassistant.util.dt as dt_util
 
 from .ble_parser import BleParser
 from .const import (
+    AUTO_BINARY_SENSOR_LIST,
+    AUTO_MANUFACTURER_DICT,
+    AUTO_SENSOR_LIST,
     AES128KEY24_REGEX,
     AES128KEY32_REGEX,
     CONF_ACTIVE_SCAN,
@@ -75,6 +78,7 @@ from .const import (
     DOMAIN,
     PLATFORMS,
     MAC_REGEX,
+    MANUFACTURER_DICT,
     MEASUREMENT_DICT,
     REPORT_UNKNOWN_LIST,
     SERVICE_CLEANUP_ENTRIES,
@@ -649,10 +653,17 @@ class HCIdump(Thread):
         if sensor_msg:
             measurements = list(sensor_msg.keys())
             device_type = sensor_msg["type"]
-            sensor_list = (
-                MEASUREMENT_DICT[device_type][0] + MEASUREMENT_DICT[device_type][1]
-            )
-            binary_list = MEASUREMENT_DICT[device_type][2] + ["battery"]
+            if device_type in MANUFACTURER_DICT:
+                sensor_list = (
+                    MEASUREMENT_DICT[device_type][0] + MEASUREMENT_DICT[device_type][1]
+                )
+                binary_list = MEASUREMENT_DICT[device_type][2] + ["battery"]
+            elif device_type in AUTO_MANUFACTURER_DICT:
+                sensor_list = AUTO_SENSOR_LIST
+                binary_list = AUTO_BINARY_SENSOR_LIST + ["battery"]
+            else:
+                return
+
             measuring = any(x in measurements for x in sensor_list)
             binary = any(x in measurements for x in binary_list)
             if binary == measuring:
