@@ -123,7 +123,7 @@ class BLEupdater:
     async def async_run(self, hass):
         """Entities updater loop."""
 
-        async def async_add_sensor(key, sensortype, firmware, manufacturer=None, data=None):
+        async def async_add_sensor(key, sensortype, firmware, manufacturer=None, data={}):
             if sensortype in AUTO_MANUFACTURER_DICT:
                 sensors = {}
                 for measurement in AUTO_SENSOR_LIST:
@@ -170,7 +170,7 @@ class BLEupdater:
         ts_last_update = ts_now
         period_cnt = 0
 
-        data = None
+        data = {}
         await asyncio.sleep(0)
 
         # Set up sensors of configured devices on startup when sensortype is available in device registry
