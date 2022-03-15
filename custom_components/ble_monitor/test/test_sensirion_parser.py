@@ -24,7 +24,7 @@ class TestSensirion:
 
     def test_Sensorion_SHT4x(self):
         """Test Sensirion SHT4x parser."""
-        data_string = "043e320d0113000135673cdceaf80100ff7fb0000000000000000000180201060dffd506000867355367925c0b0406094d79434f32"
+        data_string = "043e2902010001e7e2c3c067ff1d0201060bffd5060006e2e7036a1c650d09534854343020476164676574b9"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
