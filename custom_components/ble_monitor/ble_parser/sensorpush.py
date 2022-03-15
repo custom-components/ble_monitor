@@ -103,4 +103,4 @@ def parse_sensorpush(self, data, source_mac, rssi):
 
 def to_mac(addr: int):
     """Return formatted MAC address"""
-    return ':'.join('{:02x}'.format(x) for x in addr).upper()
+    return ':'.join(f'{i:02X}' for i in addr)
