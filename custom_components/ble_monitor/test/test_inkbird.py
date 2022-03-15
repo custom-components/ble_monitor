@@ -59,7 +59,6 @@ class TestInkbird:
         assert sensor_msg["temperature probe 4"] == 0
         assert sensor_msg["rssi"] == -62
 
-
     def test_inkbird_iBBQ_6_probes(self):
         """Test Inkbird parser for Inkbird iBBQ with 6 probes."""
         data_string = "043e480d01130001593535d793180100ff7fa30000000000000000002e0201060302F0FF17FF000000001893D7353559D200F6FFF6FFF6FFF6FFF6FF050969424251051218003801020A00"
@@ -100,7 +99,7 @@ class TestInkbird:
         assert sensor_msg["rssi"] == -52
 
     def test_inkbird_IBS_TH2_T_only(self):
-        """Test Inkbird parser for Inkbird IBS-TH2 (T only)."""
+        """Test Inkbird parser for Inkbird IBS-TH2/P01R."""
         data_string = "043e1c02010400561d000742491004097470730affff0700000031603306c5"
         data = bytes(bytearray.fromhex(data_string))
 
@@ -109,7 +108,7 @@ class TestInkbird:
         sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Inkbird"
-        assert sensor_msg["type"] == "IBS-TH2 (T only)"
+        assert sensor_msg["type"] == "IBS-TH2/P01R"
         assert sensor_msg["mac"] == "494207001D56"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
