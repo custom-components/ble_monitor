@@ -8,13 +8,13 @@ _LOGGER = logging.getLogger(__name__)
 def parse_bparasite(self, data, source_mac, rssi):
     """Check for adstruc length"""
     msg_length = len(data)
-    if msg_length == 22:  # TODO: Use version bits?
+    if msg_length == 22:  # TODO: Use protocol bits?
         bpara_mac = data[14:20]
         device_type = "b-parasite V1.1.0"
         firmware = "b-parasite V1.1.0 (with illuminance)"
-        (protocol, packet_id, batt, temp, humi, moist, mac, light) = unpack(">BBHHHH6sH", data[4:])
+        (protocol, packet_id, batt, temp, humi, moist, mac, light) = unpack(">BBHhHH6sH", data[4:])
         result = {
-            "temperature": temp / 1000,
+            "temperature": temp / (100 if (protocol >> 4) == 2 else 1000),
             "humidity": (humi / 65536) * 100,
             "voltage": batt / 1000.0,
             "moisture": (moist / 65536) * 100,
@@ -25,9 +25,9 @@ def parse_bparasite(self, data, source_mac, rssi):
         bpara_mac = data[14:20]
         device_type = "b-parasite V1.0.0"
         firmware = "b-parasite V1.0.0 (without illuminance)"
-        (protocol, packet_id, batt, temp, humi, moist, mac) = unpack(">BBHHHH6s", data[4:])
+        (protocol, packet_id, batt, temp, humi, moist, mac) = unpack(">BBHhHH6s", data[4:])
         result = {
-            "temperature": temp / 1000,
+            "temperature": temp / (100 if (protocol >> 4) == 2 else 1000),
             "humidity": (humi / 65536) * 100,
             "voltage": batt / 1000.0,
             "moisture": (moist / 65536) * 100,
@@ -63,7 +63,7 @@ def parse_bparasite(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in bpara_mac),
+        "mac": ''.join('{:02X}'.format(x) for x in bpara_mac[:]),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,
