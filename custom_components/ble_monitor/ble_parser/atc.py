@@ -7,7 +7,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def parse_atc(self, data, source_mac, rssi):
-    """Check for adstruc length"""
+    """Parse ATC BLE advertisements"""
     device_type = "ATC"
     msg_length = len(data)
     if msg_length == 19:
@@ -178,5 +178,5 @@ def decrypt_atc(self, data, atc_mac):
 
 
 def to_mac(addr: int):
-    """Convert MAC address."""
-    return ':'.join('{:02x}'.format(x) for x in addr).upper()
+    """Return formatted MAC address"""
+    return ':'.join(f'{i:02X}' for i in addr)

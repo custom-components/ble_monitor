@@ -900,6 +900,10 @@ MEASUREMENT_DICT = {
     'Blue Puck RHT'           : [["temperature", "humidity", "rssi"], [], []],
     'HTP.xw'                  : [["temperature", "humidity", "pressure", "rssi"], [], []],
     'HT.w'                    : [["temperature", "humidity", "pressure", "rssi"], [], []],
+    'MyCO2'                   : [["temperature", "humidity", "co2", "rssi"], [], []],
+    'SHT40 Gadget'            : [["temperature", "humidity", "rssi"], [], []],
+    'SHT41 Gadget'            : [["temperature", "humidity", "rssi"], [], []],
+    'SHT45 Gadget'            : [["temperature", "humidity", "rssi"], [], []],
     'Moat S2'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Tempo Disc THD'          : [["temperature", "humidity", "dewpoint", "battery", "rssi"], [], []],
     'Tempo Disc THPD'         : [["temperature", "humidity", "pressure", "battery", "rssi"], [], []],
@@ -915,7 +919,6 @@ MEASUREMENT_DICT = {
     'BEC07-5'                 : [["temperature", "humidity", "rssi"], [], []],
     'iBeacon'                 : [["rssi", "measured power", "cypress temperature", "cypress humidity"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
-    'MyCO2'                   : [["temperature", "humidity", "co2", "rssi"], [], []],
     'HA BLE DIY'              : [["temperature", "rssi"], [], []],
     'EClerk Eco'              : [["temperature", "humidity", "co2", "battery", "rssi"], [], []],
     'Air Mentor Pro 2'        : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "aqi", "air quality", "pm2.5", "pm10", "rssi"], [], []],
@@ -1003,6 +1006,9 @@ MANUFACTURER_DICT = {
     'HTP.xw'                  : 'SensorPush',
     'HT.w'                    : 'SensorPush',
     'MyCO2'                   : 'Sensirion',
+    'SHT40 Gadget'            : 'Sensirion',
+    'SHT41 Gadget'            : 'Sensirion',
+    'SHT45 Gadget'            : 'Sensirion',
     'Moat S2'                 : 'Moat',
     'Tempo Disc THD'          : 'BlueMaestro',
     'Tempo Disc THPD'         : 'BlueMaestro',

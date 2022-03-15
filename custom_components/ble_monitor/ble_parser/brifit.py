@@ -59,5 +59,5 @@ def parse_brifit(self, data, source_mac, rssi):
 
 
 def to_mac(addr: int):
-    """Convert MAC address."""
+    """Return formatted MAC address"""
     return ':'.join(f'{i:02X}' for i in addr)

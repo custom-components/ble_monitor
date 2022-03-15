@@ -50,5 +50,5 @@ def parse_jinou(self, data, source_mac, rssi):
 
 
 def to_mac(addr: int):
-    """Convert MAC address."""
-    return ':'.join('{:02x}'.format(x) for x in addr).upper()
+    """Return formatted MAC address"""
+    return ':'.join(f'{i:02X}' for i in addr)

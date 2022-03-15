@@ -65,6 +65,7 @@ RESTORE_ATTRIBUTES = [
     "mode",
     "sector_timer",
     "number_of_sectors",
+    "weight",
 ]
 
 
@@ -437,6 +438,10 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
                 self._extra_state_attributes["sector_timer"] = data["sector timer"]
             if "number of sectors" in data:
                 self._extra_state_attributes["number_of_sectors"] = data["number of sectors"]
+        if self.entity_description.key == "weight removed":
+            if "stabilized" in data:
+                if data["stabilized"] and data["weight removed"]:
+                    self._extra_state_attributes["weight"] = data["non-stabilized weight"]
 
     async def async_update(self):
         """Update sensor state and attribute."""
