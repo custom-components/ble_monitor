@@ -18,7 +18,7 @@ from homeassistant.const import (
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.sensor import SensorEntity
-import homeassistant.util.dt as dt_util
+from homeassistant.util import dt
 from homeassistant.util.temperature import convert as convert_temp
 
 from .helper import (
@@ -165,7 +165,7 @@ class BLEupdater:
         rssi = {}  # rssi
         ble_adv_cnt = 0
 
-        ts_now = dt_util.now()
+        ts_now = dt.now()
         ts_restart = ts_now
         ts_last_update = ts_now
         period_cnt = 0
@@ -280,7 +280,7 @@ class BLEupdater:
                                     entity.async_schedule_update_ha_state(True)
                                     entity.pending_update = False
                 data = None
-            ts_now = dt_util.now()
+            ts_now = dt.now()
             if ts_now - ts_last_update < timedelta(seconds=self.period):
                 continue
             ts_last_update = ts_now
@@ -906,6 +906,8 @@ class WeightSensor(InstantUpdateSensor):
                 self._extra_state_attributes["weight removed"] = bool(
                     data["weight removed"]
                 )
+            if "impedance" not in data and data["type"] == "Mi Scale V2":
+                self._extra_state_attributes["impedance"] = "unavailable"
         if "impedance" in data:
             self._extra_state_attributes["impedance"] = data["impedance"]
         if "weight unit" in data:

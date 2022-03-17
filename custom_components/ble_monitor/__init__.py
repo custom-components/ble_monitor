@@ -24,7 +24,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity_registry import (
     async_entries_for_device,
 )
-import homeassistant.util.dt as dt_util
+from homeassistant.util import dt
 
 from .ble_parser import BleParser
 from .const import (
@@ -571,7 +571,7 @@ class HCIdump(Thread):
         self.tracker_whitelist = []
         self.report_unknown = False
         self.report_unknown_whitelist = []
-        self.last_bt_reset = dt_util.now()
+        self.last_bt_reset = dt.now()
         if self.config[CONF_REPORT_UNKNOWN]:
             if self.config[CONF_REPORT_UNKNOWN] != "Off":
                 self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
@@ -752,7 +752,7 @@ class HCIdump(Thread):
                     if (interface_is_ok[hci] is False) and (self.config[CONF_BT_AUTO_RESTART] is True):
                         interfaces_to_reset.append(hci)
                 if interfaces_to_reset:
-                    ts_now = dt_util.now()
+                    ts_now = dt.now()
                     if (ts_now - self.last_bt_reset).seconds > 60:
                         for iface in interfaces_to_reset:
                             _LOGGER.error(

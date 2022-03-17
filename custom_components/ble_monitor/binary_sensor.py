@@ -18,7 +18,7 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
-import homeassistant.util.dt as dt_util
+from homeassistant.util import dt
 
 from .helper import (
     identifier_normalize,
@@ -142,7 +142,7 @@ class BLEupdaterBinary:
         batt = {}  # batteries
         mibeacon_cnt = 0
         hpriority = []
-        ts_last = dt_util.now()
+        ts_last = dt.now()
         ts_now = ts_last
         data = {}
         await asyncio.sleep(0)
@@ -235,7 +235,7 @@ class BLEupdaterBinary:
                         ):
                             hpriority.append(entity)
                 data = None
-            ts_now = dt_util.now()
+            ts_now = dt.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
                 continue
             ts_last = ts_now
@@ -422,7 +422,7 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
             self._extra_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         if "motion timer" in data:
             if data["motion timer"] == 1:
-                self._extra_state_attributes["last_motion"] = dt_util.now()
+                self._extra_state_attributes["last_motion"] = dt.now()
         # dirty hack for kettle status
         if self._device_type in KETTLES:
             if self._newstate == 0:
@@ -483,7 +483,7 @@ class MotionBinarySensor(BaseBinarySensor):
     def reset_state(self, event=None):
         """Reset state of the sensor."""
         # check if the latest update of the timer is longer than the set timer value
-        if dt_util.now() - self._start_timer >= timedelta(seconds=self._reset_timer):
+        if dt.now() - self._start_timer >= timedelta(seconds=self._reset_timer):
             self._state = False
             self.schedule_update_ha_state(False)
 
@@ -493,15 +493,15 @@ class MotionBinarySensor(BaseBinarySensor):
         if self._reset_timer > 0:
             try:
                 # if there is a last_motion attribute, check the timer
-                now = dt_util.now()
-                self._start_timer = self._extra_state_attributes["last_motion"]
+                now = dt.now()
+                self._start_timer = dt.parse_datetime(self._extra_state_attributes["last_motion"])
 
                 if now - self._start_timer >= timedelta(seconds=self._reset_timer):
                     self._state = False
                 else:
                     self._state = True
                     async_call_later(self.hass, self._reset_timer, self.reset_state)
-            except KeyError:
+            except (KeyError, ValueError):
                 self._state = self._newstate
         else:
             self._state = self._newstate
