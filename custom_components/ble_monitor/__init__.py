@@ -374,11 +374,15 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                         )
     if not hci_list:
         # Fall back in case no hci interfaces are added
-        default_hci = list(BT_INTERFACES.keys())[
-            list(BT_INTERFACES.values()).index(DEFAULT_BT_INTERFACE)
-        ]
-        hci_list.append(int(default_hci))
-        bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
+        if BT_INTERFACES:
+            default_hci = list(BT_INTERFACES.keys())[
+                list(BT_INTERFACES.values()).index(DEFAULT_BT_INTERFACE)
+            ]
+            hci_list.append(int(default_hci))
+            bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
+        else:
+            hci_list = ["disable"]
+            bt_mac_list = ["disable"]
         _LOGGER.warning(
             "No configured Bluetooth interface was found, using default interface instead"
         )
