@@ -18,7 +18,7 @@ body:
     validations:
       required: false
   - type: textarea
-    id: Additional information
+    id: additional_info
     attributes:
       label: Additional information
       description: Provide additional information
@@ -31,7 +31,7 @@ body:
       value: |
         To be able to add a sensor, we will need some BLE advertisements from the sensor. On [this page](https://custom-components.github.io/ble_monitor/sensor_request) we explain how you can get this data.
   - type: textarea
-    id: BLE advertisements
+    id: ble_adv
     attributes:
       label: BLE advertisements
       description: Please copy and paste the BLE advertisements. This will be automatically formatted into code, so no need for backticks.
