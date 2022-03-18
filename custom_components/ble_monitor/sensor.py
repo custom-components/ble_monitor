@@ -906,8 +906,8 @@ class WeightSensor(InstantUpdateSensor):
                 self._extra_state_attributes["weight removed"] = bool(
                     data["weight removed"]
                 )
-            if "impedance" not in data and data["type"] == "Mi Scale V2":
-                self._extra_state_attributes["impedance"] = "unavailable"
+                if "impedance" not in data and data["type"] == "Mi Scale V2" and data["weight removed"] == 0:
+                    self._extra_state_attributes["impedance"] = "unavailable"
         if "impedance" in data:
             self._extra_state_attributes["impedance"] = data["impedance"]
         if "weight unit" in data:
