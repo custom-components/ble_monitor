@@ -13,7 +13,7 @@ body:
     id: sensor
     attributes:
       label: Sensor Description
-      description: Describe the full name of the sensor (including type)
+      description: Describe the full name of the sensor (including the type, etc.)
       placeholder: Sensor name
     validations:
       required: false
@@ -21,18 +21,18 @@ body:
     id: additional_info
     attributes:
       label: Additional information
-      description: Provide additional information
+      description: Provide additional information about the sensor.
       placeholder: Additional info
-      value: "e.g. a link to the product (preferably on the manufacturer's site, otherwise on the store where you bought the device)"
+      value: "e.g. a link to product details, etc."
     validations:
       required: false
   - type: markdown
     attributes:
+      label: BLE advertisements
       value: |
         To be able to add a sensor, we will need some BLE advertisements from the sensor. On [this page](https://custom-components.github.io/ble_monitor/sensor_request) we explain how you can get this data.
   - type: textarea
     id: ble_adv
     attributes:
-      label: BLE advertisements
-      description: Please copy and paste the BLE advertisements. This will be automatically formatted into code, so no need for backticks.
+      description: Please copy and paste the BLE advertisements. This will be automatically formatted into code, so no need for backticks. If you have the info in a txt file, leave this field empty and upload it after you have clicked "Submit new issue".
       render: shell
