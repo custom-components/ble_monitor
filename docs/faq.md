@@ -418,51 +418,6 @@ Often, the cause of this is the presence of bugs in the system components respon
 
 In addition, in the case of Raspberry Pi, a common problem is a lack of power. If you do not observe any negative effects associated with a lack of power, then this does not mean that they actually are not present. We have feedback from users who have solved their bluetooth problems installing a more powerful power supply and high-quality cable. Good powering is very important for raspberry. In addition to a sufficiently powerful power supply, attention should be paid to the power cable - it should be able to deliver this power. Often, to compensate for losses, power supplies are made with a slightly higher output voltage (up to 5.1V or even 5.25V).
 
-### My sensor is not in the list of supported ones. How to request implementation?
-
-- [Install the component](Installation) if you have not already done so.
-- Make sure you have added the [logger](https://www.home-assistant.io/integrations/logger/) in your Home Assistant configuration, and logging enabled at `info` level (globally or just for `custom_components.ble_monitor`). For example:
-
-```yaml
-logger:
-  default: warn
-  logs:
-    custom_components.ble_monitor: info
-```
-
-- Place your sensor extremely close to the HA host (BT interface).
-- If you know the MAC address (or UUID) of your sensor, it is preferred to use the `report_unknown` option at device level, by going to the BLE monitor options, and adding a device in the `devices` pull down menu. After clicking submit, a new window will open where you can add the MAC address (or UUID) and [enable the option](configuration_params#report_unknown_(device_level)) `report_unknown`. This will filter the data only for the specified MAC or UUID. 
-- If you don't know the MAC address, [enable the option](configuration_params#report_unknown) `report_unknown` at global level. First try it by specifying the sensor brand you want to get info from. If you don't know the sensor brand or you can't find data you want, use `report_unkown: Other` to get all BLE advertisements. Especially in the last case, be prepared for a huge number of log lines. 
-- Wait until a number of "BLE ADV from UNKNOWN" messages accumulate in the log.
-- Create a new [issue](https://github.com/custom-components/ble_monitor/issues), write everything you know about your sensor and attach the obtained log.
-- Do not forget to disable the `report_unknown` option (delete it or set it to `Off` and restart HA)! Since the potentially large output of this option will spam the log and can mask really important messages.
-- Wait for a response from the developers.
-
-The BLE advertisements, which are collected with the above procedure, can also be collected with `hcidump` with the following command (leave it running for a couple of minutes). If you are using a full Home Assistant installation including Home Assistant OS, etc, you will have to follow [this procedure](https://developers.home-assistant.io/docs/operating-system/debugging/) first to get access to these commands.
-
-```shell
-sudo hcidump --raw hci > dump.txt
-```
-
-In case you get `Disable scan failed: Input/output error`, reset hciconfig with one of the following
-
-```shell
-sudo hciconfig hci0 down
-sudo hciconfig hci0 up
-```
-
-or
-
-```shell
-sudo hciconfig hci0 reset
-```
-
-And than run the first command again.
-
-Attach the created `dump.txt` to a new [issue](https://github.com/custom-components/ble_monitor/issues) as described above.
-
-If you don't have access to `hcidump`, you could also use the android app [Bluetooth LE Scanner](https://play.google.com/store/apps/details?id=uk.co.alt236.btlescan) to collect data.
-
 
 ### My sensor isn't showing the battery level
 
