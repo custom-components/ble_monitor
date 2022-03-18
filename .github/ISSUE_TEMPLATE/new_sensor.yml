@@ -26,13 +26,9 @@ body:
       value: "e.g. a link to product details, etc."
     validations:
       required: false
-  - type: markdown
-    attributes:
-      label: BLE advertisements
-      value: |
-        To be able to add a sensor, we will need some BLE advertisements from the sensor. On [this page](https://custom-components.github.io/ble_monitor/sensor_request) we explain how you can get this data.
   - type: textarea
     id: ble_adv
     attributes:
-      description: Please copy and paste the BLE advertisements. This will be automatically formatted into code, so no need for backticks. If you have the info in a txt file, leave this field empty and upload it after you have clicked "Submit new issue".
+      label: BLE advertisements
+      description: To be able to add a sensor, we will need some BLE advertisements from the sensor. On [this page](https://custom-components.github.io/ble_monitor/sensor_request) we explain how you can get this data. Please copy and paste the BLE advertisements. This will be automatically formatted into code, so no need for backticks. If you have the info in a txt file, leave this field empty and upload it after you have clicked "Submit new issue".
       render: shell
