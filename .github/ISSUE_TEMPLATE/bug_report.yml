@@ -1,0 +1,33 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug"]
+assignees:
+  - Ernst79
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Explain the bug you found?
+      placeholder: 
+    validations:
+      required: true
+  - type: input
+    id: sensortype
+    attributes:
+      label: Sensor type
+      description: If the bug is related to a specific sensor, describe the sensor type.
+      placeholder: 
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
