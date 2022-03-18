@@ -1,0 +1,38 @@
+name: New Sensor
+description: Request support for new sensor
+title: "[New Sensor]: "
+labels: ["new sensor"]
+assignees:
+  - Ernst79
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to request support for a new sensor only. Bugs can be reported with a normal issue. 
+  - type: input
+    id: sensor
+    attributes:
+      label: Sensor Description
+      description: Describe the full name of the sensor (including type)
+      placeholder: Sensor name
+    validations:
+      required: false
+  - type: textarea
+    id: Additional information
+    attributes:
+      label: Additional information
+      description: Provide additional information
+      placeholder: Additional info
+      value: "e.g. a link to the product (preferably on the manufacturer's site, otherwise on the store where you bought the device)"
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        To be able to add a sensor, we will need some BLE advertisements from the sensor. On [this page](https://custom-components.github.io/ble_monitor/sensor_request) we explain how you can get this data.
+  - type: textarea
+    id: BLE advertisements
+    attributes:
+      label: BLE advertisements
+      description: Please copy and paste the BLE advertisements. This will be automatically formatted into code, so no need for backticks.
+      render: shell
