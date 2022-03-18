@@ -494,7 +494,9 @@ class MotionBinarySensor(BaseBinarySensor):
             try:
                 # if there is a last_motion attribute, check the timer
                 now = dt.now()
-                self._start_timer = dt.parse_datetime(self._extra_state_attributes["last_motion"])
+                self._start_timer = self._extra_state_attributes["last_motion"]
+                if type(self._start_timer) is str:
+                    self._start_timer = dt.parse_datetime(self._start_timer)
 
                 if now - self._start_timer >= timedelta(seconds=self._reset_timer):
                     self._state = False
