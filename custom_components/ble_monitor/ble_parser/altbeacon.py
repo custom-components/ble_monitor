@@ -26,6 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 
 DEVICE_TYPE: Final = "AltBeacon"
 
+
 def parse_altbeacon(self, data: str, comp_id: int, source_mac: str, rssi: float):
     if len(data) >= 27:
         uuid = data[6:22]
@@ -71,8 +72,10 @@ def parse_altbeacon(self, data: str, comp_id: int, source_mac: str, rssi: float)
 
 
 def to_uuid(uuid: str) -> str:
+    """Return formatted UUID"""
     return str(UUID(''.join('{:02X}'.format(x) for x in uuid)))
 
 
 def to_mac(addr: str) -> str:
-    return ':'.join('{:02x}'.format(x) for x in addr).upper()
+    """Return formatted MAC address"""
+    return ':'.join(f'{i:02X}' for i in addr)

@@ -21,7 +21,7 @@ from homeassistant.const import (
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers import device_registry
 from homeassistant.helpers.restore_state import RestoreEntity
-import homeassistant.util.dt as dt_util
+from homeassistant.util import dt
 
 from .helper import (
     identifier_normalize,
@@ -107,7 +107,7 @@ class BLEupdaterTracker:
         trackers_by_key = {}
         trackers = []
         adv_cnt = 0
-        ts_last = dt_util.now()
+        ts_last = dt.now()
         ts_now = ts_last
         data = None
         await asyncio.sleep(0)
@@ -163,7 +163,7 @@ class BLEupdaterTracker:
                         except AttributeError:
                             continue
                 data = None
-            ts_now = dt_util.now()
+            ts_now = dt.now()
             if ts_now - ts_last < timedelta(seconds=self.period):
                 continue
             ts_last = ts_now
@@ -212,8 +212,8 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
             self.ready_for_update = True
             return
         if "last_seen" in old_state.attributes:
-            self._last_seen = dt_util.parse_datetime(old_state.attributes["last_seen"])
-            self._extra_state_attributes["last_seen"] = dt_util.parse_datetime(
+            self._last_seen = dt.parse_datetime(old_state.attributes["last_seen"])
+            self._extra_state_attributes["last_seen"] = dt.parse_datetime(
                 old_state.attributes["last_seen"]
             )
 
@@ -238,7 +238,7 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
     @property
     def is_connected(self):
         """Return the connection state of the device."""
-        return self._last_seen and (dt_util.now() - self._last_seen) < timedelta(
+        return self._last_seen and (dt.now() - self._last_seen) < timedelta(
             seconds=self._consider_home
         )
 
@@ -358,7 +358,7 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
         if self.enabled is False:
             return
 
-        now = dt_util.now()
+        now = dt.now()
         # Do not update within scan interval to save resources
         if self._last_seen:
             if now - self._last_seen <= timedelta(seconds=self._scan_interval):

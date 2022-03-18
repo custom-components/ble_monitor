@@ -9,8 +9,8 @@ broadcasted_properties:
   - humidity
   - battery
   - voltage
-  - switch*
-  - opening*
+  - switch
+  - opening
   - rssi
 broadcasted_property_notes:
   - property: voltage

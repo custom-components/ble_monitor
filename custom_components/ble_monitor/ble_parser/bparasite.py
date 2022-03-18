@@ -63,7 +63,7 @@ def parse_bparasite(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in bpara_mac),
+        "mac": ''.join('{:02X}'.format(x) for x in bpara_mac[:]),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,

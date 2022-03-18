@@ -18,7 +18,7 @@ from homeassistant.const import (
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.sensor import SensorEntity
-import homeassistant.util.dt as dt_util
+from homeassistant.util import dt
 from homeassistant.util.temperature import convert as convert_temp
 
 from .helper import (
@@ -30,6 +30,8 @@ from .helper import (
 )
 
 from .const import (
+    AUTO_MANUFACTURER_DICT,
+    AUTO_SENSOR_LIST,
     CONF_DECIMALS,
     CONF_PERIOD,
     CONF_UUID,
@@ -121,43 +123,54 @@ class BLEupdater:
     async def async_run(self, hass):
         """Entities updater loop."""
 
-        async def async_add_sensor(key, sensortype, firmware, manufacturer=None):
-            averaging_sensors = MEASUREMENT_DICT[sensortype][0]
-            instant_sensors = MEASUREMENT_DICT[sensortype][1]
-            device_sensors = averaging_sensors + instant_sensors
-            if key not in sensors_by_key:
-                sensors = []
-                for sensor in device_sensors:
-                    description = [item for item in SENSOR_TYPES if item.key is sensor][
-                        0
-                    ]
-                    sensors.insert(
-                        device_sensors.index(sensor),
-                        globals()[description.sensor_class](
-                            self.config, key, sensortype, firmware, description, manufacturer
-                        ),
-                    )
-                if len(sensors) != 0:
-                    sensors_by_key[key] = sensors
-                    self.add_entities(sensors)
+        async def async_add_sensor(key, sensortype, firmware, manufacturer=None, data={}):
+            if sensortype in AUTO_MANUFACTURER_DICT:
+                sensors = {}
+                for measurement in AUTO_SENSOR_LIST:
+                    if measurement in data:
+                        if key not in sensors_by_key:
+                            sensors_by_key[key] = {}
+                        if measurement not in sensors_by_key[key]:
+                            description = [item for item in SENSOR_TYPES if item.key is measurement][0]
+                            sensors[measurement] = globals()[description.sensor_class](
+                                self.config, key, sensortype, firmware, description, manufacturer
+                            )
+                            self.add_entities([sensors[measurement]])
+                            sensors_by_key[key].update(sensors)
+                        else:
+                            sensors = sensors_by_key[key]
             else:
-                sensors = sensors_by_key[key]
+                averaging_sensors = MEASUREMENT_DICT[sensortype][0]
+                instant_sensors = MEASUREMENT_DICT[sensortype][1]
+                device_sensors = averaging_sensors + instant_sensors
+                if key not in sensors_by_key:
+                    sensors = {}
+                    sensors_by_key[key] = {}
+                    for measurement in device_sensors:
+                        description = [item for item in SENSOR_TYPES if item.key is measurement][0]
+                        sensors[measurement] = globals()[description.sensor_class](
+                            self.config, key, sensortype, firmware, description, manufacturer
+                        )
+                        self.add_entities([sensors[measurement]])
+                    sensors_by_key[key].update(sensors)
+                else:
+                    sensors = sensors_by_key[key]
             return sensors
 
         _LOGGER.debug("Entities updater loop started!")
         sensors_by_key = {}
-        sensors = []
+        sensors = {}
         batt = {}  # batteries
         batt_cgpr1 = []
         rssi = {}  # rssi
         ble_adv_cnt = 0
 
-        ts_now = dt_util.now()
+        ts_now = dt.now()
         ts_restart = ts_now
         ts_last_update = ts_now
         period_cnt = 0
 
-        data = None
+        data = {}
         await asyncio.sleep(0)
 
         # Set up sensors of configured devices on startup when sensortype is available in device registry
@@ -176,16 +189,16 @@ class BLEupdater:
                         sensortype = RENAMED_MODEL_DICT[dev.model]
                     firmware = dev.sw_version
                     if sensortype and firmware:
-                        sensors = await async_add_sensor(key, sensortype, firmware, dev.manufacturer)
+                        sensors = await async_add_sensor(key, sensortype, firmware, dev.manufacturer, data)
                     else:
                         continue
                 else:
                     pass
         else:
-            sensors = []
+            sensors = {}
 
         # Set up new sensors when first BLE advertisement is received
-        sensors = []
+        sensors = {}
         while True:
             try:
                 advevent = await asyncio.wait_for(self.dataqueue.get(), 1)
@@ -211,10 +224,8 @@ class BLEupdater:
                     sensortype = RENAMED_MODEL_DICT[data["type"]]
                 firmware = data["firmware"]
                 manufacturer = data["manufacturer"] if "manufacturer" in data else None
-                averaging_sensors = MEASUREMENT_DICT[sensortype][0]
-                instant_sensors = MEASUREMENT_DICT[sensortype][1]
-                device_sensors = averaging_sensors + instant_sensors
-                sensors = await async_add_sensor(key, sensortype, firmware, manufacturer)
+                sensors = await async_add_sensor(key, sensortype, firmware, manufacturer, data)
+                device_sensors = sensors.keys()
                 if data["data"] is False:
                     data = None
                     continue
@@ -249,7 +260,14 @@ class BLEupdater:
                 # store found readings per device
                 for measurement in device_sensors:
                     if measurement in data:
-                        entity = sensors[device_sensors.index(measurement)]
+                        entity = sensors[measurement]
+                        if sensortype in AUTO_MANUFACTURER_DICT:
+                            if entity.update_behavior in ["Instantly", "StateChange"]:
+                                instant_sensors = [measurement]
+                            else:
+                                instant_sensors = []
+                        else:
+                            instant_sensors = MEASUREMENT_DICT[sensortype][1]
                         entity.collect(data, period_cnt, batt_attr)
                         if (
                             measurement in instant_sensors
@@ -262,16 +280,16 @@ class BLEupdater:
                                     entity.async_schedule_update_ha_state(True)
                                     entity.pending_update = False
                 data = None
-            ts_now = dt_util.now()
+            ts_now = dt.now()
             if ts_now - ts_last_update < timedelta(seconds=self.period):
                 continue
             ts_last_update = ts_now
             period_cnt += 1
             # restarting scanner
             self.monitor.restart()
-            # updating the state for every updated measureing device
-            for key, elist in sensors_by_key.items():
-                for entity in elist:
+            # updating the state for every updated measuring device
+            for key, edict in sensors_by_key.items():
+                for entity in edict.values():
                     if entity.pending_update is True:
                         if entity.ready_for_update is True:
                             entity.rssi_values = rssi[key].copy()
@@ -382,7 +400,10 @@ class BaseSensor(RestoreEntity, SensorEntity):
         self._device_firmware = firmware
         self._device_manufacturer = manufacturer \
             if manufacturer is not None \
-            else MANUFACTURER_DICT[devtype]
+            else MANUFACTURER_DICT.get(
+                devtype,
+                AUTO_MANUFACTURER_DICT.get(devtype, None)
+            )
 
         self._extra_state_attributes = {
             'sensor_type': devtype,
@@ -391,6 +412,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
 
         self._measurements = []
         self.rssi_values = []
+        self.update_behavior = description.update_behavior
         self.pending_update = False
         self.ready_for_update = False
         self._restore_state = self._device_settings["restore_state"]
@@ -884,6 +906,8 @@ class WeightSensor(InstantUpdateSensor):
                 self._extra_state_attributes["weight removed"] = bool(
                     data["weight removed"]
                 )
+                if "impedance" not in data and data["type"] == "Mi Scale V2" and data["weight removed"] == 0:
+                    self._extra_state_attributes["impedance"] = "unavailable"
         if "impedance" in data:
             self._extra_state_attributes["impedance"] = data["impedance"]
         if "weight unit" in data:

@@ -11,9 +11,9 @@ broadcasted_properties:
   - tvoc
   - aqi
   - air quality
-  - co2
-  - pm2.5
-  - pm10
+  - CO2
+  - PM2.5
+  - PM10
   - rssi
 broadcasted_property_notes:
   - property: aqi is the Air Quality Index, represented as a number. More information about this index can be found on https://www.airnow.gov/aqi/aqi-basics/
