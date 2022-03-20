@@ -9,8 +9,9 @@ def parse_switchbot(self, data, source_mac, rssi):
     """Switchbot parser"""
     msg_length = len(data)
     switchbot_mac = source_mac
+    device_id = data[4] + (data[5] << 8)
 
-    if msg_length == 10:
+    if msg_length == 10 and device_id == 0x0054:
         xvalue = data[6:10]
         (byte1, byte2, byte3, byte4) = unpack("<BBBB", xvalue)
         batt = (byte1 & 127)
