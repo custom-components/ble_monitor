@@ -994,6 +994,7 @@ MEASUREMENT_DICT = {
     'EClerk Eco'              : [["temperature", "humidity", "co2", "battery", "rssi"], [], []],
     'Air Mentor Pro 2'        : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "aqi", "air quality", "pm2.5", "pm10", "rssi"], [], []],
     'Meter TH S1'             : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'Meter TH plus'           : [["temperature", "humidity", "battery", "rssi"], [], []],
 }
 
 # Sensor manufacturer dictionary
@@ -1098,6 +1099,7 @@ MANUFACTURER_DICT = {
     'EClerk Eco'              : 'Relsib',
     'Air Mentor Pro 2'        : 'Air Mentor',
     'Meter TH S1'             : 'Switchbot',
+    'Meter TH plus'             : 'Switchbot',
 }
 
 
