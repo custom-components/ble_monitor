@@ -164,7 +164,7 @@ class BleParser:
                         # UUID16 = FIDO (used by Cleargrass)
                         sensor_data = parse_qingping(self, service_data, mac, rssi)
                         break
-                    elif uuid16 == 0x0D00:
+                    elif uuid16 in [0x0D00, 0xFD3D]:
                         # UUID16 = unknown (used by Switchbot)
                         sensor_data = parse_switchbot(self, service_data, mac, rssi)
                         break
