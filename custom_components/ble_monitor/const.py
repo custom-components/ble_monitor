@@ -668,6 +668,17 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
+        key="stabilized weight",
+        sensor_class="WeightSensor",
+        update_behavior="Instantly",
+        name="ble stabilized weight",
+        unique_id="stab_w_",
+        icon="mdi:scale-bathroom",
+        native_unit_of_measurement=MASS_KILOGRAMS,
+        device_class=None,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="non-stabilized weight",
         sensor_class="WeightSensor",
         update_behavior="Instantly",
@@ -941,7 +952,7 @@ MEASUREMENT_DICT = {
     'YLKG07YL/YLKG08YL'       : [["rssi"], ["dimmer"], []],
     'ATC'                     : [["temperature", "humidity", "battery", "voltage", "rssi"], [], ["switch", "opening"]],
     'Mi Scale V1'             : [["rssi"], ["weight", "non-stabilized weight"], ["weight removed"]],
-    'Mi Scale V2'             : [["rssi"], ["weight", "non-stabilized weight", "impedance"], ["weight removed"]],
+    'Mi Scale V2'             : [["rssi"], ["weight", "stabilized weight", "non-stabilized weight", "impedance"], ["weight removed"]],
     'TZC4'                    : [["rssi"], ["weight", "non-stabilized weight", "impedance"], []],
     'Kegtron KT-100'          : [["rssi"], ["volume dispensed port 1"], []],
     'Kegtron KT-200'          : [["rssi"], ["volume dispensed port 1", "volume dispensed port 2"], []],
@@ -1099,7 +1110,7 @@ MANUFACTURER_DICT = {
     'EClerk Eco'              : 'Relsib',
     'Air Mentor Pro 2'        : 'Air Mentor',
     'Meter TH S1'             : 'Switchbot',
-    'Meter TH plus'             : 'Switchbot',
+    'Meter TH plus'           : 'Switchbot',
 }
 
 
