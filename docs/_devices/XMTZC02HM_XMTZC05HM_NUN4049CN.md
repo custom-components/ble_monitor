@@ -7,14 +7,17 @@ physical_description:
 broadcasted_properties:
   - weight
   - non-stabilized weight
+  - stabilized weight
   - weight removed
   - impedance
   - rssi
 broadcasted_property_notes:
   - property: weight
-    note: is only reported after the scale is stabilized
+    note: `weight` is only reported after both the scale is stabilized and the impedance has been send by the scale (wait for the white line on the scale to start flashing). The `weight` sensor and the `impedance` sensor always correspond to the same measurement.
+  - property: stabilized weight
+    note: The stabilized weight is updated, even if the impedance has not been calculated and send by the scale. This sensor is updated slightly before the weight sensor, even if you step off the scale before the white line starts flashing, but the `weight` measurement does not always correspond to the `impedance` measurement. 
   - property: non-stabilized weight
-    note: reporting all weight measurements
+    note: this sensor is reporting all weight measurements
 broadcast_rate:
 active_scan:
 encryption_key:
