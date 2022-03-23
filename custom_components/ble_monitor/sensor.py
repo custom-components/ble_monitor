@@ -123,25 +123,24 @@ class BLEupdater:
     async def async_run(self, hass):
         """Entities updater loop."""
 
-        async def async_add_sensor(key, sensortype, firmware, manufacturer=None, data={}):
-            if sensortype in AUTO_MANUFACTURER_DICT:
+        async def async_add_sensor(key, device_model, firmware, auto_sensors, manufacturer=None):
+            if device_model in AUTO_MANUFACTURER_DICT:
                 sensors = {}
-                for measurement in AUTO_SENSOR_LIST:
-                    if measurement in data:
-                        if key not in sensors_by_key:
-                            sensors_by_key[key] = {}
-                        if measurement not in sensors_by_key[key]:
-                            description = [item for item in SENSOR_TYPES if item.key is measurement][0]
-                            sensors[measurement] = globals()[description.sensor_class](
-                                self.config, key, sensortype, firmware, description, manufacturer
-                            )
-                            self.add_entities([sensors[measurement]])
-                            sensors_by_key[key].update(sensors)
-                        else:
-                            sensors = sensors_by_key[key]
+                for measurement in auto_sensors:
+                    if key not in sensors_by_key:
+                        sensors_by_key[key] = {}
+                    if measurement not in sensors_by_key[key]:
+                        description = [item for item in SENSOR_TYPES if item.key is measurement][0]
+                        sensors[measurement] = globals()[description.sensor_class](
+                            self.config, key, device_model, firmware, description, manufacturer
+                        )
+                        self.add_entities([sensors[measurement]])
+                        sensors_by_key[key].update(sensors)
+                    else:
+                        sensors = sensors_by_key[key]
             else:
-                averaging_sensors = MEASUREMENT_DICT[sensortype][0]
-                instant_sensors = MEASUREMENT_DICT[sensortype][1]
+                averaging_sensors = MEASUREMENT_DICT[device_model][0]
+                instant_sensors = MEASUREMENT_DICT[device_model][1]
                 device_sensors = averaging_sensors + instant_sensors
                 if key not in sensors_by_key:
                     sensors = {}
@@ -149,7 +148,7 @@ class BLEupdater:
                     for measurement in device_sensors:
                         description = [item for item in SENSOR_TYPES if item.key is measurement][0]
                         sensors[measurement] = globals()[description.sensor_class](
-                            self.config, key, sensortype, firmware, description, manufacturer
+                            self.config, key, device_model, firmware, description, manufacturer
                         )
                         self.add_entities([sensors[measurement]])
                     sensors_by_key[key].update(sensors)
@@ -173,23 +172,39 @@ class BLEupdater:
         data = {}
         await asyncio.sleep(0)
 
-        # Set up sensors of configured devices on startup when sensortype is available in device registry
+        # setup sensors of configured devices on startup when device model is available in registry
         if self.config[CONF_DEVICES]:
-            dev_registry = await hass.helpers.device_registry.async_get_registry()
+            dev_registry = hass.helpers.device_registry.async_get(hass)
+            ent_registry = hass.helpers.entity_registry.async_get(hass)
             for device in self.config[CONF_DEVICES]:
+                # get device_model and firmware from device registry to setup sensor
                 key = dict_get_or(device)
-
-                # get sensortype and firmware from device registry to setup sensor
                 dev = dev_registry.async_get_device({(DOMAIN, key.upper())}, set())
+                auto_sensors = set()
                 if dev:
                     key = identifier_clean(key)
-                    sensortype = dev.model
-                    # migrate to new model name if changed
-                    if dev.model in RENAMED_MODEL_DICT.keys():
-                        sensortype = RENAMED_MODEL_DICT[dev.model]
+                    device_id = dev.id
+                    device_model = dev.model
                     firmware = dev.sw_version
-                    if sensortype and firmware:
-                        sensors = await async_add_sensor(key, sensortype, firmware, dev.manufacturer, data)
+                    # migrate to new model name if changed
+                    if dev.model in RENAMED_MODEL_DICT:
+                        device_model = RENAMED_MODEL_DICT[dev.model]
+                    # get all entities for this device
+                    entity_list = hass.helpers.entity_registry.async_entries_for_device(
+                        registry=ent_registry, device_id=device_id, include_disabled_entities=False
+                    )
+                    # find the measurement key for each entity
+                    for entity in entity_list:
+                        unique_id_prefix = (entity.unique_id).removesuffix(key)
+                        for sensor_type in SENSOR_TYPES:
+                            if sensor_type.unique_id == unique_id_prefix:
+                                sensor_key = sensor_type.key
+                                auto_sensors.add(sensor_key)
+
+                    if device_model and firmware and auto_sensors:
+                        sensors = await async_add_sensor(
+                            key, device_model, firmware, auto_sensors, dev.manufacturer
+                        )
                     else:
                         continue
                 else:
@@ -218,14 +233,22 @@ class BLEupdater:
                     rssi[key] = []
                 rssi[key].append(int(data["rssi"]))
                 batt_attr = None
-                sensortype = data["type"]
+                device_model = data["type"]
                 # migrate to new model name if changed
-                if data["type"] in RENAMED_MODEL_DICT.keys():
-                    sensortype = RENAMED_MODEL_DICT[data["type"]]
+                if device_model in RENAMED_MODEL_DICT:
+                    device_model = RENAMED_MODEL_DICT[device_model]
                 firmware = data["firmware"]
                 manufacturer = data["manufacturer"] if "manufacturer" in data else None
-                sensors = await async_add_sensor(key, sensortype, firmware, manufacturer, data)
+                auto_sensors = set()
+                if device_model in AUTO_MANUFACTURER_DICT:
+                    for measurement in AUTO_SENSOR_LIST:
+                        if measurement in data:
+                            auto_sensors.add(measurement)
+                sensors = await async_add_sensor(
+                    key, device_model, firmware, auto_sensors, manufacturer
+                )
                 device_sensors = sensors.keys()
+
                 if data["data"] is False:
                     data = None
                     continue
@@ -233,7 +256,7 @@ class BLEupdater:
                 # battery attribute
                 if "battery" in device_sensors:
                     if "battery" in data:
-                        if sensortype == "CGPR1" and firmware[0:6] == "Xiaomi":
+                        if device_model == "CGPR1" and firmware[0:6] == "Xiaomi":
                             # Workaround to remove the "counter" value in battery advertisements for CGPR1
                             old_data = batt_cgpr1.copy()
                             batt_cgpr1.append(data["battery"])
@@ -261,13 +284,13 @@ class BLEupdater:
                 for measurement in device_sensors:
                     if measurement in data:
                         entity = sensors[measurement]
-                        if sensortype in AUTO_MANUFACTURER_DICT:
+                        if device_model in AUTO_MANUFACTURER_DICT:
                             if entity.update_behavior in ["Instantly", "StateChange"]:
                                 instant_sensors = [measurement]
                             else:
                                 instant_sensors = []
                         else:
-                            instant_sensors = MEASUREMENT_DICT[sensortype][1]
+                            instant_sensors = MEASUREMENT_DICT[device_model][1]
                         entity.collect(data, period_cnt, batt_attr)
                         if (
                             measurement in instant_sensors
@@ -298,7 +321,7 @@ class BLEupdater:
                 rssi[key].clear()
 
             _LOGGER.debug(
-                "%i BLE ADV messages processed for %i measuring device(s)",
+                "%i BLE advertisements processed for %i sensor device(s)",
                 ble_adv_cnt,
                 len(sensors_by_key),
             )
@@ -346,7 +369,9 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |  |**acceleration
     # |  |--WeightSensor (Class)
     # |  |  |**weight
+    # |  |  |**stabilized weight
     # |  |  |**non-stabilized weight
+    # |  |  |**impedance
     # |  |**MagneticFieldSensor
     # |  |**MagneticFieldDirectionSensor
     # |  |**ImpedanceSensor
@@ -675,11 +700,11 @@ class TemperatureSensor(MeasuringSensor):
         else:
             self._temp_min = CONF_TMIN
             self._temp_max = CONF_TMAX
-        self._lower_temp_limit = self.temperature_limit(config, key, self._temp_min)
-        self._upper_temp_limit = self.temperature_limit(config, key, self._temp_max)
+        self._lower_temp_limit = self.temperature_limit(config, self._temp_min)
+        self._upper_temp_limit = self.temperature_limit(config, self._temp_max)
         self._log_spikes = config[CONF_LOG_SPIKES]
 
-    def temperature_limit(self, config, key, temp):
+    def temperature_limit(self, config, temp):
         """Set limits for temperature measurement in °C or °F."""
         if config[CONF_DEVICES]:
             for device in config[CONF_DEVICES]:

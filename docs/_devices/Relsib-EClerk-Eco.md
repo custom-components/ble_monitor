@@ -2,7 +2,7 @@
 manufacturer: Relsib
 name: Hygro thermometer with CO2 sensor
 model: EClerk-Eco-RHTC-0-0-0
-image: Relsib-EClerk-Eco.jpg
+image: Relsib-EClerk-Eco.png
 physical_description: Rounded square body, segment screen
 broadcasted_properties:
   - temperature

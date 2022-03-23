@@ -237,7 +237,7 @@ class TestHaBle:
         assert sensor_msg["rssi"] == -36
 
     def test_ha_ble_opening(self):
-        """Test HA BLE parser for dew point measurement"""
+        """Test HA BLE parser for opening measurement"""
         data_string = "043E1602010000A5808FE648540A02010606161C18021100CC"
         data = bytes(bytearray.fromhex(data_string))
 
