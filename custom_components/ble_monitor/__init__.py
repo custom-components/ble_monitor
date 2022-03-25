@@ -594,7 +594,7 @@ class HCIdump(Thread):
             if self.report_unknown_whitelist:
                 _LOGGER.info(
                     "Attention! Option report_unknown is enabled for sensor with id(s): %s",
-                    self.report_unknown_whitelist,
+                    [unk_key.hex().upper() for unk_key in self.report_unknown_whitelist],
                 )
         # prepare device:key lists to speedup parser
         if self.config[CONF_DEVICES]:

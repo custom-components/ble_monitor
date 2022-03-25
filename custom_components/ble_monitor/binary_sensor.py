@@ -40,6 +40,7 @@ from .const import (
     KETTLES,
     MANUFACTURER_DICT,
     MEASUREMENT_DICT,
+    RENAMED_MODEL_DICT,
     BINARY_SENSOR_TYPES,
     DOMAIN,
     BLEMonitorBinarySensorEntityDescription,
@@ -104,31 +105,30 @@ class BLEupdaterBinary:
     async def async_run(self, hass):
         """Entities updater loop."""
 
-        async def async_add_binary_sensor(key, sensortype, firmware, manufacturer=None, data={}):
-            if sensortype in AUTO_MANUFACTURER_DICT:
+        async def async_add_binary_sensor(key, device_model, firmware, auto_sensors, manufacturer=None):
+            if device_model in AUTO_MANUFACTURER_DICT:
                 sensors = {}
-                for measurement in AUTO_BINARY_SENSOR_LIST:
-                    if measurement in data:
-                        if key not in sensors_by_key:
-                            sensors_by_key[key] = {}
-                        if measurement not in sensors_by_key[key]:
-                            description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
-                            sensors[measurement] = globals()[description.sensor_class](
-                                self.config, key, sensortype, firmware, description, manufacturer
-                            )
-                            self.add_entities([sensors[measurement]])
-                            sensors_by_key[key].update(sensors)
-                        else:
-                            sensors = sensors_by_key[key]
+                for measurement in auto_sensors:
+                    if key not in sensors_by_key:
+                        sensors_by_key[key] = {}
+                    if measurement not in sensors_by_key[key]:
+                        description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
+                        sensors[measurement] = globals()[description.sensor_class](
+                            self.config, key, device_model, firmware, description, manufacturer
+                        )
+                        self.add_entities([sensors[measurement]])
+                        sensors_by_key[key].update(sensors)
+                    else:
+                        sensors = sensors_by_key[key]
             else:
-                device_sensors = MEASUREMENT_DICT[sensortype][2]
+                device_sensors = MEASUREMENT_DICT[device_model][2]
                 if key not in sensors_by_key:
                     sensors = {}
                     sensors_by_key[key] = {}
                     for measurement in device_sensors:
                         description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
                         sensors[measurement] = globals()[description.sensor_class](
-                            self.config, key, sensortype, firmware, description, manufacturer
+                            self.config, key, device_model, firmware, description, manufacturer
                         )
                         self.add_entities([sensors[measurement]])
                     sensors_by_key[key] = sensors
@@ -140,28 +140,44 @@ class BLEupdaterBinary:
         sensors_by_key = {}
         sensors = {}
         batt = {}  # batteries
-        mibeacon_cnt = 0
+        ble_adv_cnt = 0
         hpriority = []
         ts_last = dt.now()
         ts_now = ts_last
         data = {}
         await asyncio.sleep(0)
 
-        # Set up binary sensors of configured devices on startup when sensortype is available in device registry
+        # Set up binary sensors of configured devices on startup when device model is available in device registry
         if self.config[CONF_DEVICES]:
-            dev_registry = await hass.helpers.device_registry.async_get_registry()
+            dev_registry = hass.helpers.device_registry.async_get(hass)
+            ent_registry = hass.helpers.entity_registry.async_get(hass)
             for device in self.config[CONF_DEVICES]:
+                # get device_model and firmware from device registry to setup binary sensor
                 key = dict_get_or(device)
-
-                # get sensortype and firmware from device registry to setup sensor
                 dev = dev_registry.async_get_device({(DOMAIN, key.upper())}, set())
+                auto_sensors = set()
                 if dev:
                     key = identifier_clean(key)
-                    sensortype = dev.model
+                    device_id = dev.id
+                    device_model = dev.model
                     firmware = dev.sw_version
-                    if sensortype and firmware:
+                    # migrate to new model name if changed
+                    if dev.model in RENAMED_MODEL_DICT:
+                        device_model = RENAMED_MODEL_DICT[dev.model]
+                    # get all entities for this device
+                    entity_list = hass.helpers.entity_registry.async_entries_for_device(
+                        registry=ent_registry, device_id=device_id, include_disabled_entities=False
+                    )
+                    # find the measurement key for each entity
+                    for entity in entity_list:
+                        unique_id_prefix = (entity.unique_id).removesuffix(key)
+                        for binary_sensor_type in BINARY_SENSOR_TYPES:
+                            if binary_sensor_type.unique_id == unique_id_prefix:
+                                binary_sensor_key = binary_sensor_type.key
+                                auto_sensors.add(binary_sensor_key)
+                    if device_model and firmware and auto_sensors:
                         sensors = await async_add_binary_sensor(
-                            key, sensortype, firmware, dev.manufacturer, data
+                            key, device_model, firmware, auto_sensors, dev.manufacturer
                         )
                     else:
                         continue
@@ -189,13 +205,23 @@ class BLEupdaterBinary:
                         entity.async_schedule_update_ha_state(True)
             if data:
                 _LOGGER.debug("Data binary sensor received: %s", data)
-                mibeacon_cnt += 1
+                ble_adv_cnt += 1
                 key = dict_get_or(data)
                 batt_attr = None
-                sensortype = data["type"]
+                device_model = data["type"]
+                # migrate to new model name if changed
+                if device_model in RENAMED_MODEL_DICT:
+                    device_model = RENAMED_MODEL_DICT[device_model]
                 firmware = data["firmware"]
                 manufacturer = data["manufacturer"] if "manufacturer" in data else None
-                sensors = await async_add_binary_sensor(key, sensortype, firmware, manufacturer, data)
+                auto_sensors = set()
+                if device_model in AUTO_MANUFACTURER_DICT:
+                    for measurement in AUTO_BINARY_SENSOR_LIST:
+                        if measurement in data:
+                            auto_sensors.add(measurement)
+                sensors = await async_add_binary_sensor(
+                    key, device_model, firmware, auto_sensors, manufacturer
+                )
                 device_sensors = sensors.keys()
 
                 if data["data"] is False:
@@ -203,9 +229,9 @@ class BLEupdaterBinary:
                     continue
 
                 # battery attribute
-                if sensortype in AUTO_MANUFACTURER_DICT or (
-                    sensortype in MANUFACTURER_DICT and (
-                        "battery" in MEASUREMENT_DICT[sensortype][0]
+                if device_model in AUTO_MANUFACTURER_DICT or (
+                    device_model in MANUFACTURER_DICT and (
+                        "battery" in MEASUREMENT_DICT[device_model][0]
                     )
                 ):
                     if "battery" in data:
@@ -240,12 +266,11 @@ class BLEupdaterBinary:
                 continue
             ts_last = ts_now
             _LOGGER.debug(
-                "%i MiBeacon BLE ADV messages processed for %i binary sensor device(s) total. Priority queue = %i",
-                mibeacon_cnt,
+                "%i BLE advertisements processed for %i binary sensor device(s)",
+                ble_adv_cnt,
                 len(sensors_by_key),
-                len(hpriority),
             )
-            mibeacon_cnt = 0
+            ble_adv_cnt = 0
 
 
 class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
@@ -495,7 +520,7 @@ class MotionBinarySensor(BaseBinarySensor):
                 # if there is a last_motion attribute, check the timer
                 now = dt.now()
                 self._start_timer = self._extra_state_attributes["last_motion"]
-                if type(self._start_timer) is str:
+                if isinstance(self._start_timer, str):
                     self._start_timer = dt.parse_datetime(self._start_timer)
 
                 if now - self._start_timer >= timedelta(seconds=self._reset_timer):
