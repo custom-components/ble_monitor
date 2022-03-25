@@ -71,6 +71,11 @@ ble_monitor:
    **Use active scan in stead of passive scan (affects battery)**
    (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
 
+```yaml
+ble_monitor:
+  active_scan: True
+```
+
 ### discovery
 
    **Discover devices and sensors automatically**
