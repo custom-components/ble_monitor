@@ -7,7 +7,7 @@ from .atc import parse_atc
 from .bluemaestro import parse_bluemaestro
 from .bparasite import parse_bparasite
 from .brifit import parse_brifit
-from .const import GATT_CHARACTERISTICS
+from .const import GATT_CHARACTERISTICS, TILT_TYPES
 from .govee import parse_govee
 from .ha_ble import parse_ha_ble
 from .ha_ble_legacy import parse_ha_ble_legacy
@@ -27,6 +27,7 @@ from .sensirion import parse_sensirion
 from .switchbot import parse_switchbot
 from .teltonika import parse_teltonika
 from .thermoplus import parse_thermoplus
+from .tilt import parse_tilt
 from .xiaomi import parse_xiaomi
 from .xiaogui import parse_xiaogui
 
@@ -192,7 +193,10 @@ class BleParser:
                         break
                     elif comp_id == 0x004C and man_spec_data[4] == 0x02:
                         # iBeacon
-                        sensor_data, tracker_data = parse_ibeacon(self, man_spec_data, mac, rssi)
+                        if int.from_bytes(man_spec_data[6:22], byteorder='big') in TILT_TYPES:
+                            sensor_data, tracker_data = parse_tilt(self, man_spec_data, mac, rssi)
+                        else:
+                            sensor_data, tracker_data = parse_ibeacon(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x00DC and data_len == 0x0E:
                         # Oral-b
