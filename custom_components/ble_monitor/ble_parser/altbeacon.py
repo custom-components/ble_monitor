@@ -1,7 +1,6 @@
 """Parser for AltBeacon BLE advertisements"""
 import logging
 from struct import unpack
-from uuid import UUID
 from typing import Final
 
 from .const import (
@@ -21,6 +20,11 @@ from .const import (
     MANUFACTURER_DICT,
     DEFAULT_MANUFACTURER,
 )
+from .helpers import (
+    to_mac,
+    to_uuid,
+    to_unformatted_mac,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,13 +32,14 @@ DEVICE_TYPE: Final = "AltBeacon"
 
 
 def parse_altbeacon(self, data: str, comp_id: int, source_mac: str, rssi: float):
+    """parser for Alt Beacon"""
     if len(data) >= 27:
         uuid = data[6:22]
         (major, minor, power) = unpack(">HHb", data[22:27])
 
         tracker_data = {
             CONF_RSSI: rssi,
-            CONF_MAC: to_mac(source_mac),
+            CONF_MAC: to_unformatted_mac(source_mac),
             CONF_UUID: to_uuid(uuid).replace('-', ''),
             CONF_TRACKER_ID: uuid,
             CONF_MAJOR: major,
@@ -69,13 +74,3 @@ def parse_altbeacon(self, data: str, comp_id: int, source_mac: str, rssi: float)
         return None, None
 
     return sensor_data, tracker_data
-
-
-def to_uuid(uuid: str) -> str:
-    """Return formatted UUID"""
-    return str(UUID(''.join('{:02X}'.format(x) for x in uuid)))
-
-
-def to_mac(addr: str) -> str:
-    """Return formatted MAC address"""
-    return ':'.join(f'{i:02X}' for i in addr)
