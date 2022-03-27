@@ -227,7 +227,7 @@ class BLEupdater:
             if data:
                 _LOGGER.debug("Data measuring sensor received: %s", data)
                 ble_adv_cnt += 1
-                key = dict_get_or(data)
+                key = identifier_clean(dict_get_or(data))
                 # the RSSI value will be averaged for all valuable packets
                 if key not in rssi:
                     rssi[key] = []
