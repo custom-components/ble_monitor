@@ -544,6 +544,17 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.PM10,
     ),
     BLEMonitorSensorEntityDescription(
+        key="gravity",
+        sensor_class="MeasuringSensor",
+        update_behavior="Averaging",
+        name="ble gravity",
+        unique_id="gr_",
+        icon="mdi:transfer-down",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="tvoc",
         sensor_class="MeasuringSensor",
         update_behavior="Averaging",
@@ -1126,33 +1137,43 @@ RENAMED_MODEL_DICT = {
 # Sensors that support automatic adding of sensors and binary sensors
 AUTO_MANUFACTURER_DICT = {
     'HA BLE DIY'              : 'Home Assistant DIY',
+    'Tilt Red'                : 'Tilt',
+    'Tilt Green'              : 'Tilt',
+    'Tilt Black'              : 'Tilt',
+    'Tilt Purple'             : 'Tilt',
+    'Tilt Orange'             : 'Tilt',
+    'Tilt Blue'               : 'Tilt',
+    'Tilt Yellow'             : 'Tilt',
+    'Tilt Pink'               : 'Tilt',
+    'Tilt Green'              : 'Tilt',
 }
 
 
 # Binary Sensors that are automatically added if device is in AUTO_MANUFACTURER_DICT
 AUTO_BINARY_SENSOR_LIST = [
     "binary",
-    "switch",
     "opening",
+    "switch",
 ]
 
 
 # Sensors that are automatically added if device is in AUTO_MANUFACTURER_DICT
 AUTO_SENSOR_LIST = [
     "battery",
-    "temperature",
-    "humidity",
-    "pressure",
-    "illuminance",
-    "weight",
-    "dewpoint",
     "count",
+    "dewpoint",
     "energy",
-    "power",
-    "voltage",
+    "gravity",
+    "humidity",
+    "illuminance",
     "pm2.5",
     "pm10",
+    "power",
+    "pressure",
     "rssi",
+    "temperature",
+    "voltage",
+    "weight",
 ]
 
 
@@ -1182,6 +1203,7 @@ REPORT_UNKNOWN_LIST = [
     "Switchbot",
     "Teltonika",
     "Thermoplus",
+    "Tilt",
     "Xiaogui",
     "Xiaomi",
     "Other",

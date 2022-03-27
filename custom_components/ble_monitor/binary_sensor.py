@@ -206,7 +206,7 @@ class BLEupdaterBinary:
             if data:
                 _LOGGER.debug("Data binary sensor received: %s", data)
                 ble_adv_cnt += 1
-                key = dict_get_or(data)
+                key = identifier_clean(dict_get_or(data))
                 batt_attr = None
                 device_model = data["type"]
                 # migrate to new model name if changed

@@ -227,7 +227,7 @@ class BLEupdater:
             if data:
                 _LOGGER.debug("Data measuring sensor received: %s", data)
                 ble_adv_cnt += 1
-                key = dict_get_or(data)
+                key = identifier_clean(dict_get_or(data))
                 # the RSSI value will be averaged for all valuable packets
                 if key not in rssi:
                     rssi[key] = []
@@ -354,6 +354,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |**CO2
     # |  |**PM2.5
     # |  |**PM10
+    # |  |**gravity
     # |  |**TVOC
     # |  |**Air Quality Index
     # |--InstantUpdateSensor (Class)
@@ -640,8 +641,8 @@ class MeasuringSensor(BaseSensor):
     async def async_update(self):
         """Update sensor state and attributes."""
         textattr = ""
-        # formaldehyde decimals workaround
-        if self.entity_description == "formaldehyde":
+        # formaldehyde and gravity decimals workaround
+        if self.entity_description.key in ["formaldehyde", "gravity"]:
             rdecimals = 3
         else:
             rdecimals = self._rdecimals

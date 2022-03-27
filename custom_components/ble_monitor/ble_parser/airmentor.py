@@ -3,6 +3,11 @@ import logging
 from struct import unpack
 import math
 
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -69,15 +74,10 @@ def parse_airmentor(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join(f'{i:02X}' for i in airmentor_mac),
+        "mac": to_unformatted_mac(airmentor_mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,
         "data": True
     })
     return result
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join(f'{i:02X}' for i in addr)

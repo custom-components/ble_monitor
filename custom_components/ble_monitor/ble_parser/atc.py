@@ -3,6 +3,11 @@ import logging
 from struct import unpack
 from Cryptodome.Cipher import AES
 
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -132,7 +137,7 @@ def parse_atc(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in atc_mac),
+        "mac": to_unformatted_mac(atc_mac),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware
@@ -175,8 +180,3 @@ def decrypt_atc(self, data, atc_mac):
         return None
 
     return decrypted_payload
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join(f'{i:02X}' for i in addr)

@@ -106,7 +106,7 @@ class BLEupdaterTracker:
         _LOGGER.debug("Device tracker updater loop started!")
         trackers_by_key = {}
         trackers = []
-        adv_cnt = 0
+        ble_adv_cnt = 0
         ts_last = dt.now()
         ts_now = ts_last
         data = None
@@ -144,8 +144,8 @@ class BLEupdaterTracker:
                 pass
             if data:
                 _LOGGER.debug("Data device tracker received: %s", data)
-                adv_cnt += 1
-                key = dict_get_or(data)
+                ble_adv_cnt += 1
+                key = identifier_clean(dict_get_or(data))
                 # Set up new device tracker when first BLE advertisement is received
                 trackers = await async_add_device_tracker(key)
 
@@ -169,11 +169,11 @@ class BLEupdaterTracker:
             ts_last = ts_now
             _LOGGER.debug(
                 "%i BLE ADV messages processed last %i seconds for %i device tracker device(s)",
-                adv_cnt,
+                ble_adv_cnt,
                 self.period,
                 len(trackers),
             )
-            adv_cnt = 0
+            ble_adv_cnt = 0
         return True
 
 
