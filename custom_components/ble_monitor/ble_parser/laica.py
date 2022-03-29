@@ -1,0 +1,69 @@
+"""Parser for Xiaomi Mi Scale BLE advertisements"""
+import logging
+from struct import unpack
+
+_LOGGER = logging.getLogger(__name__)
+
+
+def decrypt_value(arr):
+    hex_string = ''
+    for x in arr:
+        hex_string += '%02x' % (x ^ 0xa0)
+    return int(hex_string, 16)
+
+
+def read_weight(data):
+    val = decrypt_value(data[10:14])
+    weight = round((val & 0x3ffff) / 100) / 10
+
+    return weight
+
+
+def read_impedance(data):
+    impedance = decrypt_value(data[10:12])
+    impedance = min(max(impedance, 430), 630)
+
+    return impedance
+
+
+def parse_laica(self, data, source_mac, rssi):
+    xvalue = data[4:]
+
+    result = {
+        "type": "Laica Smart Scale",
+        "firmware": "Laica Smart Scale",
+        "mac": ''.join('{:02X}'.format(x) for x in source_mac),
+        "rssi": rssi,
+        "data": True,
+    }
+
+    if data[14] == 0x06:
+        impedance = read_impedance(data)
+        result.update({
+            "impedance": impedance,
+        })
+    elif data[14] == 0x0D:
+        weight = read_weight(data)
+        result.update({
+            "weight": weight,
+        })
+
+
+    # Check for duplicate messages
+    packet_id = xvalue.hex()
+    try:
+        prev_packet = self.lpacket_ids[source_mac]
+    except KeyError:
+        # start with empty first packet
+        prev_packet = None
+    if prev_packet == packet_id:
+        # only process new messages
+        if self.filter_duplicates is True:
+            return None
+    self.lpacket_ids[source_mac] = packet_id
+
+    result.update({
+        "packet": packet_id,
+    })
+
+    return result
