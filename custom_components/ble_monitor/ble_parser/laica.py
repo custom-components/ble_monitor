@@ -1,4 +1,4 @@
-"""Parser for Xiaomi Mi Scale BLE advertisements"""
+"""Parser for Laica Smart Scale BLE advertisements"""
 import logging
 
 _LOGGER = logging.getLogger(__name__)

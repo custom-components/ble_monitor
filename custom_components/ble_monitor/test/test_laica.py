@@ -1,4 +1,4 @@
-"""The tests for the Mi Scale ble_parser."""
+"""The tests for the Laica Smart Scale ble_parser."""
 from ble_monitor.ble_parser import BleParser
 
 
