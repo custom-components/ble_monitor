@@ -33,13 +33,14 @@ def parse_laica(self, data, source_mac, rssi):
         "firmware": "Laica",
         "mac": ''.join('{:02X}'.format(x) for x in source_mac),
         "rssi": rssi,
-        "data": True,
+        "data": False,
     }
 
     if data[14] == 0x06:
         impedance = read_impedance(data)
         result.update({
             "impedance": impedance,
+            "data": True,
         })
     elif data[14] == 0x0D:
         weight = read_weight(data)
