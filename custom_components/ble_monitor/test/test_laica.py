@@ -19,4 +19,4 @@ class TestLaica:
         assert sensor_msg["packet"] == "a02bbe5e91a0a02c92140dbf"
         assert sensor_msg["data"]
         assert sensor_msg["weight"] == 13.0
-        assert sensor_msg["rssi"] == -65
+        assert sensor_msg["rssi"] == -39
