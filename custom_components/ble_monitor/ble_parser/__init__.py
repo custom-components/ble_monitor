@@ -145,6 +145,7 @@ class BleParser:
                     elif uuid16 in [0x181C, 0x181E]:
                         # UUID16 = User Data and Bond Management (used by BLE HA)
                         sensor_data = parse_ha_ble(self, service_data, uuid16, mac, rssi)
+                        break
                     elif uuid16 in [0xAA20, 0xAA21, 0xAA22] and complete_local_name == "ECo":
                         # UUID16 = Relsib
                         sensor_data = parse_relsib(self, service_data, mac, rssi)
