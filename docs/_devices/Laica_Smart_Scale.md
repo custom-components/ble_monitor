@@ -9,8 +9,6 @@ broadcasted_properties:
   - impedance
   - rssi
 broadcasted_property_notes:
-  - property: weight
-    note: is only reported after the scale is stabilized
   - property: impedance
     note: is only reported after the scale is stabilized
 broadcast_rate:
