@@ -46,6 +46,7 @@ def parse_laica(self, data, source_mac, rssi):
         weight = read_weight(data)
         result.update({
             "weight": weight,
+            "data": True,
         })
 
 
