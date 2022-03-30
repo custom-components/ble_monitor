@@ -13,9 +13,10 @@ class TestLaica:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
-        assert sensor_msg["firmware"] == "Laica Smart Scale"
+        assert sensor_msg["firmware"] == "Laica"
         assert sensor_msg["type"] == "Laica Smart Scale"
-        assert sensor_msg["mac"] == "A0:91:5E:BE:2B:A0"
+        assert sensor_msg["mac"] == "A0915EBE2BA0"
         assert sensor_msg["packet"] == "a02bbe5e91a0a02c92140dbf"
         assert sensor_msg["data"]
+        assert sensor_msg["weigth"] == 13.0
         assert sensor_msg["rssi"] == -65

@@ -1,6 +1,5 @@
 """Parser for Xiaomi Mi Scale BLE advertisements"""
 import logging
-from struct import unpack
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,7 +30,7 @@ def parse_laica(self, data, source_mac, rssi):
 
     result = {
         "type": "Laica Smart Scale",
-        "firmware": "Laica Smart Scale",
+        "firmware": "Laica",
         "mac": ''.join('{:02X}'.format(x) for x in source_mac),
         "rssi": rssi,
         "data": True,
