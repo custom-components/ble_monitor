@@ -16,6 +16,7 @@ from .inkbird import parse_inkbird
 from .inode import parse_inode
 from .jinou import parse_jinou
 from .kegtron import parse_kegtron
+from .laica import parse_laica
 from .miscale import parse_miscale
 from .moat import parse_moat
 from .oral_b import parse_oral_b
@@ -238,6 +239,10 @@ class BleParser:
                     elif comp_id == 0xFFFF and data_len == 0x1E:
                         # Kegtron
                         sensor_data = parse_kegtron(self, man_spec_data, mac, rssi)
+                        break
+                    elif comp_id == 0xA0AC and data_len == 0x0F and man_spec_data[14] in [0x06, 0x0D]:
+                        # Laica
+                        sensor_data = parse_laica(self, man_spec_data, mac, rssi)
                         break
 
                     # Filter on part of the UUID16
