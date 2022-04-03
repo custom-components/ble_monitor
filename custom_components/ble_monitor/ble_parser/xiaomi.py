@@ -130,12 +130,12 @@ BLE_LOCK_METHOD = {
 # Advertisement conversion of measurement data
 # https://iot.mi.com/new/doc/embedded-development/ble/object-definition
 def obj0003(xobj):
-    # Motion
+    """Motion"""
     return {"motion": xobj[0], "motion timer": xobj[0]}
 
 
 def obj0006(xobj):
-    # Fingerprint
+    """Fingerprint"""
     if len(xobj) == 5:
         key_id = xobj[0:4]
         match_byte = xobj[4]
@@ -173,8 +173,34 @@ def obj0006(xobj):
         return {}
 
 
+def obj0007(xobj):
+    """Door"""
+    door_byte = xobj[0]
+    if door_byte == 0x00:
+        action = "open the door"
+        door = 1
+    elif door_byte == 0x01:
+        action = "close the door"
+        door = 0
+    elif door_byte == 0x02:
+        action = "timeout, not closed"
+        door = 1
+    elif door_byte == 0x03:
+        action = "knock on the door"
+        door = 0
+    elif door_byte == 0x04:
+        action = "pry the door"
+        door = 1
+    elif door_byte == 0x05:
+        action = "door stuck"
+        door = 0
+    else:
+        return {}
+    return {"door": door, "door action": action}
+
+
 def obj0010(xobj):
-    # Toothbrush
+    """Toothbrush"""
     if xobj[0] == 0:
         return {'toothbrush': 1, 'counter': xobj[1]}
     else:
@@ -182,7 +208,7 @@ def obj0010(xobj):
 
 
 def obj000b(xobj):
-    # Lock
+    """Lock"""
     if len(xobj) == 9:
         action = xobj[0] & 0x0F
         method = xobj[0] >> 4
@@ -218,7 +244,7 @@ def obj000b(xobj):
 
 
 def obj000f(xobj, device_type):
-    # Moving with light
+    """Moving with light"""
     if len(xobj) == 3:
         (value,) = LIGHT_STRUCT.unpack(xobj + b'\x00')
 
@@ -236,6 +262,7 @@ def obj000f(xobj, device_type):
 
 
 def obj1001(xobj, device_type):
+    """button"""
     if len(xobj) == 3:
         (button_type, value, press) = BUTTON_STRUCT.unpack(xobj)
 
@@ -407,7 +434,7 @@ def obj1001(xobj, device_type):
 
 
 def obj1004(xobj):
-    # Temperature
+    """Temperature"""
     if len(xobj) == 2:
         (temp,) = T_STRUCT.unpack(xobj)
         return {"temperature": temp / 10}
@@ -416,11 +443,12 @@ def obj1004(xobj):
 
 
 def obj1005(xobj):
+    """Switch and Temperature"""
     return {"switch": xobj[0], "temperature": xobj[1]}
 
 
 def obj1006(xobj):
-    # Humidity
+    """Humidity"""
     if len(xobj) == 2:
         (humi,) = H_STRUCT.unpack(xobj)
         return {"humidity": humi / 10}
@@ -429,7 +457,7 @@ def obj1006(xobj):
 
 
 def obj1007(xobj):
-    # Illuminance
+    """Illuminance"""
     if len(xobj) == 3:
         (illum,) = ILL_STRUCT.unpack(xobj + b'\x00')
         return {"illuminance": illum, "light": 1 if illum == 100 else 0}
@@ -438,12 +466,12 @@ def obj1007(xobj):
 
 
 def obj1008(xobj):
-    # Moisture
+    """Moisture"""
     return {"moisture": xobj[0]}
 
 
 def obj1009(xobj):
-    # Conductivity
+    """Conductivity"""
     if len(xobj) == 2:
         (cond,) = CND_STRUCT.unpack(xobj)
         return {"conductivity": cond}
@@ -452,7 +480,7 @@ def obj1009(xobj):
 
 
 def obj1010(xobj):
-    # Formaldehyde
+    """Formaldehyde"""
     if len(xobj) == 2:
         (fmdh,) = FMDH_STRUCT.unpack(xobj)
         return {"formaldehyde": fmdh / 100}
@@ -461,27 +489,27 @@ def obj1010(xobj):
 
 
 def obj1012(xobj):
-    # Switch
+    """Switch"""
     return {"switch": xobj[0]}
 
 
 def obj1013(xobj):
-    # Consumable (in percent)
+    """Consumable (in percent)"""
     return {"consumable": xobj[0]}
 
 
 def obj1014(xobj):
-    # Moisture
+    """Moisture"""
     return {"moisture": xobj[0]}
 
 
 def obj1015(xobj):
-    # Smoke
+    """Smoke"""
     return {"smoke detector": xobj[0]}
 
 
 def obj1017(xobj):
-    # Motion
+    """Motion"""
     if len(xobj) == 4:
         (motion,) = M_STRUCT.unpack(xobj)
         # seconds since last motion detected message (not used, we use motion timer in obj000f)
@@ -492,12 +520,12 @@ def obj1017(xobj):
 
 
 def obj1018(xobj):
-    # Light intensity
+    """Light intensity"""
     return {"light": xobj[0]}
 
 
 def obj1019(xobj):
-    # Door
+    """Door/Window sensor"""
     open_obj = xobj[0]
     if open_obj == 0:
         opening = 1
@@ -518,14 +546,14 @@ def obj1019(xobj):
 
 
 def obj100a(xobj):
-    # Battery
+    """Battery"""
     batt = xobj[0]
     volt = 2.2 + (3.1 - 2.2) * (batt / 100)
     return {"battery": batt, "voltage": volt}
 
 
 def obj100d(xobj):
-    # Temperature and humidity
+    """Temperature and humidity"""
     if len(xobj) == 4:
         (temp, humi) = TH_STRUCT.unpack(xobj)
         return {"temperature": temp / 10, "humidity": humi / 10}
@@ -534,7 +562,7 @@ def obj100d(xobj):
 
 
 def obj2000(xobj):
-    # Body temperature
+    """Body temperature"""
     if len(xobj) == 5:
         (temp1, temp2, bat) = TTB_STRUCT.unpack(xobj)
         # Body temperature is calculated from the two measured temperatures.
@@ -552,12 +580,13 @@ def obj2000(xobj):
 # The following data objects are device specific. For now only added for XMWSDJ04MMC
 # https://miot-spec.org/miot-spec-v2/instances?status=all
 def obj4803(xobj):
-    # Battery
+    """Battery"""
     batt = xobj[0]
     return {"battery": batt}
 
 
 def obj4c01(xobj):
+    """Temperature"""
     if len(xobj) == 4:
         temp = FLOAT_STRUCT.unpack(xobj)[0]
         return {"temperature": temp}
@@ -566,6 +595,7 @@ def obj4c01(xobj):
 
 
 def obj4c08(xobj):
+    """Humidity"""
     if len(xobj) == 4:
         humi = FLOAT_STRUCT.unpack(xobj)[0]
         return {"humidity": humi}
@@ -578,6 +608,7 @@ def obj4c08(xobj):
 xiaomi_dataobject_dict = {
     0x0003: obj0003,
     0x0006: obj0006,
+    0x0007: obj0007,
     0x0010: obj0010,
     0x000B: obj000b,
     0x000F: obj000f,
