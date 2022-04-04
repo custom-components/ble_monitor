@@ -98,16 +98,16 @@ BLE_LOCK_ERROR = {
 }
 
 BLE_LOCK_ACTION = {
-    0b0000: [0, "unlock outside the door"],
-    0b0001: [1, "lock"],
-    0b0010: [1, "turn on anti-lock"],
-    0b0011: [0, "turn off anti-lock"],
-    0b0100: [0, "unlock inside the door"],
-    0b0101: [1, "lock inside the door"],
-    0b0110: [1, "turn on child lock"],
-    0b0111: [0, "turn off child lock"],
-    0b1000: [1, "lock outside the door"],
-    0b1111: [0, "abnormal"],
+    0b0000: [1, "lock", "unlock outside the door"],
+    0b0001: [0, "lock", "lock"],
+    0b0010: [0, "antilock", "turn on anti-lock"],
+    0b0011: [1, "antilock", "turn off anti-lock"],
+    0b0100: [1, "lock", "unlock inside the door"],
+    0b0101: [0, "lock", "lock inside the door"],
+    0b0110: [0, "childlock", "turn on child lock"],
+    0b0111: [1, "childlock", "turn off child lock"],
+    0b1000: [0, "lock", "lock outside the door"],
+    0b1111: [1, "lock", "abnormal"],
 }
 
 BLE_LOCK_METHOD = {
@@ -207,7 +207,7 @@ def obj0010(xobj):
         return {'toothbrush': 0, 'score': xobj[1]}
 
 
-def obj000b(xobj):
+def obj000b(xobj, device_type):
     """Lock"""
     if len(xobj) == 9:
         action = xobj[0] & 0x0F
@@ -228,11 +228,16 @@ def obj000b(xobj):
             return {}
 
         lock = BLE_LOCK_ACTION[action][0]
-        action = BLE_LOCK_ACTION[action][1]
+        # Decouple lock by type on some devices
+        lock_type = "lock"
+        if device_type == "ZNMS17LM":
+            lock_type = BLE_LOCK_ACTION[action][1]
+        action = BLE_LOCK_ACTION[action][2]
         method = BLE_LOCK_METHOD[method]
 
         return {
-            "lock": lock,
+            lock_type: lock,
+            "locktype": lock_type,
             "action": action,
             "method": method,
             "error": error,
@@ -827,7 +832,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
             if obj_length != 0:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
-                    if hex(obj_typecode) in ["0x1001", "0xf"]:
+                    if hex(obj_typecode) in ["0x1001", "0xf", "0xb"]:
                         result.update(resfunc(dobject, device_type))
                     else:
                         result.update(resfunc(dobject))
@@ -840,6 +845,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
 
 
 def decrypt_mibeacon_v4_v5(self, data, i, xiaomi_mac):
+    """decrypt MiBeacon v4/v5 encrypted advertisements"""
     # check for minimum length of encrypted advertisement
     if len(data) < i + 9:
         _LOGGER.debug("Invalid data length (for decryption), adv: %s", data.hex())
@@ -879,6 +885,7 @@ def decrypt_mibeacon_v4_v5(self, data, i, xiaomi_mac):
 
 
 def decrypt_mibeacon_legacy(self, data, i, xiaomi_mac):
+    """decrypt MiBeacon v2/v3 encrypted advertisements"""
     # check for minimum length of encrypted advertisement
     if len(data) < i + 7:
         _LOGGER.debug("Invalid data length (for decryption), adv: %s", data.hex())

@@ -464,7 +464,7 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         if self.entity_description.key == "opening":
             if "status" in data:
                 self._extra_state_attributes["status"] = data["status"]
-        if self.entity_description.key == "lock":
+        if "locktype" in data and self.entity_description.key == data["locktype"]:
             self._extra_state_attributes["action"] = data["action"]
             self._extra_state_attributes["method"] = data["method"]
             self._extra_state_attributes["error"] = data["error"]
