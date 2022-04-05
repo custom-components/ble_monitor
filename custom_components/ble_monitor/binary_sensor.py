@@ -56,7 +56,7 @@ RESTORE_ATTRIBUTES = [
     "status",
     "last_motion",
     "action",
-    "dor_action",
+    "door_action",
     "method",
     "error",
     "key_id",
