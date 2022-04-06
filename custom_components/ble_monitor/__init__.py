@@ -297,11 +297,17 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             del config["ids_from_name"]
 
         if not config[CONF_BT_INTERFACE]:
-            default_hci = list(BT_INTERFACES.keys())[
-                list(BT_INTERFACES.values()).index(DEFAULT_BT_INTERFACE)
-            ]
-            hci_list.append(int(default_hci))
-            bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
+            if BT_INTERFACES:
+                default_hci = list(BT_INTERFACES.keys())[
+                    list(BT_INTERFACES.values()).index(DEFAULT_BT_INTERFACE)
+                ]
+                hci_list.append(int(default_hci))
+                bt_mac_list.append(str(DEFAULT_BT_INTERFACE))
+            else:
+                _LOGGER.debug("Bluetooth interface is disabled")
+                default_hci = None
+                hci_list = ["disable"]
+                bt_mac_list = ["disable"]
         elif "disable" in config[CONF_BT_INTERFACE]:
             _LOGGER.debug("Bluetooth interface is disabled")
             default_hci = None
