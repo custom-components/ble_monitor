@@ -108,7 +108,7 @@ class TestInkbird:
         sensor_msg, tracker_msg = ble_parser.parse_data(data)
 
         assert sensor_msg["firmware"] == "Inkbird"
-        assert sensor_msg["type"] == "IBS-TH2/P01R"
+        assert sensor_msg["type"] == "IBS-TH2/P01B"
         assert sensor_msg["mac"] == "494207001D56"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
