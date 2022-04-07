@@ -407,7 +407,7 @@ class TestXiaomi:
         assert sensor_msg["mac"] == "D71F44EB8A91"
         assert sensor_msg["packet"] == 67
         assert sensor_msg["data"]
-        assert sensor_msg["lock"] == 0
+        assert sensor_msg["lock"] == 1
         assert sensor_msg["action"] == "unlock outside the door"
         assert sensor_msg["method"] == "biometrics"
         assert sensor_msg["error"] is None

@@ -34,7 +34,7 @@ def parse_inkbird(self, data, complete_local_name, source_mac, rssi):
                 }
             )
         elif complete_local_name == "tps":
-            device_type = "IBS-TH2/P01R"
+            device_type = "IBS-TH2/P01B"
             result.update(
                 {
                     "temperature": temp / 100,
