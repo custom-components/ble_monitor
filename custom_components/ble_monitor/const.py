@@ -1045,6 +1045,7 @@ MEASUREMENT_DICT = {
     'Meter TH S1'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Meter TH plus'           : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Laica Smart Scale'       : [["weight", "impedance", "rssi"], [], []],
+    "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
 }
 
 # Sensor manufacturer dictionary
@@ -1151,6 +1152,7 @@ MANUFACTURER_DICT = {
     'Meter TH S1'             : 'Switchbot',
     'Meter TH plus'           : 'Switchbot',
     'Laica Smart Scale'       : 'Laica',
+    'Acconeer XM122'          : 'Acconeer',
 }
 
 
@@ -1210,7 +1212,8 @@ AUTO_SENSOR_LIST = [
 # Selection list for report_uknown
 REPORT_UNKNOWN_LIST = [
     "Off",
-    "Air Mentor"
+    "Acconeer",
+    "Air Mentor",
     "ATC",
     "BlueMaestro",
     "Brifit",

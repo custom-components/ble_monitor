@@ -1,6 +1,7 @@
 """Parser for passive BLE advertisements."""
 import logging
 
+from .acconeer import parse_acconeer
 from .airmentor import parse_airmentor
 from .altbeacon import parse_altbeacon
 from .atc import parse_atc
@@ -302,6 +303,10 @@ class BleParser:
                     elif data_len == 0x1B and ((man_spec_data[4] << 8) | man_spec_data[5]) == 0xBEAC:
                         # AltBeacon
                         sensor_data, tracker_data = parse_altbeacon(self, man_spec_data, comp_id, mac, rssi)
+                        break
+
+                    elif man_spec_data[0] == 0x12 and comp_id == 0xACC0:  # Acconeer
+                        sensor_data = parse_acconeer(self, man_spec_data, mac, rssi)
                         break
                     else:
                         unknown_sensor = True
