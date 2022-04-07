@@ -305,7 +305,7 @@ class BleParser:
                         sensor_data, tracker_data = parse_altbeacon(self, man_spec_data, comp_id, mac, rssi)
                         break
 
-                    elif man_spec_data[0] == 0x12 and comp_id == 0xacc0:  # Acconeer
+                    elif man_spec_data[0] == 0x12 and comp_id == 0xACC0:  # Acconeer
                         sensor_data = parse_acconeer(self, man_spec_data, mac, rssi)
                         break
                     else:
