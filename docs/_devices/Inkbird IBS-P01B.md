@@ -1,8 +1,8 @@
 ---
 manufacturer: Inkbird
 name: Inkbird Pool Thermomenter
-model: IBS-P01R
-image: Inkbird_IBS-P01R.png
+model: IBS-P01B
+image: Inkbird_IBS-P01B.png
 physical_description:
 broadcasted_properties:
   - temperature

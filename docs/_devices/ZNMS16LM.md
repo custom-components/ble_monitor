@@ -6,11 +6,13 @@ image: ZNMS16LM.png
 physical_description:
 broadcasted_properties:
   - fingerprint
+  - door
   - lock
   - battery
   - result
   - key id
   - action
+  - door action
   - method
   - error
   - timestamp
@@ -46,6 +48,15 @@ broadcasted_property_notes:
         * turn off child lock
         * lock outside the door
         * abnormal
+  - property: door action
+    note: >
+      `door action` shows the last change in of the door state and can have the followng values:
+        * open the door
+        * close the door
+        * timeout, not closed
+        * knock on the door
+        * pry the door
+        * door stuck
   - property: method
     note: >
       `method` shows the last used locking mechanism and can have the following values:
