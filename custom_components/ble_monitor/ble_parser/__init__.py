@@ -12,6 +12,7 @@ from .const import GATT_CHARACTERISTICS, TILT_TYPES
 from .govee import parse_govee
 from .ha_ble import parse_ha_ble
 from .ha_ble_legacy import parse_ha_ble_legacy
+from .hhcc import parse_hhcc
 from .ibeacon import parse_ibeacon
 from .inkbird import parse_inkbird
 from .inode import parse_inode
@@ -152,6 +153,14 @@ class BleParser:
                         # UUID16 = Relsib
                         sensor_data = parse_relsib(self, service_data, mac, rssi)
                         break
+                    elif uuid16 in [0xFD3D, 0x0D00]:
+                        # UUID16 = unknown (used by Switchbot)
+                        sensor_data = parse_switchbot(self, service_data, mac, rssi)
+                        break
+                    elif uuid16 == 0xFD50:
+                        # UUID16 = Hangzhou Tuya Information Technology Co., Ltd (HHCC)
+                        sensor_data = parse_hhcc(self, service_data, mac, rssi)
+                        break
                     elif uuid16 == 0xFDCD:
                         # UUID16 = Qingping
                         sensor_data = parse_qingping(self, service_data, mac, rssi)
@@ -167,10 +176,6 @@ class BleParser:
                     elif uuid16 == 0xFFF9:
                         # UUID16 = FIDO (used by Cleargrass)
                         sensor_data = parse_qingping(self, service_data, mac, rssi)
-                        break
-                    elif uuid16 in [0x0D00, 0xFD3D]:
-                        # UUID16 = unknown (used by Switchbot)
-                        sensor_data = parse_switchbot(self, service_data, mac, rssi)
                         break
                     elif uuid16 in GATT_CHARACTERISTICS and shortened_local_name == "HA_BLE":
                         # HA BLE legacy (deprecated)
