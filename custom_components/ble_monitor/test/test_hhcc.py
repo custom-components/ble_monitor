@@ -19,8 +19,8 @@ class TestHHCC:
         assert sensor_msg["packet"] == "0e006e0134a428005b"
         assert sensor_msg["data"]
         assert sensor_msg["temperature"] == 11.0
-        assert sensor_msg["humidity"] == 14
-        assert sensor_msg["moisture"] == 79012
+        assert sensor_msg["moisture"] == 14
+        assert sensor_msg["illuminance"] == 79012
         assert sensor_msg["conductivity"] == 91
         assert sensor_msg["battery"] == 40
         assert sensor_msg["rssi"] == -82
