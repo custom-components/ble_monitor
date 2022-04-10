@@ -1178,6 +1178,7 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Yellow'             : 'Tilt',
     'Tilt Pink'               : 'Tilt',
     'Tilt Green'              : 'Tilt',
+    'HHCCJCY10'               : 'HHCC',
 }
 
 
@@ -1192,12 +1193,14 @@ AUTO_BINARY_SENSOR_LIST = [
 # Sensors that are automatically added if device is in AUTO_MANUFACTURER_DICT
 AUTO_SENSOR_LIST = [
     "battery",
+    "conductivity",
     "count",
     "dewpoint",
     "energy",
     "gravity",
     "humidity",
     "illuminance",
+    "moisture",
     "pm2.5",
     "pm10",
     "power",
@@ -1219,6 +1222,7 @@ REPORT_UNKNOWN_LIST = [
     "Brifit",
     "Govee",
     "HA BLE",
+    "HHCC",
     "Inkbird",
     "iNode",
     "iBeacon",

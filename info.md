@@ -32,6 +32,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - b-parasite
 - Govee
 - HA BLE
+- HHCC
 - Inkbird
 - iNode
 - Jinou
