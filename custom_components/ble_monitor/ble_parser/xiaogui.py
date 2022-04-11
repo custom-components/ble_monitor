@@ -36,7 +36,6 @@ def parse_xiaogui(self, data, source_mac, rssi):
 
         if stablilized_byte == 0x20:
             device_type = "TZC4"
-            result.update({"type": "TZC4"})
             result.update({"non-stabilized weight": weight / 10})
             result.update({"weight unit": "kg"})
             result.update({"stabilized": 0})
@@ -64,6 +63,7 @@ def parse_xiaogui(self, data, source_mac, rssi):
             result.update({"stabilized": 1})
             _LOGGER.info("0x25 advertisement with data %s and control %s", data.hex(), control)
         else:
+            device_type = None
             _LOGGER.error(
                 "Stabilized byte of Xiaogui scale is reporting a new value, "
                 "please report an issue to the developers with this error: Payload is %s",
@@ -80,7 +80,7 @@ def parse_xiaogui(self, data, source_mac, rssi):
                 data.hex()
             )
         return None
-
+    result.update({"type": device_type})
     # Check for duplicate messages
     try:
         prev_packet = self.lpacket_ids[xiaogui_mac]
