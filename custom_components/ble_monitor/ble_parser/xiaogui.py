@@ -1,6 +1,10 @@
 """Parser for Xiaogui Scale BLE advertisements"""
 import logging
 from struct import unpack
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -11,7 +15,6 @@ def parse_xiaogui(self, data, source_mac, rssi):
 
     if msg_length == 17:
         firmware = "Xiaogui"
-        device_type = "TZC4"
         xiaogui_mac = data[11:]
 
         if xiaogui_mac != source_mac:
@@ -20,8 +23,7 @@ def parse_xiaogui(self, data, source_mac, rssi):
 
         result = {
             "firmware": firmware,
-            "type": device_type,
-            "mac": ''.join('{:02X}'.format(x) for x in xiaogui_mac),
+            "mac": to_unformatted_mac(xiaogui_mac),
             "rssi": rssi,
             "data": True,
         }
@@ -33,15 +35,34 @@ def parse_xiaogui(self, data, source_mac, rssi):
         result.update({"packet": packet_id})
 
         if stablilized_byte == 0x20:
+            device_type = "TZC4"
+            result.update({"type": "TZC4"})
             result.update({"non-stabilized weight": weight / 10})
             result.update({"weight unit": "kg"})
             result.update({"stabilized": 0})
+            _LOGGER.info("0x20 advertisement with data %s and control %s", data.hex(), control)
         elif stablilized_byte == 0x21:
+            device_type = "TZC4"
             result.update({"non-stabilized weight": weight / 10})
             result.update({"weight": weight / 10})
             result.update({"weight unit": "kg"})
             result.update({"impedance": impedance / 10})
             result.update({"stabilized": 1})
+            _LOGGER.info("0x21 advertisement with data %s and control %s", data.hex(), control)
+        elif stablilized_byte == 0x24:
+            device_type = "TZC4"
+            result.update({"non-stabilized weight": weight / 100})
+            result.update({"weight unit": "kg"})
+            result.update({"stabilized": 0})
+            _LOGGER.info("0x24 advertisement with data %s and control %s", data.hex(), control)
+        elif stablilized_byte == 0x25:
+            device_type = "TZC4"
+            result.update({"non-stabilized weight": weight / 100})
+            result.update({"weight": weight / 100})
+            result.update({"weight unit": "kg"})
+            result.update({"impedance": impedance / 10})
+            result.update({"stabilized": 1})
+            _LOGGER.info("0x25 advertisement with data %s and control %s", data.hex(), control)
         else:
             _LOGGER.error(
                 "Stabilized byte of Xiaogui scale is reporting a new value, "
@@ -77,8 +98,3 @@ def parse_xiaogui(self, data, source_mac, rssi):
         return None
 
     return result
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join(f'{i:02X}' for i in addr)
