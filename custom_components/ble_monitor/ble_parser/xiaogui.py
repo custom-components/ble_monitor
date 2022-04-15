@@ -1,6 +1,10 @@
 """Parser for Xiaogui Scale BLE advertisements"""
 import logging
 from struct import unpack
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -11,7 +15,6 @@ def parse_xiaogui(self, data, source_mac, rssi):
 
     if msg_length == 17:
         firmware = "Xiaogui"
-        device_type = "TZC4"
         xiaogui_mac = data[11:]
 
         if xiaogui_mac != source_mac:
@@ -20,8 +23,7 @@ def parse_xiaogui(self, data, source_mac, rssi):
 
         result = {
             "firmware": firmware,
-            "type": device_type,
-            "mac": ''.join('{:02X}'.format(x) for x in xiaogui_mac),
+            "mac": to_unformatted_mac(xiaogui_mac),
             "rssi": rssi,
             "data": True,
         }
@@ -33,12 +35,26 @@ def parse_xiaogui(self, data, source_mac, rssi):
         result.update({"packet": packet_id})
 
         if stablilized_byte == 0x20:
+            device_type = "TZC4"
             result.update({"non-stabilized weight": weight / 10})
             result.update({"weight unit": "kg"})
             result.update({"stabilized": 0})
         elif stablilized_byte == 0x21:
+            device_type = "TZC4"
             result.update({"non-stabilized weight": weight / 10})
             result.update({"weight": weight / 10})
+            result.update({"weight unit": "kg"})
+            result.update({"impedance": impedance / 10})
+            result.update({"stabilized": 1})
+        elif stablilized_byte == 0x24:
+            device_type = "QJ-J"
+            result.update({"non-stabilized weight": weight / 100})
+            result.update({"weight unit": "kg"})
+            result.update({"stabilized": 0})
+        elif stablilized_byte == 0x25:
+            device_type = "QJ-J"
+            result.update({"non-stabilized weight": weight / 100})
+            result.update({"weight": weight / 100})
             result.update({"weight unit": "kg"})
             result.update({"impedance": impedance / 10})
             result.update({"stabilized": 1})
@@ -48,9 +64,10 @@ def parse_xiaogui(self, data, source_mac, rssi):
                 "please report an issue to the developers with this error: Payload is %s",
                 data.hex()
             )
-            result.update({"data": False})
+            device_type = None
     else:
         device_type = None
+
     if device_type is None:
         if self.report_unknown == "Xiaogui":
             _LOGGER.info(
@@ -59,6 +76,8 @@ def parse_xiaogui(self, data, source_mac, rssi):
                 data.hex()
             )
         return None
+    else:
+        result.update({"type": device_type})
 
     # Check for duplicate messages
     try:
@@ -77,8 +96,3 @@ def parse_xiaogui(self, data, source_mac, rssi):
         return None
 
     return result
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join(f'{i:02X}' for i in addr)
