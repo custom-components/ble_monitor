@@ -60,7 +60,6 @@ class TestXiaogui:
         assert sensor_msg["data"]
         assert sensor_msg["non-stabilized weight"] == 113.35
         assert sensor_msg["weight"] == 113.35
-        assert sensor_msg["weight"] == 0.0
         assert sensor_msg["stabilized"] == 1
         assert sensor_msg["rssi"] == -67
 
