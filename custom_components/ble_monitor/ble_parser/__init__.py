@@ -18,6 +18,7 @@ from .inkbird import parse_inkbird
 from .inode import parse_inode
 from .jinou import parse_jinou
 from .kegtron import parse_kegtron
+from .kkm import parse_kkm
 from .laica import parse_laica
 from .miscale import parse_miscale
 from .moat import parse_moat
@@ -170,9 +171,14 @@ class BleParser:
                         sensor_data = parse_xiaomi(self, service_data, mac, rssi)
                         break
                     elif uuid16 == 0xFEAA:
-                        # UUID16 = Google (used by Ruuvitag V2/V4)
-                        sensor_data = parse_ruuvitag(self, service_data, mac, rssi)
-                        break
+                        if len(service_data) == 19:
+                            # UUID16 = Google (used by KKM)
+                            sensor_data = parse_kkm(self, service_data, mac, rssi)
+                            break
+                        elif len(service_data) >= 23:
+                            # UUID16 = Google (used by Ruuvitag V2/V4)
+                            sensor_data = parse_ruuvitag(self, service_data, mac, rssi)
+                            break
                     elif uuid16 == 0xFFF9:
                         # UUID16 = FIDO (used by Cleargrass)
                         sensor_data = parse_qingping(self, service_data, mac, rssi)
