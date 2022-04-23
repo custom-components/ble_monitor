@@ -12,6 +12,7 @@ STATES = {
     4: "charging",
     5: "setup",
     6: "flight menu",
+    8: "selection menu",
     113: "final test",
     114: "pcb test",
     115: "sleeping",
