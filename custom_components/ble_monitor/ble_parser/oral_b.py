@@ -1,4 +1,4 @@
-"""Parser for Moat BLE advertisements."""
+"""Parser for Oral-B BLE advertisements."""
 import logging
 from struct import unpack
 
@@ -79,7 +79,7 @@ def parse_oral_b(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "Oral-B":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Moat DEVICE: RSSI: %s, MAC: %s, ADV: %s",
+                "BLE ADV from UNKNOWN Oral-B DEVICE: RSSI: %s, MAC: %s, ADV: %s",
                 rssi,
                 to_mac(source_mac),
                 data.hex()
