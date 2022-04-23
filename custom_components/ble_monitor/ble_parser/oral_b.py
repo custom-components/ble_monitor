@@ -19,18 +19,6 @@ STATES = {
     116: "transport"
 }
 
-MODES = {
-    0: "off",
-    1: "daily clean",
-    2: "sensitive",
-    3: "massage",
-    4: "whitening",
-    5: "deep clean",
-    6: "tongue cleaning",
-    7: "turbo",
-    255: "unknown"
-}
-
 PRESSURE = {
     114: "normal",
     118: "button pressed",
@@ -45,7 +33,6 @@ def parse_oral_b(self, data, source_mac, rssi):
     oral_b_mac = source_mac
     result = {"firmware": firmware}
     if msg_length == 15:
-        device_type = "SmartSeries 7000"
         (state, pressure, counter, mode, sector, sector_timer, no_of_sectors) = unpack(
             ">BBHBBBB", data[7:15]
         )
@@ -54,6 +41,33 @@ def parse_oral_b(self, data, source_mac, rssi):
             result.update({"toothbrush": 1})
         else:
             result.update({"toothbrush": 0})
+
+        device_type = "SmartSeries 7000"
+
+        firmware = data[4:7]
+        if firmware == b'\x062k':
+            firmware = "IO Series 7"
+            MODES = {
+                0: "daily clean",
+                1: "sensitive",
+                2: "gum care",
+                3: "whiten",
+                4: "intense",
+                8: "settings"
+            }
+        else:
+            firmware = "SmartSeries 7000"
+            MODES = {
+                0: "off",
+                1: "daily clean",
+                2: "sensitive",
+                3: "massage",
+                4: "whitening",
+                5: "deep clean",
+                6: "tongue cleaning",
+                7: "turbo",
+                255: "unknown"
+            }
 
         tb_state = STATES.get(state, "unknown state " + str(state))
         tb_mode = MODES.get(mode, "unknown mode " + str(mode))
