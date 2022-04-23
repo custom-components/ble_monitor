@@ -31,6 +31,12 @@ MODES = {
     255: "unknown"
 }
 
+PRESSURE = {
+    114: "normal",
+    118: "button pressed",
+    178: "high"
+}
+
 
 def parse_oral_b(self, data, source_mac, rssi):
     """Parser for Oral-B toothbrush."""
@@ -51,6 +57,7 @@ def parse_oral_b(self, data, source_mac, rssi):
 
         tb_state = STATES.get(state, "unknown state " + str(state))
         tb_mode = MODES.get(mode, "unknown mode " + str(mode))
+        tb_pressure = PRESSURE.get(pressure, "unknown pressure " + str(pressure))
 
         if sector == 254:
             tb_sector = "last sector"
@@ -61,7 +68,7 @@ def parse_oral_b(self, data, source_mac, rssi):
 
         result.update({
             "toothbrush state": tb_state,
-            "pressure": pressure,
+            "pressure": tb_pressure,
             "counter": counter,
             "mode": tb_mode,
             "sector": tb_sector,
