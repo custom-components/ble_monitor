@@ -1,4 +1,4 @@
-"""Parser for Moat BLE advertisements."""
+"""Parser for Oral-B BLE advertisements."""
 import logging
 from struct import unpack
 
@@ -12,22 +12,17 @@ STATES = {
     4: "charging",
     5: "setup",
     6: "flight menu",
+    8: "selection menu",
     113: "final test",
     114: "pcb test",
     115: "sleeping",
     116: "transport"
 }
 
-MODES = {
-    0: "off",
-    1: "daily clean",
-    2: "sensitive",
-    3: "massage",
-    4: "whitening",
-    5: "deep clean",
-    6: "tongue cleaning",
-    7: "turbo",
-    255: "unknown"
+PRESSURE = {
+    114: "normal",
+    118: "button pressed",
+    178: "high"
 }
 
 
@@ -38,7 +33,6 @@ def parse_oral_b(self, data, source_mac, rssi):
     oral_b_mac = source_mac
     result = {"firmware": firmware}
     if msg_length == 15:
-        device_type = "SmartSeries 7000"
         (state, pressure, counter, mode, sector, sector_timer, no_of_sectors) = unpack(
             ">BBHBBBB", data[7:15]
         )
@@ -48,8 +42,34 @@ def parse_oral_b(self, data, source_mac, rssi):
         else:
             result.update({"toothbrush": 0})
 
+        device_bytes = data[4:7]
+        if device_bytes == b'\x062k':
+            device_type = "IO Series 7"
+            MODES = {
+                0: "daily clean",
+                1: "sensitive",
+                2: "gum care",
+                3: "whiten",
+                4: "intense",
+                8: "settings"
+            }
+        else:
+            device_type = "SmartSeries 7000"
+            MODES = {
+                0: "off",
+                1: "daily clean",
+                2: "sensitive",
+                3: "massage",
+                4: "whitening",
+                5: "deep clean",
+                6: "tongue cleaning",
+                7: "turbo",
+                255: "unknown"
+            }
+
         tb_state = STATES.get(state, "unknown state " + str(state))
         tb_mode = MODES.get(mode, "unknown mode " + str(mode))
+        tb_pressure = PRESSURE.get(pressure, "unknown pressure " + str(pressure))
 
         if sector == 254:
             tb_sector = "last sector"
@@ -60,7 +80,7 @@ def parse_oral_b(self, data, source_mac, rssi):
 
         result.update({
             "toothbrush state": tb_state,
-            "pressure": pressure,
+            "pressure": tb_pressure,
             "counter": counter,
             "mode": tb_mode,
             "sector": tb_sector,
@@ -71,7 +91,7 @@ def parse_oral_b(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "Oral-B":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Moat DEVICE: RSSI: %s, MAC: %s, ADV: %s",
+                "BLE ADV from UNKNOWN Oral-B DEVICE: RSSI: %s, MAC: %s, ADV: %s",
                 rssi,
                 to_mac(source_mac),
                 data.hex()

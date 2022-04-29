@@ -20,7 +20,7 @@ class TestOralB:
         assert sensor_msg["data"]
         assert sensor_msg["toothbrush"] == 1
         assert sensor_msg["toothbrush state"] == 'running'
-        assert sensor_msg["pressure"] == 40
+        assert sensor_msg["pressure"] == 'unknown pressure 40'
         assert sensor_msg["counter"] == 1041
         assert sensor_msg["mode"] == 'turbo'
         assert sensor_msg["sector"] == 'sector 55'
