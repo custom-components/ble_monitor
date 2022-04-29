@@ -1047,6 +1047,7 @@ MEASUREMENT_DICT = {
     'Meter TH plus'           : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Laica Smart Scale'       : [["weight", "impedance", "rssi"], [], []],
     "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
+    'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
 }
 
 # Sensor manufacturer dictionary
@@ -1155,6 +1156,7 @@ MANUFACTURER_DICT = {
     'Meter TH plus'           : 'Switchbot',
     'Laica Smart Scale'       : 'Laica',
     'Acconeer XM122'          : 'Acconeer',
+    'K6 Sensor Beacon'        : 'KKM',
 }
 
 

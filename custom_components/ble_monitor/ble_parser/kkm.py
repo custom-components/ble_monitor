@@ -25,26 +25,28 @@ def parse_kkm(self, data, source_mac, rssi):
         (frame_type, version, control_byte, volt, temp, temp_frac, humi, humi_frac, accx, accy, accz) = unpack(
             ">BBBHbBBBhhh", data[4:19]
         )
-        print(version)
-        if temp < 0:
-            temperature = -(temp + 128 + temp_frac / 100)
+        if frame_type == 0x21 and version == 1:
+            if temp < 0:
+                temperature = -(temp + 128 + temp_frac / 100)
+            else:
+                temperature = temp + temp_frac / 100
+            humidity = humi + humi_frac / 100
+            result.update(
+                {
+                    "temperature": temperature,
+                    "humidity": humidity,
+                    "acceleration": round(math.sqrt(accx ** 2 + accy ** 2 + accz ** 2), 1),
+                    "acceleration x": accx,
+                    "acceleration y": accy,
+                    "acceleration z": accz,
+                    "voltage": volt / 1000,
+                    "firmware": "KKM",
+                    "packet": "no packet id",
+                    "data": True,
+                }
+            )
         else:
-            temperature = temp + temp_frac / 100
-        humidity = humi + humi_frac / 100
-        result.update(
-            {
-                "temperature": temperature,
-                "humidity": humidity,
-                "acceleration": round(math.sqrt(accx ** 2 + accy ** 2 + accz ** 2), 1),
-                "acceleration x": accx,
-                "acceleration y": accy,
-                "acceleration z": accz,
-                "voltage": volt / 1000,
-                "firmware": "KKM",
-                "packet": "no packet id",
-                "data": True,
-            }
-        )
+            result = None
     else:
         result = None
     if result is None:
