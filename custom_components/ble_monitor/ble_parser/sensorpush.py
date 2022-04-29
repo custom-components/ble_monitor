@@ -1,5 +1,10 @@
-# Parser for SensorPush BLE advertisements
+"""Parser for SensorPush BLE advertisements"""
 import logging
+
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +39,7 @@ SENSORPUSH_DATA_TYPES = {
 
 
 def decode_values(mfg_data: bytes, device_type_id: int) -> dict:
+    """Decode values"""
     pack_params = SENSORPUSH_PACK_PARAMS.get(device_type_id, None)
     if pack_params is None:
         _LOGGER.error("SensorPush device type id %s unknown", device_type_id)
@@ -93,14 +99,9 @@ def parse_sensorpush(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in sensorpush_mac[:]),
+        "mac": to_unformatted_mac(sensorpush_mac),
         "type": device_type,
         "packet": "no packet id",
         "data": True
     })
     return result
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join(f'{i:02X}' for i in addr)

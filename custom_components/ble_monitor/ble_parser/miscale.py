@@ -2,6 +2,11 @@
 import logging
 from struct import unpack
 
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -112,14 +117,9 @@ def parse_miscale(self, data, source_mac, rssi):
     result.update({
         "type": device_type,
         "firmware": firmware,
-        "mac": ''.join('{:02X}'.format(x) for x in miscale_mac),
+        "mac": to_unformatted_mac(miscale_mac),
         "packet": packet_id,
         "rssi": rssi,
         "data": True,
     })
     return result
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join('{:02x}'.format(x) for x in addr).upper()

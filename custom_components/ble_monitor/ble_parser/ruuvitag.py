@@ -4,6 +4,10 @@ import logging
 import math
 from struct import unpack
 
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -13,7 +17,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
     ruuvitag_mac = source_mac
     device_type = "Ruuvitag"
     result = {
-        "mac": "".join("{:02X}".format(x) for x in ruuvitag_mac[:]),
+        "mac": to_unformatted_mac(ruuvitag_mac),
         "type": device_type,
         "rssi": rssi,
         "data": False,
@@ -203,8 +207,3 @@ def parse_ruuvitag(self, data, source_mac, rssi):
             to_mac(ruuvitag_mac),
         )
     return result
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join(f'{i:02X}' for i in addr)

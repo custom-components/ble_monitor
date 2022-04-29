@@ -1,6 +1,11 @@
 """Parser for Sensirion BLE advertisements"""
 import logging
 
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 SENSIRION_DEVICES = [
@@ -50,7 +55,7 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
             result.update(samples)
             result.update({
                 "rssi": rssi,
-                "mac": ''.join('{:02X}'.format(x) for x in sensirion_mac[:]),
+                "mac": to_unformatted_mac(sensirion_mac),
                 "type": device_type,
                 "packet": "no packet id",
                 "data": True
@@ -60,11 +65,6 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
     else:
         _LOGGER.debug("Advertisement Type %s not supported ", advertisementType)
         return None
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join(f'{i:02X}' for i in addr)
 
 
 '''

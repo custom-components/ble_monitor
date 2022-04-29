@@ -2,6 +2,11 @@
 import logging
 from struct import unpack
 
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 ACCONEER_SENSOR_IDS = {
@@ -23,7 +28,7 @@ def parse_acconeer(self, data, source_mac, rssi):
     result = {"firmware": firmware}
 
     if msg_length == 19 and device_id in ACCONEER_SENSOR_IDS:
-        """Acconeer Sensors"""
+        # Acconeer Sensors
         device_type = ACCONEER_SENSOR_IDS[device_id]
         measurements = MEASUREMENTS[device_id]
         (
@@ -44,7 +49,7 @@ def parse_acconeer(self, data, source_mac, rssi):
             })
 
         result.update({
-                "battery": battery_level,
+            "battery": battery_level,
         })
     else:
         device_type = None
@@ -79,15 +84,10 @@ def parse_acconeer(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in acconeer_mac[:]),
+        "mac": to_unformatted_mac(acconeer_mac),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,
         "data": True
     })
     return result
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join('{:02x}'.format(x) for x in addr).upper()

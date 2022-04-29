@@ -1,3 +1,4 @@
+"""Constants for the ble_parser"""
 from typing import Final
 
 CONF_MAC: Final = "mac"
@@ -24,25 +25,6 @@ CONF_TRACKER_ID: Final = "tracker_id"
 CONF_UUID: Final = "uuid"
 
 DEFAULT_MANUFACTURER: Final = "Other"
-
-GATT_CHARACTERISTICS: Final = {
-    0x2A4D: "packet id",
-    0x2A19: "battery",
-    0x2A6D: "pressure",
-    0x2A6E: "temperature",
-    0x2A6F: "humidity",
-    0x2A7B: "dewpoint",
-    0x2A98: "weight",
-    0x2AE2: "binary",
-    0x2AEA: "count",
-    0x2AEB: "count",
-    0X2AF2: "energy",
-    0X2AFB: "illuminance",
-    0x2B05: "power",
-    0x2B18: "voltage",
-    0x2BD6: "pm2.5",
-    0x2BD7: "pm10",
-}
 
 MANUFACTURER_DICT: Final = {
     0x0000: "Ericsson Technology Licensing",

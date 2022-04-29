@@ -2,6 +2,11 @@
 import logging
 from struct import unpack
 
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -82,6 +87,13 @@ def parse_govee(self, data, source_mac, rssi):
         temp_probe = 0 if temp_probe < 0 else temp_probe
         temp_alarm = 0 if temp_alarm < 0 else temp_alarm
         result.update({"temperature probe 1": temp_probe / 100, "temperature alarm": temp_alarm / 100})
+    elif msg_length == 24:
+        device_type = "H5185"
+        temp_probe_1, = unpack(">h", data[12:14])
+        temp_probe_2, = unpack(">h", data[18:20])
+        temp_probe_1 = 0 if temp_probe_1 < 0 else temp_probe_1
+        temp_probe_2 = 0 if temp_probe_2 < 0 else temp_probe_2
+        result.update({"temperature probe 1": temp_probe_1 / 100, "temperature probe 2": temp_probe_2 / 100})
     else:
         if self.report_unknown == "Govee":
             _LOGGER.info(
@@ -99,15 +111,10 @@ def parse_govee(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in govee_mac[:]),
+        "mac": to_unformatted_mac(govee_mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,
         "data": True
     })
     return result
-
-
-def to_mac(addr: int):
-    """Convert MAC address."""
-    return ':'.join(f'{i:02X}' for i in addr)
