@@ -1,8 +1,8 @@
 ---
 manufacturer: Oral-B
-name: Oral-B SmartSeries 7000
-model: SmartSeries 7000
-image: Oral-B_SmartSeries_7000.png
+name: Oral-B IO Series 7
+model: IO Series 7
+image: Oral-B_IO_Series_7.png
 physical_description:
 broadcasted_properties:
   - toothbrush
@@ -19,21 +19,20 @@ broadcasted_property_notes:
     - charging
     - setup
     - flight menu
+    - selection menu
     - final test
     - pcb_test
     - sleeping
     - transport
-    
+
     `mode` may be one of the following
     - off
     - daily clean
     - sensitive
-    - massage
-    - whitening
-    - deep clean
-    - tongue cleaning
-    - turbo
-    - unknown
+    - gum care
+    - whiten
+    - intense
+    - settings
     
     `sector` may be one of the following
     - sector 1 till 8
@@ -41,6 +40,11 @@ broadcasted_property_notes:
     - last_sector
     - no_sector
 
+    `pressure` may be one of the following
+    - normal
+    - button pressed
+    - high
+    - unknown pressure (with number)
 broadcast_rate:
 active_scan:
 encryption_key:
