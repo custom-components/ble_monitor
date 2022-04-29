@@ -2,6 +2,11 @@
 import logging
 from struct import unpack
 
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -38,7 +43,7 @@ def parse_bparasite(self, data, source_mac, rssi):
             _LOGGER.info(
                 "BLE ADV from UNKNOWN b-parasite DEVICE: RSSI: %s, MAC: %s, AdStruct(%d): %s",
                 rssi,
-                (source_mac),
+                to_mac(source_mac),
                 msg_length,
                 data.hex()
             )
@@ -63,7 +68,7 @@ def parse_bparasite(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in bpara_mac[:]),
+        "mac": to_unformatted_mac(bpara_mac),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,

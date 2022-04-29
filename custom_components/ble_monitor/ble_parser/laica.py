@@ -1,10 +1,15 @@
 """Parser for Laica Smart Scale BLE advertisements"""
 import logging
 
+from .helpers import (
+    to_unformatted_mac,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 
 def decrypt_value(arr):
+    """Decrypt data"""
     hex_string = ''
     for x in arr:
         hex_string += '%02x' % (x ^ 0xa0)
@@ -12,6 +17,7 @@ def decrypt_value(arr):
 
 
 def read_weight(data):
+    """Parse weight"""
     val = decrypt_value(data[10:14])
     weight = round((val & 0x3ffff) / 100) / 10
 
@@ -19,6 +25,7 @@ def read_weight(data):
 
 
 def read_impedance(data):
+    """Parse impedance"""
     impedance = decrypt_value(data[10:12])
     impedance = min(max(impedance, 430), 630)
 
@@ -26,12 +33,13 @@ def read_impedance(data):
 
 
 def parse_laica(self, data, source_mac, rssi):
+    """Parser for Laica sensors"""
     xvalue = data[4:]
 
     result = {
         "type": "Laica Smart Scale",
         "firmware": "Laica",
-        "mac": ''.join('{:02X}'.format(x) for x in source_mac),
+        "mac": to_unformatted_mac(source_mac),
         "rssi": rssi,
         "data": False,
     }
@@ -48,7 +56,6 @@ def parse_laica(self, data, source_mac, rssi):
             "weight": weight,
             "data": True,
         })
-
 
     # Check for duplicate messages
     packet_id = xvalue.hex()

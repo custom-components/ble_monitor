@@ -3,6 +3,11 @@ import logging
 import struct
 from Cryptodome.Cipher import AES
 
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -173,7 +178,7 @@ def parse_ha_ble(self, data, uuid16, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join(f'{i:02X}' for i in ha_ble_mac),
+        "mac": to_unformatted_mac(ha_ble_mac),
         "packet": packet_id,
         "type": device_type,
         "firmware": firmware,
@@ -221,8 +226,3 @@ def decrypt_data(self, data, ha_ble_mac):
         )
         return None, None
     return decrypted_payload, count_id
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join(f'{i:02X}' for i in addr)

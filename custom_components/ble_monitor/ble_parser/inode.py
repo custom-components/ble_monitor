@@ -3,6 +3,11 @@ import logging
 import math
 from struct import unpack
 
+from .helpers import (
+    to_mac,
+    to_unformatted_mac,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 INODE_CARE_SENSORS_IDS = {
@@ -49,7 +54,7 @@ def parse_inode(self, data, source_mac, rssi):
     result = {"firmware": firmware}
     # Advertisement structure information https://docs.google.com/document/d/1hcBpZ1RSgHRL6wu4SlTq2bvtKSL5_sFjXMu_HRyWZiQ
     if msg_length == 15 and device_id == 0x82:
-        """iNode Energy Meter"""
+        # iNode Energy Meter
         (raw_avg, raw_sum, options, battery_light, week_day_data) = unpack("<HIHBH", xvalue)
         # Average of previous minute (avg) and sum (sum)
         unit = (options >> 14) & 3
@@ -224,15 +229,10 @@ def parse_inode(self, data, source_mac, rssi):
 
     result.update({
         "rssi": rssi,
-        "mac": ''.join('{:02X}'.format(x) for x in inode_mac[:]),
+        "mac": to_unformatted_mac(inode_mac),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,
         "data": True
     })
     return result
-
-
-def to_mac(addr: int):
-    """Return formatted MAC address"""
-    return ':'.join(f'{i:02X}' for i in addr)
