@@ -10,44 +10,44 @@ broadcasted_properties:
 broadcasted_property_notes:
   - property: toothbrush
     note: >
-      The toothbrush has several attributes that gives additional information.
-    
+      The toothbrush has several attributes that gives additional information.  
+  
       `state` can be one of the following
-      - unknown
-      - initializing
-      - idle
-      - running
-      - charging
-      - setup
-      - flight menu
-      - selection menu
-      - final test
-      - pcb_test
-      - sleeping
-      - transport
-
+        - unknown
+        - initializing
+        - idle
+        - running
+        - charging
+        - setup
+        - flight menu
+        - selection menu
+        - final test
+        - pcb_test
+        - sleeping
+        - transport  
+  
       `mode` may be one of the following
-      - off
-      - daily clean
-      - sensitive
-      - massage
-      - whitening
-      - deep clean
-      - tongue cleaning
-      - turbo
-      - unknown
-
+        - off
+        - daily clean
+        - sensitive
+        - massage
+        - whitening
+        - deep clean
+        - tongue cleaning
+        - turbo
+        - unknown  
+  
       `sector` may be one of the following
-      - sector 1 till 8
-      - unknown 1 till 5
-      - last_sector
-      - no_sector
-
+        - sector 1 till 8
+        - unknown 1 till 5
+        - last_sector
+        - no_sector  
+  
       `pressure` may be one of the following
-      - normal
-      - button pressed
-      - high
-      - unknown pressure (with number)
+        - normal
+        - button pressed
+        - high
+        - unknown pressure (with number)
 broadcast_rate:
 active_scan:
 encryption_key:

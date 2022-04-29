@@ -12,7 +12,7 @@ broadcasted_property_notes:
     note: >
       The toothbrush has several attributes that gives additional information.  
   
-      `state` can be one of the following  
+      `state` can be one of the following
         - unknown
         - initializing
         - idle
@@ -24,24 +24,24 @@ broadcasted_property_notes:
         - final test
         - pcb_test
         - sleeping
-        - transport
+        - transport  
   
-      `mode` may be one of the following  
+      `mode` may be one of the following
         - off
         - daily clean
         - sensitive
         - gum care
         - whiten
         - intense
-        - settings
+        - settings  
       
-      `sector` may be one of the following  
+      `sector` may be one of the following
         - sector 1 till 8
         - unknown 1 till 5
         - last_sector
-        - no_sector
+        - no_sector  
   
-      `pressure` may be one of the following  
+      `pressure` may be one of the following
         - normal
         - button pressed
         - high
