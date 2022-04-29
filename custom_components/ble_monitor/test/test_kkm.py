@@ -22,8 +22,8 @@ class TestKKM:
         assert sensor_msg["humidity"] == 34.79
         assert sensor_msg["acceleration"] == 1003.2
         assert sensor_msg["acceleration_x"] == -4
-        assert sensor_msg["acceleration_x"] == -20
-        assert sensor_msg["acceleration_x"] == 1003
+        assert sensor_msg["acceleration_y"] == -20
+        assert sensor_msg["acceleration_z"] == 1003
         assert sensor_msg["voltage"] == 3.591
         assert sensor_msg["battery"] == 100
         assert sensor_msg["rssi"] == -45

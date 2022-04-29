@@ -36,6 +36,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Inkbird
 - iNode
 - Jinou
+- KKM
 - Kegtron
 - Moat
 - Oral-B
