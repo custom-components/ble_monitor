@@ -273,6 +273,10 @@ class BleParser:
                         # Jinou BEC07-5
                         sensor_data = parse_jinou(self, man_spec_data, mac, rssi)
                         break
+                    elif service_class_uuid16 == 0x5182 and data_len == 0x14:
+                        # Govee H5182
+                        sensor_data = parse_govee(self, man_spec_data, mac, rssi)
+                        break
                     elif service_class_uuid16 == 0x5183 and data_len == 0x11:
                         # Govee H5183
                         sensor_data = parse_govee(self, man_spec_data, mac, rssi)

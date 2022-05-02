@@ -6,7 +6,7 @@ image: Govee_H5183.png
 physical_description: Square body, with probe.
 broadcasted_properties:
   - temperature probe
-  - temperature alarm
+  - temperature alarm probe
   - rssi
 broadcasted_property_notes:
 broadcast_rate:

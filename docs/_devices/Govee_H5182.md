@@ -1,8 +1,8 @@
 ---
 manufacturer: Govee
 name: Smart Meat Thermometer
-model: H5185
-image: Govee_H5185.png
+model: H5182
+image: Govee_H5182.png
 physical_description: Square body, with 2 probes.
 broadcasted_properties:
   - temperature probe
