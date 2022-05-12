@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 def parse_qingping(self, data, source_mac, rssi):
     """Qingping parser"""
     msg_length = len(data)
-    if msg_length > 12 and data[4] in [0x08, 0x48, 0x88]:
+    if msg_length > 12:
         firmware = "Qingping"
         device_id = data[5]
         if device_id == 0x01:
