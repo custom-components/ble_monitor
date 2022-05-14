@@ -269,3 +269,37 @@ class TestHaBle:
         assert sensor_msg["data"]
         assert sensor_msg["binary"] == 1
         assert sensor_msg["rssi"] == -52
+
+    def test_ha_ble_co2(self):
+        """Test HA BLE parser for co2 measurement"""
+        data_string = "043E1702010000A5808FE648540B02010607161C180312E204CC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "HA BLE"
+        assert sensor_msg["type"] == "HA BLE DIY"
+        assert sensor_msg["mac"] == "5448E68F80A5"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["co2"] == 1250
+        assert sensor_msg["rssi"] == -52
+
+    def test_ha_ble_tvoc(self):
+        """Test HA BLE parser for tvoc measurement"""
+        data_string = "043E1702010000A5808FE648540B02010607161C1803133301CC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+
+        assert sensor_msg["firmware"] == "HA BLE"
+        assert sensor_msg["type"] == "HA BLE DIY"
+        assert sensor_msg["mac"] == "5448E68F80A5"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["tvoc"] == 307
+        assert sensor_msg["rssi"] == -52

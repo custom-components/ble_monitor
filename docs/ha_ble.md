@@ -105,7 +105,7 @@ At the moment, the following sensors are supported. A preferred data type is giv
 | `0x02`    | temperature | sint16 (2 bytes)    | 0.01   | `2302CA09`       | 25.06        | `°C`       |       |
 | `0x03`    | humidity    | uint16 (2 bytes)    | 0.01   | `0303BF13`       | 50.55        | `%`        |       |
 | `0x04`    | pressure    | uint24 (3 bytes)    | 0.01   | `0404138A01`     | 1008.83      | `hPa`      |       |
-| `0X05`    | illuminance | uint24 (3 bytes)    | 0.01   | `0405138A14`     | 13460.67     | `lux`      |       |
+| `0x05`    | illuminance | uint24 (3 bytes)    | 0.01   | `0405138A14`     | 13460.67     | `lux`      |       |
 | `0x06`    | weight      | uint16 (2 byte)     | 0.01   | `03065E1F`       | 80.3         | `kg`       | [2]   |
 | `0x07`    | weight unit | string (2 bytes)    | None   | `63076B67`       | "kg"         |            | [2]   |
 | `0x08`    | dewpoint    | sint16 (2 bytes)    | 0.01   | `2308CA06`       | 17.386       | `°C`       |       |
@@ -118,6 +118,8 @@ At the moment, the following sensors are supported. A preferred data type is giv
 | `0x0F`    | boolean     | uint8 (1 byte)      | 1      | `020F01`         | 1 (True)     | `True`     |       |
 | `0x10`    | switch      | uint8 (1 byte)      | 1      | `021001`         | 1 (True)     | `on`       |       |
 | `0x11`    | opening     | uint8 (1 byte)      | 1      | `021100`         | 0 (false)    | `closed`   |       |
+| `0x12`    | co2         | uint16 (2 bytes)    | 1      | `0312E204`       | 1250         | `ppm`      |       |
+| `0x13`    | tvoc        | uint16 (2 bytes)    | 1      | `03133301`       | 307          | `ug/m3`    |       |
 |           | mac         | 6 bytes (reversed)  |        | `86A6808FE64854` | 5448E68F80A6 |            | [3]   |
 
 
