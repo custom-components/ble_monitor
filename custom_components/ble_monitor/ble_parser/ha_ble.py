@@ -79,6 +79,8 @@ DATA_MEAS_DICT = {
     0x0F: ["binary", 1],
     0x10: ["switch", 1],
     0x11: ["opening", 1],
+    0x12: ["co2", 1],
+    0x13: ["tvoc", 1],
 }
 
 
