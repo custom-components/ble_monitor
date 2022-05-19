@@ -1212,6 +1212,7 @@ AUTO_BINARY_SENSOR_LIST = [
 # Sensors that are automatically added if device is in AUTO_MANUFACTURER_DICT
 AUTO_SENSOR_LIST = [
     "battery",
+    "co2",
     "conductivity",
     "count",
     "dewpoint",
@@ -1226,6 +1227,7 @@ AUTO_SENSOR_LIST = [
     "pressure",
     "rssi",
     "temperature",
+    "tvoc",
     "voltage",
     "weight",
 ]
