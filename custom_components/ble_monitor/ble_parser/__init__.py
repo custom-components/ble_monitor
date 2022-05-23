@@ -115,7 +115,7 @@ class BleParser:
                     service_class_uuid128 = adstruct[2:]
                 elif adstuct_type == 0x08:
                     # AD type 'shortened local name'
-                    shortened_local_name = adstruct[2:].decode("utf-8")
+                    shortened_local_name = adstruct[2:].decode("utf-8", 'replace').encode('utf-8')
                 elif adstuct_type == 0x09:
                     # AD type 'complete local name'
                     complete_local_name = adstruct[2:].decode("utf-8")
