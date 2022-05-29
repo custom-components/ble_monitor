@@ -476,8 +476,8 @@ async def async_cleanup_entries_service(hass: HomeAssistant, service_data):
     """Remove orphaned entries from device and entity registries."""
     _LOGGER.debug("async_cleanup_entries_service")
 
-    entity_registry = await hass.helpers.entity_registry.async_get_registry()
-    device_registry = await hass.helpers.device_registry.async_get_registry()
+    entity_registry = hass.helpers.entity_registry.async_get()
+    device_registry = hass.helpers.device_registry.async_get()
     config_entry_id = hass.data[DOMAIN]["config_entry_id"]
 
     devices_to_be_removed = [
