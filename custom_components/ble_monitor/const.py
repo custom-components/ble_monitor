@@ -289,6 +289,36 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         device_class=BinarySensorDeviceClass.POWER,
         force_update=False,
     ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="tilt",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="ble tilt",
+        unique_id="ti_",
+        icon="mdi:rotate-orbit",
+        device_class=None,
+        force_update=False,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="dropping",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="ble dropping",
+        unique_id="dr_",
+        icon="mdi:chevron-triple-down",
+        device_class=None,
+        force_update=False,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="impact",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="ble impact",
+        unique_id="imp_",
+        icon="mdi:arrow-collapse-right",
+        device_class=None,
+        force_update=False,
+    ),
 )
 
 
@@ -1198,6 +1228,9 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Pink'               : 'Tilt',
     'Tilt Green'              : 'Tilt',
     'HHCCJCY10'               : 'HHCC',
+    'HHCCJCY10'               : 'HHCC',
+    'TG-BT5-IN'               : 'Mikrotik',
+    'TG-BT5-OUT'              : 'Mikrotik',
 }
 
 
@@ -1206,11 +1239,15 @@ AUTO_BINARY_SENSOR_LIST = [
     "binary",
     "opening",
     "switch",
+    "tilt",
+    "dropping",
+    "impact",
 ]
 
 
 # Sensors that are automatically added if device is in AUTO_MANUFACTURER_DICT
 AUTO_SENSOR_LIST = [
+    "acceleration",
     "battery",
     "co2",
     "conductivity",
@@ -1251,6 +1288,7 @@ REPORT_UNKNOWN_LIST = [
     "Kegtron",
     "KKM",
     "Mi Scale",
+    "Mikrotik"
     "Moat",
     "Oral-B",
     "Qingping",

@@ -20,6 +20,7 @@ from .kegtron import parse_kegtron
 from .kkm import parse_kkm
 from .laica import parse_laica
 from .miscale import parse_miscale
+from .mikrotik import parse_mikrotik
 from .moat import parse_moat
 from .oral_b import parse_oral_b
 from .qingping import parse_qingping
@@ -214,6 +215,10 @@ class BleParser:
                     elif comp_id == 0x0499:
                         # Ruuvitag V3/V5
                         sensor_data = parse_ruuvitag(self, man_spec_data, mac, rssi)
+                        break
+                    elif comp_id == 0x094F and data_len == 0x15:
+                        # Mikrotik
+                        sensor_data = parse_mikrotik(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x1000 and data_len == 0x15:
                         # Moat S2

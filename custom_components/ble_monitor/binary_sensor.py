@@ -494,6 +494,10 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
             if "stabilized" in data:
                 if data["stabilized"] and data["weight removed"]:
                     self._extra_state_attributes["weight"] = data["non-stabilized weight"]
+        if self.entity_description.key == "impact":
+            self._extra_state_attributes["impact_x"] = data["impact x"]
+            self._extra_state_attributes["impact_y"] = data["impact y"]
+            self._extra_state_attributes["impact_z"] = data["impact z"]
 
     async def async_update(self):
         """Update sensor state and attribute."""
