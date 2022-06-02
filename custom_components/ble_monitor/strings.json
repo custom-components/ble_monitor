@@ -11,7 +11,7 @@
           "decimals": "Number of decimals",
           "period": "Period to use for averaging",
           "log_spikes": "Log spikes",
-          "use_median": "Use median in stead of mean",
+          "use_median": "Use median instead of mean",
           "active_scan": "Use active scan instead of passive scan (affects battery)",
           "restore_state": "Restore state after a restart",
           "report_unknown": "Report unknown BLE advertisements to the HA log",
