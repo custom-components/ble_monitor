@@ -27,7 +27,8 @@ class TestLaica:
         assert sensor_msg["battery"] == 98
         assert sensor_msg["switch"] == 0
         assert sensor_msg["tilt"] == 0
-        assert sensor_msg["free fall"] == 0
+        assert sensor_msg["dropping"] == 0
+        assert sensor_msg["impact"] == 0
         assert sensor_msg["impact x"] == 0
         assert sensor_msg["impact y"] == 0
         assert sensor_msg["impact z"] == 0
@@ -57,7 +58,8 @@ class TestLaica:
         assert sensor_msg["battery"] == 98
         assert sensor_msg["switch"] == 0
         assert sensor_msg["tilt"] == 0
-        assert sensor_msg["free fall"] == 0
+        assert sensor_msg["dropping"] == 0
+        assert sensor_msg["impact"] == 0
         assert sensor_msg["impact x"] == 0
         assert sensor_msg["impact y"] == 0
         assert sensor_msg["impact z"] == 0
