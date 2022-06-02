@@ -422,6 +422,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
 
         self._device_settings = self.get_device_settings()
         self._device_name = self._device_settings["name"]
+        self._rdecimals = self._device_settings["decimals"]
         self._device_type = devtype
         self._device_firmware = firmware
         self._device_manufacturer = manufacturer \
@@ -615,7 +616,6 @@ class MeasuringSensor(BaseSensor):
     def __init__(self, config, key, devtype, firmware, description, manufacturer=None):
         """Initialize the sensor."""
         super().__init__(config, key, devtype, firmware, description, manufacturer)
-        self._rdecimals = self._device_settings["decimals"]
         self._jagged = False
         self._use_median = self._device_settings["use median"]
         self._period_cnt = 0
@@ -893,7 +893,7 @@ class AccelerationSensor(InstantUpdateSensor):
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self.entity_description.key]
+        self._state = round(data[self.entity_description.key], self._rdecimals)
         self._extra_state_attributes["sensor_type"] = data["type"]
         self._extra_state_attributes["last_packet_id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]

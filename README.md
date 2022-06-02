@@ -37,6 +37,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Jinou
 - Kegtron
 - KKM
+- Mikrotik
 - Moat
 - Oral-B
 - Qingping
