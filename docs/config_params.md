@@ -68,7 +68,7 @@ ble_monitor:
 
 ### active_scan
 
-   **Use active scan in stead of passive scan (affects battery)**
+   **Use active scan instead of passive scan (affects battery)**
    (boolean)(Optional) In active mode scan requests will be sent, which is most often not required, but slightly increases the sensor battery consumption. 'Passive mode' means that you are not sending any request to the sensor but you are just receiving the advertisements sent by the BLE devices. This parameter is a subject for experiment. Default value: False
 
 ```yaml
@@ -101,7 +101,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
 ### use_median
 
-   **Use median in stead of mean**
+   **Use median instead of mean**
    (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the mean values in any case are present as the sensor state attributes. This setting can be overruled with for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
 
    *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
