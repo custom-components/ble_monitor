@@ -426,21 +426,21 @@ def obj1001(xobj, device_type):
             result["button"] = button_press_type
         elif device_type == "K9B-1BTN":
             result["button switch"] = btn_switch_press_type
-            result["1_btn_switch"] = one_btn_switch
+            result["one btn switch"] = one_btn_switch
         elif device_type == "K9B-2BTN":
             result["button switch"] = btn_switch_press_type
             if two_btn_switch_left:
-                result["2_btn_switch_left"] = two_btn_switch_left
+                result["two btn switch left"] = two_btn_switch_left
             if two_btn_switch_right:
-                result["2_btn_switch_right"] = two_btn_switch_right
+                result["two btn switch right"] = two_btn_switch_right
         elif device_type == "K9B-3BTN":
             result["button switch"] = btn_switch_press_type
             if three_btn_switch_left:
-                result["3_btn_switch_left"] = three_btn_switch_left
+                result["three btn switch left"] = three_btn_switch_left
             if three_btn_switch_middle:
-                result["3_btn_switch_middle"] = three_btn_switch_middle
+                result["three btn switch middle"] = three_btn_switch_middle
             if three_btn_switch_right:
-                result["3_btn_switch_right"] = three_btn_switch_right
+                result["three btn switch right"] = three_btn_switch_right
         else:
             return None
         return result

@@ -11,11 +11,9 @@ broadcasted_properties:
   - rssi
 broadcasted_property_notes:
   - property: two btn switch left
-    note: returns 'toggle'
+    note: returns 'short press', 'double press' or 'long press'
   - property: two btn switch right
-    note: returns 'toggle'
-  - property: button switch
-    note: types are 'short press', 'double press' or 'long press' for each button.
+    note: returns 'short press', 'double press' or 'long press'
 broadcast_rate:
 active_scan: false
 encryption_key: Probably (not confirmed yet)
