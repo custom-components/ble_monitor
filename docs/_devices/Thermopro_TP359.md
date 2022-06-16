@@ -2,7 +2,7 @@
 manufacturer: Thermopro
 name: ThermoPro TP359 Bluetooth Wireless Thermometer Hygrometer and Humidity Monitor
 model: TP359
-image: Thermopro_TP359.jpg
+image: thermopro_tp359.jpg
 physical_description: Rounded squary body, LCD screed
 broadcasted_properties:
   - temperature
