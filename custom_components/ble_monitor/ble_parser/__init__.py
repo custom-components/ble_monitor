@@ -31,6 +31,7 @@ from .sensirion import parse_sensirion
 from .switchbot import parse_switchbot
 from .teltonika import parse_teltonika
 from .thermoplus import parse_thermoplus
+from .thermopro import parse_thermopro
 from .tilt import parse_tilt
 from .xiaomi import parse_xiaomi
 from .xiaogui import parse_xiaogui
@@ -316,6 +317,10 @@ class BleParser:
                     elif complete_local_name in ["sps", "tps"] and data_len == 0x0A:
                         # Inkbird IBS-TH
                         sensor_data = parse_inkbird(self, man_spec_data, complete_local_name, mac, rssi)
+                        break
+                    elif complete_local_name[0:5] == "TP359" and data_len == 0x07:
+                        # Thermopro
+                        sensor_data = parse_thermopro(self, man_spec_data, complete_local_name[0:5], mac, rssi)
                         break
 
                     # Filter on other parts of the manufacturer specific data

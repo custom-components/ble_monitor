@@ -1217,7 +1217,12 @@ RENAMED_MODEL_DICT = {
 
 # Sensors that support automatic adding of sensors and binary sensors
 AUTO_MANUFACTURER_DICT = {
+    'HHCCJCY10'               : 'HHCC',
+    'HHCCJCY10'               : 'HHCC',
     'HA BLE DIY'              : 'Home Assistant DIY',
+    'TG-BT5-IN'               : 'Mikrotik',
+    'TG-BT5-OUT'              : 'Mikrotik',
+    'TP359'                   : 'Thermopro',
     'Tilt Red'                : 'Tilt',
     'Tilt Green'              : 'Tilt',
     'Tilt Black'              : 'Tilt',
@@ -1227,10 +1232,6 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Yellow'             : 'Tilt',
     'Tilt Pink'               : 'Tilt',
     'Tilt Green'              : 'Tilt',
-    'HHCCJCY10'               : 'HHCC',
-    'HHCCJCY10'               : 'HHCC',
-    'TG-BT5-IN'               : 'Mikrotik',
-    'TG-BT5-OUT'              : 'Mikrotik',
 }
 
 
