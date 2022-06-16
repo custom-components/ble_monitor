@@ -501,3 +501,6 @@ class TestXiaomi:
 
     def test_Xiaomi_K9B(self):
         """Test Xiaomi parser for K9B."""
+
+    def test_Xiaomi_XMWXKG01YL(self):
+        """Test Xiaomi parser for XMWXKG01YL."""
