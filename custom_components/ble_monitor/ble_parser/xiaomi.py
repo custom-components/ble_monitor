@@ -16,25 +16,6 @@ _LOGGER = logging.getLogger(__name__)
 # Device type dictionary
 # {device type code: device name}
 XIAOMI_TYPE_DICT = {
-    0x01AA: "LYWSDCGQ",
-    0x045B: "LYWSD02",
-    0x055B: "LYWSD03MMC",
-    0x1203: "XMWSDJ04MMC",
-    0x04E1: "XMMF01JQD",
-    0x0098: "HHCCJCY01",
-    0x03BC: "GCLS002",
-    0x015D: "HHCCPOT002",
-    0x040A: "WX08ZM",
-    0x098B: "MCCGQ02HL",
-    0x0083: "YM-K1501",
-    0x0113: "YM-K1501EU",
-    0x045C: "V-SK152",
-    0x0863: "SJWS01LM",
-    0x07F6: "MJYD02YL",
-    0x03DD: "MUE4094RT",
-    0x0A8D: "RTCGQ02LM",
-    0x00DB: "MMC-T201-1",
-    0x0489: "M1S-T500",
     0x0C3C: "CGC1",
     0x0576: "CGD1",
     0x066F: "CGDK2",
@@ -42,23 +23,43 @@ XIAOMI_TYPE_DICT = {
     0x0B48: "CGG1-ENCRYPTED",
     0x03D6: "CGH1",
     0x0A83: "CGPR1",
-    0x06d3: "MHO-C303",
-    0x0387: "MHO-C401",
+    0x03BC: "GCLS002",
+    0x0098: "HHCCJCY01",
+    0x015D: "HHCCPOT002",
     0x02DF: "JQJCY01YM",
     0x0997: "JTYJGD03MI",
     0x1568: "K9B-1BTN",
     0x1569: "K9B-2BTN",
     0x0DFD: "K9B-3BTN",
+    0x01AA: "LYWSDCGQ",
+    0x045B: "LYWSD02",
+    0x055B: "LYWSD03MMC",
+    0x098B: "MCCGQ02HL",
+    0x06d3: "MHO-C303",
+    0x0387: "MHO-C401",
+    0x07F6: "MJYD02YL",
+    0x04E9: "MJZNMSQ01YD",
+    0x00DB: "MMC-T201-1",
+    0x03DD: "MUE4094RT",
+    0x0489: "M1S-T500",
+    0x0A8D: "RTCGQ02LM",
+    0x0863: "SJWS01LM",
+    0x045C: "V-SK152",
+    0x040A: "WX08ZM",
+    0x04E1: "XMMF01JQD",
+    0x1203: "XMWSDJ04MMC",
+    0x1949: "XMWXKG01YL",
+    0x098C: "XMZNMST02YD",
     0x07BF: "YLAI003",
     0x0153: "YLYK01YL",
     0x068E: "YLYK01YL-FANCL",
     0x04E6: "YLYK01YL-VENFAN",
     0x03BF: "YLYB01YL-BHFRC",
     0x03B6: "YLKG07YL/YLKG08YL",
+    0x0083: "YM-K1501",
+    0x0113: "YM-K1501EU",
     0x069E: "ZNMS16LM",
     0x069F: "ZNMS17LM",
-    0x04E9: "MJZNMSQ01YD",
-    0x098C: "XMZNMST02YD",
 }
 
 # Structured objects for data conversions
@@ -593,12 +594,18 @@ def obj2000(xobj):
         return {}
 
 
-# The following data objects are device specific. For now only added for XMWSDJ04MMC
+# The following data objects are device specific. For now only added for XMWSDJ04MMC and XMWXKG01YL
 # https://miot-spec.org/miot-spec-v2/instances?status=all
 def obj4803(xobj):
     """Battery"""
     batt = xobj[0]
     return {"battery": batt}
+
+
+def obj4a01(xobj):
+    """Low Battery"""
+    low_batt = xobj[0]
+    return {"low battery": low_batt}
 
 
 def obj4c01(xobj):
@@ -617,6 +624,78 @@ def obj4c08(xobj):
         return {"humidity": humi}
     else:
         return {}
+
+
+def obj4c14(xobj):
+    """Mode"""
+    mode = xobj[0]
+    return {"mode": mode}
+
+
+def obj4e0c(xobj):
+    """Click"""
+    click = xobj[0]
+    btn_switch_press_type = "single press"
+    two_btn_switch_left = None
+    two_btn_switch_right = None
+    if click == 1:
+        two_btn_switch_left = "toggle"
+    elif click == 2:
+        two_btn_switch_right = "toggle"
+    elif click == 3:
+        two_btn_switch_left = "toggle"
+        two_btn_switch_right = "toggle"
+    else:
+        btn_switch_press_type = None
+    return {
+        "two btn switch left": two_btn_switch_left,
+        "two btn switch right": two_btn_switch_right,
+        "button switch": btn_switch_press_type,
+    }
+
+
+def obj4e0d(xobj):
+    """Double Click"""
+    click = xobj[0]
+    btn_switch_press_type = "double press"
+    two_btn_switch_left = None
+    two_btn_switch_right = None
+    if click == 1:
+        two_btn_switch_left = "toggle"
+    elif click == 2:
+        two_btn_switch_right = "toggle"
+    elif click == 3:
+        two_btn_switch_left = "toggle"
+        two_btn_switch_right = "toggle"
+    else:
+        btn_switch_press_type = None
+    return {
+        "two btn switch left": two_btn_switch_left,
+        "two btn switch right": two_btn_switch_right,
+        "button switch": btn_switch_press_type,
+    }
+
+
+def obj4e0e(xobj):
+    """Long Press"""
+    click = xobj[0]
+    btn_switch_press_type = "long press"
+    two_btn_switch_left = None
+    two_btn_switch_right = None
+    if click == 1:
+        two_btn_switch_left = "toggle"
+    elif click == 2:
+        two_btn_switch_right = "toggle"
+    elif click == 3:
+        two_btn_switch_left = "toggle"
+        two_btn_switch_right = "toggle"
+    else:
+        btn_switch_press_type = None
+    return {
+        "two btn switch left": two_btn_switch_left,
+        "two btn switch right": two_btn_switch_right,
+        "button switch": btn_switch_press_type,
+    }
 
 
 # Dataobject dictionary
@@ -647,8 +726,13 @@ xiaomi_dataobject_dict = {
     0x100D: obj100d,
     0x2000: obj2000,
     0x4803: obj4803,
+    0x4a01: obj4a01,
     0x4c01: obj4c01,
     0x4c08: obj4c08,
+    0x4c14: obj4c14,
+    0x4c0c: obj4e0c,
+    0x4c0d: obj4e0d,
+    0x4c0e: obj4e0e,
 }
 
 
