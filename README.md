@@ -48,6 +48,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Switchbot
 - Teltonika
 - Thermoplus
+- Thermopro
 - Tilt
 - Xiaogui (Scale)
 - Xiaomi (MiBeacon)
