@@ -319,6 +319,16 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         device_class=None,
         force_update=False,
     ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="armed away",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="armed away",
+        unique_id="arm_",
+        icon="mdi:security",
+        device_class=BinarySensorDeviceClass.LOCK,
+        force_update=True,
+    ),
 )
 
 
@@ -1092,10 +1102,12 @@ MEASUREMENT_DICT = {
     'Laica Smart Scale'       : [["weight", "impedance", "rssi"], [], []],
     "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
+    'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock","armed away"]],
 }
 
 # Sensor manufacturer dictionary
 MANUFACTURER_DICT = {
+    'DSL-C08'                 : 'Loock',
     'LYWSDCGQ'                : 'Xiaomi',
     'LYWSD02'                 : 'Xiaomi',
     'LYWSD03MMC'              : 'Xiaomi',
