@@ -252,6 +252,21 @@ def obj000b(xobj, device_type):
         action = BLE_LOCK_ACTION[action][2]
         method = BLE_LOCK_METHOD[method]
 
+        #Biometric unlock then disarm
+        if device_type == "DSL-C08":
+            returnDict = {
+                lock_type: lock,
+                "locktype": lock_type,
+                "action": action,
+                "method": method,
+                "error": error,
+                "key id": key_id,
+                "timestamp": timestamp,
+            }
+            if method == "biometrics":
+                returnDict.update({"armed away": 1})
+            return returnDict
+
         return {
             lock_type: lock,
             "locktype": lock_type,
@@ -586,7 +601,7 @@ def obj100e(xobj, device_type):
     """Lock common attribute"""
     # https://iot.mi.com/new/doc/accesses/direct-access/embedded-development/ble/object-definition#%E9%94%81%E5%B1%9E%E6%80%A7
     if len(xobj) == 1:
-        # Decouple lock by type on some devices
+        # Unlock by type on some devices
         if device_type == "DSL-C08":
             lock_attribute = int.from_bytes(xobj, 'little')
             lock = lock_attribute & 0x01 ^ 1
