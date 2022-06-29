@@ -1107,7 +1107,7 @@ MEASUREMENT_DICT = {
 
 # Sensor manufacturer dictionary
 MANUFACTURER_DICT = {
-    'DSL-C08'                 : 'Loock',
+    'DSL-C08'                 : 'Lockin',
     'LYWSDCGQ'                : 'Xiaomi',
     'LYWSD02'                 : 'Xiaomi',
     'LYWSD03MMC'              : 'Xiaomi',
