@@ -98,7 +98,10 @@ def parse_ha_ble(self, data, uuid16, source_mac, rssi):
         packet_id = None
     elif uuid16 == 0x181E:
         # Encrypted HA BLE format
-        payload, count_id = decrypt_data(self, data, ha_ble_mac)
+        try:
+            payload, count_id = decrypt_data(self, data, ha_ble_mac)
+        except TypeError:
+            return None
         firmware = "HA BLE (encrypted)"
         if count_id:
             packet_id = parse_uint(count_id)
