@@ -57,31 +57,26 @@ def parse_govee(self, data, source_mac, rssi):
         (temp, humi, batt) = unpack("<hHB", data[5:10])
         result.update({"temperature": temp / 100, "humidity": humi / 100, "battery": batt})
     elif msg_length == 13 and device_id == 0x0001:
-        device_type = "H5178"
         packet_5178 = data[7:10].hex()
         packet = int(packet_5178, 16)
         temp = decode_temps(packet)
         humi = float((packet % 1000) / 10)
         batt = int(data[10])
         sensor_id = data[6]
+        result.update(
+            {
+                "temperature": temp,
+                "humidity": humi,
+                "battery": batt,
+                "sensor id": sensor_id
+            }
+        )
         if sensor_id == 0:
-            result.update(
-                {
-                    "temperature": temp,
-                    "humidity": humi,
-                    "battery": batt,
-                    "sensor id": sensor_id
-                }
-            )
+            device_type = "H5178"
         elif sensor_id == 1:
-            result.update(
-                {
-                    "temperature outdoor": temp,
-                    "humidity outdoor": humi,
-                    "battery": batt,
-                    "sensor id": sensor_id
-                }
-            )
+            device_type = "H5178-outdoor"
+            govee_mac_outdoor = int.from_bytes(govee_mac, 'big') + 1
+            govee_mac = bytearray(govee_mac_outdoor.to_bytes(len(govee_mac), 'big'))
         else:
             _LOGGER.debug(
                 "Unknown sensor id for Govee H5178, please report to the developers, data: %s",
