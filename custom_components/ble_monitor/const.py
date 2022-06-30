@@ -1101,7 +1101,7 @@ MEASUREMENT_DICT = {
     'Laica Smart Scale'       : [["weight", "impedance", "rssi"], [], []],
     "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
-    'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock","armed away"]],
+    'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
 }
 
 # Sensor manufacturer dictionary

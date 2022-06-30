@@ -205,10 +205,27 @@ def obj0007(xobj):
         return {}
     return {"door": door, "door action": action}
 
-def obj0008(xobj):
+def obj0008(xobj, device_type):
     """armed away"""
+    returnData = {}
     value = xobj[0] ^ 1
-    return {'armed away': value}
+    returnData.update({'armed away': value})
+    if len(xobj) == 5:
+        timestamp = int.from_bytes(xobj[1:], 'little')
+        timestamp = datetime.fromtimestamp(timestamp).isoformat()
+        returnData.update({'timestamp': timestamp})
+    # Lift up door handle outside the door sends this event from DSL-C08.
+    if device_type == "DSL-C08":
+        return{
+            "lock": value,
+            "locktype": 'lock',
+            "action": 'lock outside the door',
+            "method": "manual",
+            "error": None,
+            "key id": None,
+            "timestamp": None,
+        }
+    return returnData
 
 def obj0010(xobj):
     """Toothbrush"""
@@ -263,8 +280,9 @@ def obj000b(xobj, device_type):
                 "key id": key_id,
                 "timestamp": timestamp,
             }
-            if method == "biometrics":
-                returnDict.update({"armed away": 1})
+            if method == "password":
+                if 5000 <= key_id < 6000:
+                    returnDict.update({"method": "one-time password"})
             return returnDict
 
         return {
@@ -959,7 +977,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
             if obj_length != 0:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
-                    if hex(obj_typecode) in ["0x100e","0x1001", "0xf", "0xb"]:
+                    if hex(obj_typecode) in ["0x8","0x100e","0x1001", "0xf", "0xb"]:
                         result.update(resfunc(dobject, device_type))
                     else:
                         result.update(resfunc(dobject))
