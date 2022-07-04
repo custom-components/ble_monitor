@@ -271,19 +271,9 @@ def obj000b(xobj, device_type):
 
         #Biometric unlock then disarm
         if device_type == "DSL-C08":
-            returnDict = {
-                lock_type: lock,
-                "locktype": lock_type,
-                "action": action,
-                "method": method,
-                "error": error,
-                "key id": key_id,
-                "timestamp": timestamp,
-            }
             if method == "password":
                 if 5000 <= key_id < 6000:
-                    returnDict.update({"method": "one-time password"})
-            return returnDict
+                    method = "one-time password"
 
         return {
             lock_type: lock,
