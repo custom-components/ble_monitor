@@ -319,15 +319,6 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         device_class=None,
         force_update=False,
     ),
-    BLEMonitorBinarySensorEntityDescription(
-        key="armed away",
-        sensor_class="BaseBinarySensor",
-        update_behavior="Instantly",
-        name="ble armed away",
-        unique_id="arm_",
-        device_class=BinarySensorDeviceClass.LOCK,
-        force_update=True,
-    ),
 )
 
 
