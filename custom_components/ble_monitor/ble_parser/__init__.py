@@ -3,6 +3,7 @@ import logging
 
 from .acconeer import parse_acconeer
 from .airmentor import parse_airmentor
+from .almendo import parse_almendo
 from .altbeacon import parse_altbeacon
 from .atc import parse_atc
 from .bluemaestro import parse_bluemaestro
@@ -220,6 +221,10 @@ class BleParser:
                     elif comp_id == 0x094F and data_len == 0x15:
                         # Mikrotik
                         sensor_data = parse_mikrotik(self, man_spec_data, mac, rssi)
+                        break
+                    elif comp_id == 0x06E8:
+                        # Almendo (Blusensor)
+                        sensor_data = parse_almendo(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x1000 and data_len == 0x15:
                         # Moat S2
