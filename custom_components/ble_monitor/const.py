@@ -1068,6 +1068,7 @@ MEASUREMENT_DICT = {
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'EClerk Eco'              : [["temperature", "humidity", "co2", "battery", "rssi"], [], []],
     'Air Mentor Pro 2'        : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "aqi", "air quality", "pm2.5", "pm10", "rssi"], [], []],
+    'bluSensor Mini'          : [["temperature", "humidity", "co2", "tvoc", "aqi", "rssi"], [], []],
     'Meter TH S1'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Meter TH plus'           : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Laica Smart Scale'       : [["weight", "impedance", "rssi"], [], []],
@@ -1183,6 +1184,7 @@ MANUFACTURER_DICT = {
     'AltBeacon'               : 'Radius Networks',
     'EClerk Eco'              : 'Relsib',
     'Air Mentor Pro 2'        : 'Air Mentor',
+    'bluSensor Mini'          : 'Almendo',
     'Meter TH S1'             : 'Switchbot',
     'Meter TH plus'           : 'Switchbot',
     'Laica Smart Scale'       : 'Laica',
