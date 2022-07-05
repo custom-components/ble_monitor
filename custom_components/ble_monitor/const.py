@@ -1142,6 +1142,7 @@ MANUFACTURER_DICT = {
     'H5178'                   : 'Govee',
     'H5178-outdoor'           : 'Govee',
     'H5179'                   : 'Govee',
+    'H5182'                   : 'Govee',
     'H5183'                   : 'Govee',
     'H5185'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
