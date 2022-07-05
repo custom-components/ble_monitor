@@ -114,7 +114,7 @@ CONF_HMAX = 99.9
 
 # Sensors with deviating temperature range
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
-PROBES = ('iBBQ-2', 'iBBQ-4', 'iBBQ-6', 'H5183')
+PROBES = ('iBBQ-2', 'iBBQ-4', 'iBBQ-6', 'H5182', 'H5183', 'H5185')
 
 
 # Sensor entity description
@@ -1143,6 +1143,7 @@ MANUFACTURER_DICT = {
     'H5178'                   : 'Govee',
     'H5178-outdoor'           : 'Govee',
     'H5179'                   : 'Govee',
+    'H5182'                   : 'Govee',
     'H5183'                   : 'Govee',
     'H5185'                   : 'Govee',
     'Ruuvitag'                : 'Ruuvitag',
