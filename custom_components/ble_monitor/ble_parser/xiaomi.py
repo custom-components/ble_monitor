@@ -33,6 +33,7 @@ XIAOMI_TYPE_DICT = {
     0x0DFD: "K9B-3BTN",
     0x01AA: "LYWSDCGQ",
     0x045B: "LYWSD02",
+    0x16e4: "LYWSD02MMC",
     0x055B: "LYWSD03MMC",
     0x098B: "MCCGQ02HL",
     0x06d3: "MHO-C303",
@@ -205,6 +206,7 @@ def obj0007(xobj):
         return {}
     return {"door": door, "door action": action}
 
+
 def obj0008(xobj, device_type):
     """armed away"""
     returnData = {}
@@ -226,6 +228,7 @@ def obj0008(xobj, device_type):
             "timestamp": None,
         }
     return returnData
+
 
 def obj0010(xobj):
     """Toothbrush"""
@@ -269,7 +272,7 @@ def obj000b(xobj, device_type):
         action = BLE_LOCK_ACTION[action][2]
         method = BLE_LOCK_METHOD[method]
 
-        #Biometric unlock then disarm
+        # Biometric unlock then disarm
         if device_type == "DSL-C08":
             if method == "password":
                 if 5000 <= key_id < 6000:
@@ -605,6 +608,7 @@ def obj100d(xobj):
     else:
         return {}
 
+
 def obj100e(xobj, device_type):
     """Lock common attribute"""
     # https://iot.mi.com/new/doc/accesses/direct-access/embedded-development/ble/object-definition#%E9%94%81%E5%B1%9E%E6%80%A7
@@ -615,6 +619,7 @@ def obj100e(xobj, device_type):
             lock = lock_attribute & 0x01 ^ 1
             childlock = lock_attribute >> 3 ^ 1
             return {"childlock": childlock, "lock": lock}
+
 
 def obj2000(xobj):
     """Body temperature"""
@@ -967,7 +972,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
             if obj_length != 0:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
-                    if hex(obj_typecode) in ["0x8","0x100e","0x1001", "0xf", "0xb"]:
+                    if hex(obj_typecode) in ["0x8", "0x100e", "0x1001", "0xf", "0xb"]:
                         result.update(resfunc(dobject, device_type))
                     else:
                         result.update(resfunc(dobject))
