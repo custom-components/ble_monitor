@@ -637,7 +637,7 @@ def obj2000(xobj):
         return {}
 
 
-# The following data objects are device specific. For now only added for XMWSDJ04MMC and XMWXKG01YL
+# The following data objects are device specific. For now only added for LYWSD02MMC, XMWSDJ04MMC, XMWXKG01YL
 # https://miot-spec.org/miot-spec-v2/instances?status=all
 def obj4803(xobj):
     """Battery"""
@@ -649,6 +649,15 @@ def obj4a01(xobj):
     """Low Battery"""
     low_batt = xobj[0]
     return {"low battery": low_batt}
+
+
+def obj4c02(xobj):
+    """Humidity"""
+    if len(xobj) == 1:
+        humi = xobj[0]
+        return {"humidity": humi}
+    else:
+        return {}
 
 
 def obj4c01(xobj):
@@ -773,6 +782,7 @@ xiaomi_dataobject_dict = {
     0x4803: obj4803,
     0x4a01: obj4a01,
     0x4c01: obj4c01,
+    0x4c02: obj4c02,
     0x4c08: obj4c08,
     0x4c14: obj4c14,
     0x4e0c: obj4e0c,
