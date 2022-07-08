@@ -11,7 +11,7 @@ nav_order: 2
 ## Step 0. Grant permissions for Python to have rootless access to the HCI interface
 
 This is usually only needed for alternative installations of Home Assistant that only install Home Assistant core.
-Also, for alternative installations, please note that BlueZ package must be installed on the system, but its bluetooth daemon service can be stopped and disabled, if you are sure of such a need.
+Also, for alternative installations, please note that Bluetooth has to work on your system and has to be accessible for Home Assistant.
 
 - to grant access:
 
