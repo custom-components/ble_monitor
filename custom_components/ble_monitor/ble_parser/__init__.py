@@ -132,10 +132,8 @@ class BleParser:
 
         if complete_local_name:
             local_name = complete_local_name
-        elif shortened_local_name:
-            local_name = complete_local_name
         else:
-            local_name = None
+            local_name = shortened_local_name
 
         sensor_data, tracker_data = self.parse_advertisement(
             mac,
