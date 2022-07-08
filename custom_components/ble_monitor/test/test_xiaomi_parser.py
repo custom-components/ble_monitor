@@ -111,7 +111,7 @@ class TestXiaomi:
         self.aeskeys[p_mac] = p_key
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
         assert sensor_msg["type"] == "LYWSD02MMC"
