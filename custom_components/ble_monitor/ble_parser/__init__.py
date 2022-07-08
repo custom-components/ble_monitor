@@ -1,4 +1,5 @@
 """Parser for passive BLE advertisements."""
+from typing import Optional
 import logging
 
 from .acconeer import parse_acconeer
@@ -148,14 +149,14 @@ class BleParser:
 
     def parse_advertisement(
             self,
-            mac,
-            rssi,
-            service_class_uuid16,
-            service_class_uuid128,
-            local_name,
-            service_data_list,
-            man_spec_data_list
-    ) -> dict:
+            mac: bytes,
+            rssi: int,
+            service_class_uuid16: Optional[int] = None,
+            service_class_uuid128: Optional[bytes] = None,
+            local_name: Optional[str] = "",
+            service_data_list: Optional[list] = [],
+            man_spec_data_list: Optional[list] = []
+    ):
         """parse BLE advertisement"""
         sensor_data = None
         tracker_data = None
