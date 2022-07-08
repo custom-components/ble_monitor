@@ -494,7 +494,7 @@ async def async_cleanup_entries_service(hass: HomeAssistant, service_data):
 
 
 async def async_parse_data_service(hass: HomeAssistant, service_data):
-    """Call parse_data with RAW HCI packet data."""
+    """Call parse_raw_data with RAW HCI packet data."""
     _LOGGER.debug("async_parse_data_service")
     blemonitor: BLEmonitor = hass.data[DOMAIN]["blemonitor"]
     if blemonitor:
@@ -659,7 +659,7 @@ class HCIdump(Thread):
         self.evt_cnt += 1
         if len(data) < 12:
             return
-        sensor_msg, tracker_msg = self.ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = self.ble_parser.parse_raw_data(data)
         if sensor_msg:
             measurements = list(sensor_msg.keys())
             device_type = sensor_msg["type"]
