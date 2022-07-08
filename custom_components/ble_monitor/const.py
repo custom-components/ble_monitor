@@ -965,6 +965,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
 MEASUREMENT_DICT = {
     'LYWSDCGQ'                : [["temperature", "humidity", "battery", "rssi"], [], []],
     'LYWSD02'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'LYWSD02MMC'              : [["temperature", "humidity", "battery", "rssi"], [], []],
     'LYWSD03MMC'              : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'XMWSDJ04MMC'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'XMMF01JQD'               : [["rssi"], ["button"], []],
@@ -1082,6 +1083,7 @@ MANUFACTURER_DICT = {
     'DSL-C08'                 : 'Lockin',
     'LYWSDCGQ'                : 'Xiaomi',
     'LYWSD02'                 : 'Xiaomi',
+    'LYWSD02MMC'              : 'Xiaomi',
     'LYWSD03MMC'              : 'Xiaomi',
     'XMWSDJ04MMC'             : 'Xiaomi',
     'XMMF01JQD'               : 'Xiaomi',
