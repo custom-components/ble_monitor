@@ -11,7 +11,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -28,7 +28,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -53,7 +53,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys, discovery=False, sensor_whitelist=allow_list)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE (encrypted)"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -71,7 +71,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -88,7 +88,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -105,7 +105,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -123,7 +123,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -140,7 +140,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -157,7 +157,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -174,7 +174,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -191,7 +191,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -209,7 +209,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -226,7 +226,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -243,7 +243,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -260,7 +260,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -277,7 +277,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"
@@ -294,7 +294,7 @@ class TestHaBle:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "HA BLE"
         assert sensor_msg["type"] == "HA BLE DIY"

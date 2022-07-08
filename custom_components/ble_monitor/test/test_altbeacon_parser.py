@@ -13,7 +13,7 @@ class TestAltBeacon:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg['type'] == 'AltBeacon'
         assert sensor_msg['packet'] == 'no packet id'
@@ -34,7 +34,7 @@ class TestAltBeacon:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser(tracker_whitelist=[bytearray.fromhex('d3162f5af3ee494799db09756062d0fc')])
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg['type'] == 'AltBeacon'
         assert sensor_msg['packet'] == 'no packet id'

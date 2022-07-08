@@ -11,7 +11,7 @@ class TestXiaogui:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaogui"
         assert sensor_msg["type"] == "TZC4"
@@ -31,7 +31,7 @@ class TestXiaogui:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaogui"
         assert sensor_msg["type"] == "TZC4"
@@ -51,7 +51,7 @@ class TestXiaogui:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaogui"
         assert sensor_msg["type"] == "QJ-J"
@@ -70,7 +70,7 @@ class TestXiaogui:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaogui"
         assert sensor_msg["type"] == "QJ-J"

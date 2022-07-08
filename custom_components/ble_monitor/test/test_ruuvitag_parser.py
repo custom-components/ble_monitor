@@ -10,7 +10,7 @@ class TestRuuviTag:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Ruuvitag V2"
         assert sensor_msg["type"] == "Ruuvitag"
@@ -28,7 +28,7 @@ class TestRuuviTag:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Ruuvitag V3"
         assert sensor_msg["type"] == "Ruuvitag"
@@ -52,7 +52,7 @@ class TestRuuviTag:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Ruuvitag V4"
         assert sensor_msg["type"] == "Ruuvitag"
@@ -71,7 +71,7 @@ class TestRuuviTag:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Ruuvitag V5"
         assert sensor_msg["type"] == "Ruuvitag"

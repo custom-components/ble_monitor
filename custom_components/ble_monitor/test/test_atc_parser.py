@@ -11,7 +11,7 @@ class TestATC:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "ATC (Atc1441)"
         assert sensor_msg["type"] == "ATC"
@@ -30,7 +30,7 @@ class TestATC:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "ATC (Atc1441)"
         assert sensor_msg["type"] == "ATC"
@@ -49,7 +49,7 @@ class TestATC:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "ATC (Custom)"
         assert sensor_msg["type"] == "ATC"
@@ -68,7 +68,7 @@ class TestATC:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "ATC (Custom)"
         assert sensor_msg["type"] == "ATC"
@@ -87,7 +87,7 @@ class TestATC:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "ATC (Custom)"
         assert sensor_msg["type"] == "ATC"
@@ -116,7 +116,7 @@ class TestATC:
         self.aeskeys[p_mac] = p_key
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "ATC (Custom encrypted)"
         assert sensor_msg["type"] == "ATC"

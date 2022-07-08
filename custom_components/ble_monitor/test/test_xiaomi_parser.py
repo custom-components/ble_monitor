@@ -12,7 +12,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V2)"
         assert sensor_msg["type"] == "LYWSDCGQ"
@@ -38,7 +38,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys, discovery=False, sensor_whitelist=allow_list)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
         assert sensor_msg["type"] == "CGG1-ENCRYPTED"
@@ -64,7 +64,7 @@ class TestXiaomi:
         self.aeskeys[p_mac] = p_key
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
         assert sensor_msg["type"] == "CGDK2"
@@ -84,7 +84,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
         assert sensor_msg["type"] == "LYWSD03MMC"
@@ -111,7 +111,7 @@ class TestXiaomi:
         self.aeskeys[p_mac] = p_key
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
         assert sensor_msg["type"] == "LYWSD03MMC"
@@ -137,7 +137,7 @@ class TestXiaomi:
         self.aeskeys[p_mac] = p_key
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
         assert sensor_msg["type"] == "XMWSDJ04MMC"
@@ -154,7 +154,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
         assert sensor_msg["type"] == "XMMF01JQD"
@@ -198,7 +198,7 @@ class TestXiaomi:
         self.aeskeys[p_mac] = p_key
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
         assert sensor_msg["type"] == "JTYJGD03MI"
@@ -224,7 +224,7 @@ class TestXiaomi:
         self.aeskeys[p_mac] = p_key
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
         assert sensor_msg["type"] == "JTYJGD03MI"
@@ -241,7 +241,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V2)"
         assert sensor_msg["type"] == "HHCCJCY01"
@@ -258,7 +258,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V2)"
         assert sensor_msg["type"] == "GCLS002"
@@ -299,7 +299,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
         assert sensor_msg["type"] == "MUE4094RT"
@@ -326,7 +326,7 @@ class TestXiaomi:
         self.aeskeys[p_mac] = p_key
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
         assert sensor_msg["type"] == "RTCGQ02LM"
@@ -345,7 +345,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V2)"
         assert sensor_msg["type"] == "MMC-T201-1"
@@ -363,7 +363,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
         assert sensor_msg["type"] == "M1S-T500"
@@ -381,7 +381,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V4)"
         assert sensor_msg["type"] == "ZNMS16LM"
@@ -400,7 +400,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V4)"
         assert sensor_msg["type"] == "ZNMS16LM"
@@ -424,7 +424,7 @@ class TestXiaomi:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
         assert sensor_msg["type"] == "YLYK01YL"
@@ -461,7 +461,7 @@ class TestXiaomi:
         self.aeskeys[p_mac] = p_key
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3 encrypted)"
         assert sensor_msg["type"] == "YLKG07YL/YLKG08YL"
@@ -488,7 +488,7 @@ class TestXiaomi:
         self.aeskeys[p_mac] = p_key
         # pylint: disable=unused-variable
         ble_parser = BleParser(aeskeys=self.aeskeys)
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3 encrypted)"
         assert sensor_msg["type"] == "YLKG07YL/YLKG08YL"

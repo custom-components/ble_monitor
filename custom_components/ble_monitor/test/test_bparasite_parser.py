@@ -11,7 +11,7 @@ class TestBParasite:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "b-parasite V1.1.0 (with illuminance)"
         assert sensor_msg["type"] == "b-parasite V1.1.0"
@@ -31,7 +31,7 @@ class TestBParasite:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "b-parasite V1.0.0 (without illuminance)"
         assert sensor_msg["type"] == "b-parasite V1.0.0"
