@@ -112,7 +112,7 @@ Make sure all relevant Bluetooth packages are installed. On Home Assistant OS, t
 
 ```shell
 sudo apt-get install systemd
-sudo apt-get install bluetooth pi-bluetooth bluez
+sudo apt-get install bluetooth pi-bluetooth
 sudo apt-get install rfkill
 ```
 
@@ -164,7 +164,6 @@ This means that Python is built/installed without support for Bluetooth. You wil
 
 ```shell
 sudo apt-get install bluetooth libbluetooth-dev
-sudo pip3 install pybluez
 ```
 
 **2 Rebuild Python:**
