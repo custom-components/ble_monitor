@@ -33,6 +33,7 @@ XIAOMI_TYPE_DICT = {
     0x0DFD: "K9B-3BTN",
     0x01AA: "LYWSDCGQ",
     0x045B: "LYWSD02",
+    0x16e4: "LYWSD02MMC",
     0x055B: "LYWSD03MMC",
     0x098B: "MCCGQ02HL",
     0x06d3: "MHO-C303",
@@ -205,6 +206,7 @@ def obj0007(xobj):
         return {}
     return {"door": door, "door action": action}
 
+
 def obj0008(xobj, device_type):
     """armed away"""
     returnData = {}
@@ -226,6 +228,7 @@ def obj0008(xobj, device_type):
             "timestamp": None,
         }
     return returnData
+
 
 def obj0010(xobj):
     """Toothbrush"""
@@ -269,7 +272,7 @@ def obj000b(xobj, device_type):
         action = BLE_LOCK_ACTION[action][2]
         method = BLE_LOCK_METHOD[method]
 
-        #Biometric unlock then disarm
+        # Biometric unlock then disarm
         if device_type == "DSL-C08":
             if method == "password":
                 if 5000 <= key_id < 6000:
@@ -605,6 +608,7 @@ def obj100d(xobj):
     else:
         return {}
 
+
 def obj100e(xobj, device_type):
     """Lock common attribute"""
     # https://iot.mi.com/new/doc/accesses/direct-access/embedded-development/ble/object-definition#%E9%94%81%E5%B1%9E%E6%80%A7
@@ -615,6 +619,7 @@ def obj100e(xobj, device_type):
             lock = lock_attribute & 0x01 ^ 1
             childlock = lock_attribute >> 3 ^ 1
             return {"childlock": childlock, "lock": lock}
+
 
 def obj2000(xobj):
     """Body temperature"""
@@ -632,7 +637,7 @@ def obj2000(xobj):
         return {}
 
 
-# The following data objects are device specific. For now only added for XMWSDJ04MMC and XMWXKG01YL
+# The following data objects are device specific. For now only added for LYWSD02MMC, XMWSDJ04MMC, XMWXKG01YL
 # https://miot-spec.org/miot-spec-v2/instances?status=all
 def obj4803(xobj):
     """Battery"""
@@ -644,6 +649,15 @@ def obj4a01(xobj):
     """Low Battery"""
     low_batt = xobj[0]
     return {"low battery": low_batt}
+
+
+def obj4c02(xobj):
+    """Humidity"""
+    if len(xobj) == 1:
+        humi = xobj[0]
+        return {"humidity": humi}
+    else:
+        return {}
 
 
 def obj4c01(xobj):
@@ -768,6 +782,7 @@ xiaomi_dataobject_dict = {
     0x4803: obj4803,
     0x4a01: obj4a01,
     0x4c01: obj4c01,
+    0x4c02: obj4c02,
     0x4c08: obj4c08,
     0x4c14: obj4c14,
     0x4e0c: obj4e0c,
@@ -967,7 +982,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
             if obj_length != 0:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
-                    if hex(obj_typecode) in ["0x8","0x100e","0x1001", "0xf", "0xb"]:
+                    if hex(obj_typecode) in ["0x8", "0x100e", "0x1001", "0xf", "0xb"]:
                         result.update(resfunc(dobject, device_type))
                     else:
                         result.update(resfunc(dobject))
