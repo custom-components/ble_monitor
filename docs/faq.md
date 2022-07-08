@@ -219,6 +219,10 @@ sudo reboot
 
 **7 Wait a long time before all plugins are installed in Home Assistant**
 
+### Is BLE monitor compatible with Home Assistant 2022.7
+
+Home Assistant 2022.7 has removed `pybluez` and made some changes to the Bluetooth support. This caused some core Bluetooth integrations to stop working. Luckily, BLE monitor is not using `pybluez`, so it should continue to work fine.
+
 
 ## Reception Issues
 
