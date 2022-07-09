@@ -1,4 +1,5 @@
 """Parser for passive BLE advertisements."""
+from typing import Optional
 import logging
 
 from .acconeer import parse_acconeer
@@ -11,6 +12,7 @@ from .bparasite import parse_bparasite
 from .brifit import parse_brifit
 from .const import TILT_TYPES
 from .govee import parse_govee
+from .helpers import to_mac, to_unformatted_mac
 from .ha_ble import parse_ha_ble
 from .hhcc import parse_hhcc
 from .ibeacon import parse_ibeacon
@@ -64,7 +66,7 @@ class BleParser:
         self.movements_list = {}
         self.adv_priority = {}
 
-    def parse_data(self, data):
+    def parse_raw_data(self, data):
         """Parse the raw data."""
         # check if packet is Extended scan result
         is_ext_packet = True if data[3] == 0x0D else False
@@ -91,15 +93,12 @@ class BleParser:
             rssi = rssi - 256
         # MAC address
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
-        sensor_data = None
-        tracker_data = None
         complete_local_name = ""
         shortened_local_name = ""
         service_class_uuid16 = None
         service_class_uuid128 = None
         service_data_list = []
         man_spec_data_list = []
-        unknown_sensor = False
 
         while adpayload_size > 1:
             adstuct_size = data[adpayload_start] + 1
@@ -132,6 +131,37 @@ class BleParser:
             adpayload_size -= adstuct_size
             adpayload_start += adstuct_size
 
+        if complete_local_name:
+            local_name = complete_local_name
+        else:
+            local_name = shortened_local_name
+
+        sensor_data, tracker_data = self.parse_advertisement(
+            mac,
+            rssi,
+            service_class_uuid16,
+            service_class_uuid128,
+            local_name,
+            service_data_list,
+            man_spec_data_list
+        )
+        return sensor_data, tracker_data
+
+    def parse_advertisement(
+            self,
+            mac: bytes,
+            rssi: int,
+            service_class_uuid16: Optional[int] = None,
+            service_class_uuid128: Optional[bytes] = None,
+            local_name: Optional[str] = "",
+            service_data_list: Optional[list] = [],
+            man_spec_data_list: Optional[list] = []
+    ):
+        """parse BLE advertisement"""
+        sensor_data = None
+        tracker_data = None
+        unknown_sensor = False
+
         while not sensor_data:
             if service_data_list:
                 for service_data in service_data_list:
@@ -152,7 +182,7 @@ class BleParser:
                         # UUID16 = User Data and Bond Management (used by BLE HA)
                         sensor_data = parse_ha_ble(self, service_data, uuid16, mac, rssi)
                         break
-                    elif uuid16 in [0xAA20, 0xAA21, 0xAA22] and complete_local_name == "ECo":
+                    elif uuid16 in [0xAA20, 0xAA21, 0xAA22] and local_name == "ECo":
                         # UUID16 = Relsib
                         sensor_data = parse_relsib(self, service_data, mac, rssi)
                         break
@@ -189,7 +219,7 @@ class BleParser:
                         # UUID16 = Temperature and Humidity (used by Teltonika)
                         if len(service_data_list) == 2:
                             service_data = b"".join(service_data_list)
-                        sensor_data = parse_teltonika(self, service_data, complete_local_name, mac, rssi)
+                        sensor_data = parse_teltonika(self, service_data, local_name, mac, rssi)
                         break
                     else:
                         unknown_sensor = True
@@ -236,7 +266,7 @@ class BleParser:
                         break
                     elif comp_id == 0x06D5:
                         # Sensirion
-                        sensor_data = parse_sensirion(self, man_spec_data, complete_local_name, mac, rssi)
+                        sensor_data = parse_sensirion(self, man_spec_data, local_name, mac, rssi)
                         break
                     elif comp_id in [0x2121, 0x2122] and data_len == 0x0B:
                         # Air Mentor
@@ -301,11 +331,11 @@ class BleParser:
                             # Thermoplus
                             sensor_data = parse_thermoplus(self, man_spec_data, mac, rssi)
                             break
-                        elif (comp_id in [0x0000, 0x0001] or complete_local_name in ["iBBQ", "sps", "tps"]) and (
+                        elif (comp_id in [0x0000, 0x0001] or local_name in ["iBBQ", "sps", "tps"]) and (
                             data_len in [0x0A, 0x0D, 0x0F, 0x13, 0x17]
                         ):
                             # Inkbird
-                            sensor_data = parse_inkbird(self, man_spec_data, complete_local_name, mac, rssi)
+                            sensor_data = parse_inkbird(self, man_spec_data, local_name, mac, rssi)
                             break
                         else:
                             unknown_sensor = True
@@ -319,13 +349,13 @@ class BleParser:
                         break
 
                     # Filter on complete local name
-                    elif complete_local_name in ["sps", "tps"] and data_len == 0x0A:
+                    elif local_name in ["sps", "tps"] and data_len == 0x0A:
                         # Inkbird IBS-TH
-                        sensor_data = parse_inkbird(self, man_spec_data, complete_local_name, mac, rssi)
+                        sensor_data = parse_inkbird(self, man_spec_data, local_name, mac, rssi)
                         break
-                    elif complete_local_name[0:5] == "TP359" and data_len == 0x07:
+                    elif local_name[0:5] == "TP359" and data_len == 0x07:
                         # Thermopro
-                        sensor_data = parse_thermopro(self, man_spec_data, complete_local_name[0:5], mac, rssi)
+                        sensor_data = parse_thermopro(self, man_spec_data, local_name[0:5], mac, rssi)
                         break
 
                     # Filter on other parts of the manufacturer specific data
@@ -342,7 +372,20 @@ class BleParser:
             else:
                 unknown_sensor = True
             if unknown_sensor and self.report_unknown == "Other":
-                _LOGGER.info("Unknown advertisement received: %s", data.hex())
+                _LOGGER.info(
+                    "Unknown advertisement received for mac: %s"
+                    "service data: %s"
+                    "manufacturer specific data: %s"
+                    "local name: %s"
+                    "UUID16: %s,"
+                    "UUID128: %s",
+                    to_mac(mac),
+                    service_data_list,
+                    man_spec_data_list,
+                    local_name,
+                    service_class_uuid16,
+                    service_class_uuid128,
+                )
             break
 
         # check for monitored device trackers
@@ -353,7 +396,7 @@ class BleParser:
             else:
                 tracker_data = {
                     "is connected": True,
-                    "mac": ''.join('{:02X}'.format(x) for x in mac),
+                    "mac": to_unformatted_mac(mac),
                     "rssi": rssi,
                 }
         else:
@@ -361,6 +404,19 @@ class BleParser:
 
         if self.report_unknown_whitelist:
             if tracker_id in self.report_unknown_whitelist:
-                _LOGGER.info("BLE advertisement received from MAC/UUID %s: %s", tracker_id.hex(), data.hex())
+                _LOGGER.info(
+                    "BLE advertisement received from MAC/UUID %s: "
+                    "service data: %s"
+                    "manufacturer specific data: %s"
+                    "local name: %s"
+                    "UUID16: %s,"
+                    "UUID128: %s",
+                    tracker_id.hex(),
+                    service_data_list,
+                    man_spec_data_list,
+                    local_name,
+                    service_class_uuid16,
+                    service_class_uuid128
+                )
 
         return sensor_data, tracker_data

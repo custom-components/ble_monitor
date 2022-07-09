@@ -11,7 +11,7 @@ class TestInkbird:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Inkbird"
         assert sensor_msg["type"] == "iBBQ-1"
@@ -28,7 +28,7 @@ class TestInkbird:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Inkbird"
         assert sensor_msg["type"] == "iBBQ-2"
@@ -46,7 +46,7 @@ class TestInkbird:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Inkbird"
         assert sensor_msg["type"] == "iBBQ-4"
@@ -66,7 +66,7 @@ class TestInkbird:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Inkbird"
         assert sensor_msg["type"] == "iBBQ-6"
@@ -86,7 +86,7 @@ class TestInkbird:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Inkbird"
         assert sensor_msg["type"] == "IBS-TH"
@@ -105,7 +105,7 @@ class TestInkbird:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Inkbird"
         assert sensor_msg["type"] == "IBS-TH2/P01B"
@@ -123,7 +123,7 @@ class TestInkbird:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Inkbird"
         assert sensor_msg["type"] == "IBS-TH2/P01B"

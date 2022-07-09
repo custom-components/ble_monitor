@@ -11,7 +11,7 @@ class TestOralB:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
         print(sensor_msg)
         assert sensor_msg["firmware"] == "Oral-B"
         assert sensor_msg["type"] == "SmartSeries 7000"

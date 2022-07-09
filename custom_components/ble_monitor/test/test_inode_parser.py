@@ -11,7 +11,7 @@ class TestInode:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "iNode"
         assert sensor_msg["type"] == "iNode Energy Meter"
@@ -37,7 +37,7 @@ class TestInode:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "iNode"
         assert sensor_msg["type"] == "iNode Care Sensor 1"
@@ -61,7 +61,7 @@ class TestInode:
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "iNode"
         assert sensor_msg["type"] == "iNode Care Sensor HT"

@@ -986,7 +986,7 @@ MEASUREMENT_DICT = {
     'ZNMS16LM'                : [["battery", "rssi"], [], ["lock", "door", "fingerprint"]],
     'ZNMS17LM'                : [["battery", "rssi"], [], ["lock", "door", "fingerprint", "antilock", "childlock"]],
     'MJZNMSQ01YD'             : [["battery", "rssi"], [], ["lock", "fingerprint"]],
-    'XMZNMST02YD'             : [["battery", "rssi"], [], ["lock", "fingerprint"]],
+    'XMZNMST02YD'             : [["battery", "rssi"], [], ["lock", "door", "fingerprint"]],
     'CGC1'                    : [["temperature", "humidity", "battery", "rssi"], [], []],
     'CGD1'                    : [["temperature", "humidity", "battery", "rssi"], [], []],
     'CGDK2'                   : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],

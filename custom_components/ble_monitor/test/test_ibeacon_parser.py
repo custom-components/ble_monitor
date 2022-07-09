@@ -13,7 +13,7 @@ class TestIBeacon:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg['type'] == 'iBeacon'
         assert sensor_msg['packet'] == 'no packet id'
@@ -35,7 +35,7 @@ class TestIBeacon:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser(tracker_whitelist=[bytearray.fromhex('e2c56db5dffb48d2b060d0f5a71096e0')])
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert tracker_msg['is connected']
         assert tracker_msg['rssi'] == -77
@@ -56,7 +56,7 @@ class TestIBeacon:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg is None
         assert tracker_msg is None
@@ -67,7 +67,7 @@ class TestIBeacon:
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
-        sensor_msg, tracker_msg = ble_parser.parse_data(data)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg is None
         assert tracker_msg is None
