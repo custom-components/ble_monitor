@@ -27,6 +27,10 @@ def decode_temps_probes(packet_value: int) -> float:
 
 def parse_govee(self, data, source_mac, rssi):
     """Parser for Govee sensors"""
+    # The parser needs to handle the bug in the Govee BLE advertisement
+    # data as INTELLI_ROCKS sometimes ends up glued on to the end of the message
+    if len(data) > 25 and b"INTELLI_ROCKS" in data:
+        data = data[:-25]
     msg_length = len(data)
     firmware = "Govee"
     govee_mac = source_mac
