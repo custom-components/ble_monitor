@@ -46,6 +46,8 @@ def parse_inkbird(self, data, complete_local_name, source_mac, rssi):
                     "battery": bat,
                 }
             )
+        else:
+            return None
     elif msg_length == 14:
         device_type = "iBBQ-1"
         inkbird_mac = data[6:12]
