@@ -24,7 +24,7 @@ def parse_switchbot(self, data, source_mac, rssi):
         humi = (byte4 & 127)
         if device_id in [0x0054, 0x1054]:
             device_type = "Meter TH S1"
-        elif device_id == 0x0069:
+        elif device_id in [0x0069, 0xC069]:
             device_type = "Meter TH plus"
         else:
             device_type = "unknown"
