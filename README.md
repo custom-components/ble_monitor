@@ -6,7 +6,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 
 ## Important announcement about the future of BLE monitor
 
-Home Assistant is going to add (improved) support for passive BLE devices directly in Home Assistant in the upcoming releases (most likely starting from 2022.8). For each brand, a core BLE integration will be developed, such that maintanance can be divided over more people, using the latest Bluetooth packages (bleak). I'm working together with the Home Assistant devs to move sensors from BLE Monitor to Home Assistant core integrations. During the transition, BLE monitor will still be available, but I'm not sure if both the core HA Bluetooth integrations will work parallel to BLE monitor. The aim is to have all sensors moved into Home Assistant as core integration. After the move, BLE monitor will probably be deprecated. 
+Home Assistant is going to add (improved) support for passive BLE devices directly in Home Assistant in the upcoming releases (most likely starting from 2022.8). For each brand, a core BLE integration will be developed, such that maintanance can be divided over more people, using the latest Bluetooth packages (bleak). I'm working together with the Home Assistant devs to move sensors from BLE Monitor to Home Assistant core integrations. During the transition, BLE monitor will still be available, but it is likely that the core HA Bluetooth integrations will not work niceley parallel to BLE monitor. The aim is to have all sensors moved into Home Assistant as core integration. After the move, BLE monitor will probably be deprecated. If you want to help moving sensors from BLE monitor, feel free to help. Check out the links below. 
 
 **Some interesting links**
 
@@ -17,7 +17,7 @@ Home Assistant is going to add (improved) support for passive BLE devices direct
 The following integrations are currently being moved/developed as core integrations. 
 - Govee
 - Inkbird
-- SensorPush
+- SensorPush (https://github.com/home-assistant/core/pull/75531)
 - Xiaomi
 
 **Done**
