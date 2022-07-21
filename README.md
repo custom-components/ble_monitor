@@ -4,6 +4,26 @@
 
 This custom component for [Home Assistant](https://www.home-assistant.io) passively monitors [many different BLE devices](https://custom-components.github.io/ble_monitor/devices) of several different [brands](https://custom-components.github.io/ble_monitor/by_brand). BLE Monitor can also be used as device tracker for BLE devices with a static MAC address or with the UUID.
 
+## Important announcement about the future of BLE monitor
+
+Home Assistant is going to add (improved) support for passive BLE devices directly in Home Assistant in the upcoming releases (most likely starting from 2022.8). For each brand, a core BLE integration will be developed, such that maintanance can be divided over more people, using the latest Bluetooth packages (bleak). I'm working together with the Home Assistant devs to move sensors from BLE Monitor to Home Assistant core integrations. During the transition, BLE monitor will still be available, but I'm not sure if both the core HA Bluetooth integrations will work parallel to BLE monitor. The aim is to have all sensors moved into Home Assistant as core integration. After the move, BLE monitor will probably be deprecated. 
+
+Some interesting links:
+
+- Pypi packages for the BLE parsing will be developed and collected here: https://github.com/Bluetooth-Devices
+
+**In development**
+The following integrations are currently being moved/developed as core integrations. 
+- Govee
+- Inkbird
+- SensorPush
+- Xiaomi
+
+**Done**
+The following integrations are available as core integration.
+- None
+
+
 ## More info
 
 - [Documentation](https://custom-components.github.io/ble_monitor/#introduction)
