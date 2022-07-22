@@ -1213,6 +1213,7 @@ AUTO_MANUFACTURER_DICT = {
     'HA BLE DIY'              : 'Home Assistant DIY',
     'TG-BT5-IN'               : 'Mikrotik',
     'TG-BT5-OUT'              : 'Mikrotik',
+    'TP357'                   : 'Thermopro',
     'TP359'                   : 'Thermopro',
     'Tilt Red'                : 'Tilt',
     'Tilt Green'              : 'Tilt',
