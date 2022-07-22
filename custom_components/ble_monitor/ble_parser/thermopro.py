@@ -12,7 +12,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def parse_thermopro(self, data, device_type, source_mac, rssi):
     """Thermopro parser"""
-    if device_type == "TP359":
+    if device_type in ["TP357", "TP359"]:
         firmware = "Thermopro"
         thermopro_mac = source_mac
 
