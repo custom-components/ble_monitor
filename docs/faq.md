@@ -276,7 +276,7 @@ Get the encryption key with the online tool on the [TelinkFlasher website by atc
 
 Note that even though most functionality there (flashing) is only for LYWSD03MMC sensors, this particular version of the page has been modified to allow activation of any device.
 
-![Telink Flasher](/docs/assets/images/Telink_flasher_website.png)
+![Telink Flasher](https://github.com/custom-components/ble_monitor/blob/master/docs/assets/images/Telink_flasher_website.png)
 
 - Keep the sensor close to the mobile phone (use Chromium-based browsers on Android, try [WebBLE](https://apps.apple.com/us/app/webble/id1193531073) (paid app) on iOS) or use a PC.
 - Make sure that the bluetooth is enabled.
