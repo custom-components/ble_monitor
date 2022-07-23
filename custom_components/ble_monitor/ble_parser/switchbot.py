@@ -16,7 +16,7 @@ def parse_switchbot(self, data, source_mac, rssi):
     switchbot_mac = source_mac
     device_id = data[4] + (data[5] << 8)
 
-    if msg_length == 10 and device_id in [0x0054, 0x0069, 0x1054]:
+    if msg_length == 10 and device_id in [0x0054, 0x0069, 0x1054, 0xC069]:
         xvalue = data[6:10]
         (byte1, byte2, byte3, byte4) = unpack("<BBBB", xvalue)
         batt = (byte1 & 127)
@@ -24,7 +24,7 @@ def parse_switchbot(self, data, source_mac, rssi):
         humi = (byte4 & 127)
         if device_id in [0x0054, 0x1054]:
             device_type = "Meter TH S1"
-        elif device_id == 0x0069:
+        elif device_id in [0x0069, 0xC069]:
             device_type = "Meter TH plus"
         else:
             device_type = "unknown"
