@@ -69,6 +69,7 @@ The following integrations are available as official Home Assistant integration.
 - Ruuvitag
 - Sensirion
 - SensorPush
+- SmartDry
 - Switchbot
 - Teltonika
 - Thermoplus

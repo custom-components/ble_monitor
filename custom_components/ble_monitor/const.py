@@ -1077,6 +1077,7 @@ MEASUREMENT_DICT = {
     "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
+    'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "rssi"], [], ["switch"]],
 }
 
 # Sensor manufacturer dictionary
@@ -1195,6 +1196,7 @@ MANUFACTURER_DICT = {
     'Laica Smart Scale'       : 'Laica',
     'Acconeer XM122'          : 'Acconeer',
     'K6 Sensor Beacon'        : 'KKM',
+    'SmartDry cloth dryer'    : 'SmartDry',
 }
 
 
@@ -1292,6 +1294,7 @@ REPORT_UNKNOWN_LIST = [
     "Ruuvitag",
     "Sensirion",
     "SensorPush",
+    "SmartDry",
     "Switchbot",
     "Teltonika",
     "Thermoplus",
