@@ -22,10 +22,11 @@ The following integrations are currently being moved/developed as core integrati
 - Inkbird (https://github.com/home-assistant/core/pull/75594)
 - Govee
 - Xiaomi
+- Moat
 
 **Done**
 
-The following integrations are available as core integration.
+The following integrations are available as official Home Assistant integration.
 - None
 
 ## More info
