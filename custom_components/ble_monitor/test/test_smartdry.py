@@ -6,7 +6,7 @@ class TestSmartDry:
     """Tests for the SmartDry parser"""
     def test_cloth_dryer(self):
         """Test SmartDry parser for cloth dryer ."""
-        data_string = "043e3902010000ad114bdc1b002d02010607093241485a44560fffae017de6ea41702360420000c406020a031107fb349b5f8000008000100000aa3a"
+        data_string = "043e3902010000ad114bdc1b002d02010607093241485a44560fffae017de6ea41702360420000c406020a031107fb349b5f8000008000100000aac7"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
@@ -21,4 +21,4 @@ class TestSmartDry:
         assert sensor_msg["humidity"] == 56.03460693359375
         assert sensor_msg["voltage"] == 1.732
         assert sensor_msg["switch"]
-        assert sensor_msg["rssi"] == -58
+        assert sensor_msg["rssi"] == -57
