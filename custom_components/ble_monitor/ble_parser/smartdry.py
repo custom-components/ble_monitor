@@ -18,19 +18,19 @@ def parse_smartdry(self, data, source_mac, rssi):
         device_type = "SmartDry cloth dryer"
         firmware = "SmartDry"
         xvalue = data[4:16]
-        (temp, humi, shake, volt) = unpack("<IIHH", xvalue)
+        (temp, humi, shake, volt) = unpack("<ffHH", xvalue)
         if data[15] == 0:
             wake = False
-        elif data[15] == 7:
+        elif data[15] == 6:
             wake = True
         else:
             wake = None
-        # The conversion isn't correct yet
+
         result = {
-            "temperature": temp / 100000000,
-            "humidity": ((humi / 100000000) - 100) * -1,
+            "temperature": temp,
+            "humidity": humi,
             "shake": shake,
-            "wake": wake
+            "switch": wake
         }
         if wake is True:
             volt = volt / 1000

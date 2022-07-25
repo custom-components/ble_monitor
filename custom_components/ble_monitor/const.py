@@ -1077,7 +1077,7 @@ MEASUREMENT_DICT = {
     "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
-    'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "rssi"], [], []],
+    'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "rssi"], [], ["switch"]],
 }
 
 # Sensor manufacturer dictionary
