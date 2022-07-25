@@ -13,7 +13,7 @@ class TestSmartDry:
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "SmartDry"
-        assert sensor_msg["type"] == "cloth dryer"
+        assert sensor_msg["type"] == "SmartDry cloth dryer"
         assert sensor_msg["mac"] == "001BDC4B11AD"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
