@@ -28,7 +28,7 @@ def parse_thermoplus(self, data, source_mac, rssi):
 
         xvalue = data[12:18]
         (volt, temp, humi) = unpack("<HhH", xvalue)
-        batt = 2500
+
         if volt >= 3000:
             batt = 100
         elif volt >= 2600:

@@ -20,5 +20,6 @@ class TestSmartDry:
         assert sensor_msg["temperature"] == 29.3625431060791
         assert sensor_msg["humidity"] == 56.03460693359375
         assert sensor_msg["voltage"] == 1.732
+        assert sensor_msg["battery"] == 0
         assert sensor_msg["switch"]
         assert sensor_msg["rssi"] == -57

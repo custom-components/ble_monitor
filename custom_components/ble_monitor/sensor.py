@@ -357,6 +357,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |**Air Quality Index
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
+    # |  |**shake
     # |  |--StateChangedSensor (Class)
     # |  |  |**mac
     # |  |  |**uuid

@@ -704,6 +704,17 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
+        key="shake",
+        sensor_class="InstantUpdateSensor",
+        update_behavior="Instantly",
+        name="ble shake",
+        unique_id="sh_",
+        icon="mdi:vibrate",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=None,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="acceleration",
         sensor_class="AccelerationSensor",
         update_behavior="Instantly",
@@ -1077,7 +1088,7 @@ MEASUREMENT_DICT = {
     "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
-    'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "rssi"], [], ["switch"]],
+    'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
 }
 
 # Sensor manufacturer dictionary
