@@ -1003,7 +1003,7 @@ MEASUREMENT_DICT = {
     'RTCGQ02LM'               : [["battery", "rssi"], ["button"], ["light", "motion"]],
     'MMC-T201-1'              : [["temperature", "battery", "rssi"], [], []],
     'M1S-T500'                : [["battery", "rssi"], [], ["toothbrush"]],
-    'ZNMS16LM'                : [["battery", "rssi"], [], ["lock", "door", "fingerprint"]],
+    'ZNMS16LM'                : [["battery", "rssi"], [], ["lock", "door", "fingerprint", "armed away"]],
     'ZNMS17LM'                : [["battery", "rssi"], [], ["lock", "door", "fingerprint", "antilock", "childlock", "armed away"]],
     'MJZNMSQ01YD'             : [["battery", "rssi"], [], ["lock", "fingerprint"]],
     'XMZNMST02YD'             : [["battery", "rssi"], [], ["lock", "door", "fingerprint"]],
