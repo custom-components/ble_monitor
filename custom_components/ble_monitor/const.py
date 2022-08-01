@@ -1098,6 +1098,7 @@ MEASUREMENT_DICT = {
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
+    'XMZNMSBMCN03'            : [["battery", "rssi"], [], ["lock", "fingerprint"],],
 }
 
 # Sensor manufacturer dictionary
@@ -1217,6 +1218,7 @@ MANUFACTURER_DICT = {
     'Acconeer XM122'          : 'Acconeer',
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
+    'XMZNMSBMCN03'            : 'Xiaomi',
 }
 
 

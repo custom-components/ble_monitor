@@ -63,6 +63,7 @@ XIAOMI_TYPE_DICT = {
     0x069F: "ZNMS17LM",
     0x0380: "DSL-C08",
     0x0DE7: "SU001-T",
+    0x0784: "XMZNMSBMCN03",
 }
 
 # Structured objects for data conversions
