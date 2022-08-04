@@ -2,7 +2,7 @@
 manufacturer: Xiaomi Lockin
 name: Lockin Q2
 model: DSL-C08
-image: DSL-C08.jpg
+image: DSL-C08.png
 physical_description:
 broadcasted_properties:
   - lock
