@@ -12,15 +12,20 @@ Home Assistant 2022.8 has (improved) support for passive BLE devices directly in
 
 - Pypi packages for the BLE parsing will be developed and collected here: https://github.com/Bluetooth-Devices
 
+**In development**
+
+- Xiaomi (part 2)
+- Qingping
+
 **Done**
 
 The following integrations are available as official Home Assistant integration.
-- SensorPush
-- Inkbird
 - Govee
-- Xiaomi (not all sensors yet)
+- Inkbird
 - Moat
-- Device tracking based on MAC address (ble tracker integration)
+- SensorPush
+- Xiaomi (part 1)
+- Device tracking based on MAC address (Bluetooth LE tracker integration)
 
 
 ## More info
