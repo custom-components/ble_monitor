@@ -352,7 +352,7 @@ class BleParser:
                             # Thermoplus
                             sensor_data = parse_thermoplus(self, man_spec_data, mac, rssi)
                             break
-                        elif (comp_id in [0x0000, 0x0001] or local_name in ["iBBQ", "sps", "tps"]) and (
+                        elif (comp_id in [0x0000, 0x0001] or local_name in ["iBBQ", "xBBQ", "sps", "tps"]) and (
                             data_len in [0x0A, 0x0D, 0x0F, 0x13, 0x17]
                         ):
                             # Inkbird
