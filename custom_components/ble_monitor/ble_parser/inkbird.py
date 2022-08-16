@@ -24,28 +24,30 @@ def parse_inkbird(self, data, complete_local_name, source_mac, rssi):
     msg_length = len(data)
     firmware = "Inkbird"
     result = {"firmware": firmware}
-    if msg_length == 11:
+    if msg_length == 11 and complete_local_name in ["sps", "tps"]:
         inkbird_mac = source_mac
         xvalue = data[2:10]
-        (temp, hum) = unpack("<hH", xvalue[0:4])
-        bat = int.from_bytes(xvalue[7:8], 'little')
+        (temp, hum, probe, modbus, bat) = unpack("<hHBHB", xvalue[0:8])
+
+        if probe == 0:
+            result.update({"temperature": temp / 100})
+        elif probe == 1:
+            result.update({"temperature probe 1": temp / 100})
+        else:
+            _LOGGER.error(
+                "Inkbird is reporting different probe number. Please report the "
+                "following data to the developers. data: %s ",
+                data.hex()
+            )
+            return None
+
+        result.update({"battery": bat})
+
         if complete_local_name == "sps":
             device_type = "IBS-TH"
-            result.update(
-                {
-                    "temperature": temp / 100,
-                    "humidity": hum / 100,
-                    "battery": bat,
-                }
-            )
+            result.update({"humidity": hum / 100})
         elif complete_local_name == "tps":
             device_type = "IBS-TH2/P01B"
-            result.update(
-                {
-                    "temperature": temp / 100,
-                    "battery": bat,
-                }
-            )
         else:
             return None
     elif msg_length == 14:

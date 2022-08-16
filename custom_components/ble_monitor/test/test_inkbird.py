@@ -98,6 +98,25 @@ class TestInkbird:
         assert sensor_msg["battery"] == 100
         assert sensor_msg["rssi"] == -52
 
+    def test_inkbird_IBS_TH_external(self):
+        """Test Inkbird parser for Inkbird IBS-TH external probe."""
+        data_string = "043e1c020104007a63000842491004097370730aff3b0af815018cbc6408cc"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Inkbird"
+        assert sensor_msg["type"] == "IBS-TH"
+        assert sensor_msg["mac"] == "49420800637A"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature probe 1"] == 26.19
+        assert sensor_msg["humidity"] == 56.24
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["rssi"] == -52
+
     def test_inkbird_IBS_TH2_T_only(self):
         """Test Inkbird parser for Inkbird IBS-TH2/P01R."""
         data_string = "043e1c02010400561d000742491004097470730affff0700000031603306c5"

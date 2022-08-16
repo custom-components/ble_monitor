@@ -287,7 +287,7 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         unique_id="armedaway_",
         device_class=BinarySensorDeviceClass.LOCK,
         force_update=True,
-    ),  
+    ),
     BLEMonitorBinarySensorEntityDescription(
         key="toothbrush",
         sensor_class="BaseBinarySensor",
@@ -1083,8 +1083,6 @@ MEASUREMENT_DICT = {
     'iBBQ-2'                  : [["temperature probe 1", "temperature probe 2", "rssi"], [], []],
     'iBBQ-4'                  : [["temperature probe 1", "temperature probe 2", "temperature probe 3", "temperature probe 4", "rssi"], [], []],
     'iBBQ-6'                  : [["temperature probe 1", "temperature probe 2", "temperature probe 3", "temperature probe 4", "temperature probe 5", "temperature probe 6", "rssi"], [], []],
-    'IBS-TH'                  : [["temperature", "humidity", "battery", "rssi"], [], []],
-    'IBS-TH2/P01B'            : [["temperature", "battery", "rssi"], [], []],
     'BEC07-5'                 : [["temperature", "humidity", "rssi"], [], []],
     'iBeacon'                 : [["rssi", "measured power", "cypress temperature", "cypress humidity"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
@@ -1203,8 +1201,6 @@ MANUFACTURER_DICT = {
     'iBBQ-2'                  : 'Inkbird',
     'iBBQ-4'                  : 'Inkbird',
     'iBBQ-6'                  : 'Inkbird',
-    'IBS-TH'                  : 'Inkbird',
-    'IBS-TH2/P01B'            : 'Inkbird',
     'BEC07-5'                 : 'Jinou',
     'iBeacon'                 : 'Apple',
     'AltBeacon'               : 'Radius Networks',
@@ -1248,6 +1244,8 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Yellow'             : 'Tilt',
     'Tilt Pink'               : 'Tilt',
     'Tilt Green'              : 'Tilt',
+    'IBS-TH'                  : 'Inkbird',
+    'IBS-TH2/P01B'            : 'Inkbird',
 }
 
 
@@ -1281,6 +1279,7 @@ AUTO_SENSOR_LIST = [
     "pressure",
     "rssi",
     "temperature",
+    "temperature probe 1",
     "tvoc",
     "voltage",
     "weight",
