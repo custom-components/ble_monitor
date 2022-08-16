@@ -1007,6 +1007,7 @@ MEASUREMENT_DICT = {
     'ZNMS17LM'                : [["battery", "rssi"], [], ["lock", "door", "fingerprint", "antilock", "childlock", "armed away"]],
     'MJZNMSQ01YD'             : [["battery", "rssi"], [], ["lock", "fingerprint"]],
     'XMZNMST02YD'             : [["battery", "rssi"], [], ["lock", "door", "fingerprint"]],
+    'XMZNMS04LM'              : [["battery", "rssi"], [], ["lock", "fingerprint"],],
     'CGC1'                    : [["temperature", "humidity", "battery", "rssi"], [], []],
     'CGD1'                    : [["temperature", "humidity", "battery", "rssi"], [], []],
     'CGDK2'                   : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
@@ -1096,7 +1097,6 @@ MEASUREMENT_DICT = {
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
-    'XMZNMSBMCN03'            : [["battery", "rssi"], [], ["lock", "fingerprint"],],
 }
 
 # Sensor manufacturer dictionary
@@ -1126,6 +1126,7 @@ MANUFACTURER_DICT = {
     'ZNMS17LM'                : 'Xiaomi Aqara',
     'MJZNMSQ01YD'             : 'Xiaomi',
     'XMZNMST02YD'             : 'Xiaomi',
+    'XMZNMS04LM'              : 'Xiaomi',
     'CGC1'                    : 'Qingping',
     'CGD1'                    : 'Qingping',
     'CGDK2'                   : 'Qingping',
@@ -1214,7 +1215,6 @@ MANUFACTURER_DICT = {
     'Acconeer XM122'          : 'Acconeer',
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
-    'XMZNMSBMCN03'            : 'Xiaomi',
 }
 
 

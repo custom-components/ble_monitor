@@ -1,18 +1,16 @@
 ---
-manufacturer: Xiaomi Aqara
-name: Lock N200
-model: ZNMS17LM
-image: ZNMS17LM.jpg
+manufacturer: Xiaomi
+name: Smart Door Lock E
+model: XMZNMS04LM
+image: XMZNMS04LM.png
 physical_description:
 broadcasted_properties:
   - fingerprint
-  - door
   - lock
   - battery
   - result
   - key id
   - action
-  - door action
   - method
   - error
   - timestamp
@@ -48,15 +46,6 @@ broadcasted_property_notes:
         * turn off child lock
         * lock outside the door
         * abnormal
-  - property: door action
-    note: >
-      `door action` shows the last change in of the door state and can have the followng values:
-        * open the door
-        * close the door
-        * timeout, not closed
-        * knock on the door
-        * pry the door
-        * door stuck
   - property: method
     note: >
       `method` shows the last used locking mechanism and can have the following values:
@@ -83,5 +72,5 @@ broadcast_rate:
 active_scan:
 encryption_key:
 custom_firmware:
-notes: Only supports the Bluetooth version (MiHome version)
+notes:
 ---

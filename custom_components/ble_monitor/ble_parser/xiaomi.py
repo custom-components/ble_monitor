@@ -51,6 +51,7 @@ XIAOMI_TYPE_DICT = {
     0x1203: "XMWSDJ04MMC",
     0x1949: "XMWXKG01YL",
     0x098C: "XMZNMST02YD",
+    0x0784: "XMZNMS04LM",
     0x07BF: "YLAI003",
     0x0153: "YLYK01YL",
     0x068E: "YLYK01YL-FANCL",
@@ -63,7 +64,6 @@ XIAOMI_TYPE_DICT = {
     0x069F: "ZNMS17LM",
     0x0380: "DSL-C08",
     0x0DE7: "SU001-T",
-    0x0784: "XMZNMSBMCN03",
 }
 
 # Structured objects for data conversions
