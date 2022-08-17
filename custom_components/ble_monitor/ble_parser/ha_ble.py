@@ -28,7 +28,7 @@ def parse_float(data_obj, factor=1):
     decimal_places = -int(f'{factor:e}'.split('e')[-1])
     if len(data_obj) == 2:
         [val] = struct.unpack('e', data_obj)
-    if len(data_obj) == 4:
+    elif len(data_obj) == 4:
         [val] = struct.unpack('f', data_obj)
     elif len(data_obj) == 8:
         [val] = struct.unpack('d', data_obj)
@@ -108,10 +108,7 @@ def parse_ha_ble(self, data, uuid16, source_mac, rssi):
     else:
         return None
 
-    if payload:
-        payload_length = len(payload)
-        payload_start = 0
-    else:
+    if not payload:
         return None
 
     payload_length = len(payload)
