@@ -18,7 +18,7 @@ Home Assistant 2022.8 has (improved) support for passive BLE devices directly in
 - RuuviTag
 - Tilt
 
-**Expected in next HA release
+**Expected in next HA release**
 
 - Xiaomi (part 2)
 - Qingping
