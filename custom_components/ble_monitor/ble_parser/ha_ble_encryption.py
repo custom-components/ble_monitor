@@ -69,7 +69,7 @@ def main():
     mac = binascii.unhexlify('5448E68F80A5')  # MAC
     uuid16 = b"\x1E\x18"
     bindkey = binascii.unhexlify('231d39c1d7cc1ab1aee224cd096db932')
-    print("MAC:", mac.hex(), "Binkey:", bindkey.hex())
+    print("MAC:", mac.hex(), "Bindkey:", bindkey.hex())
     nonce = b"".join([mac, uuid16, count_id])  # 6+2+4 = 12 bytes
     cipher = AES.new(bindkey, AES.MODE_CCM, nonce=nonce, mac_len=4)
     cipher.update(b"\x11")
