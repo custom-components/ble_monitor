@@ -1,4 +1,4 @@
-"""Parser for HA BLE (DIY sensors) advertisements"""
+"""Parser for BTHome (DIY sensors) advertisements"""
 import logging
 import struct
 from Cryptodome.Cipher import AES
@@ -61,48 +61,49 @@ dispatch = {
 }
 
 DATA_MEAS_DICT = {
-    0x00: ["packet", 1],
-    0x01: ["battery", 1],
-    0x02: ["temperature", 0.01],
-    0x03: ["humidity", 0.01],
-    0x04: ["pressure", 0.01],
-    0x05: ["illuminance", 0.01],
-    0x06: ["weight", 0.01],
-    0x07: ["weight unit", None],
-    0x08: ["dewpoint", 0.01],
-    0x09: ["count", 1],
-    0x0A: ["energy", 0.001],
-    0x0B: ["power", 0.01],
-    0x0C: ["voltage", 0.001],
-    0x0D: ["pm2.5", 1],
-    0x0E: ["pm10", 1],
-    0x0F: ["binary", 1],
-    0x10: ["switch", 1],
-    0x11: ["opening", 1],
-    0x12: ["co2", 1],
-    0x13: ["tvoc", 1],
+    0x00: ["packet", 1, ""],
+    0x01: ["battery", 1, "%"],
+    0x02: ["temperature", 0.01, "°C"],
+    0x03: ["humidity", 0.01, "%"],
+    0x04: ["pressure", 0.01, "hPa"],
+    0x05: ["illuminance", 0.01, "lux"],
+    0x06: ["weight", 0.01, "kg"],
+    0x07: ["weight", 0.01, "lb"],
+    0x08: ["dewpoint", 0.01, "°C"],
+    0x09: ["count", 1, ""],
+    0x0A: ["energy", 0.001, "kWh"],
+    0x0B: ["power", 0.01, "W"],
+    0x0C: ["voltage", 0.001, "V"],
+    0x0D: ["pm2.5", 1, "µg/m³"],
+    0x0E: ["pm10", 1, "µg/m³"],
+    0x0F: ["binary", 1, ""],
+    0x10: ["switch", 1, ""],
+    0x11: ["opening", 1, ""],
+    0x12: ["co2", 1, "ppm"],
+    0x13: ["tvoc", 1, "µg/m³"],
+    0x14: ["moisture", 0.01, "%"],
 }
 
 
-def parse_ha_ble(self, data, uuid16, source_mac, rssi):
-    """Home Assistant BLE parser"""
-    device_type = "HA BLE DIY"
+def parse_bthome(self, data, uuid16, source_mac, rssi):
+    """BTHome BLE parser"""
+    device_type = "BTHome"
     ha_ble_mac = source_mac
     result = {}
     packet_id = None
 
     if uuid16 == 0x181C:
-        # Non-encrypted HA BLE format
+        # Non-encrypted BTHome format
         payload = data[4:]
-        firmware = "HA BLE"
+        firmware = "BTHome"
         packet_id = None
     elif uuid16 == 0x181E:
-        # Encrypted HA BLE format
+        # Encrypted BTHome format
         try:
             payload, count_id = decrypt_data(self, data, ha_ble_mac)
         except TypeError:
             return None
-        firmware = "HA BLE (encrypted)"
+        firmware = "BTHome (encrypted)"
         if count_id:
             packet_id = parse_uint(count_id)
     else:
@@ -130,22 +131,27 @@ def parse_ha_ble(self, data, uuid16, source_mac, rssi):
                     meas_data = payload[payload_start + 2:next_start]
                     meas_type = DATA_MEAS_DICT[obj_meas_type][0]
                     meas_factor = DATA_MEAS_DICT[obj_meas_type][1]
+                    meas_unit = DATA_MEAS_DICT[obj_meas_type][2]
                     meas = dispatch[obj_data_format](meas_data, meas_factor)
                     result.update({meas_type: meas})
+                    if obj_data_format == 0x07:
+                        # Weight measurement with non-standard unit of measurement (lb)
+                        result.update({"weight unit": meas_unit})
+
                 else:
-                    if self.report_unknown == "HA BLE":
-                        _LOGGER.error("UNKNOWN dataobject in HA BLE payload! Adv: %s", data.hex())
+                    if self.report_unknown == "BTHome":
+                        _LOGGER.error("UNKNOWN dataobject in BTHome payload! Adv: %s", data.hex())
             elif obj_data_format == 4:
                 data_mac = dispatch[obj_data_format](payload[payload_start + 1:next_start])
                 if data_mac:
                     ha_ble_mac = data_mac
             else:
-                if self.report_unknown == "HA BLE":
-                    _LOGGER.error("UNKNOWN dataobject in HA BLE payload! Adv: %s", data.hex())
+                if self.report_unknown == "BTHome":
+                    _LOGGER.error("UNKNOWN dataobject in BTHome payload! Adv: %s", data.hex())
         payload_start = next_start
 
     if not result:
-        if self.report_unknown == "HA BLE":
+        if self.report_unknown == "BTHome":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Home Assistant BLE DEVICE: RSSI: %s, MAC: %s, ADV: %s",
                 rssi,
@@ -190,7 +196,7 @@ def parse_ha_ble(self, data, uuid16, source_mac, rssi):
 
 
 def decrypt_data(self, data, ha_ble_mac):
-    """Decrypt encrypted HA BLE advertisements"""
+    """Decrypt encrypted BTHome advertisements"""
     # check for minimum length of encrypted advertisement
     if len(data) < 15:
         _LOGGER.debug("Invalid data length (for decryption), adv: %s", data.hex())
