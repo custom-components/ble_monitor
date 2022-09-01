@@ -100,7 +100,7 @@ class TestBTHome:
 
     def test_ha_ble_weight(self):
         """Test BTHome parser for weight measurement"""
-        data_string = "043E1B02010000A5808FE648540F0201060B161C1803065E1F63076B67DC"
+        data_string = "043E1702010000A5808FE648540B02010607161C1803065E1FDC"
         data = bytes(bytearray.fromhex(data_string))
 
         # pylint: disable=unused-variable
@@ -113,7 +113,6 @@ class TestBTHome:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["weight"] == 80.3
-        assert sensor_msg["weight unit"] == "kg"
         assert sensor_msg["rssi"] == -36
 
     def test_ha_ble_dewpoint(self):
