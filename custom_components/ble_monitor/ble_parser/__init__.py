@@ -13,7 +13,7 @@ from .brifit import parse_brifit
 from .const import TILT_TYPES
 from .govee import parse_govee
 from .helpers import to_mac, to_unformatted_mac
-from .ha_ble import parse_ha_ble
+from .bthome import parse_bthome
 from .hhcc import parse_hhcc
 from .ibeacon import parse_ibeacon
 from .inkbird import parse_inkbird
@@ -196,8 +196,8 @@ class BleParser:
                         sensor_data = parse_miscale(self, service_data, mac, rssi)
                         break
                     elif uuid16 in [0x181C, 0x181E]:
-                        # UUID16 = User Data and Bond Management (used by BLE HA)
-                        sensor_data = parse_ha_ble(self, service_data, uuid16, mac, rssi)
+                        # UUID16 = User Data and Bond Management (used by BTHome)
+                        sensor_data = parse_bthome(self, service_data, uuid16, mac, rssi)
                         break
                     elif uuid16 in [0xAA20, 0xAA21, 0xAA22] and local_name == "ECo":
                         # UUID16 = Relsib

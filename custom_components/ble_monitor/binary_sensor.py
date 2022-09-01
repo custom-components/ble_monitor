@@ -40,6 +40,8 @@ from .const import (
     KETTLES,
     MANUFACTURER_DICT,
     MEASUREMENT_DICT,
+    RENAMED_FIRMWARE_DICT,
+    RENAMED_MANUFACTURER_DICT,
     RENAMED_MODEL_DICT,
     BINARY_SENSOR_TYPES,
     DOMAIN,
@@ -162,9 +164,11 @@ class BLEupdaterBinary:
                     device_id = dev.id
                     device_model = dev.model
                     firmware = dev.sw_version
-                    # migrate to new model name if changed
-                    if dev.model in RENAMED_MODEL_DICT:
-                        device_model = RENAMED_MODEL_DICT[dev.model]
+                    manufacturer = dev.manufacturer
+                    # migrate to new model/firmware/manufacturer if changed
+                    device_model = RENAMED_MODEL_DICT.get(device_model, device_model)
+                    firmware = RENAMED_FIRMWARE_DICT.get(firmware, firmware)
+                    manufacturer = RENAMED_MANUFACTURER_DICT.get(manufacturer, manufacturer)
                     # get all entities for this device
                     entity_list = hass.helpers.entity_registry.async_entries_for_device(
                         registry=ent_registry, device_id=device_id, include_disabled_entities=False
@@ -178,7 +182,7 @@ class BLEupdaterBinary:
                                 auto_sensors.add(binary_sensor_key)
                     if device_model and firmware and auto_sensors:
                         sensors = await async_add_binary_sensor(
-                            key, device_model, firmware, auto_sensors, dev.manufacturer
+                            key, device_model, firmware, auto_sensors, manufacturer
                         )
                     else:
                         continue
@@ -210,11 +214,12 @@ class BLEupdaterBinary:
                 key = identifier_clean(dict_get_or(data))
                 batt_attr = None
                 device_model = data["type"]
-                # migrate to new model name if changed
-                if device_model in RENAMED_MODEL_DICT:
-                    device_model = RENAMED_MODEL_DICT[device_model]
                 firmware = data["firmware"]
                 manufacturer = data["manufacturer"] if "manufacturer" in data else None
+                # migrate to new model/firmware/manufacturer if changed
+                device_model = RENAMED_MODEL_DICT.get(device_model, device_model)
+                firmware = RENAMED_FIRMWARE_DICT.get(firmware, firmware)
+                manufacturer = RENAMED_MANUFACTURER_DICT.get(manufacturer, manufacturer)
                 auto_sensors = set()
                 if device_model in AUTO_MANUFACTURER_DICT:
                     for measurement in AUTO_BINARY_SENSOR_LIST:

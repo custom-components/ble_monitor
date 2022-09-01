@@ -1,10 +1,10 @@
-"""Example showing encoding and decoding of HA BLE advertisement"""
+"""Example showing encoding and decoding of BTHome advertisement"""
 import binascii
 from Cryptodome.Cipher import AES
 
 
 def parse_value(hexvalue):
-    """Parse decrypted payload to readable HA BLE data"""
+    """Parse decrypted payload to readable BTHome data"""
     vlength = len(hexvalue)
     if vlength >= 3:
         temp = round(int.from_bytes(hexvalue[2:4], "little", signed=False) * 0.01, 2)
@@ -64,7 +64,7 @@ def main():
     humi = 50.55
     print("Temperature:", temp, "Humidity:", humi)
     print()
-    data = bytes(bytearray.fromhex('2302CA090303BF13'))  # HA BLE data (not encrypted)
+    data = bytes(bytearray.fromhex('2302CA090303BF13'))  # BTHome data (not encrypted)
     count_id = bytes(bytearray.fromhex('00112233'))  # count id
     mac = binascii.unhexlify('5448E68F80A5')  # MAC
     uuid16 = b"\x1E\x18"

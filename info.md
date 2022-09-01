@@ -18,16 +18,20 @@ Home Assistant 2022.8 has (improved) support for passive BLE devices directly in
 **In development**
 
 - Xiaomi (part 3)
+- BTHome / HA BLE (binary sensors)
 - RuuviTag
 - Tilt
 
-**Expected in next HA release**
+**Expected in September HA release**
 
 - Xiaomi (part 2)
 - Qingping
-- BThome / HA BLE
+- BTHome / HA BLE (sensors only)
 - Thermobeacon
-- ThermoPro
+- Thermopro / Sensorpro
+- ThermoPlus
+- Brifit / Oria
+- b-parasite (will be using BTHome with new firmware)
 
 **Done**
 
@@ -62,9 +66,9 @@ The following integrations are available as official Home Assistant integration.
 - ATC (custom firmware for Xiaomi/Qingping sensors)
 - BlueMaestro
 - Brifit
+- BTHome
 - b-parasite
 - Govee
-- HA BLE
 - HHCC
 - Inkbird
 - iNode

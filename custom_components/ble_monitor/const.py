@@ -1225,6 +1225,20 @@ RENAMED_MODEL_DICT = {
     'IBS-TH2': 'IBS-TH',
     'IBS-TH2 (T only)': 'IBS-TH2/P01B',
     'IBS-TH2/P01R': 'IBS-TH2/P01B',
+    'HA BLE DIY': 'BTHome',
+}
+
+
+# Renamed firmware dictionary
+RENAMED_FIRMWARE_DICT =  {
+    'HA BLE': 'BTHome',
+    'HA BLE (encrypted)': 'BTHome (encrypted)',
+}
+
+
+# Renamed manufacturer dictionary
+RENAMED_MANUFACTURER_DICT =  {
+    'Home Assistant DIY': 'BTHome',
 }
 
 
@@ -1232,7 +1246,7 @@ RENAMED_MODEL_DICT = {
 AUTO_MANUFACTURER_DICT = {
     'HHCCJCY10'               : 'HHCC',
     'HHCCJCY10'               : 'HHCC',
-    'HA BLE DIY'              : 'Home Assistant DIY',
+    'BTHome'                  : 'BTHome',
     'TG-BT5-IN'               : 'Mikrotik',
     'TG-BT5-OUT'              : 'Mikrotik',
     'TP357'                   : 'Thermopro',
@@ -1296,8 +1310,8 @@ REPORT_UNKNOWN_LIST = [
     "ATC",
     "BlueMaestro",
     "Brifit",
+    "BTHome",
     "Govee",
-    "HA BLE",
     "HHCC",
     "Inkbird",
     "iNode",

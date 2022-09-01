@@ -13,6 +13,7 @@ from homeassistant.const import (
     CONF_MAC,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
+    MASS_KILOGRAMS,
 )
 
 from homeassistant.helpers.event import async_call_later
@@ -55,6 +56,8 @@ from .const import (
     MANUFACTURER_DICT,
     MEASUREMENT_DICT,
     PROBES,
+    RENAMED_FIRMWARE_DICT,
+    RENAMED_MANUFACTURER_DICT,
     RENAMED_MODEL_DICT,
     DOMAIN,
     SENSOR_TYPES,
@@ -186,9 +189,11 @@ class BLEupdater:
                     device_id = dev.id
                     device_model = dev.model
                     firmware = dev.sw_version
-                    # migrate to new model name if changed
-                    if dev.model in RENAMED_MODEL_DICT:
-                        device_model = RENAMED_MODEL_DICT[dev.model]
+                    manufacturer = dev.manufacturer
+                    # migrate to new model/firmware/manufacturer if changed
+                    device_model = RENAMED_MODEL_DICT.get(device_model, device_model)
+                    firmware = RENAMED_FIRMWARE_DICT.get(firmware, firmware)
+                    manufacturer = RENAMED_MANUFACTURER_DICT.get(manufacturer, manufacturer)
                     # get all entities for this device
                     entity_list = hass.helpers.entity_registry.async_entries_for_device(
                         registry=ent_registry, device_id=device_id, include_disabled_entities=False
@@ -203,7 +208,7 @@ class BLEupdater:
 
                     if device_model and firmware and auto_sensors:
                         sensors = await async_add_sensor(
-                            key, device_model, firmware, auto_sensors, dev.manufacturer
+                            key, device_model, firmware, auto_sensors, manufacturer
                         )
                     else:
                         continue
@@ -234,11 +239,12 @@ class BLEupdater:
                 rssi[key].append(int(data["rssi"]))
                 batt_attr = None
                 device_model = data["type"]
-                # migrate to new model name if changed
-                if device_model in RENAMED_MODEL_DICT:
-                    device_model = RENAMED_MODEL_DICT[device_model]
                 firmware = data["firmware"]
                 manufacturer = data["manufacturer"] if "manufacturer" in data else None
+                # migrate to new model/firmware/manufacturer if changed
+                device_model = RENAMED_MODEL_DICT.get(device_model, device_model)
+                firmware = RENAMED_FIRMWARE_DICT.get(firmware, firmware)
+                manufacturer = RENAMED_MANUFACTURER_DICT.get(manufacturer, manufacturer)
                 auto_sensors = set()
                 if device_model in AUTO_MANUFACTURER_DICT:
                     for measurement in AUTO_SENSOR_LIST:
@@ -938,7 +944,7 @@ class WeightSensor(InstantUpdateSensor):
         if "weight unit" in data:
             self._attr_native_unit_of_measurement = data["weight unit"]
         else:
-            self._attr_native_unit_of_measurement = None
+            self._attr_native_unit_of_measurement = MASS_KILOGRAMS
         if batt_attr is not None:
             self._extra_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
