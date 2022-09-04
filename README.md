@@ -29,6 +29,7 @@ Home Assistant 2022.8 has (improved) support for passive BLE devices directly in
 - ThermoPlus
 - Brifit / Oria
 - b-parasite (will be using BTHome with new firmware)
+- BlueMaestro
 
 **Done**
 
