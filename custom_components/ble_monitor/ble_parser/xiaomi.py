@@ -31,6 +31,7 @@ XIAOMI_TYPE_DICT = {
     0x1568: "K9B-1BTN",
     0x1569: "K9B-2BTN",
     0x0DFD: "K9B-3BTN",
+    0x1889: "LINP-M1",
     0x01AA: "LYWSDCGQ",
     0x045B: "LYWSD02",
     0x16e4: "LYWSD02MMC",
@@ -138,7 +139,7 @@ BLE_LOCK_METHOD = {
 
 
 # Advertisement conversion of measurement data
-# https://iot.mi.com/new/doc/embedded-development/ble/object-definition
+# https://iot.mi.com/new/doc/accesses/direct-access/embedded-development/ble/object-definition
 def obj0003(xobj):
     """Motion"""
     return {"motion": xobj[0], "motion timer": xobj[0]}
