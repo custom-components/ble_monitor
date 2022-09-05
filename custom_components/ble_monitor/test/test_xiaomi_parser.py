@@ -533,3 +533,55 @@ class TestXiaomi:
 
     def test_Xiaomi_DSL_C08(self):
         """Test Xiaomi parser for DSL-C08."""
+
+    def test_Linptech_M1SBB_4A12(self):
+        """Test Xiaomi parser for Linptech M1SBB(MI) with 0x4a12 data packet."""
+        self.aeskeys = {}
+        data_string = "043E290201030067e56638c1a41d020106191695fe585989189a67e56638c1a49dd97af3260000c8a60bd5DE"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "0fdcc30fe9289254876b5ef7c11ef1f0"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "M1SBB(MI)"
+        assert sensor_msg["mac"] == "A4C13866E567"
+        assert sensor_msg["packet"] == 154
+        assert sensor_msg["data"]
+        assert sensor_msg["opening"] == 1
+        assert sensor_msg["rssi"] == -34
+
+    def test_Linptech_M1SBB(self):
+        """Test Xiaomi parser for Linptech M1SBB(MI) with 0x4804 data packet."""
+        self.aeskeys = {}
+        data_string = "043E290201030067e56638c1a41d020106191695fe585989187667e56638c1a4aa8902ba26000023c3bca8DE"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "0fdcc30fe9289254876b5ef7c11ef1f0"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "M1SBB(MI)"
+        assert sensor_msg["mac"] == "A4C13866E567"
+        assert sensor_msg["packet"] == 118
+        assert sensor_msg["data"]
+        assert sensor_msg["opening"] == 1
+        assert sensor_msg["rssi"] == -34

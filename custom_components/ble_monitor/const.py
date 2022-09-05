@@ -1024,7 +1024,7 @@ MEASUREMENT_DICT = {
     'K9B-1BTN'                : [["rssi"], ["one btn switch"], []],
     'K9B-2BTN'                : [["rssi"], ["two btn switch left", "two btn switch right"], []],
     'K9B-3BTN'                : [["rssi"], ["three btn switch left", "three btn switch middle", "three btn switch right"], []],
-    'LINP-M1'                 : [["battery", "rssi"], [], ["opening"]],
+    'M1SBB(MI)'               : [["battery", "rssi"], ["button"], ["opening"]],
     'XMWXKG01YL'              : [["rssi"], ["two btn switch left", "two btn switch right"], []],
     'YLAI003'                 : [["rssi", "battery"], ["button"], []],
     'YLYK01YL'                : [["rssi"], ["remote"], ["remote single press", "remote long press"]],
@@ -1150,7 +1150,7 @@ MANUFACTURER_DICT = {
     'K9B-1BTN'                : 'Linptech',
     'K9B-2BTN'                : 'Linptech',
     'K9B-3BTN'                : 'Linptech',
-    'LINP-M1'                 : 'Linptech',
+    'M1SBB(MI)'               : 'Linptech',
     'XMWXKG01YL'              : 'Xiaomi',
     'SU001-T'                 : 'Petoneer',
     'ATC'                     : 'ATC',
@@ -1228,6 +1228,7 @@ RENAMED_MODEL_DICT = {
     'IBS-TH2 (T only)': 'IBS-TH2/P01B',
     'IBS-TH2/P01R': 'IBS-TH2/P01B',
     'HA BLE DIY': 'BTHome',
+    'LINP-M1': 'M1SBB(MI)', 
 }
 
 

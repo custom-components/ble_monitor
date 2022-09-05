@@ -640,7 +640,8 @@ def obj2000(xobj):
         return {}
 
 
-# The following data objects are device specific. For now only added for LYWSD02MMC, XMWSDJ04MMC, XMWXKG01YL
+# The following data objects are device specific. For now only added for 
+# LYWSD02MMC, XMWSDJ04MMC, XMWXKG01YL, LINPTECH M1SBB(MI)
 # https://miot-spec.org/miot-spec-v2/instances?status=all
 def obj4803(xobj):
     """Battery"""
@@ -648,10 +649,67 @@ def obj4803(xobj):
     return {"battery": batt}
 
 
+def obj4804(xobj):
+    """Opening status"""
+    opening_state = xobj[0]
+    # Status of the door/window, used in combination with obj4a12
+    if opening_state == 1:
+        opening = 1
+    elif opening_state == 2:
+        opening = 0
+    else:
+        return {}
+    return {"opening": opening}
+
+
 def obj4a01(xobj):
     """Low Battery"""
     low_batt = xobj[0]
     return {"low battery": low_batt}
+
+
+def obj4a0f(xobj):
+    """Door/window broken open"""
+    dev_forced = xobj[0]
+    if dev_forced == 1:
+        return {
+            "opening": 1,
+            "status": "door/window broken open"
+        }
+    else:
+        return {}
+
+
+def obj4a12(xobj):
+    """Opening event"""
+    opening_state = xobj[0]
+    # Opening event, used in combination with obj4804
+    if opening_state == 1:
+        opening = 1
+    elif opening_state == 2:
+        opening = 0
+    else:
+        return {}
+    return {"opening": opening}
+
+
+def obj4a13(xobj):
+    """Button"""
+    click = xobj[0]
+    if click == 1:
+        return {"button": "toggle"}
+    else:
+        return {}
+
+
+def obj4a1a(xobj):
+    """Door Not Closed"""
+    if xobj[0] == 1:
+        return {
+            "opening": 1,
+            "status": "door not closed"}
+    else:
+        return {}
 
 
 def obj4c02(xobj):
@@ -670,6 +728,12 @@ def obj4c01(xobj):
         return {"temperature": temp}
     else:
         return {}
+
+
+def obj4c03(xobj):
+    """Battery"""
+    batt = xobj[0]
+    return {"battery": batt}
 
 
 def obj4c08(xobj):
@@ -783,9 +847,15 @@ xiaomi_dataobject_dict = {
     0x100E: obj100e,
     0x2000: obj2000,
     0x4803: obj4803,
+    0x4804: obj4804,
     0x4a01: obj4a01,
+    0x4a0f: obj4a0f,
+    0x4a12: obj4a12,
+    0x4a13: obj4a13,
+    0x4a1a: obj4a1a,
     0x4c01: obj4c01,
     0x4c02: obj4c02,
+    0x4c03: obj4c03,
     0x4c08: obj4c08,
     0x4c14: obj4c14,
     0x4e0c: obj4e0c,
