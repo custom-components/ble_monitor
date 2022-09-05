@@ -31,7 +31,7 @@ XIAOMI_TYPE_DICT = {
     0x1568: "K9B-1BTN",
     0x1569: "K9B-2BTN",
     0x0DFD: "K9B-3BTN",
-    0x1889: "LINP-M1",
+    0x1889: "M1SBB(MI)",
     0x01AA: "LYWSDCGQ",
     0x045B: "LYWSD02",
     0x16e4: "LYWSD02MMC",
