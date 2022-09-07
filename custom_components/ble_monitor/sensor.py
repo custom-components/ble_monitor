@@ -200,7 +200,8 @@ class BLEupdater:
                     )
                     # find the measurement key for each entity
                     for entity in entity_list:
-                        unique_id_prefix = (entity.unique_id).removesuffix(key)
+                        unique_id_prefix = (entity.unique_id).removesuffix(key).removesuffix(dev.name)
+
                         for sensor_type in SENSOR_TYPES:
                             if sensor_type.unique_id == unique_id_prefix:
                                 sensor_key = sensor_type.key
