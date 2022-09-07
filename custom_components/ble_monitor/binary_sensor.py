@@ -175,7 +175,7 @@ class BLEupdaterBinary:
                     )
                     # find the measurement key for each entity
                     for entity in entity_list:
-                        unique_id_prefix = (entity.unique_id).removesuffix(key)
+                        unique_id_prefix = (entity.unique_id).removesuffix(key).removesuffix(dev.name)
                         for binary_sensor_type in BINARY_SENSOR_TYPES:
                             if binary_sensor_type.unique_id == unique_id_prefix:
                                 binary_sensor_key = binary_sensor_type.key
