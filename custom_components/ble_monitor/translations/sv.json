@@ -3,18 +3,18 @@
     "step": {
       "user": {
         "title": "Passiv BLE övervakare",
-        "description": " Ställ in din konfiguration för BLE övervakaren",
+        "description": "Ställ in din konfiguration för BLE övervakaren",
         "data": {
           "bt_interface": "MAC-adress för Bluetooth gränssnittet/adaptern",
           "devices": "Enheter",
-          "discovery": "Upptäck enhter och sensorer automatiskt",
+          "discovery": "Upptäck enheter och sensorer automatiskt",
           "decimals": "Siffror i decimaler",
           "period": "Period to use for averaging",
-          "log_spikes": "Log spikes",
+          "log_spikes": "Logga spikar",
           "use_median": "Använd medianvärde istället för medelvärde",
           "active_scan": "Använd aktiv sökning istället för passiv sökning (Påverkar batteriet)",
           "restore_state": "Återställ tillstånd efter omstart",
-          "report_unknown": " Rapportera okänd",
+          "report_unknown": "Rapportera okänd BLE aktivitet till HA loggen",
           "bt_auto_restart": "Automatisk omstart för adaptern om misslyckad start"
         }
       },
@@ -22,15 +22,16 @@
         "title": "Lägg till enhet",
         "data": {
           "mac": "MAC-adress",
-          "encryption_key": " Krypteringsnyckel",
+          "uuid": "Beacon UUID",
+          "encryption_key": "Krypteringsnyckel",
           "temperature_unit": "Temperaturenhet [Endast för temperatursensorer]",
           "decimals": "Siffror i decimaler",
           "use_median": "Använd medianvärde istället för medelvärde",
           "restore_state": "Återställ tillstånd efter omstart",
           "reset_timer": "Återställ timer (i sekunder, 0 = av)",
-          "report_unknown": " Rapportera okänd",
+          "report_unknown": "Rapportera okänd BLE aktivitet till HA loggen",
           "track_device": "Följ enhet",
-          "tracker_scan_interval": "Enhetsföljning skanningsintervall (i sekunder)",
+          "tracker_scan_interval": "Enhetsförföljning skanningsintervall (i sekunder)",
           "consider_home": "Enhetsföljningstid att konstatera hemma (i sekunder)",
           "delete device": "Radera enhet"
         }
@@ -38,9 +39,12 @@
     },
     "error": {
       "invalid_mac": "MAC-adressen måste vara i formatet 'AA:BB:CC:DD:EE:FF'.",
-      "invalid_key": "Encryption key must be 32 hexadecimal characters (24 for Yeelight sensors).",
-      "cannot_change_mac": "MAC address cannot be changed.",
-      "cannot_delete_device": "Device can't be deleted."
+      "invalid_uuid": "Beacon UUID måste vara i formatet '00000000-0000-0000-0000-000000000000'.",
+      "invalid_key": "Krypteringsnyckeln måste vara i 32 hexadecimals tecken (24 för Yeelight sensorer).",
+      "cannot_change_mac": "MAC-adressen kan inte ändras.",
+      "cannot_change_uuid": "Beacon UUID kan inte ändras.",
+      "cannot_delete_device": "Enheten kan inte tas bort.",
+      "cannot_disable_bt_interface": "Kan inte stänga av BT signalen, när en eller fler BT signaler är aktiva. Deaktivera samtliga BT signaler."
     },
     "abort": {
       "single_instance_allowed": "Bara en konfiguration för BLE övervakaren är tillåten."
@@ -54,44 +58,48 @@
         "data": {
           "bt_interface": "MAC-adress för Bluetooth gränssnittet/adaptern",
           "devices": "Enheter",
-          "discovery": "Upptäck enhter och sensorer automatiskt",
+          "discovery": "Upptäck enheter och sensorer automatiskt",
           "decimals": "Siffror i decimaler",
           "period": "Period to use for averaging",
           "log_spikes": "Logga spikar",
           "use_median": "Använd medianvärde istället för medelvärde",
           "active_scan": "Använd aktiv sökning istället för passiv sökning (Påverkar batteriet)",
-          "report_unknown": "Rapportera okänd",
+          "report_unknown": "Rapportera okänd BLE aktivitet till HA loggen",
           "bt_auto_restart": "Automatisk omstart för adaptern om misslyckad start",
           "restore_state": "Återställ tillstånd efter omstart",
-          "not_in_use": "YAML is used, change options in YAML"
+          "not_in_use": "YAML används, ändra alternativ i YAML"
         }
       },
       "add_remove_device": {
         "title": "Konfigurera enhet",
         "data": {
           "mac": "MAC-adress",
+          "uuid": "Beacon UUID",
           "encryption_key": "Krypteringsnyckel (sätt - för att ta bort)",
           "temperature_unit": "Temperaturenhet",
           "decimals": "Siffror i decimaler",
           "use_median": "Använd medianvärde istället för medelvärde",
           "restore_state": "Återställ tillstånd efter omstart",
           "reset_timer": "Återställ timer (i sekunder, 0 = av)",
-          "report_unknown": " Rapportera okänd",
+          "report_unknown": "Rapportera okänd BLE aktivitet till HA loggen",
           "track_device": "Följ enhet",
-          "tracker_scan_interval": "Enhetsföljning skanningsintervall (i sekunder)",
-          "consider_home": "Enhetsföljningstid att konstatera hemma (i sekunder)",
+          "tracker_scan_interval": "Enhetsförföljning skanningsintervall (i sekunder)",
+          "consider_home": "Enhetsförföljningstid att konstatera hemma (i sekunder)\",",
           "delete device": "Radera enhet"
         }
       }
     },
     "error": {
       "invalid_mac": "MAC-adressen måste vara i formatet 'AA:BB:CC:DD:EE:FF'.",
-      "invalid_key": "Krypteringsnyckeln måste vara 32 hexadecimal tecken (24 för Yeelight sensors).",
+      "invalid_uuid": "Beacon UUID måste vara i formatet '00000000-0000-0000-0000-000000000000'.",
+      "invalid_key": "Krypteringsnyckeln måste vara i 32 hexadecimals tecken (24 för Yeelight sensorer).",
       "cannot_change_mac": "MAC-adressen kan inte ändras.",
-      "cannot_delete_device": "Enheten kan inte raderas."
+      "cannot_change_uuid": "Beacon UUID kan inte ändras.",
+      "cannot_delete_device": "Enheten kan inte tas bort.",
+      "cannot_disable_bt_interface": "Kan inte stänga av BT signalen, när en eller fler BT signaler är aktiva. Deaktivera samtliga BT signaler."
     },
     "abort": {
-      "not_in_use": " Du har konfigurerat BLE övervakaren i YAML. Var snäll att ändra dina alternativ i YAML."
+      "not_in_use": "Du har konfigurerat BLE övervakaren i YAML. Var snäll att ändra dina alternativ i YAML."
     }
   }
 }
