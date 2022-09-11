@@ -615,7 +615,6 @@ class TestXiaomi:
         assert sensor_msg["method"] == "biometrics"
         assert sensor_msg["error"] is None
         assert sensor_msg["key id"] == 2
-        assert sensor_msg["timestamp"] == "2022-09-10T09:38:17"
         assert sensor_msg["rssi"] == -66
 
     def test_Xiaomi_XMZNMS08LM_door(self):
