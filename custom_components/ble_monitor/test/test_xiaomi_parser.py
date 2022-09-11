@@ -643,4 +643,4 @@ class TestXiaomi:
         assert sensor_msg["data"]
         assert sensor_msg["door"] == 0
         assert sensor_msg["door action"] == "close the door"
-        assert sensor_msg["rssi"] == -66
+        assert sensor_msg["rssi"] == -64
