@@ -34,6 +34,7 @@ def parse_inkbird(self, data, complete_local_name, source_mac, rssi):
         elif probe == 1:
             result.update({"temperature probe 1": temp / 100})
         elif probe == 3:
+            # User has reported that the external probe sometimes reports as probe 3
             result.update({"temperature probe 1": temp / 100})
         else:
             _LOGGER.error(
