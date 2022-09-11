@@ -592,7 +592,7 @@ class TestXiaomi:
         data_string = "043E2B0201000198BE447389EE1F0201061B1695FE4855390E35BF9FD9A08BEFF236EC5BD8315300008E550B6EBE"
         data = bytes(bytearray.fromhex(data_string))
 
-        aeskey = "0fdcc30fe9289254876b5ef7c11ef1f0"
+        aeskey = "2c3795afa33019a8afdc17ba99e6f217"
 
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
@@ -624,7 +624,7 @@ class TestXiaomi:
         data_string = "043E270201000198BE447389EE1B020106171695FE4855390E339C71C0241FFFEE8053000002B4C539C0"
         data = bytes(bytearray.fromhex(data_string))
 
-        aeskey = "0fdcc30fe9289254876b5ef7c11ef1f0"
+        aeskey = "2c3795afa33019a8afdc17ba99e6f217"
 
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
