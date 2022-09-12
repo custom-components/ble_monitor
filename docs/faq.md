@@ -257,11 +257,11 @@ There are several ways to increase coverage:
 - use multiple spaced BT-dongles. You can experiment with various extension cords (for example, inexpensive [USB-RJ45 extenders](https://sc01.alicdn.com/kf/HTB1q0VKodcnBKNjSZR0q6AFqFXae.jpg) in combination with a regular ethernet cable).
 - use additional devices with their own BT-interface, and connect them to Home Assistant. For example, it could be another raspberrypi with Home Assistant and our component, connected to the main host using the [remote_homeassistant](https://github.com/custom-components/remote_homeassistant) component, which links multiple Home Assistant instances together.
 
-### My sensor's BLE advertisements are encrypted, how can I get the key?
+## My sensor's BLE advertisements are encrypted, how can I get the key?
 
 There are two types of encryption, Yeelight Remotes (YLYK01YL) and dimmers (YLKG07YL and YLKG08YL) use a legacy MiBeacon (V2/V3) encryption, all other devices (with encryption) use the later MiBeacon V4/V5 encryption.
 
-#### How to get the MiBeacon V4/V5 encryption key
+### How to get the MiBeacon V4/V5 encryption key
 
 The BLE advertisements from some devices are encrypted. To decrypt these messages, you need to configure the encryption key. This encryption key is a 16 bytes (32 characters) long string. The encryption key (also called bind key or beaconkey) is broadcasted at the moment it is created, e.g. when adding the sensor to the MiHome app, but it is also stored in the Xiaomi cloud. This means that there are several ways to get the encryption key. The first 2 options are the easiest:
 
@@ -320,7 +320,7 @@ Unfortunately, Xiaomi has enabled additional encryption of API requests recently
     - [using Burp Suite](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-599780750), device must be rooted.
 
 
-#### How to get the MiBeacon V2/V3 encryption key
+### How to get the MiBeacon V2/V3 encryption key
 
 Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legacy type of encryption [1]. This MiBeacon V2/V3 encryption key is shorter than the MiBeacon V4/V5 encryption key, as it is a 12 bytes (24 characters) long string. You won't be able to retrieve the encryption key with method 1 and 2 from above. There are different ways to get the key, the easiest is to use a python script to get the key (method 5). If your remote is connected to a ceiling light/fan, an alternative is to follow method 6 (miiocli tool). A third alternative is method 7, which also works when you don't have a ceiling light/fan connected (which is more or less similar to method 3 from above).
 
