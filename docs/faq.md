@@ -276,7 +276,7 @@ Get the encryption key with the online tool on the [TelinkFlasher website by atc
 
 Note that even though most functionality there (flashing) is only for LYWSD03MMC sensors, this particular version of the page has been modified to allow activation of any device.
 
-![Telink Flasher](https://github.com/custom-components/ble_monitor/blob/master/docs/assets/images/Telink_flasher_website.png)
+![Telink Flasher]({{site.baseurl}}/assets/images/Telink_flasher_website.png)
 
 - Keep the sensor close to the mobile phone (use Chromium-based browsers on Android, try [WebBLE](https://apps.apple.com/us/app/webble/id1193531073) (paid app) on iOS) or use a PC.
 - Make sure that the bluetooth is enabled.
@@ -322,7 +322,9 @@ Unfortunately, Xiaomi has enabled additional encryption of API requests recently
 
 #### How to get the MiBeacon V2/V3 encryption key
 
-Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legacy type of encryption. This MiBeacon V2/V3 encryption key is shorter than the MiBeacon V4/V5 encryption key, as it is a 12 bytes (24 characters) long string. You won't be able to retrieve the encryption key with method 1 and 2 from above. There are different ways to get the key, the easiest is to use a python script to get the key (method 5). If your remote is connected to a ceiling light/fan, an alternative is to follow method 6 (miiocli tool). A third alternative is method 7, which also works when you don't have a ceiling light/fan connected (which is more or less similar to method 3 from above).
+Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legacy type of encryption [1]. This MiBeacon V2/V3 encryption key is shorter than the MiBeacon V4/V5 encryption key, as it is a 12 bytes (24 characters) long string. You won't be able to retrieve the encryption key with method 1 and 2 from above. There are different ways to get the key, the easiest is to use a python script to get the key (method 5). If your remote is connected to a ceiling light/fan, an alternative is to follow method 6 (miiocli tool). A third alternative is method 7, which also works when you don't have a ceiling light/fan connected (which is more or less similar to method 3 from above).
+
+[1] Note that the new `YLYKQ-0004` and `YLYKQ-0005` dimmers are recognized as `YLKG07YL` and `YLKG08YL` in BLE monitor, but `YLYKQ-0004` and `YLYKQ-0005` both use a MiBeacon V4/V5 encryption key, see method 1 till 4. 
 
 **5. get_beacon_key python script**
 
