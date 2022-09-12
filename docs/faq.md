@@ -257,7 +257,7 @@ There are several ways to increase coverage:
 - use multiple spaced BT-dongles. You can experiment with various extension cords (for example, inexpensive [USB-RJ45 extenders](https://sc01.alicdn.com/kf/HTB1q0VKodcnBKNjSZR0q6AFqFXae.jpg) in combination with a regular ethernet cable).
 - use additional devices with their own BT-interface, and connect them to Home Assistant. For example, it could be another raspberrypi with Home Assistant and our component, connected to the main host using the [remote_homeassistant](https://github.com/custom-components/remote_homeassistant) component, which links multiple Home Assistant instances together.
 
-## My sensor's BLE advertisements are encrypted, how can I get the key?
+## Encryption keys
 
 There are two types of encryption, Yeelight Remotes (YLYK01YL) and dimmers (YLKG07YL and YLKG08YL) use a legacy MiBeacon (V2/V3) encryption, all other devices (with encryption) use the later MiBeacon V4/V5 encryption.
 
