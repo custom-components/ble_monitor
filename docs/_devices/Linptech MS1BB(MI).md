@@ -1,8 +1,8 @@
 ---
 manufacturer: Linptech
 name: Linptech Door and Window Sensor
-model: M1SBB(MI)
-image: Linptech_M1SBB(MI).png
+model: MS1BB(MI)
+image: Linptech_MS1BB(MI).png
 physical_description:
 broadcasted_properties:
   - opening

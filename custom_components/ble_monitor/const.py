@@ -1025,7 +1025,8 @@ MEASUREMENT_DICT = {
     'K9B-1BTN'                : [["rssi"], ["one btn switch"], []],
     'K9B-2BTN'                : [["rssi"], ["two btn switch left", "two btn switch right"], []],
     'K9B-3BTN'                : [["rssi"], ["three btn switch left", "three btn switch middle", "three btn switch right"], []],
-    'M1SBB(MI)'               : [["battery", "rssi"], ["button"], ["opening"]],
+    'MS1BB(MI)'               : [["battery", "rssi"], ["button"], ["opening"]],
+    'HS1BB(MI)'               : [["illuminance", "battery", "rssi"], [], ["motion"]],
     'XMWXKG01YL'              : [["rssi"], ["two btn switch left", "two btn switch right"], []],
     'YLAI003'                 : [["rssi", "battery"], ["button"], []],
     'YLYK01YL'                : [["rssi"], ["remote"], ["remote single press", "remote long press"]],
@@ -1152,7 +1153,8 @@ MANUFACTURER_DICT = {
     'K9B-1BTN'                : 'Linptech',
     'K9B-2BTN'                : 'Linptech',
     'K9B-3BTN'                : 'Linptech',
-    'M1SBB(MI)'               : 'Linptech',
+    'MS1BB(MI)'               : 'Linptech',
+    'HS1BB(MI)'               : 'Linptech',
     'XMWXKG01YL'              : 'Xiaomi',
     'SU001-T'                 : 'Petoneer',
     'ATC'                     : 'ATC',
@@ -1224,13 +1226,9 @@ MANUFACTURER_DICT = {
 
 # Renamed model dictionary
 RENAMED_MODEL_DICT = {
-    'H5051/H5074': 'H5074',
-    'H5051': 'H5051/H5071',
-    'IBS-TH2': 'IBS-TH',
-    'IBS-TH2 (T only)': 'IBS-TH2/P01B',
-    'IBS-TH2/P01R': 'IBS-TH2/P01B',
     'HA BLE DIY': 'BTHome',
-    'LINP-M1': 'M1SBB(MI)', 
+    'LINP-M1': 'MS1BB(MI)',
+    'M1SBB(MI)': 'MS1BB(MI)',
 }
 
 
