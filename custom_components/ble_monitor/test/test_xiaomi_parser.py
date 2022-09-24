@@ -535,7 +535,7 @@ class TestXiaomi:
         """Test Xiaomi parser for DSL-C08."""
 
     def test_Linptech_M1SBB_4A12(self):
-        """Test Xiaomi parser for Linptech M1SBB(MI) with 0x4a12 data packet."""
+        """Test Xiaomi parser for Linptech MS1BB(MI) with 0x4a12 data packet."""
         self.aeskeys = {}
         data_string = "043E290201030067e56638c1a41d020106191695fe585989189a67e56638c1a49dd97af3260000c8a60bd5DE"
         data = bytes(bytearray.fromhex(data_string))
@@ -553,7 +553,7 @@ class TestXiaomi:
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
-        assert sensor_msg["type"] == "M1SBB(MI)"
+        assert sensor_msg["type"] == "MS1BB(MI)"
         assert sensor_msg["mac"] == "A4C13866E567"
         assert sensor_msg["packet"] == 154
         assert sensor_msg["data"]
@@ -561,7 +561,7 @@ class TestXiaomi:
         assert sensor_msg["rssi"] == -34
 
     def test_Linptech_M1SBB(self):
-        """Test Xiaomi parser for Linptech M1SBB(MI) with 0x4804 data packet."""
+        """Test Xiaomi parser for Linptech MS1BB(MI) with 0x4804 data packet."""
         self.aeskeys = {}
         data_string = "043E290201030067e56638c1a41d020106191695fe585989187667e56638c1a4aa8902ba26000023c3bca8DE"
         data = bytes(bytearray.fromhex(data_string))
@@ -579,7 +579,7 @@ class TestXiaomi:
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
-        assert sensor_msg["type"] == "M1SBB(MI)"
+        assert sensor_msg["type"] == "MS1BB(MI)"
         assert sensor_msg["mac"] == "A4C13866E567"
         assert sensor_msg["packet"] == 118
         assert sensor_msg["data"]
