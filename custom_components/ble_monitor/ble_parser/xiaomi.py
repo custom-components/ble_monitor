@@ -31,7 +31,8 @@ XIAOMI_TYPE_DICT = {
     0x1568: "K9B-1BTN",
     0x1569: "K9B-2BTN",
     0x0DFD: "K9B-3BTN",
-    0x1889: "M1SBB(MI)",
+    0x1889: "MS1BB(MI)",
+    0x2AEB: "HS1BB(MI)",
     0x01AA: "LYWSDCGQ",
     0x045B: "LYWSD02",
     0x16e4: "LYWSD02MMC",
@@ -563,10 +564,10 @@ def obj1015(xobj):
 def obj1017(xobj):
     """Motion"""
     if len(xobj) == 4:
-        (motion,) = M_STRUCT.unpack(xobj)
+        (no_motion_time,) = M_STRUCT.unpack(xobj)
         # seconds since last motion detected message (not used, we use motion timer in obj000f)
         # 0 = motion detected
-        return {"motion": 1 if motion == 0 else 0}
+        return {"motion": 1 if no_motion_time == 0 else 0, "no motion time": no_motion_time}
     else:
         return {}
 
@@ -641,8 +642,8 @@ def obj2000(xobj):
         return {}
 
 
-# The following data objects are device specific. For now only added for 
-# LYWSD02MMC, XMWSDJ04MMC, XMWXKG01YL, LINPTECH M1SBB(MI)
+# The following data objects are device specific. For now only added for
+# LYWSD02MMC, XMWSDJ04MMC, XMWXKG01YL, LINPTECH MS1BB(MI), HS1BB(MI)
 # https://miot-spec.org/miot-spec-v2/instances?status=all
 def obj4803(xobj):
     """Battery"""
@@ -663,10 +664,33 @@ def obj4804(xobj):
     return {"opening": opening}
 
 
+def obj4805(xobj):
+    """Illuminance in lux"""
+    (illu,) = struct.unpack("f", xobj)
+    return {"illuminance": illu}
+
+
+def obj4818(xobj):
+    """Time in seconds of no motion (not used, we use 4a08)"""
+    if len(xobj) == 2:
+        (no_motion_time,) = struct.unpack("<H", xobj)
+        # seconds since last motion detected message (not used, we use motion timer in obj4a08)
+        # 0 = motion detected
+        return {"motion": 1 if no_motion_time == 0 else 0, "no motion time": no_motion_time}
+    else:
+        return {}
+
+
 def obj4a01(xobj):
     """Low Battery"""
     low_batt = xobj[0]
     return {"low battery": low_batt}
+
+
+def obj4a08(xobj):
+    """Motion detected with Illuminance in lux"""
+    (illu,) = struct.unpack("f", xobj)
+    return {"motion": 1, "motion timer": 1, "illuminance": illu}
 
 
 def obj4a0f(xobj):
@@ -849,7 +873,10 @@ xiaomi_dataobject_dict = {
     0x2000: obj2000,
     0x4803: obj4803,
     0x4804: obj4804,
+    0x4805: obj4805,
+    0x4818: obj4818,
     0x4a01: obj4a01,
+    0x4a08: obj4a08,
     0x4a0f: obj4a0f,
     0x4a12: obj4a12,
     0x4a13: obj4a13,
