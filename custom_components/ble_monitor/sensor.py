@@ -494,7 +494,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
             if old_state.attributes["unit_of_measurement"] in [TEMP_CELSIUS, TEMP_FAHRENHEIT]:
                 # Convert old state temperature to a temperature in the device setting temperature unit
                 self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
-                self.state = TemperatureConverter.convert(
+                self._state = TemperatureConverter.convert(
                     value=float(old_state.state),
                     from_unit=old_state.attributes["unit_of_measurement"],
                     to_unit=self._device_settings["temperature unit"],
