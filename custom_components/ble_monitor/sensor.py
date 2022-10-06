@@ -20,7 +20,7 @@ from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.util import dt
-from homeassistant.util.temperature import convert as convert_temp
+from homeassistant.util.unit_conversion import TemperatureConverter
 
 from .helper import (
     identifier_normalize,
@@ -494,10 +494,10 @@ class BaseSensor(RestoreEntity, SensorEntity):
             if old_state.attributes["unit_of_measurement"] in [TEMP_CELSIUS, TEMP_FAHRENHEIT]:
                 # Convert old state temperature to a temperature in the device setting temperature unit
                 self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
-                self._state = convert_temp(
-                    float(old_state.state),
-                    old_state.attributes["unit_of_measurement"],
-                    self._device_settings["temperature unit"]
+                self.state = TemperatureConverter.convert(
+                    value=float(old_state.state),
+                    from_unit=old_state.attributes["unit_of_measurement"],
+                    to_unit=self._device_settings["temperature unit"],
                 )
             else:
                 self._attr_native_unit_of_measurement = old_state.attributes["unit_of_measurement"]
@@ -718,7 +718,11 @@ class TemperatureSensor(MeasuringSensor):
                 if self._fkey in dict_get_or(device).upper():
                     if CONF_TEMPERATURE_UNIT in device:
                         if device[CONF_TEMPERATURE_UNIT] == TEMP_FAHRENHEIT:
-                            temp_fahrenheit = convert_temp(temp, TEMP_CELSIUS, TEMP_FAHRENHEIT)
+                            temp_fahrenheit = TemperatureConverter.convert(
+                                value=temp,
+                                from_unit=TEMP_CELSIUS,
+                                to_unit=TEMP_FAHRENHEIT
+                            )
                             return temp_fahrenheit
                     break
         return temp
