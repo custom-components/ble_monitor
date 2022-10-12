@@ -20,7 +20,7 @@ def parse_airmentor(self, data, source_mac, rssi):
         airmentor_mac = source_mac
         msg_type = data[2]
         xvalue = data[4:]
-        if msg_type == 0x22:
+        if msg_type in [0x12, 0x22]:
             (tvoc, temp, temp_cal, humi, aqi) = unpack(">HHBBH", xvalue)
             temperature = (temp - 4000) * 0.01
             temperature_calibrated = temperature - temp_cal * 0.1
@@ -47,7 +47,7 @@ def parse_airmentor(self, data, source_mac, rssi):
                 "aqi": aqi,
                 "air quality": air_quality
             }
-        if msg_type == 0x21:
+        if msg_type in [0x11, 0x21]:
             (co2, pm25, pm10, co, o3) = unpack(">HHHBB", xvalue)
             # CO and O3 are not used
             result = {
