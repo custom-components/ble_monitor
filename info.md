@@ -20,7 +20,7 @@ Home Assistant 2022.8 has (improved) support for passive BLE devices directly in
 - Xiaomi (part 3)
 - RuuviTag
 
-**Excpected in November release**
+**Expected in November release**
 
 - HHCC
 - Oral-B
