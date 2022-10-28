@@ -20,6 +20,7 @@ Home Assistant 2022.8 has (improved) support for passive BLE devices directly in
 **Excpected in November release**
 
 - HHCC
+- Oral-B
 
 **Done**
 
