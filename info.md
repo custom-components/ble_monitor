@@ -19,11 +19,7 @@ Home Assistant 2022.8 has (improved) support for passive BLE devices directly in
 
 - Xiaomi (part 3)
 - RuuviTag
-
-**Expected in November release**
-
 - HHCC
-- Oral-B
 
 **Done**
 
@@ -37,6 +33,7 @@ The following integrations are available as official Home Assistant integration.
 - Inkbird
 - Kegtron
 - Moat
+- Oral-B
 - Qingping
 - Thermobeacon
 - Thermopro / Sensorpro
