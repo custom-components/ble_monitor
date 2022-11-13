@@ -348,7 +348,7 @@ class BleParser:
                         sensor_data = parse_govee(self, man_spec_data, mac, rssi)
                         break
                     elif service_class_uuid16 == 0xF0FF:
-                        if comp_id in [0x0010, 0x0011, 0x0015] and data_len in [0x15, 0x17]:
+                        if comp_id in [0x0010, 0x0011, 0x0015, 0x0018] and data_len in [0x15, 0x17]:
                             # Thermoplus
                             sensor_data = parse_thermoplus(self, man_spec_data, mac, rssi)
                             break
