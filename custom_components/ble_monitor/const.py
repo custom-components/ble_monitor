@@ -713,6 +713,17 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
+        key="pulse",
+        sensor_class="InstantUpdateSensor",
+        update_behavior="Instantly",
+        name="ble pulse",
+        unique_id="pu_",
+        icon="mdi:heart-pulse",
+        native_unit_of_measurement=None,
+        device_class=None,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="shake",
         sensor_class="InstantUpdateSensor",
         update_behavior="Instantly",
@@ -1265,6 +1276,7 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Green'              : 'Tilt',
     'IBS-TH'                  : 'Inkbird',
     'IBS-TH2/P01B'            : 'Inkbird',
+    'Amazfit Smart Scale'     : 'Amazfit',
 }
 
 
@@ -1292,10 +1304,12 @@ AUTO_SENSOR_LIST = [
     "humidity",
     "illuminance",
     "moisture",
+    "non-stabilized weight",
     "pm2.5",
     "pm10",
     "power",
     "pressure",
+    "pulse",
     "rssi",
     "temperature",
     "temperature probe 1",
@@ -1310,6 +1324,7 @@ REPORT_UNKNOWN_LIST = [
     "Off",
     "Acconeer",
     "Air Mentor",
+    "Amazfit",
     "ATC",
     "BlueMaestro",
     "Brifit",
