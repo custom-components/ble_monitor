@@ -16,6 +16,7 @@ def parse_amazfit(self, data, source_mac, rssi):
 
     if msg_length == 24:
         device_type = "Amazfit Smart Scale"
+        firmware = "Amazfit"
         xvalue = data[4:25]
         # Not all info is known
         # byte 1-6: unknown
@@ -45,8 +46,6 @@ def parse_amazfit(self, data, source_mac, rssi):
                 data.hex()
             )
         return None
-
-    firmware = device_type
 
     # check for MAC presence in sensor whitelist, if needed
     if self.discovery is False and source_mac.lower() not in self.sensor_whitelist:
