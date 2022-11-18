@@ -36,5 +36,5 @@ class TestSensirion:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["temperature"] == 27.47
-        assert sensor_msg["humidity"] == 39.5
+        assert sensor_msg["humidity"] == 43.37
         assert sensor_msg["rssi"] == -71
