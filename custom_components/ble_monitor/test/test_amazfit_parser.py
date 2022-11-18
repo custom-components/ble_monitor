@@ -21,5 +21,6 @@ class TestAmazfit:
         assert sensor_msg["data"]
         assert sensor_msg["weight"] == 85.3
         assert sensor_msg["non-stabilized weight"] == 85.3
+        assert sensor_msg["impedance"] == 517.2
         assert sensor_msg["pulse"] == 104
         assert sensor_msg["rssi"] == -79
