@@ -25,7 +25,8 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
     if device_type not in SENSIRION_DEVICES:
         if self.report_unknown == "Sensirion":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Sensirion DEVICE: RSSI: %s, MAC: %s, ADV: %s",
+                "BLE ADV from UNKNOWN Sensirion DEVICE: %s RSSI: %s, MAC: %s, ADV: %s",
+                device_type,
                 rssi,
                 to_mac(source_mac),
                 data.hex()
@@ -45,10 +46,10 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
     companyId = data[2:3]  # redundant (already part of the metadata)
     advertisementType = int(data[4])
     advSampleType = int(data[5])
-    deviceName = f'{data[6]:x}:{data[7]:x}'  # as shown in Sensirion MyAmbience app (last 4 bytes of MAC address)
+    deviceId = f'{data[6]:x}:{data[7]:x}'  # as shown in Sensirion MyAmbience app (last 4 bytes of MAC address)
 
     if advertisementType == 0:
-        samples = _parse_dataType(advSampleType, data[8:])
+        samples = _parse_data_type(advSampleType, data[8:])
         if not samples:
             return None
         else:
@@ -69,18 +70,128 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
 
 '''
 The following functions are based on Sensirion_GadgetBle_Lib.cpp from  https://github.com/Sensirion/arduino-ble-gadget/
-support from other devices should be easily added by looking at GadgetBle::setDataType and updating _parse_dataType accordingly
+support from other devices should be easily added by looking at GadgetBle::setDataType and updating _parse_data_type 
+accordingly. Note that the device name also has to be added to the SENSIRION_DEVICES list.
 '''
 
 
-def _parse_dataType(advSampleType, byte_data):
-    if (advSampleType == 6):
-        return {'temperature': _decodeTemperatureV1(byte_data[0:2]),
-                'humidity': _decodeHumidityV1(byte_data[2:4])}
+def _parse_data_type(advSampleType, byte_data):
+    if (advSampleType == 3):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'voc': _decodeSimple(byte_data[4:6]),
+            'voc-raw': _decodeSimple(byte_data[6:8])
+        }
+    elif (advSampleType == 4):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4])
+        }
+    elif (advSampleType == 6):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV2(byte_data[2:4])
+        }
     elif (advSampleType == 8):
-        return {'temperature': _decodeTemperatureV1(byte_data[0:2]),
-                'humidity': _decodeHumidityV1(byte_data[2:4]),
-                'co2': _decodeSimple(byte_data[4:6])}
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'co2': _decodeSimple(byte_data[4:6])
+        }
+    elif (advSampleType == 10):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'co2': _decodeSimple(byte_data[4:6])
+        }
+    elif (advSampleType == 12):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'co2': _decodeSimple(byte_data[4:6]),
+            'pm25': _decodePM2p5V1(byte_data[6:8])
+        }
+    elif (advSampleType == 14):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'hcho': _decodeHCHOV1(byte_data[4:6])
+        }
+    elif (advSampleType == 16):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'voc': _decodeSimple(byte_data[4:6]),
+            'pm25': _decodePM2p5V1(byte_data[6:8])
+        }
+    elif (advSampleType == 20):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'c02': _decodeSimple(byte_data[4:6]),
+            'voc': _decodeSimple(byte_data[6:8]),
+            'pm25': _decodePM2p5V1(byte_data[8:10]),
+            'hcho': _decodeHCHOV1(byte_data[10:12])
+        }
+    elif (advSampleType == 22):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'voc': _decodeSimple(byte_data[4:6]),
+            'nox': _decodeSimple(byte_data[6:8])
+        }
+    elif (advSampleType == 24):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'voc': _decodeSimple(byte_data[4:6]),
+            # 'nox': _decodeSimple(byte_data[6:8]),
+            'pm25': _decodePM2p5V2(byte_data[8:10])
+        }
+    elif (advSampleType == 26):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'co2': _decodeSimple(byte_data[4:6]),
+            'voc': _decodeSimple(byte_data[6:8]),
+            # 'nox': _decodePM2p5V2(byte_data[8:10]),
+            'pm25': _decodePM2p5V2(byte_data[10:12])
+        }
+    elif (advSampleType == 28):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'co2': _decodeSimple(byte_data[4:6]),
+            'pm25': _decodePM2p5V2(byte_data[6:8])
+        }
+    elif (advSampleType == 30):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'voc': _decodeSimple(byte_data[4:6]),
+            'pm25': _decodePM2p5V2(byte_data[6:8])
+        }
+    elif (advSampleType == 32):
+        return {
+            'temperature': _decodeTemperatureV1(byte_data[0:2]),
+            'humidity': _decodeHumidityV1(byte_data[2:4]),
+            'co2': _decodeSimple(byte_data[4:6]),
+            'voc': _decodeSimple(byte_data[6:8]),
+            'pm25': _decodePM2p5V2(byte_data[8:10]),
+            'hcho': _decodeHCHOV1(byte_data[10:12])
+        }
+    elif (advSampleType == 32):
+        return {
+            'pm1': _decodeSimple(byte_data[0:2]),
+            'pm25': _decodeSimple(byte_data[2:4]),
+            'pm4': _decodeSimple(byte_data[4:6]),
+            'pm10': _decodeSimple(byte_data[6:8]),
+        }
+    elif (advSampleType == 34):
+        return {
+            'co2': _decodeSimple(byte_data[0:2])
+        }
     else:
         _LOGGER.debug("Advertisement SampleType %s not supported", advSampleType)
 
@@ -102,19 +213,19 @@ def _decodeHumidityV1(byte_data):
 
 def _decodeHumidityV2(byte_data):
     # GadgetBle::_convertHumidityV2 - return static_cast<uint16_t>((((value + 6.0) * 65535) / 125.0) + 0.5f);
-    return
+    return round(((int.from_bytes(byte_data, byteorder='little') * 125 / 65535) - 6), 2)
 
 
 def _decodePM2p5V1(byte_data):
     # GadgetBle::_convertPM2p5V1 - return static_cast<uint16_t>(((value / 1000) * 65535) + 0.5f);
-    return
+    return round((int.from_bytes(byte_data, byteorder='little') / 65535) * 1000, 2)
 
 
 def _decodePM2p5V2(byte_data):
     # GadgetBle::_convertPM2p5V2 - return static_cast<uint16_t>((value * 10) + 0.5f);
-    return
+    return round(int.from_bytes(byte_data, byteorder='little') / 10, 2)
 
 
 def _decodeHCHOV1(byte_data):
     # GadgetBle::_convertHCHOV1 - return static_cast<uint16_t>((value * 5) + 0.5f);
-    return
+    return round(int.from_bytes(byte_data, byteorder='little') / 5, 2)
