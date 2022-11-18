@@ -7,6 +7,7 @@ physical_description:
 broadcasted_properties:
   - weight
   - non-stabilized weight
+  - impedance
   - pulse
   - rssi
 broadcasted_property_notes:

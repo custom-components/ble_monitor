@@ -1259,7 +1259,6 @@ RENAMED_MANUFACTURER_DICT =  {
 # Sensors that support automatic adding of sensors and binary sensors
 AUTO_MANUFACTURER_DICT = {
     'HHCCJCY10'               : 'HHCC',
-    'HHCCJCY10'               : 'HHCC',
     'BTHome'                  : 'BTHome',
     'TG-BT5-IN'               : 'Mikrotik',
     'TG-BT5-OUT'              : 'Mikrotik',
@@ -1273,7 +1272,6 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Blue'               : 'Tilt',
     'Tilt Yellow'             : 'Tilt',
     'Tilt Pink'               : 'Tilt',
-    'Tilt Green'              : 'Tilt',
     'IBS-TH'                  : 'Inkbird',
     'IBS-TH2/P01B'            : 'Inkbird',
     'Amazfit Smart Scale'     : 'Amazfit',
@@ -1303,6 +1301,7 @@ AUTO_SENSOR_LIST = [
     "gravity",
     "humidity",
     "illuminance",
+    "impedance",
     "moisture",
     "non-stabilized weight",
     "pm2.5",

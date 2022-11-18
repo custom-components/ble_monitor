@@ -19,13 +19,14 @@ def parse_amazfit(self, data, source_mac, rssi):
         firmware = "Amazfit"
         xvalue = data[4:25]
         # Not all info is known
-        # byte 1-6: unknown
+        # byte 0-4: unknown
+        # byte 5-6: impedance / 10
         # byte 7-8: weight / 200
         # byte 9-11: unknown, used now as "if 000000 than non-stabilized weight"
         # byte 12: pulse
         # byte 13: unknown
         # byte 14-19: user information, not used yet
-        (weight, unk_1, unk_2, pulse) = unpack("<7xHBHB1x6x", xvalue)
+        (impedance, weight, unk_1, unk_2, pulse) = unpack("<5xHHBHB1x6x", xvalue)
         if unk_1 == 0 and unk_2 == 0:
             result = {
                 "non-stabilized weight": weight / 200,
@@ -35,6 +36,7 @@ def parse_amazfit(self, data, source_mac, rssi):
             result = {
                 "non-stabilized weight": weight / 200,
                 "weight": weight / 200,
+                "impedance": impedance / 10,
                 "pulse": pulse,
                 "weight unit": 'kg',
             }
