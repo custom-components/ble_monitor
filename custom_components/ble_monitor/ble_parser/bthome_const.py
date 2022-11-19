@@ -1,11 +1,12 @@
 """Constants for BTHome measurements."""
 import dataclasses
+from typing import Optional
 
 
 @dataclasses.dataclass
 class MeasTypes:
     meas_format: str
-    unit_of_measurement: str | None = None
+    unit_of_measurement: Optional[str] = None
     data_length: int = 1
     data_format: str = "unsigned_integer"
     factor: float = 1
