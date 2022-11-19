@@ -21,16 +21,16 @@ class TestBTHome:
         assert sensor_msg["battery"] == 97
         assert sensor_msg["rssi"] == -52
 
-    def test_ha_ble_temperature_and_humidity(self):
-        """Test BTHome parser for temperature and humidity measurement"""
-        data_string = "043E1A02010000A5808FE648540E0201060B161C182302CA090303BF13CC"
+    def test_bhtome_v2_temperature_and_humidity(self):
+        """Test BTHome V2 parser for temperature and humidity measurement"""
+        data_string = "043E1A02010000A5808FE648540E0201060A16D2FC4002C40903BF13CC"
         data = bytes(bytearray.fromhex(data_string))
 
         # pylint: disable=unused-variable
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome V1"
+        assert sensor_msg["firmware"] == "BTHome V2"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
