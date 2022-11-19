@@ -6,7 +6,7 @@ class TestBTHome:
     """Tests for the BTHome V2 (DIY sensor) parser"""
     def test_ha_ble_packet_and_battery(self):
         """Test BTHome parser for battery measurement and packet number"""
-        data_string = "043E1802010000A5808FE648540C0201060916D2FC4000090161CC"
+        data_string = "043E1802010000A5808FE648540C0201060816D2FC4000090161CC"
         data = bytes(bytearray.fromhex(data_string))
 
         # pylint: disable=unused-variable
@@ -23,7 +23,7 @@ class TestBTHome:
 
     def test_ha_ble_temperature_and_humidity(self):
         """Test BTHome parser for temperature and humidity measurement"""
-        data_string = "043E1B02010000A5808FE648540F0201060B161C182302CA090303BF13CC"
+        data_string = "043E1A02010000A5808FE648540E0201060B161C182302CA090303BF13CC"
         data = bytes(bytearray.fromhex(data_string))
 
         # pylint: disable=unused-variable
