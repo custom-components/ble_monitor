@@ -23,7 +23,7 @@ from .helpers import (
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_hhcc(self, data: str, source_mac: str, rssi: float):
+def parse_hhcc(self, data: str, source_mac: bytes, rssi: float):
     """HHCC parser"""
     if len(data) == 13:
         device_type = "HHCCJCY10"

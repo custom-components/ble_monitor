@@ -108,9 +108,9 @@ def parse_bthome_v2(self, data):
     sw_version = (adv_info >> 5) & 7  # 3 bits (5-7)
     if sw_version == 2:
         if encryption == 1:
-            self.firmware = f"BTHome v{sw_version} (encrypted)"
+            self.firmware = f"BTHome V{sw_version} (encrypted)"
         else:
-            self.firmware = f"BTHome v{sw_version}"
+            self.firmware = f"BTHome V{sw_version}"
     else:
         _LOGGER.error(
             "Sensor is set to use BTHome version %s, which is not existing. "

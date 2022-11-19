@@ -4,8 +4,8 @@ from ble_monitor.ble_parser import BleParser
 
 class TestBTHome:
     """Tests for the BTHome V2 (DIY sensor) parser"""
-    def test_ha_ble_packet_and_battery(self):
-        """Test BTHome parser for battery measurement and packet number"""
+    def test_bthome_v2_packet_and_battery(self):
+        """Test BTHome V2 parser for battery measurement and packet number"""
         data_string = "043E1802010000A5808FE648540C0201060816D2FC4000090161CC"
         data = bytes(bytearray.fromhex(data_string))
 
