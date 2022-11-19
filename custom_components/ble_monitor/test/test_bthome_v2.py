@@ -23,7 +23,7 @@ class TestBTHome:
 
     def test_bhtome_v2_temperature_and_humidity(self):
         """Test BTHome V2 parser for temperature and humidity measurement"""
-        data_string = "043E1A02010000A5808FE648540E0201060A16D2FC4002C40903BF13CC"
+        data_string = "043E1A02010000A5808FE648540E0201060A16D2FC4002CA0903BF13CC"
         data = bytes(bytearray.fromhex(data_string))
 
         # pylint: disable=unused-variable
