@@ -29,7 +29,7 @@ def parse_int(data_obj: bytes, factor: float = 1.0) -> float:
     )
 
 
-def parse_float(data_obj: bytes, factor: float = 1.0) -> float | None:
+def parse_float(data_obj: bytes, factor: float = 1.0):
     """Convert bytes (as float) and factor to float."""
     decimal_places = -int(f"{factor:e}".split("e")[-1])
     if len(data_obj) == 2:
