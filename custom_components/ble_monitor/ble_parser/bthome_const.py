@@ -13,6 +13,9 @@ class MeasTypes:
 
 
 MEAS_TYPES: dict[int, MeasTypes] = {
+    0x00: MeasTypes(
+        meas_format="packet",
+    ),
     0x01: MeasTypes(
         meas_format="battery",
         unit_of_measurement="%",
@@ -37,8 +40,8 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         factor=0.01,
     ),
     0x05: MeasTypes(
-        meas_format="pressure",
-        unit_of_measurement="hPa",
+        meas_format="illuminance",
+        unit_of_measurement="lux",
         data_length=3,
         factor=0.01,
     ),
