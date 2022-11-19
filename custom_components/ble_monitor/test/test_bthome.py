@@ -13,7 +13,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == 9
@@ -30,7 +30,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -55,7 +55,7 @@ class TestBTHome:
         ble_parser = BleParser(aeskeys=self.aeskeys, discovery=False, sensor_whitelist=allow_list)
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome (encrypted)"
+        assert sensor_msg["firmware"] == "BTHome V1 (encrypted)"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == 857870592
@@ -73,7 +73,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == 12
@@ -90,7 +90,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -107,7 +107,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -124,7 +124,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -141,7 +141,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -158,7 +158,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -175,7 +175,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -192,7 +192,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -210,7 +210,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -227,7 +227,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -244,7 +244,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -261,7 +261,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A6"
         assert sensor_msg["packet"] == "no packet id"
@@ -278,7 +278,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
@@ -295,7 +295,7 @@ class TestBTHome:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome"
+        assert sensor_msg["firmware"] == "BTHome V1"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
