@@ -42,7 +42,7 @@ class TestBTHome:
     def test_bthome_temperature_and_humidity_encrypted(self):
         """Test BTHome parser for temperature and humidity (encrypted) measurement"""
         self.aeskeys = {}
-        data_string = "043E2302010000A5808FE648541702010613161e18fba435e4d3c312fb0011223357d90a99CC"
+        data_string = "043E2602010000A5808FE648541A0201060B094449592D73656E736F720A16D2FC4002C40903BF13CC"
         data = bytes(bytearray.fromhex(data_string))
         aeskey = "231d39c1d7cc1ab1aee224cd096db932"
 
@@ -55,18 +55,18 @@ class TestBTHome:
         ble_parser = BleParser(aeskeys=self.aeskeys, discovery=False, sensor_whitelist=allow_list)
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "BTHome V1 (encrypted)"
+        assert sensor_msg["firmware"] == "BTHome V2 (encrypted)"
         assert sensor_msg["type"] == "BTHome"
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == 857870592
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"] == 25.06
+        assert sensor_msg["temperature"] == 25.0
         assert sensor_msg["humidity"] == 50.55
         assert sensor_msg["rssi"] == -52
 
     def test_bthome_pressure(self):
         """Test BTHome parser for pressure measurement"""
-        data_string = "043E1B02010000A5808FE648540F0201060B161C1802000C0404138A01DC"
+        data_string = "043E1A02010000A5808FE648540E0201060A16D2FC40000C04138A01DC"
         data = bytes(bytearray.fromhex(data_string))
 
         # pylint: disable=unused-variable
