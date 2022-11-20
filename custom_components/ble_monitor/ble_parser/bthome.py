@@ -123,7 +123,7 @@ def parse_bthome_v2(self, data):
 
     if encryption == 1:
         try:
-            payload, count_id = decrypt_data(self, data, sw_version)
+            payload, count_id = decrypt_data(self, payload, sw_version)
         except (ValueError, TypeError):
             return None
 
@@ -318,7 +318,7 @@ def decrypt_data(self, data: bytes, sw_version: int):
         uuid = b"\x1e\x18"
     else:
         uuid = b"\xd2\xfc\x41"
-    encrypted_payload = data[4:-8]
+    encrypted_payload = data[:-8]
     count_id = data[-8:-4]
     mic = data[-4:]
 

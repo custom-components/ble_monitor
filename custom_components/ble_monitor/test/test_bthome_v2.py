@@ -42,7 +42,7 @@ class TestBTHome:
     def test_bthome_temperature_and_humidity_encrypted(self):
         """Test BTHome parser for temperature and humidity (encrypted) measurement"""
         self.aeskeys = {}
-        data_string = "043E2602010000A5808FE648541A0201060B094449592D73656E736F720A16D2FC4002C40903BF13CC"
+        data_string = "043E2602010000A5808FE648541A0201060Bd2fc41a47266c95f730011223378237214CC"
         data = bytes(bytearray.fromhex(data_string))
         aeskey = "231d39c1d7cc1ab1aee224cd096db932"
 
