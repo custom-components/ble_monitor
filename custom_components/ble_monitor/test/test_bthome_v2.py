@@ -60,7 +60,7 @@ class TestBTHome:
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == 857870592
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"] == 25.0
+        assert sensor_msg["temperature"] == 25.06
         assert sensor_msg["humidity"] == 50.55
         assert sensor_msg["rssi"] == -52
 
