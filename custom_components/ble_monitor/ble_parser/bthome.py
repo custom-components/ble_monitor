@@ -77,16 +77,16 @@ def parse_bthome_v1(self, data):
     self.device_type = "BTHome"
     self.packet_id = None
     sw_version = 1
+    payload = data[4:]
     if self.uuid16 == 0x181C:
         # Non-encrypted BTHome V1 format
         self.firmware = "BTHome V1"
-        payload = data[4:]
         self.packet_id = None
     elif self.uuid16 == 0x181E:
         # Encrypted BTHome V1 format
         self.firmware = "BTHome V1 (encrypted)"
         try:
-            payload, count_id = decrypt_data(self, data, sw_version)
+            payload, count_id = decrypt_data(self, payload, sw_version)
         except (ValueError, TypeError):
             return None
 
