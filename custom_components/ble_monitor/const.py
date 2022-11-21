@@ -1269,11 +1269,16 @@ AUTO_MANUFACTURER_DICT = {
 # Binary Sensors that are automatically added if device is in AUTO_MANUFACTURER_DICT
 AUTO_BINARY_SENSOR_LIST = [
     "binary",
-    "opening",
-    "switch",
-    "tilt",
+    "door",
     "dropping",
     "impact",
+    "light",
+    "lock",
+    "motion",
+    "opening",
+    "smoke",
+    "switch",
+    "tilt",
 ]
 
 
