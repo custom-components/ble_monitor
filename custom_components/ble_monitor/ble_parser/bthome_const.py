@@ -183,7 +183,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="safety",
     ),
     0x29: MeasTypes(
-        meas_format="safety",
+        meas_format="smoke detector",
     ),
     0x2A: MeasTypes(
         meas_format="sound",
