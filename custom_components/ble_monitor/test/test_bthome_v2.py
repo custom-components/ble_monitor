@@ -456,10 +456,9 @@ class TestBTHome:
         assert sensor_msg["count"] == 556969523
         assert sensor_msg["rssi"] == -52
 
-
     def test_bthome_v2_temperature_2_bytes_1_digit(self):
         """Test BTHome parser for temperature measurement with 2 bytes and 1 digit"""
-        data_string = "043E1602010000A5808FE648540A0201060616D2FC400101CC"
+        data_string = "043E1702010000A5808FE648540B0201060616D2FC40450101CC"
         data = bytes(bytearray.fromhex(data_string))
 
         # pylint: disable=unused-variable
