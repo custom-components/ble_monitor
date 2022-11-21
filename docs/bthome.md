@@ -29,4 +29,4 @@ More information about the format of BTHome BLE data is provided on the [project
 BTHome can use AES encryption (CCM mode) to encrypt your data. 
 Don't forget to set the encryption key in your BLE monitor device 
 settings. More information on how to encrypt your messages is 
-demonstrated in [this script (V2)](https://github.com/Bluetooth-Devices/bthome-ble/blob/v2.3.0/src/bthome_ble/bthome_v2_encryption.py). 
+demonstrated in [this script (V2)](https://github.com/Bluetooth-Devices/bthome-ble/blob/main/src/bthome_ble/bthome_v2_encryption.py). 
