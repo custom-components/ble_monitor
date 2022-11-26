@@ -74,6 +74,7 @@ def parse_bthome(self, data, uuid16, source_mac, rssi):
 
 
 def parse_bthome_v1(self, data):
+    "Parse data in BTHome V1 format"
     self.device_type = "BTHome"
     self.packet_id = None
     sw_version = 1
@@ -98,6 +99,7 @@ def parse_bthome_v1(self, data):
 
 
 def parse_bthome_v2(self, data):
+    "Parse data in BTHome V2 format"
     self.device_type = "BTHome"
     self.packet_id = None
 
@@ -133,6 +135,7 @@ def parse_bthome_v2(self, data):
 
 
 def parse_payload(self, payload, sw_version):
+    "Parse the payload"
     payload_length = len(payload)
     next_obj_start = 0
     prev_obj_meas_type = 0
