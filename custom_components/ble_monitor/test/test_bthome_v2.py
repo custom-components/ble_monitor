@@ -487,5 +487,5 @@ class TestBTHome:
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"] == 25.7
+        assert sensor_msg["temperature"] == 25.9
         assert sensor_msg["rssi"] == -52
