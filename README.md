@@ -16,14 +16,17 @@ Home Assistant 2022.8 has (improved) support for passive BLE devices directly in
 
 - Xiaomi (part 3)
 - RuuviTag
+
+**Expected in 2022.12 release**
 - HHCC
+- BTHome V2
 
 **Done**
 
 The following integrations are available as official Home Assistant integration.
 - BlueMaestro
 - b-parasite (will be using BTHome with new firmware)
-- BTHome / HA BLE
+- BTHome V1
 - Brifit / Oria
 - Govee
 - iBeacon

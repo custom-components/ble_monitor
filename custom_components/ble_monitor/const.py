@@ -1248,7 +1248,6 @@ RENAMED_MANUFACTURER_DICT =  {
 # Sensors that support automatic adding of sensors and binary sensors
 AUTO_MANUFACTURER_DICT = {
     'HHCCJCY10'               : 'HHCC',
-    'HHCCJCY10'               : 'HHCC',
     'BTHome'                  : 'BTHome',
     'TG-BT5-IN'               : 'Mikrotik',
     'TG-BT5-OUT'              : 'Mikrotik',
@@ -1262,7 +1261,6 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Blue'               : 'Tilt',
     'Tilt Yellow'             : 'Tilt',
     'Tilt Pink'               : 'Tilt',
-    'Tilt Green'              : 'Tilt',
     'IBS-TH'                  : 'Inkbird',
     'IBS-TH2/P01B'            : 'Inkbird',
 }
@@ -1271,11 +1269,16 @@ AUTO_MANUFACTURER_DICT = {
 # Binary Sensors that are automatically added if device is in AUTO_MANUFACTURER_DICT
 AUTO_BINARY_SENSOR_LIST = [
     "binary",
-    "opening",
-    "switch",
-    "tilt",
+    "door",
     "dropping",
     "impact",
+    "light",
+    "lock",
+    "motion",
+    "opening",
+    "smoke",
+    "switch",
+    "tilt",
 ]
 
 

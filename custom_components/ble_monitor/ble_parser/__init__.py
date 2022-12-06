@@ -203,6 +203,10 @@ class BleParser:
                         # UUID16 = Relsib
                         sensor_data = parse_relsib(self, service_data, mac, rssi)
                         break
+                    elif uuid16 == 0xFCD2:
+                        # UUID16 = Allterco Robotics ltd (BTHome V2)
+                        sensor_data = parse_bthome(self, service_data, uuid16, mac, rssi)
+                        break
                     elif uuid16 in [0xFD3D, 0x0D00]:
                         # UUID16 = unknown (used by Switchbot)
                         sensor_data = parse_switchbot(self, service_data, mac, rssi)
