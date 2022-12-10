@@ -13,35 +13,29 @@ Home Assistant 2022.8 has (improved) support for passive BLE devices directly in
 
 **Some interesting links**
 
-- Pypi packages for the BLE parsing will be developed and collected here: https://github.com/Bluetooth-Devices
+- Most pypi packages for the BLE parsing will be developed and collected here: https://github.com/Bluetooth-Devices
 
-**In development**
-
-- Xiaomi (part 3)
-- RuuviTag
-
-**Expected in 2022.12 release**
-- HHCC
-- BTHome V2
-
-**Done**
+**Available as official HA integration**
 
 The following integrations are available as official Home Assistant integration.
 - BlueMaestro
 - b-parasite (will be using BTHome with new firmware)
-- BTHome V1
+- BTHome
 - Brifit / Oria
 - Govee
+- HHCC
 - iBeacon
 - Inkbird
 - Kegtron
 - Moat
 - Oral-B
 - Qingping
+- RuuviTag
+- SensorPush
+- Sensirion (MyCO2 gadget)
 - Thermobeacon
 - Thermopro / Sensorpro
 - ThermoPlus
-- SensorPush
 - Tilt
 - Xiaomi (part 1 and 2)
 - Device tracking based on MAC address (Bluetooth LE tracker integration)
