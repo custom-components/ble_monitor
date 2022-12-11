@@ -6,7 +6,7 @@ image: MJZNZ018H.png
 physical_description:
 broadcasted_properties:
   - battery
-  - snorring
+  - snoring
   - sleeping
   - bed occupancy
   - button switch

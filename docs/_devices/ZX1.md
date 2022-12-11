@@ -5,7 +5,7 @@ model: ZX1
 image: 8H_Sleep_ZX1.png
 physical_description:
 broadcasted_properties:
-  - snorring
+  - snoring
   - sleeping
   - bed occupancy
   - button switch

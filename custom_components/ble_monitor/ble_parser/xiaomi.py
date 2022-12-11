@@ -686,8 +686,8 @@ def obj4810(xobj):
 
 
 def obj4811(xobj):
-    """Snorring State"""
-    return {"snorring": xobj[0]}
+    """Snoring State"""
+    return {"snoring": xobj[0]}
 
 
 def obj4818(xobj):
@@ -894,8 +894,8 @@ def obj5010(xobj):
 
 
 def obj5011(xobj):
-    """Snorring State"""
-    return {"snorring": xobj[0]}
+    """Snoring State"""
+    return {"snoring": xobj[0]}
 
 
 def obj5403(xobj):
