@@ -110,7 +110,7 @@ def _parse_data_type(advSampleType, byte_data):
             'temperature': _decodeTemperatureV1(byte_data[0:2]),
             'humidity': _decodeHumidityV1(byte_data[2:4]),
             'co2': _decodeSimple(byte_data[4:6]),
-            'pm25': _decodePM2p5V1(byte_data[6:8])
+            'pm2.5': _decodePM2p5V1(byte_data[6:8])
         }
     elif (advSampleType == 14):
         return {
@@ -123,7 +123,7 @@ def _parse_data_type(advSampleType, byte_data):
             'temperature': _decodeTemperatureV1(byte_data[0:2]),
             'humidity': _decodeHumidityV1(byte_data[2:4]),
             'voc': _decodeSimple(byte_data[4:6]),
-            'pm25': _decodePM2p5V1(byte_data[6:8])
+            'pm2.5': _decodePM2p5V1(byte_data[6:8])
         }
     elif (advSampleType == 20):
         return {
@@ -131,7 +131,7 @@ def _parse_data_type(advSampleType, byte_data):
             'humidity': _decodeHumidityV1(byte_data[2:4]),
             'c02': _decodeSimple(byte_data[4:6]),
             'voc': _decodeSimple(byte_data[6:8]),
-            'pm25': _decodePM2p5V1(byte_data[8:10]),
+            'pm2.5': _decodePM2p5V1(byte_data[8:10]),
             'hcho': _decodeHCHOV1(byte_data[10:12])
         }
     elif (advSampleType == 22):
@@ -147,7 +147,7 @@ def _parse_data_type(advSampleType, byte_data):
             'humidity': _decodeHumidityV1(byte_data[2:4]),
             'voc': _decodeSimple(byte_data[4:6]),
             # 'nox': _decodeSimple(byte_data[6:8]),
-            'pm25': _decodePM2p5V2(byte_data[8:10])
+            'pm2.5': _decodePM2p5V2(byte_data[8:10])
         }
     elif (advSampleType == 26):
         return {
@@ -156,21 +156,21 @@ def _parse_data_type(advSampleType, byte_data):
             'co2': _decodeSimple(byte_data[4:6]),
             'voc': _decodeSimple(byte_data[6:8]),
             # 'nox': _decodePM2p5V2(byte_data[8:10]),
-            'pm25': _decodePM2p5V2(byte_data[10:12])
+            'pm2.5': _decodePM2p5V2(byte_data[10:12])
         }
     elif (advSampleType == 28):
         return {
             'temperature': _decodeTemperatureV1(byte_data[0:2]),
             'humidity': _decodeHumidityV1(byte_data[2:4]),
             'co2': _decodeSimple(byte_data[4:6]),
-            'pm25': _decodePM2p5V2(byte_data[6:8])
+            'pm2.5': _decodePM2p5V2(byte_data[6:8])
         }
     elif (advSampleType == 30):
         return {
             'temperature': _decodeTemperatureV1(byte_data[0:2]),
             'humidity': _decodeHumidityV1(byte_data[2:4]),
             'voc': _decodeSimple(byte_data[4:6]),
-            'pm25': _decodePM2p5V2(byte_data[6:8])
+            'pm2.5': _decodePM2p5V2(byte_data[6:8])
         }
     elif (advSampleType == 32):
         return {
@@ -178,13 +178,13 @@ def _parse_data_type(advSampleType, byte_data):
             'humidity': _decodeHumidityV1(byte_data[2:4]),
             'co2': _decodeSimple(byte_data[4:6]),
             'voc': _decodeSimple(byte_data[6:8]),
-            'pm25': _decodePM2p5V2(byte_data[8:10]),
+            'pm2.5': _decodePM2p5V2(byte_data[8:10]),
             'hcho': _decodeHCHOV1(byte_data[10:12])
         }
     elif (advSampleType == 32):
         return {
             'pm1': _decodeSimple(byte_data[0:2]),
-            'pm25': _decodeSimple(byte_data[2:4]),
+            'pm2.5': _decodeSimple(byte_data[2:4]),
             'pm4': _decodeSimple(byte_data[4:6]),
             'pm10': _decodeSimple(byte_data[6:8]),
         }
