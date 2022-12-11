@@ -67,6 +67,8 @@ XIAOMI_TYPE_DICT = {
     0x069F: "ZNMS17LM",
     0x0380: "DSL-C08",
     0x0DE7: "SU001-T",
+    0x20DB: "MJZNZ018H",
+    0x18E3: "ZX1",
 }
 
 # Structured objects for data conversions
@@ -670,6 +672,24 @@ def obj4805(xobj):
     return {"illuminance": illu}
 
 
+def obj4810(xobj):
+    """Sleep State"""
+    sleep_state = xobj[0]
+    if sleep_state == 0:
+        return {"sleeping": 0}
+    elif sleep_state == 1:
+        return {"sleeping": 1}
+    elif sleep_state == 2:
+        return{"button switch": "double press"}
+    else:
+        return None
+
+
+def obj4811(xobj):
+    """Snorring State"""
+    return {"snorring": xobj[0]}
+
+
 def obj4818(xobj):
     """Time in seconds of no motion (not used, we use 4a08)"""
     if len(xobj) == 2:
@@ -842,6 +862,66 @@ def obj4e0e(xobj):
     }
 
 
+def obj4e16(xobj):
+    """Bed occupancy"""
+    event = xobj[0]
+    if event == 1:
+        return {"bed occupancy": 1}
+    else:
+        return None
+
+
+def obj4e17(xobj):
+    """Bed occupancy"""
+    event = xobj[0]
+    if event == 1:
+        return {"bed occupancy": 0}
+    else:
+        return None
+
+
+def obj5010(xobj):
+    """Sleep State"""
+    sleep_state = xobj[0]
+    if sleep_state == 0:
+        return {"sleeping": 0}
+    elif sleep_state == 1:
+        return {"sleeping": 1}
+    elif sleep_state == 2:
+        return{"button switch": "double press"}
+    else:
+        return None
+
+
+def obj5011(xobj):
+    """Snorring State"""
+    return {"snorring": xobj[0]}
+
+
+def obj5403(xobj):
+    """Battery level"""
+    return {"battery": xobj[0]}
+
+
+def obj5601(xobj):
+    """Low Battery"""
+    low_batt = xobj[0]
+    return {"low battery": low_batt}
+
+
+def obj5a16(xobj):
+    """Bed occupancy"""
+    event = xobj[0]
+    if event == 1:
+        return {"bed occupancy": 1}
+    elif event == 2:
+        return {"bed occupancy": 0}
+    elif event == 3:
+        return{"button switch": "double press"}
+    else:
+        return None
+
+
 # Dataobject dictionary
 # {dataObject_id: (converter}
 xiaomi_dataobject_dict = {
@@ -874,6 +954,8 @@ xiaomi_dataobject_dict = {
     0x4803: obj4803,
     0x4804: obj4804,
     0x4805: obj4805,
+    0x4810: obj4810,
+    0x4811: obj4811,
     0x4818: obj4818,
     0x4a01: obj4a01,
     0x4a08: obj4a08,
@@ -889,6 +971,13 @@ xiaomi_dataobject_dict = {
     0x4e0c: obj4e0c,
     0x4e0d: obj4e0d,
     0x4e0e: obj4e0e,
+    0x4e16: obj4e16,
+    0x4e17: obj4e17,
+    0x5010: obj5010,
+    0x5011: obj5011,
+    0x5403: obj5403,
+    0x5601: obj5601,
+    0x5a16: obj5a16,
 }
 
 
