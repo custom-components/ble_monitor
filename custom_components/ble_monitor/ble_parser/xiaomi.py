@@ -888,7 +888,7 @@ def obj5010(xobj):
     elif sleep_state == 1:
         return {"sleeping": 1}
     elif sleep_state == 2:
-        return{"button switch": "double press"}
+        return{"button": "double press"}
     else:
         return None
 
@@ -917,7 +917,7 @@ def obj5a16(xobj):
     elif event == 2:
         return {"bed occupancy": 0}
     elif event == 3:
-        return{"button switch": "double press"}
+        return{"button": "double press"}
     else:
         return None
 
