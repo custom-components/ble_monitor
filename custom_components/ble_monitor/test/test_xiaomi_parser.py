@@ -774,7 +774,7 @@ class TestXiaomi:
         assert sensor_msg["mac"] == "CCB5D1D6377B"
         assert sensor_msg["packet"] == 181
         assert sensor_msg["data"]
-        assert sensor_msg["button switch"] == "double press"
+        assert sensor_msg["button"] == "double press"
         assert sensor_msg["rssi"] == -52
 
     def test_MJZNZ018H_battery(self):
