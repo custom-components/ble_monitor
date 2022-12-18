@@ -30,11 +30,13 @@ def parse_amazfit(self, data, source_mac, rssi):
         if unk_1 == 0 and unk_2 == 0:
             result = {
                 "non-stabilized weight": weight / 200,
+                "stabilized": 0,
                 "weight unit": 'kg',
             }
         else:
             result = {
                 "non-stabilized weight": weight / 200,
+                "stabilized": 1,
                 "weight": weight / 200,
                 "impedance": impedance / 10,
                 "pulse": pulse,
