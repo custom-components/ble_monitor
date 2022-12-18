@@ -6,6 +6,7 @@ from .acconeer import parse_acconeer
 from .airmentor import parse_airmentor
 from .almendo import parse_almendo
 from .altbeacon import parse_altbeacon
+from .amazfit import parse_amazfit
 from .atc import parse_atc
 from .bluemaestro import parse_bluemaestro
 from .bparasite import parse_bparasite
@@ -232,6 +233,10 @@ class BleParser:
                             # UUID16 = Google (used by Ruuvitag V2/V4)
                             sensor_data = parse_ruuvitag(self, service_data, mac, rssi)
                             break
+                    elif uuid16 == 0xFEE0:
+                        # UUID16 = Anhui Huami Information Technology Co., Ltd. (Amazfit)
+                        sensor_data = parse_amazfit(self, service_data, mac, rssi)
+                        break
                     elif uuid16 == 0xFFF9:
                         # UUID16 = FIDO (used by Cleargrass)
                         sensor_data = parse_qingping(self, service_data, mac, rssi)

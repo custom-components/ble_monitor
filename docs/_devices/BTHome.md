@@ -15,6 +15,7 @@ broadcasted_properties:
   - switch
   - battery
   - CO2
+  - conductivity
   - count
   - dew point
   - energy
@@ -30,6 +31,11 @@ broadcasted_properties:
   - temperature
   - TVOC
   - voltage
+  - weight
+  - binary
+  - opening
+  - switch
+
 broadcasted_property_notes:
 broadcast_rate:
 active_scan:

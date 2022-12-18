@@ -59,10 +59,11 @@ The following integrations are available as official Home Assistant integration.
 
 - Acconeer
 - Air Mentor
+- Amazfit
 - ATC (custom firmware for Xiaomi/Qingping sensors)
 - BlueMaestro
 - Brifit
-- BTHome
+- BTHome v1
 - b-parasite
 - Govee
 - HHCC
