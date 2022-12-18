@@ -20,6 +20,7 @@ class TestAmazfit:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["weight"] == 85.3
+        assert sensor_msg["stabilized"] == 1
         assert sensor_msg["non-stabilized weight"] == 85.3
         assert sensor_msg["impedance"] == 517.2
         assert sensor_msg["pulse"] == 104
