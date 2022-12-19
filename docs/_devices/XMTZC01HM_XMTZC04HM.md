@@ -13,7 +13,7 @@ broadcasted_property_notes:
   - property: weight
     note: is only reported after the scale is stabilized
   - property: non-stabilized weight
-    note: reporting all weight measurements
+    note: is reporting all weight measurements
 broadcast_rate:
 active_scan:
 encryption_key:
