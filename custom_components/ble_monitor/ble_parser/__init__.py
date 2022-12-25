@@ -19,6 +19,7 @@ from .hhcc import parse_hhcc
 from .ibeacon import parse_ibeacon
 from .inkbird import parse_inkbird
 from .inode import parse_inode
+from .jaalee import parse_jaalee
 from .jinou import parse_jinou
 from .kegtron import parse_kegtron
 from .kkm import parse_kkm
@@ -203,6 +204,10 @@ class BleParser:
                     elif uuid16 in [0xAA20, 0xAA21, 0xAA22] and local_name == "ECo":
                         # UUID16 = Relsib
                         sensor_data = parse_relsib(self, service_data, mac, rssi)
+                        break
+                    elif uuid16 == 0xF525:
+                        # UUID16 = Jaalee
+                        sensor_data = parse_jaalee(self, service_data, mac, rssi)
                         break
                     elif uuid16 == 0xFCD2:
                         # UUID16 = Allterco Robotics ltd (BTHome V2)

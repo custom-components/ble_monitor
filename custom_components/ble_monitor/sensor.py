@@ -11,9 +11,8 @@ from homeassistant.const import (
     CONF_TEMPERATURE_UNIT,
     CONF_UNIQUE_ID,
     CONF_MAC,
-    TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
-    MASS_KILOGRAMS,
+    UnitOfMass,
+    UnitOfTemperature,
 )
 
 from homeassistant.helpers.event import async_call_later
@@ -492,7 +491,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
 
         # Restore the old state and unit of measurement
         try:
-            if old_state.attributes["unit_of_measurement"] in [TEMP_CELSIUS, TEMP_FAHRENHEIT]:
+            if old_state.attributes["unit_of_measurement"] in [UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT]:
                 # Convert old state temperature to a temperature in the device setting temperature unit
                 self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
                 self._state = TemperatureConverter.convert(
@@ -550,7 +549,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
 
         # initial setup of device settings equal to integration settings
         dev_name = self._key
-        dev_temperature_unit = TEMP_CELSIUS
+        dev_temperature_unit = UnitOfTemperature.CELSIUS
         dev_decimals = self._config[CONF_DECIMALS]
         dev_use_median = self._config[CONF_USE_MEDIAN]
         dev_restore_state = self._config[CONF_RESTORE_STATE]
@@ -718,11 +717,11 @@ class TemperatureSensor(MeasuringSensor):
             for device in config[CONF_DEVICES]:
                 if self._fkey in dict_get_or(device).upper():
                     if CONF_TEMPERATURE_UNIT in device:
-                        if device[CONF_TEMPERATURE_UNIT] == TEMP_FAHRENHEIT:
+                        if device[CONF_TEMPERATURE_UNIT] == UnitOfTemperature.FAHRENHEIT:
                             temp_fahrenheit = TemperatureConverter.convert(
                                 value=temp,
-                                from_unit=TEMP_CELSIUS,
-                                to_unit=TEMP_FAHRENHEIT
+                                from_unit=UnitOfTemperature.CELSIUS,
+                                to_unit=UnitOfTemperature.FAHRENHEIT
                             )
                             return temp_fahrenheit
                     break
@@ -950,7 +949,7 @@ class WeightSensor(InstantUpdateSensor):
         if "weight unit" in data:
             self._attr_native_unit_of_measurement = data["weight unit"]
         else:
-            self._attr_native_unit_of_measurement = MASS_KILOGRAMS
+            self._attr_native_unit_of_measurement = UnitOfMass.KILOGRAMS
         if batt_attr is not None:
             self._extra_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True
