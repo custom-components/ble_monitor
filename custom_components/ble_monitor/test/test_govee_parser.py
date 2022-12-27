@@ -53,7 +53,7 @@ class TestGovee:
         assert sensor_msg["mac"] == "E1121D61BBAA"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"] == 24.8577
+        assert sensor_msg["temperature"] == 24.8
         assert sensor_msg["humidity"] == 57.7
         assert sensor_msg["battery"] == 100
         assert sensor_msg["rssi"] == -86
@@ -71,8 +71,26 @@ class TestGovee:
         assert sensor_msg["mac"] == "A4C13861BBAA"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"] == 20.5149
+        assert sensor_msg["temperature"] == 20.5
         assert sensor_msg["humidity"] == 14.9
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["rssi"] == -86
+
+    def test_Govee_H5075_negative_temp(self):
+        """Test Govee H5075 parser."""
+        data_string = "043e2b02010000aabb6138c1a41f0d09475648353037355f43423942030388ec02010509ff88ec0081c2896400aa"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Govee"
+        assert sensor_msg["type"] == "H5072/H5075"
+        assert sensor_msg["mac"] == "A4C13861BBAA"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == -11.5
+        assert sensor_msg["humidity"] == 33.7
         assert sensor_msg["battery"] == 100
         assert sensor_msg["rssi"] == -86
 
@@ -89,7 +107,7 @@ class TestGovee:
         assert sensor_msg["mac"] == "A4C138246C11"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"] == 7.7166
+        assert sensor_msg["temperature"] == 7.7
         assert sensor_msg["humidity"] == 16.6
         assert sensor_msg["battery"] == 100
         assert sensor_msg["rssi"] == -77
@@ -107,7 +125,7 @@ class TestGovee:
         assert sensor_msg["mac"] == "A4C138DFC545"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"] == 23.7583
+        assert sensor_msg["temperature"] == 23.7
         assert sensor_msg["humidity"] == 58.3
         assert sensor_msg["sensor id"] == 0
         assert sensor_msg["battery"] == 100
@@ -126,7 +144,7 @@ class TestGovee:
         assert sensor_msg["mac"] == "A4C138DFC546"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"] == 19.5719
+        assert sensor_msg["temperature"] == 19.5
         assert sensor_msg["humidity"] == 71.9
         assert sensor_msg["sensor id"] == 1
         assert sensor_msg["battery"] == 100

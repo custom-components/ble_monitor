@@ -11,11 +11,18 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def decode_temps(packet_value: int) -> float:
-    """Decode potential negative temperatures."""
-    # https://github.com/Thrilleratplay/GoveeWatcher/issues/2
+    """Decode temperature values (to one decimal place)."""
     if packet_value & 0x800000:
-        return float((packet_value ^ 0x800000) / -10000)
-    return float(packet_value / 10000)
+        # Handle freezing temperatures
+        packet_value &= 0x7FFFFF
+        return float(int(packet_value / 1000) / -10)
+    return float(int(packet_value / 1000) / 10)
+
+
+def decode_humi(packet_value: int) -> float:
+    """Decode humidity values (to one decimal place)"""
+    packet_value &= 0x7FFFFF
+    return float((packet_value % 1000) / 10)
 
 
 def decode_temps_probes(packet_value: int) -> float:
@@ -41,7 +48,7 @@ def parse_govee(self, data, source_mac, rssi):
         packet_5072_5075 = data[5:8].hex()
         packet = int(packet_5072_5075, 16)
         temp = decode_temps(packet)
-        humi = float((packet % 1000) / 10)
+        humi = decode_humi(packet)
         batt = int(data[8])
         result.update({"temperature": temp, "humidity": humi, "battery": batt})
     elif msg_length == 10 and device_id == 0x0001:
@@ -49,7 +56,7 @@ def parse_govee(self, data, source_mac, rssi):
         packet_5101_5102 = data[6:9].hex()
         packet = int(packet_5101_5102, 16)
         temp = decode_temps(packet)
-        humi = float((packet % 1000) / 10)
+        humi = decode_humi(packet)
         batt = int(data[9])
         result.update({"temperature": temp, "humidity": humi, "battery": batt})
     elif msg_length == 11 and device_id == 0xEC88:
@@ -64,7 +71,7 @@ def parse_govee(self, data, source_mac, rssi):
         packet_5178 = data[7:10].hex()
         packet = int(packet_5178, 16)
         temp = decode_temps(packet)
-        humi = float((packet % 1000) / 10)
+        humi = decode_humi(packet)
         batt = int(data[10])
         sensor_id = data[6]
         result.update(
