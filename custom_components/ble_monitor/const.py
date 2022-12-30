@@ -1209,9 +1209,9 @@ MANUFACTURER_DICT = {
     'QJ-J'                    : 'MaxxMee',
     'Kegtron KT-100'          : 'Kegtron',
     'Kegtron KT-200'          : 'Kegtron',
-    'Smart hygrometer'        : 'Thermoplus',
-    'Lanyard/mini hygrometer' : 'Thermoplus',
-    'T201'                    : 'Brifit',
+    'Smart hygrometer'        : 'Thermobeacon',
+    'Lanyard/mini hygrometer' : 'Thermobeacon',
+    'T201'                    : 'Thermobeacon',
     'H5072/H5075'             : 'Govee',
     'H5101/H5102/H5177'       : 'Govee',
     'H5051/H5071'             : 'Govee',
@@ -1281,12 +1281,16 @@ RENAMED_MODEL_DICT = {
 RENAMED_FIRMWARE_DICT =  {
     'HA BLE': 'BTHome',
     'HA BLE (encrypted)': 'BTHome (encrypted)',
+    'Thermoplus': 'Thermobeacon',
+    'Brifit': 'Thermobeacon',
 }
 
 
 # Renamed manufacturer dictionary
 RENAMED_MANUFACTURER_DICT =  {
     'Home Assistant DIY': 'BTHome',
+    'Thermoplus': 'Thermobeacon',
+    'Brifit': 'Thermobeacon',
 }
 
 
@@ -1366,7 +1370,6 @@ REPORT_UNKNOWN_LIST = [
     "Amazfit",
     "ATC",
     "BlueMaestro",
-    "Brifit",
     "BTHome",
     "Govee",
     "HHCC",
@@ -1390,7 +1393,7 @@ REPORT_UNKNOWN_LIST = [
     "SmartDry",
     "Switchbot",
     "Teltonika",
-    "Thermoplus",
+    "Thermobeacon",
     "Tilt",
     "Xiaogui",
     "Xiaomi",

@@ -1,8 +1,8 @@
 ---
-manufacturer: Multiple brands
+manufacturer: Thermobeacon (Thermoplus, Brifit, Oria)
 name: "Smart Hygrometer"
-model: Thermoplus
-image: "Thermoplus_smart_hygrometer.jpg"
+model: Thermobeacon Smart Hygrometer
+image: "Thermobeacon_smart_hygrometer.jpg"
 physical_description: "Rounded square body, LCD screen"
 broadcasted_properties:
   - temperature
@@ -15,5 +15,5 @@ active_scan:
 encryption_key:
 custom_firmware:
 notes:
-  - Sold under different brands, e.g. Brifit, Oria.
+  - Sold under different brands, e.g. Thermoplus, Brifit, Oria.
 ---

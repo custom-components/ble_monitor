@@ -29,7 +29,6 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Amazfit
 - ATC (custom firmware for Xiaomi/Qingping sensors)
 - BlueMaestro
-- Brifit
 - BTHome v1
 - b-parasite
 - Govee
@@ -51,7 +50,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - SmartDry
 - Switchbot
 - Teltonika
-- Thermoplus
+- Thermobeacon (Thermoplus, Brifit, Oria)
 - Thermopro
 - Tilt
 - Xiaogui (Scale)
@@ -72,7 +71,6 @@ The following integrations are available as official Home Assistant integration.
 - BlueMaestro
 - b-parasite (will be using BTHome with new firmware)
 - BTHome
-- Brifit / Oria
 - Govee
 - HHCC
 - iBeacon
@@ -86,7 +84,7 @@ The following integrations are available as official Home Assistant integration.
 - Sensirion (MyCO2 gadget)
 - Thermobeacon
 - Thermopro / Sensorpro
-- ThermoPlus
+- Thermobeacon (Thermoplus, Brifit, Oria)
 - Tilt
 - Xiaomi (part 1 and 2)
 - Device tracking based on MAC address (Bluetooth LE tracker integration)
