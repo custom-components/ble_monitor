@@ -12,7 +12,7 @@ class TestThermobeacon:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "Thermoplus"
+        assert sensor_msg["firmware"] == "Thermobeacon"
         assert sensor_msg["type"] == "Smart hygrometer"
         assert sensor_msg["mac"] == "068800001627"
         assert sensor_msg["packet"] == "no packet id"
@@ -31,7 +31,7 @@ class TestThermobeacon:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "Thermoplus"
+        assert sensor_msg["firmware"] == "Thermobeacon"
         assert sensor_msg["type"] == "Lanyard/mini hygrometer"
         assert sensor_msg["mac"] == "70F100000EDC"
         assert sensor_msg["packet"] == "no packet id"
@@ -42,7 +42,7 @@ class TestThermobeacon:
         assert sensor_msg["battery"] == 92.2
         assert sensor_msg["rssi"] == -78
 
-    def test_brifit(self):
+    def test_T201(self):
         """Test thermobeacon brifit T201 parser."""
         data_string = "043E2B0201000085B07438C1A41F05095432303102010614FF55AA0101A4C13874B08501070A1D10F064000100D6"
         data = bytes(bytearray.fromhex(data_string))
