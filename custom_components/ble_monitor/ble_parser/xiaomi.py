@@ -31,6 +31,7 @@ XIAOMI_TYPE_DICT = {
     0x1568: "K9B-1BTN",
     0x1569: "K9B-2BTN",
     0x0DFD: "K9B-3BTN",
+    0x1C10: "K9BB-1BTN",
     0x1889: "MS1BB(MI)",
     0x2AEB: "HS1BB(MI)",
     0x01AA: "LYWSDCGQ",
@@ -801,97 +802,101 @@ def obj4c14(xobj):
 def obj4e0c(xobj, device_type):
     """Click"""
     click = xobj[0]
-    btn_switch_press_type = "single press"
-    one_btn_switch = None
-    two_btn_switch_left = None
-    two_btn_switch_right = None
-    if click == 1:
-        one_btn_switch = "toggle"
-        two_btn_switch_left = "toggle"
-    elif click == 2:
-        two_btn_switch_right = "toggle"
-    elif click == 3:
-        two_btn_switch_left = "toggle"
-        two_btn_switch_right = "toggle"
-    else:
-        btn_switch_press_type = None
+    if device_type == "XMWXKG01YL":
+        if click == 1:
+            return {
+                "two btn switch left": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 2:
+            return {
+                "two btn switch right": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 3:
+            return {
+                "two btn switch left": "toggle",
+                "two btn switch right": "toggle",
+                "button switch": "single press",
+            }
+    if device_type == "K9BB-1BTN":
+        if click == 1:
+            return {
+                "one btn switch": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 8:
+            return {
+                "one btn switch": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 15:
+            return {
+                "one btn switch": "toggle",
+                "button switch": "double press",
+            }
     if device_type == "XMWXKG01LM":
         return {
-            "one btn switch": one_btn_switch,
-            "button switch": btn_switch_press_type,
+            "one btn switch": "toggle",
+            "button switch": "single press",
         }
-    elif device_type == "XMWXKG01YL":
-        return {
-            "two btn switch left": two_btn_switch_left,
-            "two btn switch right": two_btn_switch_right,
-            "button switch": btn_switch_press_type,
-        }
-    else:
-        return {}
+    return {}
 
 
 def obj4e0d(xobj, device_type):
     """Double Click"""
     click = xobj[0]
-    btn_switch_press_type = "double press"
-    one_btn_switch = None
-    two_btn_switch_left = None
-    two_btn_switch_right = None
-    if click == 1:
-        one_btn_switch = "toggle"
-        two_btn_switch_left = "toggle"
-    elif click == 2:
-        two_btn_switch_right = "toggle"
-    elif click == 3:
-        two_btn_switch_left = "toggle"
-        two_btn_switch_right = "toggle"
-    else:
-        btn_switch_press_type = None
+    if device_type == "XMWXKG01YL":
+        if click == 1:
+            return {
+                "two btn switch left": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 2:
+            return {
+                "two btn switch right": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 3:
+            return {
+                "two btn switch left": "toggle",
+                "two btn switch right": "toggle",
+                "button switch": "double press",
+            }
     if device_type == "XMWXKG01LM":
         return {
-            "one btn switch": one_btn_switch,
-            "button switch": btn_switch_press_type,
+            "one btn switch": "toggle",
+            "button switch": "double press",
         }
-    elif device_type == "XMWXKG01YL":
-        return {
-            "two btn switch left": two_btn_switch_left,
-            "two btn switch right": two_btn_switch_right,
-            "button switch": btn_switch_press_type,
-        }
-    else:
-        return {}
+    return {}
 
 
 def obj4e0e(xobj, device_type):
     """Long Press"""
     click = xobj[0]
-    btn_switch_press_type = "long press"
-    one_btn_switch = None
-    two_btn_switch_left = None
-    two_btn_switch_right = None
-    if click == 1:
-        one_btn_switch = "toggle"
-        two_btn_switch_left = "toggle"
-    elif click == 2:
-        two_btn_switch_right = "toggle"
-    elif click == 3:
-        two_btn_switch_left = "toggle"
-        two_btn_switch_right = "toggle"
-    else:
-        btn_switch_press_type = None
+    if device_type == "XMWXKG01YL":
+        if click == 1:
+            return {
+                "two btn switch left": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 2:
+            return {
+                "two btn switch right": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 3:
+            return {
+                "two btn switch left": "toggle",
+                "two btn switch right": "toggle",
+                "button switch": "long press",
+            }
     if device_type == "XMWXKG01LM":
         return {
-            "one btn switch": one_btn_switch,
-            "button switch": btn_switch_press_type,
+            "one btn switch": "toggle",
+            "button switch": "long press",
         }
-    elif device_type == "XMWXKG01YL":
-        return {
-            "two btn switch left": two_btn_switch_left,
-            "two btn switch right": two_btn_switch_right,
-            "button switch": btn_switch_press_type,
-        }
-    else:
-        return {}
+    return {}
 
 
 def obj4e16(xobj):
