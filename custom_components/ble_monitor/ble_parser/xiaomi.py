@@ -42,6 +42,7 @@ XIAOMI_TYPE_DICT = {
     0x0387: "MHO-C401",
     0x07F6: "MJYD02YL",
     0x04E9: "MJZNMSQ01YD",
+    0x2832: "MJWSD05MMC",
     0x00DB: "MMC-T201-1",
     0x03DD: "MUE4094RT",
     0x0489: "M1S-T500",
@@ -52,6 +53,7 @@ XIAOMI_TYPE_DICT = {
     0x04E1: "XMMF01JQD",
     0x1203: "XMWSDJ04MMC",
     0x1949: "XMWXKG01YL",
+    0x2387: "XMWXKG01LM",
     0x098C: "XMZNMST02YD",
     0x0784: "XMZNMS04LM",
     0x0E39: "XMZNMS08LM",
@@ -645,7 +647,7 @@ def obj2000(xobj):
 
 
 # The following data objects are device specific. For now only added for
-# LYWSD02MMC, XMWSDJ04MMC, XMWXKG01YL, LINPTECH MS1BB(MI), HS1BB(MI)
+# LYWSD02MMC, XMWSDJ04MMC, MJWSD05MMC, XMWXKG01YL, LINPTECH MS1BB(MI), HS1BB(MI)
 # https://miot-spec.org/miot-spec-v2/instances?status=all
 def obj4803(xobj):
     """Battery"""
@@ -757,20 +759,20 @@ def obj4a1a(xobj):
         return {}
 
 
-def obj4c02(xobj):
-    """Humidity"""
-    if len(xobj) == 1:
-        humi = xobj[0]
-        return {"humidity": humi}
-    else:
-        return {}
-
-
 def obj4c01(xobj):
     """Temperature"""
     if len(xobj) == 4:
         temp = FLOAT_STRUCT.unpack(xobj)[0]
         return {"temperature": temp}
+    else:
+        return {}
+
+
+def obj4c02(xobj):
+    """Humidity"""
+    if len(xobj) == 1:
+        humi = xobj[0]
+        return {"humidity": humi}
     else:
         return {}
 
@@ -796,13 +798,15 @@ def obj4c14(xobj):
     return {"mode": mode}
 
 
-def obj4e0c(xobj):
+def obj4e0c(xobj, device_type):
     """Click"""
     click = xobj[0]
     btn_switch_press_type = "single press"
+    one_btn_switch = None
     two_btn_switch_left = None
     two_btn_switch_right = None
     if click == 1:
+        one_btn_switch = "toggle"
         two_btn_switch_left = "toggle"
     elif click == 2:
         two_btn_switch_right = "toggle"
@@ -811,20 +815,30 @@ def obj4e0c(xobj):
         two_btn_switch_right = "toggle"
     else:
         btn_switch_press_type = None
-    return {
-        "two btn switch left": two_btn_switch_left,
-        "two btn switch right": two_btn_switch_right,
-        "button switch": btn_switch_press_type,
-    }
+    if device_type == "XMWXKG01LM":
+        return {
+            "one btn switch": one_btn_switch,
+            "button switch": btn_switch_press_type,
+        }
+    elif device_type == "XMWXKG01YL":
+        return {
+            "two btn switch left": two_btn_switch_left,
+            "two btn switch right": two_btn_switch_right,
+            "button switch": btn_switch_press_type,
+        }
+    else:
+        return {}
 
 
-def obj4e0d(xobj):
+def obj4e0d(xobj, device_type):
     """Double Click"""
     click = xobj[0]
     btn_switch_press_type = "double press"
+    one_btn_switch = None
     two_btn_switch_left = None
     two_btn_switch_right = None
     if click == 1:
+        one_btn_switch = "toggle"
         two_btn_switch_left = "toggle"
     elif click == 2:
         two_btn_switch_right = "toggle"
@@ -833,20 +847,30 @@ def obj4e0d(xobj):
         two_btn_switch_right = "toggle"
     else:
         btn_switch_press_type = None
-    return {
-        "two btn switch left": two_btn_switch_left,
-        "two btn switch right": two_btn_switch_right,
-        "button switch": btn_switch_press_type,
-    }
+    if device_type == "XMWXKG01LM":
+        return {
+            "one btn switch": one_btn_switch,
+            "button switch": btn_switch_press_type,
+        }
+    elif device_type == "XMWXKG01YL":
+        return {
+            "two btn switch left": two_btn_switch_left,
+            "two btn switch right": two_btn_switch_right,
+            "button switch": btn_switch_press_type,
+        }
+    else:
+        return {}
 
 
-def obj4e0e(xobj):
+def obj4e0e(xobj, device_type):
     """Long Press"""
     click = xobj[0]
     btn_switch_press_type = "long press"
+    one_btn_switch = None
     two_btn_switch_left = None
     two_btn_switch_right = None
     if click == 1:
+        one_btn_switch = "toggle"
         two_btn_switch_left = "toggle"
     elif click == 2:
         two_btn_switch_right = "toggle"
@@ -855,11 +879,19 @@ def obj4e0e(xobj):
         two_btn_switch_right = "toggle"
     else:
         btn_switch_press_type = None
-    return {
-        "two btn switch left": two_btn_switch_left,
-        "two btn switch right": two_btn_switch_right,
-        "button switch": btn_switch_press_type,
-    }
+    if device_type == "XMWXKG01LM":
+        return {
+            "one btn switch": one_btn_switch,
+            "button switch": btn_switch_press_type,
+        }
+    elif device_type == "XMWXKG01YL":
+        return {
+            "two btn switch left": two_btn_switch_left,
+            "two btn switch right": two_btn_switch_right,
+            "button switch": btn_switch_press_type,
+        }
+    else:
+        return {}
 
 
 def obj4e16(xobj):
@@ -878,6 +910,11 @@ def obj4e17(xobj):
         return {"bed occupancy": 0}
     else:
         return None
+
+
+def obj4e1c(xobj):
+    """Device reset"""
+    return {"device reset": xobj[0]}
 
 
 def obj5010(xobj):
@@ -973,6 +1010,7 @@ xiaomi_dataobject_dict = {
     0x4e0e: obj4e0e,
     0x4e16: obj4e16,
     0x4e17: obj4e17,
+    0x4e1c: obj4e1c,
     0x5010: obj5010,
     0x5011: obj5011,
     0x5403: obj5403,
@@ -1172,7 +1210,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
             if obj_length != 0:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
-                    if hex(obj_typecode) in ["0x8", "0x100e", "0x1001", "0xf", "0xb"]:
+                    if hex(obj_typecode) in ["0x8", "0x100e", "0x1001", "0xf", "0xb", "0x4e0c", "0x4e0d", "0x4e0e"]:
                         result.update(resfunc(dobject, device_type))
                     else:
                         result.update(resfunc(dobject))
