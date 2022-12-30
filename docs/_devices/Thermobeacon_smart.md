@@ -1,8 +1,8 @@
 ---
-manufacturer: Multiple brands
+manufacturer: Thermobeacon (Thermoplus, Brifit, Oria)
 name: "Mini Hygrometer"
-model: Thermoplus
-image: "Thermoplus_mini_hygrometer.jpg"
+model: Thermobeacon Mini Hygrometer
+image: "Thermobeacon_mini_hygrometer.jpg"
 physical_description: "Round body, no screen"
 broadcasted_properties:
   - temperature
@@ -15,5 +15,5 @@ active_scan:
 encryption_key:
 custom_firmware:
 notes:
-  - Sold under different brands, e.g. Brifit, Oria.
+  - Sold under different brands, e.g. Thermoplus, Brifit, Oria.
 ---

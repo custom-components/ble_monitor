@@ -10,7 +10,6 @@ from .amazfit import parse_amazfit
 from .atc import parse_atc
 from .bluemaestro import parse_bluemaestro
 from .bparasite import parse_bparasite
-from .brifit import parse_brifit
 from .const import TILT_TYPES
 from .govee import parse_govee
 from .helpers import to_mac, to_unformatted_mac
@@ -36,7 +35,7 @@ from .sensirion import parse_sensirion
 from .switchbot import parse_switchbot
 from .smartdry import parse_smartdry
 from .teltonika import parse_teltonika
-from .thermoplus import parse_thermoplus
+from .thermobeacon import parse_thermobeacon
 from .thermopro import parse_thermopro
 from .tilt import parse_tilt
 from .xiaomi import parse_xiaomi
@@ -312,8 +311,8 @@ class BleParser:
                         sensor_data = parse_govee(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0xAA55 and data_len == 0x14:
-                        # Brifit
-                        sensor_data = parse_brifit(self, man_spec_data, mac, rssi)
+                        # Thermobeacon
+                        sensor_data = parse_thermobeacon(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0xEC88 and data_len in [0x09, 0x0A, 0x0C, 0x22, 0x24, 0x25]:
                         # Govee H5051/H5071/H5072/H5075/H5074
@@ -362,9 +361,9 @@ class BleParser:
                         sensor_data = parse_govee(self, man_spec_data, mac, rssi)
                         break
                     elif service_class_uuid16 == 0xF0FF:
-                        if comp_id in [0x0010, 0x0011, 0x0015, 0x0018] and data_len in [0x15, 0x17]:
-                            # Thermoplus
-                            sensor_data = parse_thermoplus(self, man_spec_data, mac, rssi)
+                        if comp_id in [0x0010, 0x0011, 0x0015, 0x0018, 0x001B] and data_len in [0x15, 0x17]:
+                            # Thermobeacon
+                            sensor_data = parse_thermobeacon(self, man_spec_data, mac, rssi)
                             break
                         elif (comp_id in [0x0000, 0x0001] or local_name in ["iBBQ", "xBBQ", "sps", "tps"]) and (
                             data_len in [0x0A, 0x0D, 0x0F, 0x13, 0x17]
