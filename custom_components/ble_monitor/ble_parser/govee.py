@@ -154,7 +154,7 @@ def parse_govee(self, data, service_class_uuid16, source_mac, rssi):
         or device_id == 0x1B36
     ):
         device_type = "H5184"
-        sensor_id = data[6]
+        sensor_id = data[10]
         (temp_probe_first, temp_alarm_first, _, temp_probe_second, temp_alarm_second) = unpack(">hhbhh", data[12:21])
         if sensor_id == 1:
             result.update({
