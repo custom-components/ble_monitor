@@ -278,6 +278,10 @@ class BleParser:
                         # Ruuvitag V3/V5
                         sensor_data = parse_ruuvitag(self, man_spec_data, mac, rssi)
                         break
+                    elif comp_id == 0x0757:
+                        # Teltonika (Ela rebrand)
+                        sensor_data = parse_teltonika(self, man_spec_data, local_name, mac, rssi)
+                        break
                     elif comp_id == 0x094F and data_len == 0x15:
                         # Mikrotik
                         sensor_data = parse_mikrotik(self, man_spec_data, mac, rssi)

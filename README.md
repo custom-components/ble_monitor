@@ -31,6 +31,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - BlueMaestro
 - BTHome v1
 - b-parasite
+- Ela
 - Govee
 - HHCC
 - Inkbird
