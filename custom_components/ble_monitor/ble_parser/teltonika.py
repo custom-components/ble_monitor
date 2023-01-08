@@ -46,6 +46,12 @@ def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
                     # Humidity
                     (humi,) = unpack("<B", packet[4:])
                     result.update({"humidity": humi})
+            elif packet_type == 0xFF and packet_size > 4:
+                comp_id = (packet[3] << 8) | packet[2]
+                if comp_id == 0x0757:
+                    # Temperature
+                    (temp,) = unpack("<h", packet[5:])
+                    result.update({"temperature": temp / 100})
         data_size -= packet_size
         packet_start += packet_size
 

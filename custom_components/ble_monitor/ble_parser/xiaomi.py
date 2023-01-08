@@ -1218,7 +1218,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
                 _LOGGER.debug("Invalid payload data length, payload: %s", payload.hex())
                 break
             dobject = payload[payload_start + 3:next_start]
-            if obj_length != 0:
+            if dobject and obj_length != 0:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
                     if hex(obj_typecode) in ["0x8", "0x100e", "0x1001", "0xf", "0xb", "0x4e0c", "0x4e0d", "0x4e0e"]:
