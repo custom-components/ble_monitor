@@ -22,3 +22,21 @@ class TestBlueMaestro:
         assert sensor_msg['dewpoint'] == -25.3
         assert sensor_msg["battery"] == 85
         assert sensor_msg["rssi"] == -90
+
+    def test_BlueMaestro_Pebble(self):
+        """Test BlueMaestro Pebble parser."""
+        data_string = "043e4b02010400aabb611d12e03f15ff330101cf00cf00cf002ec903b2d7009167fa07000908111111111111111100000000330174536166650000000000000000616974536166650000000000a6"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "BlueMaestro"
+        assert sensor_msg["type"] == "Pebble"
+        assert sensor_msg["mac"] == "E0121D61BBAA"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 20.7
+        assert sensor_msg["humidity"] == 46
+        assert sensor_msg['pressure'] == 969
+        assert sensor_msg["rssi"] == -90

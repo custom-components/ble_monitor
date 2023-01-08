@@ -39,6 +39,19 @@ def parse_bluemaestro(self, data, source_mac, rssi):
             "battery": batt,
             "pressure": press / 10
         }
+    elif msg_length == 22 and device_id == 0x01:
+        # BlueMaestro Pebble
+        device_type = "Pebble"
+        # pylint: disable=unused-variable
+        (temp_1, temp_2, temp_3, humi, press) = unpack(
+            "<hhhBH", msg[0:9]
+        )
+        log_cnt = "no packet id"
+        result = {
+            "temperature": temp_2 / 10,
+            "humidity": humi,
+            "pressure": press,
+        }
     else:
         if self.report_unknown == "BlueMaestro":
             _LOGGER.info(
