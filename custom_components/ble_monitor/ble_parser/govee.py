@@ -181,7 +181,7 @@ def parse_govee(self, data, service_class_uuid16, source_mac, rssi):
             "temperature probe 2": decode_temps_probes(temp_probe_2),
             "temperature probe 3": decode_temps_probes(temp_probe_3),
             "temperature probe 4": decode_temps_probes(temp_probe_4),
-            "temperature alarm": decode_temps_probes(temp_alarm),
+            "temperature alarm probe 1": decode_temps_probes(temp_alarm),
         })
     else:
         if self.report_unknown == "Govee":
