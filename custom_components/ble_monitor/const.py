@@ -1123,7 +1123,7 @@ MEASUREMENT_DICT = {
     'SHT41 Gadget'            : [["temperature", "humidity", "rssi"], [], []],
     'SHT45 Gadget'            : [["temperature", "humidity", "rssi"], [], []],
     'Moat S2'                 : [["temperature", "humidity", "battery", "rssi"], [], []],
-    'Pebble'                  : [["temperature", "humidity", "pressure", "dewpoint", "rssi"], [], []],
+    'Pebble'                  : [["temperature", "humidity", "pressure", "rssi"], [], []],
     'Tempo Disc THD'          : [["temperature", "humidity", "dewpoint", "battery", "rssi"], [], []],
     'Tempo Disc THPD'         : [["temperature", "humidity", "pressure", "battery", "rssi"], [], []],
     'b-parasite V1.0.0'       : [["temperature", "humidity", "moisture", "voltage", "rssi"], [], []],
