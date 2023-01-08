@@ -154,13 +154,22 @@ def parse_govee(self, data, service_class_uuid16, source_mac, rssi):
         or device_id == 0x1B36
     ):
         device_type = "H5184"
-        (temp_probe_1, temp_alarm_1, _, temp_probe_2, temp_alarm_2) = unpack(">hhbhh", data[12:21])
-        result.update({
-            "temperature probe 1": decode_temps_probes(temp_probe_1),
-            "temperature alarm probe 1": decode_temps_probes(temp_alarm_1),
-            "temperature probe 2": decode_temps_probes(temp_probe_2),
-            "temperature alarm probe 2": decode_temps_probes(temp_alarm_2)
-        })
+        sensor_id = data[6]
+        (temp_probe_first, temp_alarm_first, _, temp_probe_second, temp_alarm_second) = unpack(">hhbhh", data[12:21])
+        if sensor_id == 1:
+            result.update({
+                "temperature probe 1": decode_temps_probes(temp_probe_first),
+                "temperature alarm probe 1": decode_temps_probes(temp_alarm_first),
+                "temperature probe 2": decode_temps_probes(temp_probe_second),
+                "temperature alarm probe 2": decode_temps_probes(temp_alarm_second)
+            })
+        elif sensor_id == 2:
+            result.update({
+                "temperature probe 3": decode_temps_probes(temp_probe_first),
+                "temperature alarm probe 3": decode_temps_probes(temp_alarm_first),
+                "temperature probe 4": decode_temps_probes(temp_probe_second),
+                "temperature alarm probe 4": decode_temps_probes(temp_alarm_second)
+            })
     elif msg_length == 24 and (
         service_class_uuid16 == 0x5185
         or device_id in [0x4A32, 0x332, 0x4C32]
