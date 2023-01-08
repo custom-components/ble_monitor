@@ -89,7 +89,7 @@ def parse_govee(self, data, service_class_uuid16, source_mac, rssi):
         or service_class_uuid16 in [0x5051, 0x5071]
     ):
         device_type = "H5051/H5071"
-        (temp, humi, batt) = unpack(">hHB", data[5:10])
+        (temp, humi, batt) = unpack("<hHB", data[5:10])
         result.update({"temperature": temp / 100, "humidity": humi / 100, "battery": batt})
     elif msg_length == 13 and (
         service_class_uuid16 == 0x5178
