@@ -7,12 +7,12 @@
   "requirements": [
     "pycryptodomex>=3.14.1",
     "janus>=1.0.0",
-    "aioblescan>=0.2.13",
+    "aioblescan>=0.2.14",
     "btsocket>=0.2.0",
     "pyric>=0.1.6.3"
   ],
   "dependencies": [],
   "codeowners": ["@Ernst79", "@Magalex2x14", "@Thrilleratplay"],
-  "version": "11.2.1",
+  "version": "11.3.0-beta",
   "iot_class": "local_polling"
 }

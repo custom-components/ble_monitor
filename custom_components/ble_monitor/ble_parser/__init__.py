@@ -290,7 +290,7 @@ class BleParser:
                         # Moat S2
                         sensor_data = parse_moat(self, man_spec_data, mac, rssi)
                         break
-                    elif comp_id == 0x0133 and data_len == 0x11:
+                    elif comp_id == 0x0133 and data_len in [0x11, 0x15]:
                         # BlueMaestro
                         sensor_data = parse_bluemaestro(self, man_spec_data, mac, rssi)
                         break
