@@ -1104,7 +1104,7 @@ MEASUREMENT_DICT = {
     'H5183'                   : [["temperature probe 1", "temperature alarm probe 1", "rssi"], [], []],
     'H5184'                   : [["temperature probe 1", "temperature alarm probe 1", "temperature probe 2", "temperature alarm probe 2", "temperature probe 3", "temperature alarm probe 3", "temperature probe 4", "temperature alarm probe 4", "rssi"], [], []],
     'H5185'                   : [["temperature probe 1", "temperature alarm probe 1", "temperature probe 2", "temperature alarm probe 2", "rssi"], [], []],
-    'H5198'                   : [["temperature probe 1", "temperature probe 2", "temperature probe 3", "temperature probe 4", "temperature alarm probe 1", "rssi"], [], []],
+    'H5198'                   : [["temperature probe 1", "temperature alarm probe 1", "temperature probe 2", "temperature alarm probe 2", "temperature probe 3", "temperature alarm probe 3", "temperature probe 4", "temperature alarm probe 4", "rssi"], [], []],
     'Ruuvitag'                : [["temperature", "humidity", "pressure", "battery", "voltage", "rssi"], ["acceleration"], ["motion"]],
     'iNode Energy Meter'      : [["battery", "voltage", "rssi"], ["energy", "power"], []],
     "iNode Care Sensor 1"     : [["temperature", "battery", "voltage", "rssi"], ["acceleration"], ["motion"]],
@@ -1288,6 +1288,7 @@ RENAMED_MODEL_DICT = {
     'HA BLE DIY': 'BTHome',
     'LINP-M1': 'MS1BB(MI)',
     'M1SBB(MI)': 'MS1BB(MI)',
+    'H5051/H5071': 'H5051',
 }
 
 

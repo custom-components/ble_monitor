@@ -13,7 +13,7 @@ class TestGovee:
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Govee"
-        assert sensor_msg["type"] == "H5051/H5071"
+        assert sensor_msg["type"] == "H5051"
         assert sensor_msg["mac"] == "E3605961BBAA"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
@@ -294,8 +294,7 @@ class TestGovee:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["temperature probe 1"] == 0.0
-        assert sensor_msg["temperature probe 2"] == 74.0
-        assert sensor_msg["temperature probe 3"] == 0.0
-        assert sensor_msg["temperature probe 4"] == 0.0
-        assert sensor_msg["temperature alarm probe 1"] == 63.0
+        assert sensor_msg["temperature alarm probe 1"] == 74.0
+        assert sensor_msg["temperature probe 2"] == 0.0
+        assert sensor_msg["temperature alarm probe 2"] == 63.0
         assert sensor_msg["rssi"] == -59
