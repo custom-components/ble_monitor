@@ -15,8 +15,9 @@ class TestJaalee:
         assert sensor_msg["firmware"] == "Jaalee"
         assert sensor_msg["type"] == "JHT"
         assert sensor_msg["mac"] == "D09FFF818513"
+        assert sensor_msg["uuid"] == "ebefd08370a247c89837e7b5634df525"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"] == 7.41
-        assert sensor_msg["humidity"] == 38.08
+        assert sensor_msg["temperature"] == 7.42
+        assert sensor_msg["humidity"] == 38.06
         assert sensor_msg["rssi"] == -52
