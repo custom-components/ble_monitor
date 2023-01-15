@@ -37,20 +37,20 @@ def parse_miscale(self, data, source_mac, rssi):
     elif msg_length == 17 and uuid16 == 0x181B:  # Mi Scale V2
         device_type = "Mi Scale V2"
         xvalue = data[4:]
-        (measunit, control_byte, impedance, weight) = unpack("<BB7xHH", xvalue)
-        has_impedance = control_byte & (1 << 1)
-        is_stabilized = control_byte & (1 << 5)
-        weight_removed = control_byte & (1 << 7)
+        (control_byte_1, control_byte_2, impedance, weight) = unpack("<BB7xHH", xvalue)
+        has_impedance = control_byte_2 & (1 << 1)
+        is_stabilized = control_byte_2 & (1 << 5)
+        weight_removed = control_byte_2 & (1 << 7)
 
-        if measunit & (1 << 4):
+        if control_byte_2 & (1 << 6):
             # measurement in Chinese Catty unit
             weight = weight / 100
             weight_unit = "jin"
-        elif measunit == 3:
+        elif control_byte_1 == 3:
             # measurement in lbs
             weight = weight / 100
             weight_unit = "lbs"
-        elif measunit == 2:
+        elif control_byte_1 == 2:
             # measurement in kg
             weight = weight / 200
             weight_unit = "kg"
