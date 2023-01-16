@@ -2,61 +2,48 @@
 import logging
 from struct import unpack
 
-from .const import (
-    CONF_MAC,
-    CONF_TYPE,
-    CONF_PACKET,
-    CONF_FIRMWARE,
-    CONF_DATA,
-    CONF_RSSI,
-    CONF_UUID,
-    CONF_TRACKER_ID,
-    CONF_MAJOR,
-    CONF_MINOR,
-    CONF_MEASURED_POWER,
-)
 from .helpers import (
     to_mac,
-    to_uuid,
     to_unformatted_mac,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_jaalee(self, data, ibeacon_data, source_mac, rssi):
+def parse_jaalee(self, data, source_mac, rssi):
     """Jaalee parser"""
+    if not data:
+        # skip all messages with only iBeacon data, as the UUID is not unique
+        return None
     msg_length = len(data)
+    firmware = "Jaalee"
+    result = {"firmware": firmware}
     if msg_length == 15:
-        # iBeacon data
-        uuid = ibeacon_data[6:22]
-        (major, minor, power) = unpack(">HHb", ibeacon_data[22:27])
-
-        tracker_data = {
-            CONF_RSSI: rssi,
-            CONF_MAC: to_unformatted_mac(source_mac),
-            CONF_UUID: to_uuid(uuid).replace('-', ''),
-            CONF_TRACKER_ID: uuid,
-            CONF_MAJOR: major,
-            CONF_MINOR: minor,
-            CONF_MEASURED_POWER: power,
-        }
-
-        # Jaalee service data
+        device_type = "JHT"
         batt = data[4]
+        jaalee_mac_reversed = data[5:11]
+        jaalee_mac = jaalee_mac_reversed[::-1]
+        if jaalee_mac != source_mac:
+            _LOGGER.debug(
+                "Jaalee MAC address doesn't match data MAC address. "
+                "Data: %s with source mac: %s and jaalee mac: %s",
+                data.hex(),
+                source_mac,
+                jaalee_mac,
+            )
+            return None
         (temp, humi) = unpack(">HH", data[11:])
         # data follows the iBeacon temperature and humidity definition
         temp = round(175.72 * temp / 65536 - 46.85, 2)
         humi = round(125.0 * humi / 65536 - 6, 2)
-        sensor_data = {
-            CONF_TYPE: "JHT",
-            CONF_PACKET: "no packet id",
-            CONF_FIRMWARE: "Jaalee",
-            CONF_DATA: True,
-            "temperature": temp,
-            "humidity": humi,
-            "battery": batt
-        } | tracker_data
+
+        result.update(
+            {
+                "temperature": temp,
+                "humidity": humi,
+                "battery": batt
+            }
+        )
     else:
         if self.report_unknown == "Jaalee":
             _LOGGER.info(
@@ -65,12 +52,19 @@ def parse_jaalee(self, data, ibeacon_data, source_mac, rssi):
                 to_mac(source_mac),
                 data.hex()
             )
-        return None, None
+        return None
 
-    # check for UUID presence in sensor whitelist, if needed
-    if self.discovery is False and uuid and uuid not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. UUID: %s is not whitelisted!", to_uuid(uuid))
+    # check for MAC presence in sensor whitelist, if needed
+    if self.discovery is False and jaalee_mac.lower() not in self.sensor_whitelist:
+        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(jaalee_mac))
+        return None
 
-        return None, None
-
-    return sensor_data, tracker_data
+    result.update({
+        "rssi": rssi,
+        "mac": to_unformatted_mac(jaalee_mac),
+        "type": device_type,
+        "packet": "no packet id",
+        "firmware": firmware,
+        "data": True
+    })
+    return result
