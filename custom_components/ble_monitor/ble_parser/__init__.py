@@ -10,7 +10,7 @@ from .amazfit import parse_amazfit
 from .atc import parse_atc
 from .bluemaestro import parse_bluemaestro
 from .bparasite import parse_bparasite
-from .const import TILT_TYPES
+from .const import JAALEE_TYPES, TILT_TYPES
 from .govee import parse_govee
 from .helpers import to_mac, to_unformatted_mac
 from .bthome import parse_bthome
@@ -207,9 +207,7 @@ class BleParser:
                     elif uuid16 == 0xF525:
                         # UUID16 = Jaalee (also contains iBeacon manufacturer specific data)
                         if man_spec_data_list:
-                            sensor_data, tracker_data = parse_jaalee(
-                                self, service_data, man_spec_data_list[0], mac, rssi
-                            )
+                            sensor_data = parse_jaalee(self, service_data, mac, rssi)
                             break
                     elif uuid16 == 0xFCD2:
                         # UUID16 = Allterco Robotics ltd (BTHome V2)
@@ -269,10 +267,16 @@ class BleParser:
                     elif comp_id == 0x004C and man_spec_data[4] == 0x02:
                         # iBeacon
                         if int.from_bytes(man_spec_data[6:22], byteorder='big') in TILT_TYPES:
+                            # Tilt
                             sensor_data, tracker_data = parse_tilt(self, man_spec_data, mac, rssi)
+                            break
+                        elif int.from_bytes(man_spec_data[6:22], byteorder='big') in JAALEE_TYPES:
+                            # skip Jaalee iBeacon messages, as they don't have a unique uuid
+                            break
                         else:
+                            # iBeacon
                             sensor_data, tracker_data = parse_ibeacon(self, man_spec_data, mac, rssi)
-                        break
+                            break
                     elif comp_id == 0x00DC and data_len == 0x0E:
                         # Oral-b
                         sensor_data = parse_oral_b(self, man_spec_data, mac, rssi)
