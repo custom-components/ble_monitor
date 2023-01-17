@@ -13,15 +13,17 @@ _LOGGER = logging.getLogger(__name__)
 def parse_relsib(self, data, source_mac, rssi):
     """Relsib parser"""
     msg_length = len(data)
-    if msg_length == 26:
-        firmware = "Relsib (EClerk Eco v9a)"
+    uuid16 = (data[3] << 8) | data[2]
+    relsib_mac = source_mac
+    result = {
+        "rssi": rssi,
+        "packet": "no packet id",
+        "mac": to_unformatted_mac(relsib_mac),
+        "firmware": "Relsib",
+    }
+    if uuid16 in [0xAA20, 0xAA21, 0xAA22] and msg_length == 26:
         device_type = "EClerk Eco"
-        relsib_mac = source_mac
 
-        result = {
-            "rssi": rssi,
-            "packet": "no packet id",
-        }
         if data[2] == 0x20:
             xdata_point = 8
         else:
@@ -46,7 +48,13 @@ def parse_relsib(self, data, source_mac, rssi):
                 result.update({"battery": 100})
             else:
                 result.update({"battery": battery & 0b01111111})
-
+    elif uuid16 in [0x1809] and msg_length == 10:
+        device_type = "WT51"
+        try:
+            temp = (float(data[4:].decode("utf-8")))
+            result.update({"temperature": temp})
+        except ValueError:
+            device_type = None
     else:
         device_type = None
     if device_type is None:
@@ -65,10 +73,7 @@ def parse_relsib(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(relsib_mac),
         "type": device_type,
-        "firmware": firmware,
         "data": True
     })
     return result
