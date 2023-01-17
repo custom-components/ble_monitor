@@ -24,8 +24,10 @@ def parse_airmentor(self, data, source_mac, rssi):
             (tvoc, temp, temp_cal, humi, aqi) = unpack(">HHBBH", xvalue)
             temperature = (temp - 4000) * 0.01
             temperature_calibrated = temperature - temp_cal * 0.1
-            humi = round(float(int("0x2d", 16)) * math.exp(temperature * 17.62 / (temperature + 243.12)) / math.exp(
-                temperature_calibrated * 17.62 / (temperature_calibrated + 243.12)), 2
+            humi = round(
+                humi * math.exp(temperature * 17.62 / (temperature + 243.12)) / math.exp(
+                    temperature_calibrated * 17.62 / (temperature_calibrated + 243.12)
+                ), 2
             )
             if aqi <= 50:
                 air_quality = "good"
