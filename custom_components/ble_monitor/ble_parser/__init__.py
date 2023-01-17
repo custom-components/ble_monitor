@@ -317,6 +317,10 @@ class BleParser:
                         # Air Mentor
                         sensor_data = parse_airmentor(self, man_spec_data, mac, rssi)
                         break
+                    elif comp_id in [0x5112, 0x5122, 0x6111, 0x6121] and data_len == 0x0f:
+                        # Air Mentor 2S
+                        sensor_data = parse_airmentor(self, man_spec_data, mac, rssi)
+                        break
                     elif comp_id == 0x8801 and data_len in [0x0C, 0x25]:
                         # Govee H5179
                         sensor_data = parse_govee(self, man_spec_data, mac, rssi)

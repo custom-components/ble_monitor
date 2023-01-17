@@ -57,7 +57,50 @@ def parse_pro2(msg_type, xvalue):
         return None
 
 
-def parse_airmentor(self, data, source_mac, rssi):
+def parse_s2(msg_type, xvalue):
+    if msg_type in [0x12, 0x22]:
+        # 2 unknown bytes at the end.
+        (tvoc_ppb, temp, temp_cal, humi, aqi, _, _) = unpack(">HHBBHHH", xvalue)
+
+        # Convert TVOC from ppb to mg/m^3.
+        # ref: https://www.catsensors.com/media/pdf/Sensor_Sensirion_IAM.pdf
+        M_gas = 110
+        V_m = 0.0244 * 1000
+        tvoc_ugm3 = float(tvoc_ppb) * M_gas / V_m
+        tvoc_mgm3 = tvoc_ugm3 / 1000
+
+        temperature = (temp - 4000) * 0.01
+        temperature_calibrated = temperature - temp_cal * 0.1
+
+        # No calibration for humidity. Use the raw value. It is aligned what observe in iOS app.
+
+        air_quality = aqi_to_air_quality(aqi)
+
+        return {
+            "tvoc": tvoc_mgm3,
+            "temperature": round(temperature, 2),
+            "temperature calibrated": round(temperature_calibrated, 2),
+            "humidity": round(humi, 2),
+            "aqi": aqi,
+            "air quality": air_quality
+        }
+    elif msg_type in [0x11, 0x21]:
+        (co2, pm25, pm10, _, hcho_ppb, _) = unpack(">HHHHHH", xvalue)
+
+        # formaldehyde: At 25 °C, 1 ppm = 1.228 mg/m3 and 1 mg/m3 = 0.814 ppm.
+        M_hcho = 1.228
+        hcho_mgm3 = hcho_ppb * 0.001 * M_hcho
+        return {
+            "co2": co2,
+            "pm2.5": pm25,
+            "pm10": pm10,
+            "formaldehyde": hcho_mgm3
+        }
+    else:
+        return None
+
+
+def parse_airmentor(self, data: bytes, source_mac: str, rssi):
     """Parser for Air Mentor"""
     data_length = len(data)
     airmentor_mac = source_mac
@@ -65,11 +108,17 @@ def parse_airmentor(self, data, source_mac, rssi):
     device_type = None
     result = None
     if data_length == 12:
-        device_type = "Air Mentor Pro 2"
-        firmware = "Air Mentor"
         msg_type = data[2]
         xvalue = data[4:]
+        device_type = "Air Mentor Pro 2"
+        firmware = "Air Mentor"
         result = parse_pro2(msg_type, xvalue)
+    elif data_length == 16:
+        msg_type = data[2]
+        xvalue = data[4:]
+        device_type = "Air Mentor 2S"
+        firmware = "Air Mentor"
+        result = parse_s2(msg_type, xvalue)
 
     if device_type is None or result is None:
         if self.report_unknown == "Air Mentor":
