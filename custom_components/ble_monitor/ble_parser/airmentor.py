@@ -38,6 +38,7 @@ def parse_pro2(msg_type, xvalue):
         )
         air_quality = aqi_to_air_quality(aqi)
         return {
+            # REVIEW NEED: TVOC is ppb in Air Mentor Pro 2, but default using mg/m^3 in Home Assistant.
             "tvoc": tvoc,
             "temperature": round(temperature, 2),
             "temperature calibrated": round(temperature_calibrated, 2),
