@@ -209,10 +209,9 @@ class BleParser:
                         sensor_data = parse_relsib(self, service_data, mac, rssi)
                         break
                     elif uuid16 == 0xF525:
-                        # UUID16 = Jaalee (also contains iBeacon manufacturer specific data)
-                        if man_spec_data_list:
-                            sensor_data = parse_jaalee(self, service_data, mac, rssi)
-                            break
+                        # UUID16 = Jaalee
+                        sensor_data = parse_jaalee(self, service_data, mac, rssi)
+                        break
                     elif uuid16 == 0xFCD2:
                         # UUID16 = Allterco Robotics ltd (BTHome V2)
                         sensor_data = parse_bthome(self, service_data, uuid16, mac, rssi)

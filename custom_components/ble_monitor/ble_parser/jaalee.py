@@ -12,9 +12,6 @@ _LOGGER = logging.getLogger(__name__)
 
 def parse_jaalee(self, data, source_mac, rssi):
     """Jaalee parser"""
-    if not data:
-        # skip all messages with only iBeacon data, as the UUID is not unique
-        return None
     msg_length = len(data)
     firmware = "Jaalee"
     result = {"firmware": firmware}
