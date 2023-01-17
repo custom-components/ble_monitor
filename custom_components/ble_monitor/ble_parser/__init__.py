@@ -185,6 +185,10 @@ class BleParser:
                 for service_data in service_data_list:
                     # parse data for sensors with service data
                     uuid16 = (service_data[3] << 8) | service_data[2]
+                    if uuid16 == 0x1809:
+                        # UUID16 = Health Thermometer service (used by Relsib)
+                        sensor_data = parse_relsib(self, service_data, mac, rssi)
+                        break
                     if uuid16 == 0x181A:
                         # UUID16 = Environmental Sensing (used by ATC or b-parasite)
                         if len(service_data) == 22 or len(service_data) == 20:
