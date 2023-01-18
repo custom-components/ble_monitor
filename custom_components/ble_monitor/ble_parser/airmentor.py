@@ -58,7 +58,7 @@ def parse_pro2(msg_type, xvalue):
         return None
 
 
-def parse_s2(msg_type, xvalue):
+def parse_2s(msg_type, xvalue):
     if msg_type in [0x12, 0x22]:
         # 2 unknown bytes at the end.
         (tvoc_ppb, temp, temp_cal, humi, aqi, _, _) = unpack(">HHBBHHH", xvalue)
@@ -119,7 +119,7 @@ def parse_airmentor(self, data: bytes, source_mac: str, rssi):
         xvalue = data[4:]
         device_type = "Air Mentor 2S"
         firmware = "Air Mentor"
-        result = parse_s2(msg_type, xvalue)
+        result = parse_2s(msg_type, xvalue)
 
     if device_type is None or result is None:
         if self.report_unknown == "Air Mentor":
