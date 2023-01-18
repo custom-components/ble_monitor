@@ -1138,6 +1138,7 @@ MEASUREMENT_DICT = {
     'iBeacon'                 : [["rssi", "measured power", "cypress temperature", "cypress humidity"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'Air Mentor Pro 2'        : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "aqi", "air quality", "pm2.5", "pm10", "rssi"], [], []],
+    'Air Mentor 2S'           : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "aqi", "formaldehyde", "air quality", "pm2.5", "pm10", "rssi"], [], []],
     'bluSensor Mini'          : [["temperature", "humidity", "co2", "tvoc", "aqi", "rssi"], [], []],
     'Meter TH S1'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Meter TH plus'           : [["temperature", "humidity", "battery", "rssi"], [], []],
@@ -1266,6 +1267,7 @@ MANUFACTURER_DICT = {
     'AltBeacon'               : 'Radius Networks',
     'EClerk Eco'              : 'Relsib',
     'Air Mentor Pro 2'        : 'Air Mentor',
+    'Air Mentor 2S'           : 'Air Mentor',
     'bluSensor Mini'          : 'Almendo',
     'Meter TH S1'             : 'Switchbot',
     'Meter TH plus'           : 'Switchbot',
