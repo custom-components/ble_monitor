@@ -74,13 +74,7 @@ def parse_2s(msg_type, xvalue):
         # 2 unknown bytes at the end.
         (tvoc_ppb, temp, temp_cal, humi, aqi, _, _) = unpack(">HHBBHHH", xvalue)
 
-        # Convert TVOC from ppb to mg/m^3.
-        # ref: https://www.catsensors.com/media/pdf/Sensor_Sensirion_IAM.pdf
-        M_gas = 110
-        V_m = 0.0244 * 1000
-        tvoc_ugm3 = float(tvoc_ppb) * M_gas / V_m
-        tvoc_mgm3 = tvoc_ugm3 / 1000
-
+        tvoc_ugm3 = tvoc_ppb_to_ugm3(tvoc_ppb)
         temperature = (temp - 4000) * 0.01
         temperature_calibrated = temperature - temp_cal * 0.1
 
@@ -89,7 +83,7 @@ def parse_2s(msg_type, xvalue):
         air_quality = aqi_to_air_quality(aqi)
 
         return {
-            "tvoc": tvoc_mgm3,
+            "tvoc": tvoc_ugm3,
             "temperature": round(temperature, 2),
             "temperature calibrated": round(temperature_calibrated, 2),
             "humidity": round(humi, 2),
