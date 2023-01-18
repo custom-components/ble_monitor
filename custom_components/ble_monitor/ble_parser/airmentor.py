@@ -26,9 +26,21 @@ def aqi_to_air_quality(aqi):
         return "hazardous"
 
 
+def tvoc_ppb_to_ugm3(tvoc_ppb):
+    """Convert TVOC from ppb to ug/m^3.
+
+    ref: https://www.catsensors.com/media/pdf/Sensor_Sensirion_IAM.pdf
+    """
+    M_gas = 110
+    V_m = 0.0244 * 1000
+    tvoc_ugm3 = float(tvoc_ppb) * M_gas / V_m
+    return tvoc_ugm3
+
+
 def parse_pro2(msg_type, xvalue):
     if msg_type in [0x12, 0x22]:
-        (tvoc, temp, temp_cal, humi, aqi) = unpack(">HHBBH", xvalue)
+        (tvoc_ppb, temp, temp_cal, humi, aqi) = unpack(">HHBBH", xvalue)
+        tvoc_ugm3 = tvoc_ppb_to_ugm3(tvoc_ppb)
         temperature = (temp - 4000) * 0.01
         temperature_calibrated = temperature - temp_cal * 0.1
         humi = round(
@@ -38,8 +50,7 @@ def parse_pro2(msg_type, xvalue):
         )
         air_quality = aqi_to_air_quality(aqi)
         return {
-            # REVIEW NEED: TVOC is ppb in Air Mentor Pro 2, but default using mg/m^3 in Home Assistant.
-            "tvoc": tvoc,
+            "tvoc": tvoc_ugm3,
             "temperature": round(temperature, 2),
             "temperature calibrated": round(temperature_calibrated, 2),
             "humidity": round(humi, 2),
