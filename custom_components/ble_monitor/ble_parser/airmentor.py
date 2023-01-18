@@ -71,7 +71,7 @@ def parse_pro2(msg_type, xvalue):
 
 def parse_2s(msg_type, xvalue):
     if msg_type in [0x12, 0x22]:
-        # 2 unknown bytes at the end.
+        # 4 unknown bytes at the end.
         (tvoc_ppb, temp, temp_cal, humi, aqi, _, _) = unpack(">HHBBHHH", xvalue)
 
         tvoc_ugm3 = tvoc_ppb_to_ugm3(tvoc_ppb)
