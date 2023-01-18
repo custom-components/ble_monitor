@@ -20,7 +20,7 @@ class TestAirMentor:
         assert sensor_msg["temperature"] == 24.99
         assert sensor_msg["temperature calibrated"] == 19.89
         assert sensor_msg["humidity"] == 61.34
-        assert sensor_msg["tvoc"] == 185
+        assert sensor_msg["tvoc"] == 834.02
         assert sensor_msg["aqi"] == 325
         assert sensor_msg["air quality"] == "hazardous"
         assert sensor_msg["rssi"] == -52

@@ -50,7 +50,7 @@ def parse_pro2(msg_type, xvalue):
         )
         air_quality = aqi_to_air_quality(aqi)
         return {
-            "tvoc": tvoc_ugm3,
+            "tvoc": round(tvoc_ugm3, 2),
             "temperature": round(temperature, 2),
             "temperature calibrated": round(temperature_calibrated, 2),
             "humidity": round(humi, 2),
@@ -83,7 +83,7 @@ def parse_2s(msg_type, xvalue):
         air_quality = aqi_to_air_quality(aqi)
 
         return {
-            "tvoc": tvoc_ugm3,
+            "tvoc": round(tvoc_ugm3, 2),
             "temperature": round(temperature, 2),
             "temperature calibrated": round(temperature_calibrated, 2),
             "humidity": round(humi, 2),
