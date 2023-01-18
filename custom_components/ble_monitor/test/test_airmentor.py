@@ -42,3 +42,22 @@ class TestAirMentor:
         assert sensor_msg["pm2.5"] == 3
         assert sensor_msg["pm10"] == 3
         assert sensor_msg["rssi"] == -52
+
+    def test_air_mentor_2s_set_1(self):
+        """Test Air Mentor parser for Air Mentor 2S."""
+        data_string = "043E1F02010000A7808FE64854130201060fff216102b8000300041b9400126d01CC"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Air Mentor"
+        assert sensor_msg["type"] == "Air Mentor 2S"
+        assert sensor_msg["mac"] == "5448E68F80A7"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["co2"] == 696
+        assert sensor_msg["pm2.5"] == 3
+        assert sensor_msg["pm10"] == 4
+        assert sensor_msg["formaldehyde"] == 0.022104
+        assert sensor_msg["rssi"] == -52
