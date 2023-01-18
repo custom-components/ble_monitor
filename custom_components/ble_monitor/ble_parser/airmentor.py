@@ -96,11 +96,12 @@ def parse_2s(msg_type, xvalue):
         # formaldehyde: At 25 °C, 1 ppm = 1.228 mg/m3 and 1 mg/m3 = 0.814 ppm.
         M_hcho = 1.228
         hcho_mgm3 = hcho_ppb * 0.001 * M_hcho
+
         return {
             "co2": co2,
             "pm2.5": pm25,
             "pm10": pm10,
-            "formaldehyde": hcho_mgm3
+            "formaldehyde": round(hcho_mgm3, 6)
         }
     else:
         return None
