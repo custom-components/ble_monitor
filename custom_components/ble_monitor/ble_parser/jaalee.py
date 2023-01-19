@@ -15,17 +15,39 @@ def parse_jaalee(self, data, source_mac, rssi):
     msg_length = len(data)
     firmware = "Jaalee"
     result = {"firmware": firmware}
-    if msg_length == 15:
+    if msg_length == 28 and data[1:4] == b'\xff\x4c\x00' and data[20:22] == b'\xf5\x25':
+        device_type = "JHT"
+        jaalee_mac = source_mac
+        (temp, humi, _, batt) = unpack(">HHBB", data[22:])
+        # data follows the iBeacon temperature and humidity definition
+        temp = round(175.72 * temp / 65536 - 46.85, 2)
+        humi = round(125.0 * humi / 65536 - 6, 2)
+
+        result.update(
+            {
+                "temperature": temp,
+                "humidity": humi,
+                "battery": batt
+            }
+        )
+    elif msg_length == 15:
         device_type = "JHT"
         batt = data[4]
         jaalee_mac_reversed = data[5:11]
         jaalee_mac = jaalee_mac_reversed[::-1]
         if jaalee_mac != source_mac:
-            _LOGGER.debug("Jaalee MAC address doesn't match data MAC address. Data: %s", data.hex())
+            _LOGGER.debug(
+                "Jaalee MAC address doesn't match data MAC address. "
+                "Data: %s with source mac: %s and jaalee mac: %s",
+                data.hex(),
+                source_mac,
+                jaalee_mac,
+            )
             return None
         (temp, humi) = unpack(">HH", data[11:])
-        temp = round(0.0026821682 * temp - 46.873, 2)
-        humi = round(0.0019213762 * humi - 6.332, 2)
+        # data follows the iBeacon temperature and humidity definition
+        temp = round(175.72 * temp / 65536 - 46.85, 2)
+        humi = round(125.0 * humi / 65536 - 6, 2)
 
         result.update(
             {

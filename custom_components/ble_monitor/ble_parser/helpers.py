@@ -12,6 +12,6 @@ def to_mac(addr: str) -> str:
     return ':'.join(f'{i:02X}' for i in addr)
 
 
-def to_unformatted_mac(addr: int):
+def to_unformatted_mac(addr: str) -> str:
     """Return unformatted MAC address"""
     return ''.join(f'{i:02X}' for i in addr[:])
