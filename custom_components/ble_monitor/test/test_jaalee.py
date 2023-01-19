@@ -29,5 +29,13 @@ class TestJaalee:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg is None
+        assert sensor_msg["firmware"] == "Jaalee"
+        assert sensor_msg["type"] == "JHT"
+        assert sensor_msg["mac"] == "D2F3B4CD1E4B"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 32.86
+        assert sensor_msg["humidity"] == 37.51
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["rssi"] == -41
         assert tracker_msg is None
