@@ -274,7 +274,8 @@ class BleParser:
                             sensor_data, tracker_data = parse_tilt(self, man_spec_data, mac, rssi)
                             break
                         elif int.from_bytes(man_spec_data[6:22], byteorder='big') in JAALEE_TYPES:
-                            # skip Jaalee iBeacon messages, as they don't have a unique uuid
+                            # Jaalee
+                            sensor_data = parse_jaalee(self, man_spec_data, mac, rssi)
                             break
                         else:
                             # iBeacon
