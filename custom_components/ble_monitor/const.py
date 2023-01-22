@@ -1141,8 +1141,8 @@ MEASUREMENT_DICT = {
     'BEC07-5'                 : [["temperature", "humidity", "rssi"], [], []],
     'iBeacon'                 : [["rssi", "measured power", "cypress temperature", "cypress humidity"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
-    'EClerk Eco'              : [["temperature", "humidity", "co2", "battery", "rssi"], [], []],
     'Air Mentor Pro 2'        : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "aqi", "air quality", "pm2.5", "pm10", "rssi"], [], []],
+    'Air Mentor 2S'           : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "aqi", "formaldehyde", "air quality", "pm2.5", "pm10", "rssi"], [], []],
     'bluSensor Mini'          : [["temperature", "humidity", "co2", "tvoc", "aqi", "rssi"], [], []],
     'Meter TH S1'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Meter TH plus'           : [["temperature", "humidity", "battery", "rssi"], [], []],
@@ -1275,6 +1275,7 @@ MANUFACTURER_DICT = {
     'AltBeacon'               : 'Radius Networks',
     'EClerk Eco'              : 'Relsib',
     'Air Mentor Pro 2'        : 'Air Mentor',
+    'Air Mentor 2S'           : 'Air Mentor',
     'bluSensor Mini'          : 'Almendo',
     'Meter TH S1'             : 'Switchbot',
     'Meter TH plus'           : 'Switchbot',
@@ -1300,6 +1301,7 @@ RENAMED_FIRMWARE_DICT =  {
     'HA BLE (encrypted)': 'BTHome (encrypted)',
     'Thermoplus': 'Thermobeacon',
     'Brifit': 'Thermobeacon',
+    'Relsib (EClerk Eco v9a)': 'Relsib',
 }
 
 
@@ -1313,8 +1315,12 @@ RENAMED_MANUFACTURER_DICT =  {
 
 # Sensors that support automatic adding of sensors and binary sensors
 AUTO_MANUFACTURER_DICT = {
-    'HHCCJCY10'               : 'HHCC',
+    'Amazfit Smart Scale'     : 'Amazfit',
     'BTHome'                  : 'BTHome',
+    'HHCCJCY10'               : 'HHCC',
+    'IBS-TH'                  : 'Inkbird',
+    'IBS-TH2/P01B'            : 'Inkbird',
+    'JHT'                     : 'Jaalee',
     'TG-BT5-IN'               : 'Mikrotik',
     'TG-BT5-OUT'              : 'Mikrotik',
     'TP357'                   : 'Thermopro',
@@ -1327,10 +1333,8 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Blue'               : 'Tilt',
     'Tilt Yellow'             : 'Tilt',
     'Tilt Pink'               : 'Tilt',
-    'IBS-TH'                  : 'Inkbird',
-    'IBS-TH2/P01B'            : 'Inkbird',
-    'Amazfit Smart Scale'     : 'Amazfit',
-    'JHT'                     : 'Jaalee',
+    'EClerk Eco'              : 'Relsib',
+    'WT51'                    : 'Relsib',
 }
 
 

@@ -12,7 +12,7 @@ class TestRelsib:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "Relsib (EClerk Eco v9a)"
+        assert sensor_msg["firmware"] == "Relsib"
         assert sensor_msg["type"] == "EClerk Eco"
         assert sensor_msg["mac"] == "FAB67CF2DD30"
         assert sensor_msg["packet"] == "no packet id"
@@ -31,7 +31,7 @@ class TestRelsib:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "Relsib (EClerk Eco v9a)"
+        assert sensor_msg["firmware"] == "Relsib"
         assert sensor_msg["type"] == "EClerk Eco"
         assert sensor_msg["mac"] == "FAB67CF2DD30"
         assert sensor_msg["packet"] == "no packet id"
@@ -49,7 +49,7 @@ class TestRelsib:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "Relsib (EClerk Eco v9a)"
+        assert sensor_msg["firmware"] == "Relsib"
         assert sensor_msg["type"] == "EClerk Eco"
         assert sensor_msg["mac"] == "FAB67CF2DD30"
         assert sensor_msg["packet"] == "no packet id"
@@ -67,7 +67,7 @@ class TestRelsib:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "Relsib (EClerk Eco v9a)"
+        assert sensor_msg["firmware"] == "Relsib"
         assert sensor_msg["type"] == "EClerk Eco"
         assert sensor_msg["mac"] == "FAB67CF2DD30"
         assert sensor_msg["packet"] == "no packet id"
@@ -85,7 +85,23 @@ class TestRelsib:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
-        assert sensor_msg["firmware"] == "Relsib (EClerk Eco v9a)"
+        assert sensor_msg["firmware"] == "Relsib"
         assert sensor_msg["type"] == "EClerk Eco"
         assert sensor_msg["mac"] == "FAB67CF2DD30"
         assert sensor_msg["battery"] == 100
+
+    def test_relsib_WT51(self):
+        """Test Relsib parser for Relsib WT51."""
+        data_string = "043e230201030130ddf27cb6fa17091609182b3032332e350c16a2aa313730363030363039c2"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Relsib"
+        assert sensor_msg["type"] == "WT51"
+        assert sensor_msg["mac"] == "FAB67CF2DD30"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 23.5
+        assert sensor_msg["rssi"] == -62

@@ -2,7 +2,7 @@
 from ble_monitor.ble_parser import BleParser
 
 
-class TestSwitchbot:
+class TestAirMentor:
     """Tests for the Air Mentor parser"""
     def test_air_mentor_pro_2_set_1(self):
         """Test Air Mentor parser for Air Mentor Pro 2."""
@@ -20,7 +20,7 @@ class TestSwitchbot:
         assert sensor_msg["temperature"] == 24.99
         assert sensor_msg["temperature calibrated"] == 19.89
         assert sensor_msg["humidity"] == 61.34
-        assert sensor_msg["tvoc"] == 185
+        assert sensor_msg["tvoc"] == 834.02
         assert sensor_msg["aqi"] == 325
         assert sensor_msg["air quality"] == "hazardous"
         assert sensor_msg["rssi"] == -52
@@ -41,4 +41,23 @@ class TestSwitchbot:
         assert sensor_msg["co2"] == 10000
         assert sensor_msg["pm2.5"] == 3
         assert sensor_msg["pm10"] == 3
+        assert sensor_msg["rssi"] == -52
+
+    def test_air_mentor_2s_set_1(self):
+        """Test Air Mentor parser for Air Mentor 2S."""
+        data_string = "043E1F02010000A7808FE64854130201060fff216102b8000300041b9400126d01CC"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Air Mentor"
+        assert sensor_msg["type"] == "Air Mentor 2S"
+        assert sensor_msg["mac"] == "5448E68F80A7"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["co2"] == 696
+        assert sensor_msg["pm2.5"] == 3
+        assert sensor_msg["pm10"] == 4
+        assert sensor_msg["formaldehyde"] == 0.022104
         assert sensor_msg["rssi"] == -52
