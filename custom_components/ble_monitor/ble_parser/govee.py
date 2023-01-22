@@ -177,6 +177,7 @@ def parse_govee(self, data, service_class_uuid16, source_mac, rssi):
             "temperature alarm probe 2": decode_temps_probes(temp_alarm_2)
         })
     elif msg_length == 24 and service_class_uuid16 == 0x5198:
+        _LOGGER.debug("Govee H5198 detected with data %s", data.hex())
         device_type = "H5198"
         sensor_id = data[10]
         (temp_probe_first, temp_alarm_first, _, temp_probe_second, temp_alarm_second) = unpack(">hhhhh", data[12:22])
