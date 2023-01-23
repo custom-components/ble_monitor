@@ -35,6 +35,12 @@ or
 RuntimeError: Event loop stopped before Future completed
 ```
 
+or 
+
+```
+HCIdump thread: Something wrong - interface hci0 not ready, and will be skipped for current scan period.
+```
+
 **Steps to solve**
 
 When using a docker container or venv environement, run the following command from inside the docker container / or venv environment. 
@@ -219,10 +225,6 @@ sudo reboot
 ```
 
 **7 Wait a long time before all plugins are installed in Home Assistant**
-
-### Is BLE monitor compatible with Home Assistant 2022.7
-
-Home Assistant 2022.7 has removed `pybluez` and made some changes to the Bluetooth support. This caused some core Bluetooth integrations to stop working. Luckily, BLE monitor is not using `pybluez`, so it should continue to work fine.
 
 
 ## Reception Issues
