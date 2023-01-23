@@ -10,7 +10,7 @@ nav_order: 7
 
 ### Why is this component called passive and what does this mean
 
-Unlike the original `mitemp_bt` component (and most other solutions), this custom component does not use connections (polling) to collect data. The fact is that many sensors from the Xiaomi ecosystem transmit information themselves about their condition to the air with some frequency. We need only to "passively" receive these messages and update the status of the corresponding entities in the Home Assistant. What does this give us?
+Unlike the original `mitemp_bt` component (and most other solutions), this custom component does not use connections (polling) to collect data. The fact is that many BLE sensors transmit information themselves about their condition to the air with some frequency. We need only to "passively" receive these messages and update the status of the corresponding entities in the Home Assistant. What does this give us?
 
 - firstly, it reduces the power consumption of the sensors (the battery lasts longer), since the sensor does not transmit anything other than that provided by its developers.
 - secondly, since the range of bluetooth is rather limited, passive reception can solve some problems that arise when using "polling" components. In the case of connecting to a sensor, a two-way exchange takes place, which means we not only should “hear” the sensor well, but the sensor, in its turn, must also “hear” us well, and this could be problematic. To increase the radius of reception, you can, for example, install an external bt-dongle with a large antenna on your host, to make it "hear" better, but you can’t do anything with the sensor itself. A passive data collection method solves this problem, because in this case the sensor does not know about our existence, and should not "hear" us at all. The main thing is that we "hear" it well.
@@ -37,6 +37,7 @@ RuntimeError: Event loop stopped before Future completed
 
 **Steps to solve**
 
+When using a docker container or venv environement, run the following command from inside the docker container / or venv environment. 
 First, try to set root access with
 
 ```shell
@@ -52,17 +53,17 @@ sudo getcap `readlink -f \`which python3\``
 The command will return the path to python and looks like (can vary based on your python version):
 
 ```shell
-/usr/bin/python3.8 = cap_net_admin,cap_net_raw+eip
+/usr/bin/python3.10 = cap_net_admin,cap_net_raw+eip
 ```
 
 Make sure you first stop Home Assistant and then start Home Assistant again. Restarting Home Assistant is not enough, as the python process does not exit upon restart.
 
 **Note 1**
 
-If you have multiple python versions, make sure it refers to the same version which is used by Home Assistant. If Home Assistant is using a different version, e.g. python3.9, run the following command to set the correct version (adjust it to your own version if needed).
+If you have multiple python versions, or it has stopped working after a python upgrade, make sure it refers to the same version which is used by Home Assistant. Again, note that the python version inside a docker container or venv environment where your Home Assistant is running can differ from the python version used by the system, make sure you check the first, by logging in to your docker container and/or venv environment. If Home Assistant is using a different version than the one that is returned by the second command above, e.g. python3.10, run the following command to set the correct version (adjust it to your own file location and version if needed).
 
 ```shell
-sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.9
+sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.10
 ```
 
 **Note 2**
@@ -98,7 +99,7 @@ ble_monitor:
 
 **2 Make sure HA has the proper rights to use Bluetooth**
 
-Especially on Docker installations, make sure that Bluetooth can be used by Home Asssistant.
+Especially for Docker installations, make sure that Bluetooth is available inside the container and can be used by Home Asssistant.
 
 
 **3 Check the permissions for the HCI interface**
