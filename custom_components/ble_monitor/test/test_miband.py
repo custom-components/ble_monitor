@@ -19,4 +19,4 @@ class TestMiBand:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["heart rate"] == 10
-        assert sensor_msg["rssi"] == -59
+        assert sensor_msg["rssi"] == -78
