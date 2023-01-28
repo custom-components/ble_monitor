@@ -169,30 +169,37 @@ def parse_govee(self, data, service_class_uuid16, source_mac, rssi):
         or device_id in [0x4A32, 0x332, 0x4C32]
     ):
         device_type = "H5185"
-        (temp_probe_1, temp_alarm_1, _, temp_probe_2, temp_alarm_2) = unpack(">hhhhh", data[12:22])
+        (temp_probe_1, high_temp_alarm_1, _, temp_probe_2, high_temp_alarm_2, _) = unpack(
+            ">hhhhhh", data[12:24])
         result.update({
             "temperature probe 1": decode_temps_probes(temp_probe_1),
-            "temperature alarm probe 1": decode_temps_probes(temp_alarm_1),
+            "temperature alarm probe 1": decode_temps_probes(high_temp_alarm_1),
             "temperature probe 2": decode_temps_probes(temp_probe_2),
-            "temperature alarm probe 2": decode_temps_probes(temp_alarm_2)
+            "temperature alarm probe 2": decode_temps_probes(high_temp_alarm_2),
         })
     elif msg_length == 24 and service_class_uuid16 == 0x5198:
         device_type = "H5198"
         sensor_id = data[10]
-        (temp_probe_first, temp_alarm_first, _, temp_probe_second, temp_alarm_second, _) = unpack(">hhhhhh", data[12:24])
+        (temp_probe_first, high_temp_alarm_first, low_temp_alarm_first, temp_probe_second, high_temp_alarm_second, low_temp_alarm_second) = unpack(
+            ">hhhhhh", data[12:24]
+        )
         if sensor_id in [0x01, 0x41, 0x81, 0xC1]:
             result.update({
                 "temperature probe 1": decode_temps_probes(temp_probe_first),
-                "temperature alarm probe 1": decode_temps_probes(temp_alarm_first),
+                "temperature alarm probe 1": decode_temps_probes(high_temp_alarm_first),
+                "low temperature alarm probe 1": decode_temps_probes(low_temp_alarm_first),
                 "temperature probe 2": decode_temps_probes(temp_probe_second),
-                "temperature alarm probe 2": decode_temps_probes(temp_alarm_second)
+                "temperature alarm probe 2": decode_temps_probes(high_temp_alarm_second),
+                "low temperature alarm probe 2": decode_temps_probes(low_temp_alarm_second)
             })
         elif sensor_id in [0x02, 0x42, 0x82, 0xC2]:
             result.update({
                 "temperature probe 3": decode_temps_probes(temp_probe_first),
-                "temperature alarm probe 3": decode_temps_probes(temp_alarm_first),
+                "temperature alarm probe 3": decode_temps_probes(high_temp_alarm_first),
+                "low temperature alarm probe 3": decode_temps_probes(low_temp_alarm_first),
                 "temperature probe 4": decode_temps_probes(temp_probe_second),
-                "temperature alarm probe 4": decode_temps_probes(temp_alarm_second)
+                "temperature alarm probe 4": decode_temps_probes(high_temp_alarm_second),
+                "low temperature alarm probe 4": decode_temps_probes(low_temp_alarm_first),
             })
         else:
             _LOGGER.debug("Unkown sensor id found for Govee H5198. Data %s", data.hex())
