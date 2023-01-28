@@ -364,6 +364,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |  |**Air Quality Index
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
+    # |  |**heart rate
     # |  |**Pulse
     # |  |**Shake
     # |  |--StateChangedSensor (Class)
