@@ -7,6 +7,7 @@ physical_description: Square body, with 4 probes.
 broadcasted_properties:
   - temperature probe
   - temperature alarm probe
+  - low temperature alarm probe
   - rssi
 broadcasted_property_notes:
 broadcast_rate:

@@ -295,6 +295,8 @@ class TestGovee:
         assert sensor_msg["data"]
         assert sensor_msg["temperature probe 1"] == 0.0
         assert sensor_msg["temperature alarm probe 1"] == 74.0
+        assert sensor_msg["low temperature alarm probe 1"] == 0.0
         assert sensor_msg["temperature probe 2"] == 0.0
         assert sensor_msg["temperature alarm probe 2"] == 63.0
+        assert sensor_msg["low temperature alarm probe 2"] == 0.0
         assert sensor_msg["rssi"] == -59
