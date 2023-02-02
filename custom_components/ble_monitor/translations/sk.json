@@ -1,0 +1,105 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pasívny BLE Monitor",
+        "description": "Nastavenie konfigurácie vášho monitora BLE",
+        "data": {
+          "bt_interface": "MAC addresa pre Bluetooth interface/adapter",
+          "devices": "Zariadenia",
+          "discovery": "Objavte zariadenia a senzory automaticky",
+          "decimals": "Počet desatinných miest",
+          "period": "Obdobie, ktoré sa má použiť na spriemerovanie",
+          "log_spikes": "Log spikes",
+          "use_median": "Namiesto priemeru použite medián",
+          "active_scan": "Použiť aktívne skenovanie namiesto pasívneho skenovania (ovplyvňuje batériu)",
+          "restore_state": "Po reštarte obnoviť stav",
+          "report_unknown": "Nahláste neznáme reklamy BLE do denníka HA",
+          "bt_auto_restart": "Automaticky reštartovať adaptér Bluetooth pri zlyhaní"
+        }
+      },
+      "add_remove_device": {
+        "title": "Pridať zariadenie",
+        "data": {
+          "mac": "MAC addresa",
+          "uuid": "Beacon UUID",
+          "encryption_key": "Šifrovací kľúč",
+          "temperature_unit": "Jednotka teploty [iba snímače teploty]",
+          "decimals": "Počet desatinných miest",
+          "use_median": "Namiesto priemeru použite medián",
+          "restore_state": "Po reštarte obnoviť stav",
+          "reset_timer": "Resetovať časovač (v sekundách, 0 = vypnuté)",
+          "report_unknown": "Nahláste neznáme reklamy BLE do denníka HA",
+          "track_device": "Sledovacie zariadenie",
+          "tracker_scan_interval": "Interval skenovania nástroja na sledovanie zariadenia (v sekundách)",
+          "consider_home": "Sledovač zariadenia zohľadňuje interval domova (v sekundách)",
+          "delete device": "Vymazať zariadenie"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "MAC addresa musí byť vo forme 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_uuid": "Beacon UUID musí byť vo formáte '00000000-0000-0000-0000-000000000000'.",
+      "invalid_key": "Šifrovací kľúč musí obsahovať 32 hexadecimálnych znakov (24 pre senzory Yeelight).",
+      "cannot_change_mac": "MAC addresa nemôže byť zmenená.",
+      "cannot_change_uuid": "Beacon UUID nemôže byť zmenené.",
+      "cannot_delete_device": "Zariadenia nemôže byť vymazané.",
+      "cannot_disable_bt_interface": "Rozhranie BT nemožno zakázať, pokiaľ je stále vybraté jedno alebo viac rozhraní BT. Zrušte výber všetkých rozhraní BT."
+    },
+    "abort": {
+      "single_instance_allowed": "Je povolená iba jedna konfigurácia monitora BLE."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Možnosti pasívneho monitora BLE",
+        "description": "Po stlačení sa skenovanie reštartuje 'SUBMIT'",
+        "data": {
+          "bt_interface": "MAC addresa pre Bluetooth interface/adapter",
+          "devices": "Zariadenia",
+          "discovery": "Objavte zariadenia a senzory automaticky",
+          "decimals": "Počet desatinných miest",
+          "period": "Obdobie, ktoré sa má použiť na spriemerovanie",
+          "log_spikes": "Log spikes",
+          "use_median": "Namiesto priemeru použite medián",
+          "active_scan": "Použiť aktívne skenovanie namiesto pasívneho skenovania (ovplyvňuje batériu)",
+          "report_unknown": "Nahláste neznáme reklamy BLE do denníka HA",
+          "bt_auto_restart": "Automaticky reštartovať adaptér Bluetooth pri zlyhaní",
+          "restore_state": "Po reštarte obnoviť stav",
+          "not_in_use": "Používa sa YAML, zmeňte možnosti v YAML"
+        }
+      },
+      "add_remove_device": {
+        "title": "Nakonfigurujte zariadenie",
+        "data": {
+          "mac": "MAC addresa",
+          "uuid": "Beacon UUID",
+          "encryption_key": "Šifrovací kľúč (na odstránenie nastavte na '-')",
+          "temperature_unit": "Jednotka teploty",
+          "decimals": "Počet desatinných miest",
+          "use_median": "Namiesto priemeru použite medián",
+          "restore_state": "Po reštarte obnoviť stav",
+          "reset_timer": "Resetovať časovač (v sekundách, 0 = vypnuté)",
+          "report_unknown": "Nahláste neznáme reklamy BLE do denníka HA",
+          "track_device": "Sledovacie zariadenie",
+          "tracker_scan_interval": "Interval skenovania nástroja na sledovanie zariadenia (v sekundách)",
+          "consider_home": "Sledovač zariadenia zohľadňuje interval domova (v sekundách)",
+          "delete device": "Odstrániť zariadenie"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "MAC addresa musí byť vo forme 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_uuid": "Beacon UUID musí byť vo forme '00000000-0000-0000-0000-000000000000'.",
+      "invalid_key": "Šifrovací kľúč musí obsahovať 32 hexadecimálnych znakov (24 pre senzory Yeelight).",
+      "cannot_change_mac": "MAC adresu nie je možné zmeniť.",
+      "cannot_change_uuid": "Beacon UUID sa nedá zmeniť.",
+      "cannot_delete_device": "Zariadenie nie je možné odstrániť.",
+      "cannot_disable_bt_interface": "Rozhranie BT nemožno zakázať, pokiaľ je stále vybraté jedno alebo viac rozhraní BT. Zrušte výber všetkých rozhraní BT."
+    },
+    "abort": {
+      "not_in_use": "Nakonfigurovali ste BLE monitor v YAML. Zmeňte svoje možnosti v YAML."
+    }
+  }
+}
