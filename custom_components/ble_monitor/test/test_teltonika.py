@@ -71,7 +71,7 @@ class TestTeltonika:
 
     def test_ela_blue_puck_RHT(self):
         """Test Teltonika parser for Ela Blue Puck RHT (rebrand of Teltonika)."""
-        data_string = "043e2502010001f925c2f1e9ff1902010606ff5707122e070e0950205420454E20383039303646dd"
+        data_string = "043e2602010001f925c2f1e9ff1a02010608ff5707213012b80a0d09502052485420393030343539dd"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
