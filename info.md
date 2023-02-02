@@ -57,7 +57,8 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Thermopro
 - Tilt
 - Xiaogui (Scale)
-- Xiaomi (MiBeacon)
+- Xiaomi (MiBand)
+- Xiaomi (MiBeacon sensors)
 - Xiaomi (MiScale)
 
 

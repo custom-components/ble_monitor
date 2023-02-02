@@ -23,8 +23,9 @@ from .jinou import parse_jinou
 from .kegtron import parse_kegtron
 from .kkm import parse_kkm
 from .laica import parse_laica
-from .miscale import parse_miscale
+from .miband import parse_miband
 from .mikrotik import parse_mikrotik
+from .miscale import parse_miscale
 from .moat import parse_moat
 from .oral_b import parse_oral_b
 from .qingping import parse_qingping
@@ -284,6 +285,10 @@ class BleParser:
                     elif comp_id == 0x00DC and data_len == 0x0E:
                         # Oral-b
                         sensor_data = parse_oral_b(self, man_spec_data, mac, rssi)
+                        break
+                    elif comp_id == 0x0157 and data_len == 0x1B:
+                        # Miband
+                        sensor_data = parse_miband(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x0499:
                         # Ruuvitag V3/V5
