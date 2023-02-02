@@ -296,6 +296,8 @@ class BleParser:
                         break
                     elif comp_id == 0x0757:
                         # Teltonika (Ela rebrand)
+                        if len(man_spec_data_list) == 2:
+                            man_spec_data = b"".join(man_spec_data_list)
                         sensor_data = parse_teltonika(self, man_spec_data, local_name, mac, rssi)
                         break
                     elif comp_id == 0x094F and data_len == 0x15:

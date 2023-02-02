@@ -68,3 +68,37 @@ class TestTeltonika:
         assert sensor_msg["data"]
         assert sensor_msg["temperature"] == 18.38
         assert sensor_msg["rssi"] == -35
+
+    def test_ela_blue_puck_RHT(self):
+        """Test Teltonika parser for Ela Blue Puck RHT (rebrand of Teltonika)."""
+        data_string = "043e2602010001f925c2f1e9ff1a02010608ff5707213012b80a0d09502052485420393030343539dd"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Teltonika"
+        assert sensor_msg["type"] == "Blue Puck RHT"
+        assert sensor_msg["mac"] == "FFE9F1C225F9"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 27.44
+        assert sensor_msg["humidity"] == 48
+        assert sensor_msg["rssi"] == -35
+
+    def test_ela_blue_puck_T_with_batt(self):
+        """Test Teltonika parser for Ela Blue Puck T with battery (rebrand of Teltonika)."""
+        data_string = "043e2b02010001f925c2f1e9ff1f02010606ff570712980a0e0950205420454E2038303930364605ff5707f10ddd"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Teltonika"
+        assert sensor_msg["type"] == "Blue Puck T"
+        assert sensor_msg["mac"] == "FFE9F1C225F9"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 27.12
+        assert sensor_msg["battery"] == 13
+        assert sensor_msg["rssi"] == -35
