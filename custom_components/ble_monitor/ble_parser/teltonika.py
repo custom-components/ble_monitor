@@ -48,10 +48,23 @@ def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
                     result.update({"humidity": humi})
             elif packet_type == 0xFF and packet_size > 4:
                 comp_id = (packet[3] << 8) | packet[2]
+                meas_type = packet[4]
+
                 if comp_id == 0x0757:
-                    # Temperature
-                    (temp,) = unpack("<h", packet[5:])
-                    result.update({"temperature": temp / 100})
+                    if meas_type == 0x12:
+                        # Temperature
+                        (temp,) = unpack("<h", packet[5:7])
+                        result.update({"temperature": temp / 100})
+                    elif meas_type == 0x21:
+                        # Humidity + temperature
+                        (humi, _, temp) = unpack("<bbh", packet[5:9])
+                        result.update(
+                            {"temperature": temp / 100, "humidity": humi}
+                        )
+                    elif meas_type == 0xF1:
+                        # Battery
+                        (batt,) = unpack("<b", packet[5:6])
+                        result.update({"battery": batt})
         data_size -= packet_size
         packet_start += packet_size
 
