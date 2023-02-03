@@ -199,7 +199,7 @@ def parse_govee(self, data, service_class_uuid16, source_mac, rssi):
                 "low temperature alarm probe 3": decode_temps_probes(low_temp_alarm_first),
                 "temperature probe 4": decode_temps_probes(temp_probe_second),
                 "temperature alarm probe 4": decode_temps_probes(high_temp_alarm_second),
-                "low temperature alarm probe 4": decode_temps_probes(low_temp_alarm_first),
+                "low temperature alarm probe 4": decode_temps_probes(low_temp_alarm_second),
             })
         else:
             _LOGGER.debug("Unkown sensor id found for Govee H5198. Data %s", data.hex())
