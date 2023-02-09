@@ -567,7 +567,7 @@ def obj1015(xobj):
 
 
 def obj1017(xobj):
-    """Motion"""
+    """No motion"""
     if len(xobj) == 4:
         (no_motion_time,) = M_STRUCT.unpack(xobj)
         # seconds since last motion detected message (not used, we use motion timer in obj000f)
@@ -601,6 +601,17 @@ def obj1019(xobj):
         opening = 0
         status = None
     return {"opening": opening, "status": status}
+
+
+def obj101b(xobj):
+    """Timeout no movement"""
+    if len(xobj) == 4:
+        (no_motion_time,) = M_STRUCT.unpack(xobj)
+        # seconds since last motion detected message (not used, we use motion timer in obj000f)
+        # 0 = motion detected
+        return {"motion": 1 if no_motion_time == 0 else 0, "no motion time": no_motion_time}
+    else:
+        return {}
 
 
 def obj100a(xobj):
@@ -995,6 +1006,7 @@ xiaomi_dataobject_dict = {
     0x1017: obj1017,
     0x1018: obj1018,
     0x1019: obj1019,
+    0x101B: obj101b,
     0x100A: obj100a,
     0x100D: obj100d,
     0x100E: obj100e,
