@@ -23,7 +23,6 @@ from .jinou import parse_jinou
 from .kegtron import parse_kegtron
 from .kkm import parse_kkm
 from .laica import parse_laica
-from .miband import parse_miband
 from .mikrotik import parse_mikrotik
 from .miscale import parse_miscale
 from .moat import parse_moat
@@ -244,8 +243,11 @@ class BleParser:
                             break
                     elif uuid16 == 0xFEE0:
                         # UUID16 = Anhui Huami Information Technology Co., Ltd. (Amazfit)
-                        sensor_data = parse_amazfit(self, service_data, mac, rssi)
-                        break
+                        if man_spec_data_list:
+                            man_spec_data = man_spec_data_list[0]
+                        else:
+                            man_spec_data = None
+                        sensor_data = parse_amazfit(self, service_data, man_spec_data, mac, rssi)
                     elif uuid16 == 0xFFF9:
                         # UUID16 = FIDO (used by Cleargrass)
                         sensor_data = parse_qingping(self, service_data, mac, rssi)
@@ -288,7 +290,7 @@ class BleParser:
                         break
                     elif comp_id == 0x0157 and data_len == 0x1B:
                         # Miband
-                        sensor_data = parse_miband(self, man_spec_data, mac, rssi)
+                        sensor_data = parse_amazfit(self, None, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x0499:
                         # Ruuvitag V3/V5
