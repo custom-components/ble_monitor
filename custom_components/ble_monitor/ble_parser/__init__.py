@@ -245,6 +245,8 @@ class BleParser:
                         # UUID16 = Anhui Huami Information Technology Co., Ltd. (Amazfit)
                         if man_spec_data_list:
                             man_spec_data = man_spec_data_list[0]
+                        else:
+                            man_spec_data = None
                         sensor_data = parse_amazfit(self, service_data, man_spec_data, mac, rssi)
                     elif uuid16 == 0xFFF9:
                         # UUID16 = FIDO (used by Cleargrass)
