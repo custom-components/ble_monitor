@@ -16,10 +16,14 @@ def parse_amazfit(self, service_data, man_spec_data, source_mac, rssi):
         service_data_length = len(service_data)
     else:
         service_data_length = 0
-    man_spec_data_length = len(man_spec_data)
+    if man_spec_data:
+        man_spec_data_length = len(man_spec_data)
+    else:
+        man_spec_data_length = 0
+
     result = {}
 
-    if service_data == 24:
+    if service_data_length == 24:
         device_type = "Amazfit Smart Scale"
         firmware = "Amazfit"
         xvalue = service_data[4:25]
