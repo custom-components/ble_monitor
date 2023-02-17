@@ -13,6 +13,6 @@
   ],
   "dependencies": [],
   "codeowners": ["@Ernst79", "@Magalex2x14", "@Thrilleratplay"],
-  "version": "11.6.2",
+  "version": "11.7.0",
   "iot_class": "local_polling"
 }
