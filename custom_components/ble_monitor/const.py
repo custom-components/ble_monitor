@@ -1166,7 +1166,7 @@ MEASUREMENT_DICT = {
     'ATC'                     : [["temperature", "humidity", "battery", "voltage", "rssi"], [], ["switch", "opening"]],
     'Mi Scale V1'             : [["rssi"], ["weight", "non-stabilized weight"], ["weight removed"]],
     'Mi Scale V2'             : [["rssi"], ["weight", "stabilized weight", "non-stabilized weight", "impedance"], ["weight removed"]],
-    'Mi Band'                 : [["rssi", "heart rate"], [], []],
+    'Mi Band'                 : [["rssi", "heart rate", "steps"], [], []],
     'TZC4'                    : [["rssi"], ["weight", "non-stabilized weight", "impedance"], []],
     'QJ-J'                    : [["rssi"], ["weight", "non-stabilized weight", "impedance"], []],
     'Kegtron KT-100'          : [["rssi"], ["volume dispensed port 1"], []],
