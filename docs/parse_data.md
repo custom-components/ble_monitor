@@ -13,11 +13,11 @@ nav_order: 5
 
 ### Introduction
 
-BLE monitor has a service to parse BLE advertisements. This service can e.g. be used with ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway).
+BLE monitor has a service to parse BLE advertisements. This service can e.g. be used with ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway). ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) will forward BLE advertisements that are received on the ESP device to your Home Assistant device with BLE monitor via WiFi. Please note that this is **not** the same as the recently introduced ESPHome Bluetooth Proxy. Although ESPHome Bluetooth Proxy works in a similar way as ESPHome BLE Gateway, the first is meant to be used in combination with the Home Assistant Bluetooth integration and the brand specific official BLE integrations.
 
-You can also use this service to debug for you own home-brew sensor, as long as you make sure you follow the format of one of the existing sensors or better, our own BTHome format.
+You can also use this service to debug for you own home-brew sensor, as long as you make sure you follow the format of one of the existing sensors. An open format that is free to use and that supports many sensor types is [BTHome](https://bthome.io).
 
-In this example you can see the BLE data packet from device with MAC address `A4:C1:38:B4:94:4C`, in the packet it's in reverse order `4C94B438C1A4`. The BLE packet should be in HCI format, with packet type HCI Event (0x04). The gateway id is optional and can e.g. be used to identify which ESPHome device did receive the message, which can be usefull for room localization.
+In this example you can see the BLE data packet from device with MAC address `A4:C1:38:B4:94:4C`, in the packet it's in reversed order `4C94B438C1A4`. The BLE packet should be in HCI format, with packet type HCI Event (0x04). The gateway id is optional and can e.g. be used to identify which ESPHome device did receive the message, which can be useful for room localization.
 
 ![parse_data_service]({{site.baseurl}}/assets/images/parse_data_service_screen.png)
 
