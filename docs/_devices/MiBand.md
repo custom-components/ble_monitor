@@ -1,5 +1,5 @@
 ---
-manufacturer: xiaomi
+manufacturer: Xiaomi
 name: Mi Band
 model: Mi Band 4 and 5
 image: Mi_Band.png
