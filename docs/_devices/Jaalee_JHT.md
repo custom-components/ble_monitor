@@ -11,7 +11,7 @@ broadcasted_properties:
   - rssi
 broadcasted_property_notes:
 broadcast_rate: ~1/sec.
-active_scan:
+active_scan: true
 encryption_key: 
 custom_firmware:
 notes:
