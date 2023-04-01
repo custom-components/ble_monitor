@@ -384,7 +384,7 @@ class TestXiaomi:
 
     def test_Xiaomi_MMC_W505(self):
         """Test Xiaomi parser for MMC-W505."""
-        data_string = "043e390d011300000ea4309e87700100ff7fb10000000000000000001f0201050302e0fe1716e0feba82e6c7fc3414a442bf46ec68000462bba30100"
+        data_string = "043e4a02010201dbab531824d03e02010603020918151695fe702291030fdbab531824d0090a0002750d0709094d4d432d573530350000000000000000000000000000000000000000000000c6"
         data = bytes(bytearray.fromhex(data_string))
 
         # pylint: disable=unused-variable
