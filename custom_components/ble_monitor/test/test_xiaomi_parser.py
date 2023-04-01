@@ -382,6 +382,23 @@ class TestXiaomi:
         assert sensor_msg["battery"] == 81
         assert sensor_msg["rssi"] == -79
 
+    def test_Xiaomi_MMC_W505(self):
+        """Test Xiaomi parser for MMC-W505."""
+        data_string = "043e390d011300000ea4309e87700100ff7fb10000000000000000001f0201050302e0fe1716e0feba82e6c7fc3414a442bf46ec68000462bba30100"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V2)"
+        assert sensor_msg["type"] == "MMC-W505"
+        assert sensor_msg["mac"] == "D0241853ABDB"
+        assert sensor_msg["packet"] == 15
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 34.45
+        assert sensor_msg["rssi"] == -58
+
     def test_Xiaomi_M1S_T500(self):
         """Test Xiaomi parser for M1S-T500."""
         data_string = "043e2402010001115b174371e618020106141695fe7130890437115b174371e6091000020003dc"
