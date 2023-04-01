@@ -37,6 +37,7 @@ XIAOMI_TYPE_DICT = {
     0x01AA: "LYWSDCGQ",
     0x045B: "LYWSD02",
     0x16e4: "LYWSD02MMC",
+    0x2542: "LYWSD02MMC",
     0x055B: "LYWSD03MMC",
     0x098B: "MCCGQ02HL",
     0x06d3: "MHO-C303",
@@ -219,16 +220,16 @@ def obj0007(xobj):
 
 def obj0008(xobj, device_type):
     """armed away"""
-    returnData = {}
+    return_data = {}
     value = xobj[0] ^ 1
-    returnData.update({'armed away': value})
+    return_data.update({'armed away': value})
     if len(xobj) == 5:
         timestamp = int.from_bytes(xobj[1:], 'little')
         timestamp = datetime.fromtimestamp(timestamp).isoformat()
-        returnData.update({'timestamp': timestamp})
+        return_data.update({'timestamp': timestamp})
     # Lift up door handle outside the door sends this event from DSL-C08.
     if device_type == "DSL-C08":
-        return{
+        return {
             "lock": value,
             "locktype": 'lock',
             "action": 'lock outside the door',
@@ -237,7 +238,7 @@ def obj0008(xobj, device_type):
             "key id": None,
             "timestamp": None,
         }
-    return returnData
+    return return_data
 
 
 def obj0010(xobj):
@@ -694,7 +695,7 @@ def obj4810(xobj):
     elif sleep_state == 1:
         return {"sleeping": 1}
     elif sleep_state == 2:
-        return{"button switch": "double press"}
+        return {"button switch": "double press"}
     else:
         return None
 
@@ -947,7 +948,7 @@ def obj5010(xobj):
     elif sleep_state == 1:
         return {"sleeping": 1}
     elif sleep_state == 2:
-        return{"button": "double press"}
+        return {"button": "double press"}
     else:
         return None
 
@@ -976,7 +977,7 @@ def obj5a16(xobj):
     elif event == 2:
         return {"bed occupancy": 0}
     elif event == 3:
-        return{"button": "double press"}
+        return {"button": "double press"}
     else:
         return None
 
