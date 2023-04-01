@@ -46,6 +46,7 @@ XIAOMI_TYPE_DICT = {
     0x04E9: "MJZNMSQ01YD",
     0x2832: "MJWSD05MMC",
     0x00DB: "MMC-T201-1",
+    0x0391: "MMC-W505",
     0x03DD: "MUE4094RT",
     0x0489: "M1S-T500",
     0x0A8D: "RTCGQ02LM",
@@ -253,6 +254,18 @@ def obj0010(xobj):
             return {'toothbrush': 0}
         else:
             return {'toothbrush': 0, 'score': xobj[1]}
+
+
+def obj000a(xobj):
+    """Body temperature"""
+    if len(xobj) == 2:
+        (temp,) = T_STRUCT.unpack(xobj)
+        if temp:
+            return {"temperature": temp / 100}
+        else:
+            return {}
+    else:
+        return {}
 
 
 def obj000b(xobj, device_type):
@@ -990,6 +1003,7 @@ xiaomi_dataobject_dict = {
     0x0007: obj0007,
     0x0008: obj0008,
     0x0010: obj0010,
+    0x000A: obj000a,
     0x000B: obj000b,
     0x000F: obj000f,
     0x1001: obj1001,

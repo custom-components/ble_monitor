@@ -1416,6 +1416,7 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Blue'               : 'Tilt',
     'Tilt Yellow'             : 'Tilt',
     'Tilt Pink'               : 'Tilt',
+    'MMC-W505'                : 'Xiaomi',
 }
 
 
