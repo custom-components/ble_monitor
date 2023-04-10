@@ -26,28 +26,24 @@ def parse_hormann(self, data, source_mac, rssi):
             packet_type = packet[1]
 
             if packet_type == 0xFF and packet_size == 21:
-                device_type = "garage door opener"
-                g_state = packet[4] & 0x0F
-                g_opening_percentage = packet[5] / 2
+                device_type = "Supramatic E4 BS"
+                # garage_door_state = packet[4] & 0x0F
+                # not used, as we don't know the exact meaning
+                # 0x03: open
+                # 0x04: closed
+                # 0x05: partially open
+                # 0x07: partially open
+                opening_percentage = packet[5] / 2
 
                 # Convert state to a string
-                if g_state == 0x03:
-                    opening = 1
-                    g_state = 'open'
-                elif g_state == 0x04:
+                if opening_percentage == 0:
                     opening = 0
-                    g_state = 'closed'
-                elif g_state == 0x05:
-                    opening = 1
-                    g_state = 'partially open'
                 else:
-                    opening = "unknown"
-                    g_state = 'unknown'
+                    opening = 1
 
                 # Opening
                 result.update({"opening": opening})
-                result.update({"opening state": g_state})
-                result.update({"opening percentage": g_opening_percentage})
+                result.update({"opening percentage": opening_percentage})
 
         data_size -= packet_size
         packet_start += packet_size
