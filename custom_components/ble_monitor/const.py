@@ -1417,6 +1417,7 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Yellow'             : 'Tilt',
     'Tilt Pink'               : 'Tilt',
     'MMC-W505'                : 'Xiaomi',
+    'Electra Washbasin Faucet': 'Oras',
 }
 
 
@@ -1488,6 +1489,7 @@ REPORT_UNKNOWN_LIST = [
     "Mi Scale",
     "Mikrotik",
     "Moat",
+    "Oras",
     "Oral-B",
     "Qingping",
     "Relsib",

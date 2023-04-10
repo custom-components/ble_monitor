@@ -26,6 +26,7 @@ from .laica import parse_laica
 from .mikrotik import parse_mikrotik
 from .miscale import parse_miscale
 from .moat import parse_moat
+from .oras import parse_oras
 from .oral_b import parse_oral_b
 from .qingping import parse_qingping
 from .relsib import parse_relsib
@@ -287,6 +288,10 @@ class BleParser:
                     elif comp_id == 0x00DC and data_len == 0x0E:
                         # Oral-b
                         sensor_data = parse_oral_b(self, man_spec_data, mac, rssi)
+                        break
+                    elif comp_id == 0x0131:
+                        # Oras
+                        sensor_data = parse_oras(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x0157 and data_len == 0x1B:
                         # Miband

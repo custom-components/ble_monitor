@@ -44,6 +44,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - KKM
 - Mikrotik
 - Moat
+- Oras
 - Oral-B
 - Qingping
 - Relsib
