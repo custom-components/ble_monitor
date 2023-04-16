@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Parse data from ESPHome
+title: Extend range with ESPHome
 has_children: false
 has_toc: false
 permalink: parse_data
@@ -8,16 +8,23 @@ nav_order: 5
 ---
 
 
-## Parse_data service
+## Extend Bluetooth range with ESPHome BLE Gateway
 
+### ESPHome BLE Gateway
 
-### Introduction
+It is possible to extend the Bluetooth range of your Home Assistant device / BLE monitor, by using an ESPHome device with ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway). An ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) device is able to receive BLE advertisements and will forward the messages over Wifi to your Home Assistant device with BLE monotir. BLE monitor has a built in service to parse the incoming BLE advertisements from your ESPHome device, just like the BLE advertisemetns that are received with a Bluetooth dongle. 
 
-BLE monitor has a service to parse BLE advertisements. This service can e.g. be used with ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway). ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) will forward BLE advertisements that are received on the ESP device to your Home Assistant device with BLE monitor via WiFi. Please note that this is **not** the same as the recently introduced ESPHome Bluetooth Proxy. Although ESPHome Bluetooth Proxy works in a similar way as ESPHome BLE Gateway, the first is meant to be used in combination with the Home Assistant Bluetooth integration and the brand specific official BLE integrations.
+### Why isn't BLE monitor working with ESPHome Bluetooth Proxies?
+
+A commonly asked question, why isn't BLE monitor working with ESPHome Bluetooth Proxies? This is because an ESPHome Bluetooth Proxy is forwarding its data to the official Bluetooth integration in Home Assistant. The Bluetooth integration is forwarding the data to a brand specific integration. 
+
+BLE monitor is using its own Bluetooth collecting mechanism based on `aioblescan` which is working at a lower level (HCI). BLE monitor is not using the Bluetooth integration to receive its data, and is therefore not able to receive data from ESPHome Bluetooth Proxies. You can use ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) instead, which is able to forward data to BLE monitor in a similar way. 
+
+### Using the parse_data service for debugging
 
 You can also use this service to debug for you own home-brew sensor, as long as you make sure you follow the format of one of the existing sensors. An open format that is free to use and that supports many sensor types is [BTHome](https://bthome.io).
 
-In this example you can see the BLE data packet from device with MAC address `A4:C1:38:B4:94:4C`, in the packet it's in reversed order `4C94B438C1A4`. The BLE packet should be in HCI format, with packet type HCI Event (0x04). The gateway id is optional and can e.g. be used to identify which ESPHome device did receive the message, which can be useful for room localization.
+In this example you can see the BLE data packet from a device with MAC address `A4:C1:38:B4:94:4C`, in the packet it's in reversed order `4C94B438C1A4`. The BLE packet should be in HCI format, with packet type HCI Event (0x04). The gateway id is optional and can e.g. be used to identify which ESPHome device did receive the message, which can be useful for room localization.
 
 ![parse_data_service]({{site.baseurl}}/assets/images/parse_data_service_screen.png)
 
