@@ -15,6 +15,7 @@ from .govee import parse_govee
 from .helpers import to_mac, to_unformatted_mac
 from .bthome import parse_bthome
 from .hhcc import parse_hhcc
+from .hormann import parse_hormann
 from .ibeacon import parse_ibeacon
 from .inkbird import parse_inkbird
 from .inode import parse_inode
@@ -301,6 +302,12 @@ class BleParser:
                         if len(man_spec_data_list) == 2:
                             man_spec_data = b"".join(man_spec_data_list)
                         sensor_data = parse_teltonika(self, man_spec_data, local_name, mac, rssi)
+                        break
+                    elif comp_id == 0x07B4:
+                        # Hörmann
+                        if len(man_spec_data_list) == 2:
+                            man_spec_data = b"".join(man_spec_data_list)
+                        sensor_data = parse_hormann(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x094F and data_len == 0x15:
                         # Mikrotik

@@ -365,8 +365,9 @@ class BaseSensor(RestoreEntity, SensorEntity):
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
     # |  |**heart rate
-    # |  |**Pulse
-    # |  |**Shake
+    # |  |**opening percentage
+    # |  |**pulse
+    # |  |**shake
     # |  |--StateChangedSensor (Class)
     # |  |  |**mac
     # |  |  |**uuid
