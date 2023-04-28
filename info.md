@@ -14,7 +14,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - [Installation instructions](https://custom-components.github.io/ble_monitor/Installation)
 - [Configuration](https://custom-components.github.io/ble_monitor/configuration_params)
 - [Supported devices](https://custom-components.github.io/ble_monitor/devices)
-- [Parse_data from ESPhome](https://custom-components.github.io/ble_monitor/parse_data)
+- [Forward data from ESPhome](https://custom-components.github.io/ble_monitor/parse_data)
 - [DIY sensors](https://custom-components.github.io/ble_monitor/bthome)
 - [FAQ](https://custom-components.github.io/ble_monitor/faq)
 - [New sensor request](https://custom-components.github.io/ble_monitor/sensor_request)
@@ -35,6 +35,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - b-parasite
 - Ela
 - Govee
+- Hörmann
 - HHCC
 - Inkbird
 - iNode
@@ -62,6 +63,10 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Xiaomi (MiBeacon sensors)
 - Xiaomi (MiScale)
 
+
+## Why isn't ESPHome Bluetooth Proxy not working with BLE monitor?
+
+Please not that ESPHome Bluetooth Proxies cannot forward data to BLE monitor. Check out [this page](https://custom-components.github.io/ble_monitor/parse_data) for alternative solutions.
 
 ## Important announcement about the future of BLE monitor
 

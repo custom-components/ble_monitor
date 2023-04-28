@@ -803,6 +803,17 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
+        key="opening percentage",
+        sensor_class="InstantUpdateSensor",
+        update_behavior="Instantly",
+        name="ble opening percentage",
+        unique_id="op_pct_",
+        icon="mdi:garage-open",
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=None,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="heart rate",
         sensor_class="InstantUpdateSensor",
         update_behavior="Instantly",
@@ -1418,6 +1429,7 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Pink'               : 'Tilt',
     'MMC-W505'                : 'Xiaomi',
     'Electra Washbasin Faucet': 'Oras',
+    'Supramatic E4 BS'        : 'Hörmann',
 }
 
 
@@ -1452,6 +1464,7 @@ AUTO_SENSOR_LIST = [
     "impedance",
     "moisture",
     "non-stabilized weight",
+    "opening percentage",
     "pm2.5",
     "pm10",
     "power",
@@ -1478,6 +1491,7 @@ REPORT_UNKNOWN_LIST = [
     "BTHome",
     "Govee",
     "HHCC",
+    "Hormann",
     "Inkbird",
     "iNode",
     "iBeacon",
