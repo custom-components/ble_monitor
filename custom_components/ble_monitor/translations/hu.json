@@ -1,0 +1,106 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "title": "Passzív BLE Monitor",
+          "description": "A BLE monitor konfigurációjának beállítása",
+          "data": {
+            "bt_interface": "A Bluetooth interfész/adapter MAC-címe",
+            "devices": "Eszközök",
+            "discovery": "Automatikusan fedezze fel az eszközöket és az érzékelőket",
+            "decimals": "Tizedesjegyek száma",
+            "period": "Az átlagoláshoz használt időszak",
+            "log_spikes": "Napló tüskék",
+            "use_median": "Használjon mediánt az átlag helyett",
+            "active_scan": "Aktív keresés használata passzív keresés helyett (az elem jobban merül)",
+            "restore_state": "Állapot visszaállítása újraindítás után",
+            "report_unknown": "Ismeretlen BLE jelek mentése a HA naplóba",
+            "bt_auto_restart": "A Bluetooth adapter automatikus újraindítása hiba esetén"
+          }
+        },
+        "add_remove_device": {
+          "title": "Eszköz hozzáadása",
+          "data": {
+            "mac": "MAC cím",
+            "uuid": "Jeladó UUID",
+            "encryption_key": "Titkosítási kulcs",
+            "temperature_unit": "Hőmérséklet egység [csak hőmérséklet-érzékelők esetén]",
+            "decimals": "Tizedesjegyek száma",
+            "use_median": "Használjon mediánt az átlag helyett",
+            "restore_state": "Állapot visszaállítása újraindítás után",
+            "reset_timer": "Időzítő visszaállítása (másodpercben, 0 = kikapcsolva)",
+            "report_unknown": "Ismeretlen BLE jelek mentése a HA naplóba",
+            "track_device": "Nyomkövető eszköz",
+            "tracker_scan_interval": "Az eszközkövető keresési időköze (másodpercben)",
+            "consider_home": "Az eszközkövető vegye figyelembe az otthoni intervallumot (másodpercben)",
+            "delete device": "Eszköz törlése"
+          }
+        }
+      },
+      "error": {
+        "invalid_mac": "A MAC-címnek „AA:BB:CC:DD:EE:FF” formátumúnak kell lennie.",
+        "invalid_uuid": "A jeladó UUID azonosítójának a következő formátumban kell lennie: „00000000-0000-0000-0000-000000000000”.",
+        "invalid_key": "A titkosítási kulcsnak 32 hexadecimális karakterből kell állnia (24 a Yeelight érzékelők esetében).",
+        "cannot_change_mac": "A MAC-cím nem módosítható.",
+        "cannot_change_uuid": "A jeladó UUID nem módosítható.",
+        "cannot_delete_device": "Az eszközt nem lehet törölni.",
+        "cannot_disable_bt_interface": "A BT interfész nem tiltható le, miközben egy vagy több BT interfész még ki van választva. Törölje az összes BT interfész kijelölését."
+      },
+      "abort": {
+        "single_instance_allowed": "Csak egyetlen BLE-monitor konfiguráció engedélyezett."
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "title": "Passzív BLE monitor opciók",
+          "description": "A szkennelés a „KÜLDÉS” megnyomása után újraindul",
+          "data": {
+            "bt_interface": "A Bluetooth interfész/adapter MAC-címe",
+            "devices": "Eszközök",
+            "discovery": "Automatikusan fedezze fel az eszközöket és az érzékelőket",
+            "decimals": "Tizedesjegyek száma",
+            "period": "Az átlagoláshoz használt időszak",
+            "log_spikes": "Napló tüskék",
+            "use_median": "Használjon mediánt az átlag helyett",
+            "active_scan": "Aktív keresés használata passzív keresés helyett (az elem jobban merül)",
+            "report_unknown": "Ismeretlen BLE jelek rögzítése a HA naplóba",
+            "bt_auto_restart": "Automatically restart Bluetooth adapter on failure",
+            "restore_state": "Állapot visszaállítása újraindítás után",
+            "not_in_use": "YAML használatban van, módosítsa a YAML beállításait"
+          }
+        },
+        "add_remove_device": {
+          "title": "Konfigurálja az eszközt",
+          "data": {
+            "mac": "MAC címe",
+            "uuid": "Jeladó UUID",
+            "encryption_key": "Titkosító kulcs (az eltávolításhoz „-” értéket írjon)",
+            "temperature_unit": "Hőmérséklet mértékegysége",
+            "decimals": "Tizedesjegyek száma",
+            "use_median": "Használjon mediánt az átlag helyett",
+            "restore_state": "Állapot visszaállítása újraindítás után",
+            "reset_timer": "Időzítő visszaállítása (másodpercben, 0 = kikapcsolva)",
+            "report_unknown": "Ismeretlen BLE jelek rögzítése a HA naplóba",
+            "track_device": "Nyomkövető eszköz",
+            "tracker_scan_interval": "Az eszközkövető keresési időköze (másodpercben)",
+            "consider_home": "Az eszközkövető vegye figyelembe az otthoni intervallumot (másodpercben)",
+            "delete device": "Eszköz törlése"
+          }
+        }
+      },
+      "error": {
+        "invalid_mac": "A MAC-címnek „AA:BB:CC:DD:EE:FF” formátumúnak kell lennie.",
+        "invalid_uuid": "A beacon UUID azonosítójának a következő formátumban kell lennie: „00000000-0000-0000-0000-000000000000”.",
+        "invalid_key": "A titkosítási kulcsnak 32 hexadecimális karakterből kell állnia (24 a Yeelight érzékelők esetében).",
+        "cannot_change_mac": "A MAC-cím nem módosítható.",
+        "cannot_change_uuid": "Jeladó Beacon UUID nem módosítható.",
+        "cannot_delete_device": "Az eszközt nem lehet törölni.",
+        "cannot_disable_bt_interface": "A BT interfész nem tiltható le, miközben egy vagy több BT interfész még ki van választva. Törölje az összes BT interfész kijelölését."
+      },
+      "abort": {
+        "not_in_use": "Beállította a BLE monitort a YAML-ben. Kérjük, módosítsa a beállításokat a YAML-ben."
+      }
+    }
+  }
+  
