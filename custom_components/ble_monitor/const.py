@@ -1430,7 +1430,7 @@ AUTO_MANUFACTURER_DICT = {
     'MMC-W505'                : 'Xiaomi',
     'Electra Washbasin Faucet': 'Oras',
     'Supramatic E4 BS'        : 'Hörmann',
-    'TaylorSense'             : 'BluStream',
+    'BluStream'               : 'BluStream',
 }
 
 

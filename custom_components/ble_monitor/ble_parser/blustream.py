@@ -19,7 +19,7 @@ def parse_blustream(self, data, source_mac, rssi):
 
     if msg_length == 13:
         # BluStream
-        device_type = "TaylorSense"
+        device_type = "BluStream"
         (acc, humi, temp) = unpack(">BHh", msg)
         result = {
             "temperature": temp / 100,
