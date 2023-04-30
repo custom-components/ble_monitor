@@ -25,9 +25,6 @@ def parse_blustream(self, data, source_mac, rssi):
             "temperature": temp / 100,
             "humidity": humi / 100,
             "acceleration": acc,
-            "acceleration x": 0,
-            "acceleration y": 0,
-            "acceleration z": 0
         }
     else:
         if self.report_unknown == "BluStream":
