@@ -366,8 +366,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="cypress temperature",
@@ -377,8 +377,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_cypress_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature probe 1",
@@ -388,8 +388,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_probe_1_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature probe 2",
@@ -399,8 +399,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_probe_2_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature probe 3",
@@ -410,8 +410,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_probe_3_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature probe 4",
@@ -421,8 +421,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_probe_4_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature probe 5",
@@ -432,8 +432,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_probe_5_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature probe 6",
@@ -443,8 +443,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_probe_6_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature alarm probe 1",
@@ -454,8 +454,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_alarm_probe_1_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature alarm probe 2",
@@ -465,8 +465,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_alarm_probe_2_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature alarm probe 3",
@@ -476,8 +476,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_alarm_probe_3_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature alarm probe 4",
@@ -487,8 +487,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_alarm_probe_4_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="low temperature alarm probe 1",
@@ -498,8 +498,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_alarm_low_probe_1_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="low temperature alarm probe 2",
@@ -509,8 +509,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_alarm_low_probe_2_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="low temperature alarm probe 3",
@@ -520,8 +520,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_alarm_low_probe_3_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="low temperature alarm probe 4",
@@ -531,8 +531,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_alarm_low_probe_4_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="temperature calibrated",
@@ -542,8 +542,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="t_calibrated_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="humidity",
@@ -553,8 +553,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="h_",
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.HUMIDITY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="cypress humidity",
@@ -564,8 +564,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="h_cypress_",
         native_unit_of_measurement="RH%",
         device_class=SensorDeviceClass.HUMIDITY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="moisture",
@@ -575,8 +575,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="m_",
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.HUMIDITY,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="pressure",
@@ -586,8 +586,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="p_",
         native_unit_of_measurement=UnitOfPressure.HPA,
         device_class=SensorDeviceClass.PRESSURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="conductivity",
@@ -598,8 +598,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:lightning-bolt-circle",
         native_unit_of_measurement=CONDUCTIVITY,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="illuminance",
@@ -609,8 +609,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="l_",
         device_class=SensorDeviceClass.ILLUMINANCE,
         native_unit_of_measurement=LIGHT_LUX,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="formaldehyde",
@@ -621,8 +621,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:chemical-weapon",
         native_unit_of_measurement=CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=3,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="dewpoint",
@@ -633,8 +633,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:water",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="rssi",
@@ -644,9 +644,9 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="rssi_",
         native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
         device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+        suggested_display_precision=0,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=0,
     ),
     BLEMonitorSensorEntityDescription(
         key="measured power",
@@ -656,9 +656,9 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="measured_power_",
         native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
         device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+        suggested_display_precision=0,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=0,
     ),
     BLEMonitorSensorEntityDescription(
         key="battery",
@@ -668,9 +668,9 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="batt_",
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.BATTERY,
+        suggested_display_precision=0,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=0,
     ),
     BLEMonitorSensorEntityDescription(
         key="voltage",
@@ -680,9 +680,9 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="v_",
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
+        suggested_display_precision=2,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        suggested_display_precision=2,
     ),
     BLEMonitorSensorEntityDescription(
         key="co2",
@@ -726,8 +726,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:transfer-down",
         native_unit_of_measurement=None,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=3,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="tvoc",
@@ -749,8 +749,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:molecule",
         native_unit_of_measurement=None,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="mac",
@@ -809,8 +809,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:counter",
         native_unit_of_measurement=None,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="air quality",
@@ -832,8 +832,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:recycle-variant",
         native_unit_of_measurement=PERCENTAGE,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="opening percentage",
@@ -844,8 +844,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:garage-open",
         native_unit_of_measurement=PERCENTAGE,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="heart rate",
@@ -856,8 +856,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:heart-pulse",
         native_unit_of_measurement="bpm",
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="steps",
@@ -868,8 +868,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:foot-print",
         native_unit_of_measurement="steps",
         device_class=None,
-        state_class=SensorStateClass.TOTAL,
         suggested_display_precision=0,
+        state_class=SensorStateClass.TOTAL,
     ),
     BLEMonitorSensorEntityDescription(
         key="pulse",
@@ -880,8 +880,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:heart-pulse",
         native_unit_of_measurement=None,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="shake",
@@ -892,8 +892,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:vibrate",
         native_unit_of_measurement=None,
         device_class=None,
-        state_class=None,
         suggested_display_precision=0,
+        state_class=None,
     ),
     BLEMonitorSensorEntityDescription(
         key="acceleration",
@@ -904,8 +904,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:axis-arrow",
         native_unit_of_measurement="mG",
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="weight",
@@ -916,8 +916,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:scale-bathroom",
         native_unit_of_measurement=UnitOfMass.KILOGRAMS,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="stabilized weight",
@@ -928,8 +928,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:scale-bathroom",
         native_unit_of_measurement=UnitOfMass.KILOGRAMS,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="non-stabilized weight",
@@ -940,8 +940,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:scale-bathroom",
         native_unit_of_measurement=UnitOfMass.KILOGRAMS,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="impedance",
@@ -952,8 +952,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:omega",
         native_unit_of_measurement="Ohm",
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="energy",
@@ -963,8 +963,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="e_",
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
         suggested_display_precision=2,
+        state_class=SensorStateClass.TOTAL_INCREASING,
     ),
     BLEMonitorSensorEntityDescription(
         key="power",
@@ -974,8 +974,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="pow_",
         native_unit_of_measurement=UnitOfPower.KILO_WATT,
         device_class=SensorDeviceClass.POWER,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="magnetic field",
@@ -986,8 +986,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:magnet",
         native_unit_of_measurement="µT",
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="magnetic field direction",
@@ -1141,8 +1141,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:keg",
         native_unit_of_measurement=UnitOfVolume.LITERS,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=3,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
         key="volume dispensed port 2",
@@ -1153,8 +1153,8 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         icon="mdi:keg",
         native_unit_of_measurement=UnitOfVolume.LITERS,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=3,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
 )
 
