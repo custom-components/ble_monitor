@@ -115,9 +115,9 @@ class BLEupdaterBinary:
                     if key not in sensors_by_key:
                         sensors_by_key[key] = {}
                     if measurement not in sensors_by_key[key]:
-                        description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
-                        sensors[measurement] = globals()[description.sensor_class](
-                            self.config, key, device_model, firmware, description, manufacturer
+                        entity_description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
+                        sensors[measurement] = globals()[entity_description.sensor_class](
+                            self.config, key, device_model, firmware, entity_description, manufacturer
                         )
                         self.add_entities([sensors[measurement]])
                         sensors_by_key[key].update(sensors)
@@ -129,9 +129,9 @@ class BLEupdaterBinary:
                     sensors = {}
                     sensors_by_key[key] = {}
                     for measurement in device_sensors:
-                        description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
-                        sensors[measurement] = globals()[description.sensor_class](
-                            self.config, key, device_model, firmware, description, manufacturer
+                        entity_description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
+                        sensors[measurement] = globals()[entity_description.sensor_class](
+                            self.config, key, device_model, firmware, entity_description, manufacturer
                         )
                         self.add_entities([sensors[measurement]])
                     sensors_by_key[key] = sensors
@@ -288,11 +288,11 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         key: str,
         devtype: str,
         firmware: str,
-        description: BLEMonitorBinarySensorEntityDescription,
+        entity_description: BLEMonitorBinarySensorEntityDescription,
         manufacturer=None
     ) -> None:
         """Initialize the binary sensor."""
-        self.entity_description = description
+        self.entity_description = entity_description
         self._config = config
         self._type = detect_conf_type(key)
 
@@ -321,10 +321,10 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         self._reset_timer = self._device_settings["reset_timer"]
         self._newstate = None
 
-        self._attr_name = f"{description.name} {self._device_name}"
-        self._attr_unique_id = f"{description.unique_id}{self._device_name}"
+        self._attr_name = f"{self.entity_description.name} {self._device_name}"
+        self._attr_unique_id = f"{self.entity_description.unique_id}{self._device_name}"
         self._attr_should_poll = False
-        self._attr_force_update = description.force_update
+        self._attr_force_update = self.entity_description.force_update
         self._attr_extra_state_attributes = self._extra_state_attributes
 
         self._attr_device_info = {
@@ -512,9 +512,9 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
 class MotionBinarySensor(BaseBinarySensor):
     """Representation of a Motion Binary Sensor."""
 
-    def __init__(self, config, key, devtype, firmware, description, manufacturer=None):
+    def __init__(self, config, key, devtype, firmware, entity_description, manufacturer=None):
         """Initialize the sensor."""
-        super().__init__(config, key, devtype, firmware, description, manufacturer)
+        super().__init__(config, key, devtype, firmware, entity_description, manufacturer)
         self._start_timer = None
 
     def reset_state(self, event=None):
