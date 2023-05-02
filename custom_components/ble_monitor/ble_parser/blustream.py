@@ -1,4 +1,4 @@
-"""Parser for BluStream BLE advertisements."""
+"""Parser for Blustream BLE advertisements."""
 import logging
 from struct import unpack
 
@@ -11,15 +11,15 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def parse_blustream(self, data, source_mac, rssi):
-    """Parse BluStream advertisement."""
+    """Parse Blustream advertisement."""
     msg_length = len(data)
-    firmware = "BluStream"
+    firmware = "Blustream"
     blustream_mac = source_mac
     msg = data[8:]
 
     if msg_length == 13:
-        # BluStream
-        device_type = "BluStream"
+        # Blustream
+        device_type = "Blustream"
         (acc, humi, temp) = unpack(">BHh", msg)
         result = {
             "temperature": temp / 100,
@@ -27,9 +27,9 @@ def parse_blustream(self, data, source_mac, rssi):
             "acceleration": acc,
         }
     else:
-        if self.report_unknown == "BluStream":
+        if self.report_unknown == "Blustream":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN BluStream DEVICE: RSSI: %s, MAC: %s, ADV: %s",
+                "BLE ADV from UNKNOWN Blustream DEVICE: RSSI: %s, MAC: %s, ADV: %s",
                 rssi,
                 to_mac(source_mac),
                 data.hex()

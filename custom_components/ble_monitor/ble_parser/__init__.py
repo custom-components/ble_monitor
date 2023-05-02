@@ -300,7 +300,7 @@ class BleParser:
                         sensor_data = parse_amazfit(self, None, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x0194 and data_len == 0x0C:
-                        # BluStream
+                        # Blustream
                         sensor_data = parse_blustream(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x0499:

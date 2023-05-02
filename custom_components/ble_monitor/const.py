@@ -1430,7 +1430,7 @@ AUTO_MANUFACTURER_DICT = {
     'MMC-W505'                : 'Xiaomi',
     'Electra Washbasin Faucet': 'Oras',
     'Supramatic E4 BS'        : 'Hörmann',
-    'BluStream'               : 'BluStream',
+    'Blustream'               : 'Blustream',
 }
 
 
@@ -1489,7 +1489,7 @@ REPORT_UNKNOWN_LIST = [
     "Amazfit",
     "ATC",
     "BlueMaestro",
-    "BluStream",
+    "Blustream",
     "BTHome",
     "Govee",
     "HHCC",
