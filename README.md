@@ -29,7 +29,8 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Amazfit
 - ATC (custom firmware for Xiaomi/Qingping sensors)
 - BlueMaestro
-- BTHome v1
+- Blustream (Taylor TaylorSense, D'Addario Humiditrak)
+- BTHome
 - b-parasite
 - Ela
 - Govee
