@@ -9,6 +9,7 @@ from .altbeacon import parse_altbeacon
 from .amazfit import parse_amazfit
 from .atc import parse_atc
 from .bluemaestro import parse_bluemaestro
+from .blustream import parse_blustream
 from .bparasite import parse_bparasite
 from .const import JAALEE_TYPES, TILT_TYPES
 from .govee import parse_govee
@@ -297,6 +298,10 @@ class BleParser:
                     elif comp_id == 0x0157 and data_len == 0x1B:
                         # Miband
                         sensor_data = parse_amazfit(self, None, man_spec_data, mac, rssi)
+                        break
+                    elif comp_id == 0x0194 and data_len == 0x0C:
+                        # Blustream
+                        sensor_data = parse_blustream(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x0499:
                         # Ruuvitag V3/V5

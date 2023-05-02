@@ -884,9 +884,10 @@ class AccelerationSensor(InstantUpdateSensor):
         self._extra_state_attributes["sensor_type"] = data["type"]
         self._extra_state_attributes["last_packet_id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
-        self._extra_state_attributes["acceleration_x"] = data["acceleration x"]
-        self._extra_state_attributes["acceleration_y"] = data["acceleration y"]
-        self._extra_state_attributes["acceleration_z"] = data["acceleration z"]
+        if "acceleration x" in data:
+            self._extra_state_attributes["acceleration_x"] = data["acceleration x"]
+            self._extra_state_attributes["acceleration_y"] = data["acceleration y"]
+            self._extra_state_attributes["acceleration_z"] = data["acceleration z"]
         self._extra_state_attributes['mac_address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
