@@ -67,7 +67,7 @@ broadcasted_property_notes:
         * automatic
         * abnormal
   - property: error
-    note: The error state of the lock (displayed as an attribute of the lock sensor) 
+    note: The error state of the lock (displayed as an attribute of the lock sensor)
   - property: timestamp
     note: The timestamp of the latest lock change (displayed as an attribute of the lock sensor)
   - property: door

@@ -33,7 +33,7 @@
           "consider_home": "Device tracker beschouw thuis interval (in seconden)",
           "delete device": "Verwijder apparaat"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC adres dient opgegeven te worden in de vorm 'AA:BB:CC:DD:EE:FF'.",
@@ -83,7 +83,7 @@
           "consider_home": "Device tracker beschouw thuis interval (in seconden)",
           "delete device": "Verwijder apparaat"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC adres dient opgegeven te worden in de vorm 'AA:BB:CC:DD:EE:FF'.",

@@ -33,7 +33,7 @@
           "consider_home": "追蹤裝置視為在家（秒）",
           "delete device": "刪除裝置"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC 位址必須為 'AA:BB:CC:DD:EE:FF' 格式。",
@@ -83,7 +83,7 @@
           "consider_home": "追蹤裝置視為在家（秒）",
           "delete device": "刪除裝置"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC 位址必須為 'AA:BB:CC:DD:EE:FF' 格式。",

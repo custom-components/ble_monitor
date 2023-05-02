@@ -70,7 +70,7 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
 
 '''
 The following functions are based on Sensirion_GadgetBle_Lib.cpp from  https://github.com/Sensirion/arduino-ble-gadget/
-support from other devices should be easily added by looking at GadgetBle::setDataType and updating _parse_data_type 
+support from other devices should be easily added by looking at GadgetBle::setDataType and updating _parse_data_type
 accordingly. Note that the device name also has to be added to the SENSIRION_DEVICES list.
 '''
 

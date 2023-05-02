@@ -12,13 +12,13 @@ nav_order: 5
 
 ### ESPHome BLE Gateway
 
-It is possible to extend the Bluetooth range of your Home Assistant device / BLE monitor, by using an ESPHome device with ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway). An ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) device is able to receive BLE advertisements and will forward the messages over Wifi to your Home Assistant device with BLE monotir. BLE monitor has a built in service to parse the incoming BLE advertisements from your ESPHome device, just like the BLE advertisemetns that are received with a Bluetooth dongle. 
+It is possible to extend the Bluetooth range of your Home Assistant device / BLE monitor, by using an ESPHome device with ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway). An ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) device is able to receive BLE advertisements and will forward the messages over Wifi to your Home Assistant device with BLE monotir. BLE monitor has a built in service to parse the incoming BLE advertisements from your ESPHome device, just like the BLE advertisemetns that are received with a Bluetooth dongle.
 
 ### Why isn't BLE monitor working with ESPHome Bluetooth Proxies?
 
-A commonly asked question, why isn't BLE monitor working with ESPHome Bluetooth Proxies? This is because an ESPHome Bluetooth Proxy is forwarding its data to the official Bluetooth integration in Home Assistant. The Bluetooth integration is forwarding the data to a brand specific integration. 
+A commonly asked question, why isn't BLE monitor working with ESPHome Bluetooth Proxies? This is because an ESPHome Bluetooth Proxy is forwarding its data to the official Bluetooth integration in Home Assistant. The Bluetooth integration is forwarding the data to a brand specific integration.
 
-BLE monitor is using its own Bluetooth collecting mechanism based on `aioblescan` which is working at a lower level (HCI). BLE monitor is not using the Bluetooth integration to receive its data, and is therefore not able to receive data from ESPHome Bluetooth Proxies. You can use ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) instead, which is able to forward data to BLE monitor in a similar way. 
+BLE monitor is using its own Bluetooth collecting mechanism based on `aioblescan` which is working at a lower level (HCI). BLE monitor is not using the Bluetooth integration to receive its data, and is therefore not able to receive data from ESPHome Bluetooth Proxies. You can use ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) instead, which is able to forward data to BLE monitor in a similar way.
 
 ### Using the parse_data service for debugging
 
@@ -48,4 +48,4 @@ automation:
 ```
 
 
-More information on how to configure ESPHome BLE Gateway can be found on the ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) GitHub page. 
+More information on how to configure ESPHome BLE Gateway can be found on the ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) GitHub page.

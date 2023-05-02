@@ -14,7 +14,7 @@ body:
     attributes:
       label: What happened?
       description: Explain the bug you found?
-      placeholder: 
+      placeholder:
     validations:
       required: true
   - type: input
@@ -22,7 +22,7 @@ body:
     attributes:
       label: Sensor type
       description: If the bug is related to a specific sensor, describe the sensor type.
-      placeholder: 
+      placeholder:
     validations:
       required: false
   - type: textarea

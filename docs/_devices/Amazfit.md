@@ -1,5 +1,5 @@
 ---
-manufacturer: Amazfit 
+manufacturer: Amazfit
 name: Smart Scale
 model: Smart Scale
 image: amazfit_smart_scale.png

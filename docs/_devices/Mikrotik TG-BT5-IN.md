@@ -21,10 +21,10 @@ broadcasted_property_notes:
     note: When the dropping sensor reports `on`, this means that someone is dropping the device.
   - property: impact
     note: When the impact sensor reports `on`, this means that there was an impact at the moment of advertising. The attributes show in which direction the impact occurred.
-broadcast_rate: 
+broadcast_rate:
 active_scan:
 encryption_key: No
 custom_firmware:
 notes:
-  - The sensor can send its data with encryption, but this is not supported yet. If you want support for encrypted messages, we need information about how the data is encrypted and the encryption key. 
+  - The sensor can send its data with encryption, but this is not supported yet. If you want support for encrypted messages, we need information about how the data is encrypted and the encryption key.
 ---

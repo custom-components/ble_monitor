@@ -18,5 +18,5 @@ active_scan:
 encryption_key:
 custom_firmware:
 notes:
-  - Works only for EClerk-Eco-RHTC-0-0-0 - one with CO2 sensor and without relay. 
+  - Works only for EClerk-Eco-RHTC-0-0-0 - one with CO2 sensor and without relay.
 ---
