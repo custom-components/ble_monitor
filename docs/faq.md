@@ -29,13 +29,13 @@ Python needs root access to access the HCI interface. If Python doesn't have roo
 PermissionError: [Errno 1] Operation not permitted
 ```
 
-or 
+or
 
 ```
 RuntimeError: Event loop stopped before Future completed
 ```
 
-or 
+or
 
 ```
 HCIdump thread: Something wrong - interface hci0 not ready, and will be skipped for current scan period.
@@ -43,7 +43,7 @@ HCIdump thread: Something wrong - interface hci0 not ready, and will be skipped 
 
 **Steps to solve**
 
-When using a docker container or venv environement, run the following command from inside the docker container / or venv environment. 
+When using a docker container or venv environement, run the following command from inside the docker container / or venv environment.
 First, try to set root access with
 
 ```shell
@@ -74,7 +74,7 @@ sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python3.10
 
 **Note 2**
 
-When Home Assistant is installed in **pyenv**, the output of the command `which python3` looks like `/home/homeassistant/.pyenv/johndoe/python3` but this is not the real link to actual python3 interpreter. The actual binary is placed in a folder like `/home/homeassistant/.pyenv/versions/3.9.9/bin/python3.9` (it might slightly differ depending on the installed python version). So to grant root access to python, it is required to run the `setcap` command with the correct path, i.e. 
+When Home Assistant is installed in **pyenv**, the output of the command `which python3` looks like `/home/homeassistant/.pyenv/johndoe/python3` but this is not the real link to actual python3 interpreter. The actual binary is placed in a folder like `/home/homeassistant/.pyenv/versions/3.9.9/bin/python3.9` (it might slightly differ depending on the installed python version). So to grant root access to python, it is required to run the `setcap` command with the correct path, i.e.
 
 ```shell
 setcap 'cap_net_raw,cap_net_admin+eip' /home/homeassistant/.pyenv/versions/3.9.9/bin/python3.9
@@ -88,14 +88,14 @@ If you encounter the following error `HCIdump thread: Runtime error while sendin
 
 **1 Turn on the option `bt_auto_restart`**
 
-In the UI configuration, this is called `Automatically restart Bluetooth adapter on failure`. This will reset Bluetooth automatically, by running the following commands, when the error occurs. 
+In the UI configuration, this is called `Automatically restart Bluetooth adapter on failure`. This will reset Bluetooth automatically, by running the following commands, when the error occurs.
 
 ```shell
 bluetoothctl power on
 rfkill unblock bluetooth
 ```
 
-In YAML you can turn `bt_auto_restart` on with the following line in your configuration.yaml. 
+In YAML you can turn `bt_auto_restart` on with the following line in your configuration.yaml.
 
 ```yaml
 ble_monitor:
@@ -115,7 +115,7 @@ Python needs the right root permissions to use the HCI interface. If you recentl
 
 **4 Install all Bluetooth packages**
 
-Make sure all relevant Bluetooth packages are installed. On Home Assistant OS, this should normally already be the case, but if you use some other type of installation, you might be missing some relevant software/packages. 
+Make sure all relevant Bluetooth packages are installed. On Home Assistant OS, this should normally already be the case, but if you use some other type of installation, you might be missing some relevant software/packages.
 
 ```shell
 sudo apt-get install systemd
@@ -126,7 +126,7 @@ sudo apt-get install rfkill
 
 **5 Reboot your system (cold reboot)**
 
-Perform a [cold reboot of the entire system](https://unix.stackexchange.com/questions/608116/bluetooth-wont-turn-on-on-ubuntu-20-04/608489#608489). It's not sufficient to only reboot Home Assisistant, but restart the entire machine with a cold reboot (turning it off, and than turn it on). 
+Perform a [cold reboot of the entire system](https://unix.stackexchange.com/questions/608116/bluetooth-wont-turn-on-on-ubuntu-20-04/608489#608489). It's not sufficient to only reboot Home Assisistant, but restart the entire machine with a cold reboot (turning it off, and than turn it on).
 
 
 **6 Using the LinuxServer.io image?**
@@ -293,7 +293,7 @@ Note that this last step will generate a new encryption key, which means it won'
 
 **2b. TelinkFlasher (pvvx)**
 
-When you have a LYWSD03MMC, MHO-C401 or Qingping CGG1, you can also use the [Telink Flasher website by pvvx](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html). When you are using ATC firmware by pvvx, you can use this Telink Flaser also for setting and getting the encryption key in ATC firmware, for increased security. 
+When you have a LYWSD03MMC, MHO-C401 or Qingping CGG1, you can also use the [Telink Flasher website by pvvx](https://pvvx.github.io/ATC_MiThermometer/TelinkMiFlasher.html). When you are using ATC firmware by pvvx, you can use this Telink Flaser also for setting and getting the encryption key in ATC firmware, for increased security.
 
 
 **3. MiHome mod (Android only)**
@@ -327,7 +327,7 @@ Unfortunately, Xiaomi has enabled additional encryption of API requests recently
 
 Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legacy type of encryption [1]. This MiBeacon V2/V3 encryption key is shorter than the MiBeacon V4/V5 encryption key, as it is a 12 bytes (24 characters) long string. You won't be able to retrieve the encryption key with method 1 and 2 from above. There are different ways to get the key, the easiest is to use a python script to get the key (method 5). If your remote is connected to a ceiling light/fan, an alternative is to follow method 6 (miiocli tool). A third alternative is method 7, which also works when you don't have a ceiling light/fan connected (which is more or less similar to method 3 from above).
 
-[1] Note that the new `YLYKQ-0004` and `YLYKQ-0005` dimmers are recognized as `YLKG07YL` and `YLKG08YL` in BLE monitor, but `YLYKQ-0004` and `YLYKQ-0005` both use a MiBeacon V4/V5 encryption key, see method 1 till 4. 
+[1] Note that the new `YLYKQ-0004` and `YLYKQ-0005` dimmers are recognized as `YLKG07YL` and `YLKG08YL` in BLE monitor, but `YLYKQ-0004` and `YLYKQ-0005` both use a MiBeacon V4/V5 encryption key, see method 1 till 4.
 
 **5. get_beacon_key python script**
 

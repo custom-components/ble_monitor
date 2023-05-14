@@ -19,7 +19,7 @@ broadcasted_property_notes:
     True means in bed, False means out of bed
   - property: button
     note: >
-    The button sensor will report report "double click" when double clicking on the controller. 
+    The button sensor will report report "double click" when double clicking on the controller.
 broadcast_rate: See Notes
 active_scan:
 encryption_key: true

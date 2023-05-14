@@ -12,7 +12,7 @@ broadcasted_properties:
 broadcasted_property_notes:
 broadcast_rate: ~1/sec.
 active_scan: true
-encryption_key: 
+encryption_key:
 custom_firmware:
 notes:
 ---

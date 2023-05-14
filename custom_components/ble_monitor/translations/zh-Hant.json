@@ -8,7 +8,6 @@
           "bt_interface": "藍芽介面/配接器 MAC 位址",
           "devices": "裝置",
           "discovery": "自動探索裝置與傳感器",
-          "decimals": "小數點位數",
           "period": "掃描間隔",
           "log_spikes": "紀錄日誌",
           "use_median": "使用中位數（非平均值）",
@@ -25,7 +24,6 @@
           "uuid": "信標 UUID",
           "encryption_key": "密鑰",
           "temperature_unit": "溫度單位 [僅針對溫度感測器]",
-          "decimals": "小數點位數",
           "use_median": "使用中位數（非平均值）",
           "restore_state": "於重啟後回復狀態",
           "reset_timer": "重置計時器（秒、設定為 0 = 關閉）",
@@ -35,7 +33,7 @@
           "consider_home": "追蹤裝置視為在家（秒）",
           "delete device": "刪除裝置"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC 位址必須為 'AA:BB:CC:DD:EE:FF' 格式。",
@@ -59,7 +57,6 @@
           "bt_interface": "藍芽介面/配接器 MAC 位址",
           "devices": "裝置",
           "discovery": "自動探索裝置與傳感器",
-          "decimals": "小數點位數",
           "period": "掃描間隔",
           "log_spikes": "紀錄日誌",
           "use_median": "使用中位數（非平均值）",
@@ -77,7 +74,6 @@
           "uuid": "信標 UUID",
           "encryption_key": "密鑰（若輸入為「-」進行移除）",
           "temperature_unit": "溫度單位",
-          "decimals": "小數點位數",
           "use_median": "使用中位數（非平均值）",
           "restore_state": "於重啟後回復狀態",
           "reset_timer": "重置計時器（秒、設定為 0 = 關閉）",
@@ -87,7 +83,7 @@
           "consider_home": "追蹤裝置視為在家（秒）",
           "delete device": "刪除裝置"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC 位址必須為 'AA:BB:CC:DD:EE:FF' 格式。",

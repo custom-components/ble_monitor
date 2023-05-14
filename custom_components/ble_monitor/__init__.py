@@ -37,8 +37,6 @@ from .const import (
     CONF_BATT_ENTITIES,
     CONF_BT_AUTO_RESTART,
     CONF_BT_INTERFACE,
-    CONF_DECIMALS,
-    CONF_DEVICE_DECIMALS,
     CONF_DEVICE_ENCRYPTION_KEY,
     CONF_DEVICE_USE_MEDIAN,
     CONF_DEVICE_REPORT_UNKNOWN,
@@ -60,8 +58,6 @@ from .const import (
     DEFAULT_ACTIVE_SCAN,
     DEFAULT_BATT_ENTITIES,
     DEFAULT_BT_AUTO_RESTART,
-    DEFAULT_DECIMALS,
-    DEFAULT_DEVICE_DECIMALS,
     DEFAULT_DEVICE_REPORT_UNKNOWN,
     DEFAULT_DEVICE_RESTORE_STATE,
     DEFAULT_DEVICE_RESET_TIMER,
@@ -113,9 +109,6 @@ DEVICE_SCHEMA = vol.Schema(
             cv.matches_regex(AES128KEY24_REGEX), cv.matches_regex(AES128KEY32_REGEX)
         ),
         vol.Optional(CONF_TEMPERATURE_UNIT): cv.temperature_unit,
-        vol.Optional(CONF_DEVICE_DECIMALS, default=DEFAULT_DEVICE_DECIMALS): vol.In(
-            [DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3, 4]
-        ),
         vol.Optional(CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN): vol.In(
             [DEFAULT_DEVICE_USE_MEDIAN, True, False]
         ),
@@ -153,9 +146,6 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(
                         CONF_BT_AUTO_RESTART, default=DEFAULT_BT_AUTO_RESTART
                     ): cv.boolean,
-                    vol.Optional(
-                        CONF_DECIMALS, default=DEFAULT_DECIMALS
-                    ): cv.positive_int,
                     vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
                     vol.Optional(
                         CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES
@@ -439,22 +429,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 async def async_migrate_entry(hass, config_entry):
     """Migrate config entry to new version."""
-    if config_entry.version == 2:
-        options = dict(config_entry.options)
-        options[CONF_REPORT_UNKNOWN] = "Off"
-
-        config_entry.version = 3
-        hass.config_entries.async_update_entry(config_entry, options=options)
-        _LOGGER.info("Migrated config entry to version %d", config_entry.version)
-
-    if config_entry.version == 3:
-        options = dict(config_entry.options)
-        if options[CONF_BT_INTERFACE] == ["00:00:00:00:00:00"]:
-            options[CONF_BT_INTERFACE] = ["disable"]
-
-        config_entry.version = 4
-        hass.config_entries.async_update_entry(config_entry, options=options)
-        _LOGGER.info("Migrated config entry to version %d", config_entry.version)
 
     if config_entry.version == 4:
         options = dict(config_entry.options)

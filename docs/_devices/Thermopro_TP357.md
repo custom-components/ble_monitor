@@ -11,7 +11,7 @@ broadcasted_properties:
 broadcasted_property_notes:
 broadcast_rate: 2 to 3 seconds
 active_scan:
-encryption_key: 
+encryption_key:
 custom_firmware:
 notes:
 ---

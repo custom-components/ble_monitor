@@ -8,7 +8,6 @@
             "bt_interface": "Endereço MAC da interface/adaptador Bluetooth",
             "devices": "Dispositivos",
             "discovery": "Descubra dispositivos e sensores automaticamente",
-            "decimals": "Número de decimais",
             "period": "Período a ser usado para calcular a média",
             "log_spikes": "Logs de registro",
             "use_median": "Use mediana em vez de média",
@@ -25,7 +24,6 @@
             "uuid": "Beacon UUID",
             "encryption_key": "Chave de encriptação",
             "temperature_unit": "Unidade de temperatura [somente sensores de temperatura]",
-            "decimals": "Número de decimais",
             "use_median": "Use mediana em vez de média",
             "restore_state": "Restaurar estado após uma reinicialização",
             "reset_timer": "Redefinir temporizador (em segundos, 0 = desligado)",
@@ -59,7 +57,6 @@
             "bt_interface": "Endereço MAC da interface/adaptador Bluetooth",
             "devices": "Dispositivos",
             "discovery": "Descubra dispositivos e sensores automaticamente",
-            "decimals": "Número de decimais",
             "period": "Período a ser usado para calcular a média",
             "log_spikes": "Logs de registro",
             "use_median": "Use mediana em vez de média",
@@ -77,7 +74,6 @@
             "uuid": "Beacon UUID",
             "encryption_key": "Chave de criptografia (definida como '-' para remover)",
             "temperature_unit": "Unidade de temperatura",
-            "decimals": "Número de decimais",
             "use_median": "Use mediana em vez de média",
             "restore_state": "Restaurar estado após uma reinicialização",
             "reset_timer": "Redefinir temporizador (em segundos, 0 = desligado)",
@@ -103,4 +99,3 @@
       }
     }
   }
-  

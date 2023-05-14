@@ -30,9 +30,7 @@ from .const import (
     CONF_ACTIVE_SCAN,
     CONF_BT_AUTO_RESTART,
     CONF_BT_INTERFACE,
-    CONF_DECIMALS,
     CONF_DEVICE_ENCRYPTION_KEY,
-    CONF_DEVICE_DECIMALS,
     CONF_DEVICE_USE_MEDIAN,
     CONF_DEVICE_REPORT_UNKNOWN,
     CONF_DEVICE_RESTORE_STATE,
@@ -50,8 +48,6 @@ from .const import (
     CONFIG_IS_FLOW,
     DEFAULT_ACTIVE_SCAN,
     DEFAULT_BT_AUTO_RESTART,
-    DEFAULT_DECIMALS,
-    DEFAULT_DEVICE_DECIMALS,
     DEFAULT_DEVICE_ENCRYPTION_KEY,
     DEFAULT_DEVICE_MAC,
     DEFAULT_DEVICE_UUID,
@@ -93,9 +89,6 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_TEMPERATURE_UNIT, default=TEMP_CELSIUS): vol.In(
             [TEMP_CELSIUS, TEMP_FAHRENHEIT]
         ),
-        vol.Optional(CONF_DEVICE_DECIMALS, default=DEFAULT_DEVICE_DECIMALS): vol.In(
-            [DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]
-        ),
         vol.Optional(CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN): vol.In(
             [DEFAULT_DEVICE_USE_MEDIAN, True, False]
         ),
@@ -134,7 +127,6 @@ DOMAIN_SCHEMA = vol.Schema(
         vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
         vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
-        vol.Optional(CONF_DECIMALS, default=DEFAULT_DECIMALS): cv.positive_int,
         vol.Optional(CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES): cv.boolean,
         vol.Optional(CONF_RESTORE_STATE, default=DEFAULT_RESTORE_STATE): cv.boolean,
         vol.Optional(CONF_REPORT_UNKNOWN, default=DEFAULT_REPORT_UNKNOWN): vol.In(
@@ -246,10 +238,6 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                             default=user_input[CONF_TEMPERATURE_UNIT],
                         ): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
                         vol.Optional(
-                            CONF_DEVICE_DECIMALS,
-                            default=user_input[CONF_DEVICE_DECIMALS],
-                        ): vol.In([DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]),
-                        vol.Optional(
                             CONF_DEVICE_USE_MEDIAN,
                             default=user_input[CONF_DEVICE_USE_MEDIAN],
                         ): vol.In([DEFAULT_DEVICE_USE_MEDIAN, True, False]),
@@ -329,12 +317,6 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                         CONF_TEMPERATURE_UNIT, TEMP_CELSIUS
                     ),
                 ): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
-                vol.Optional(
-                    CONF_DEVICE_DECIMALS,
-                    default=self._sel_device.get(
-                        CONF_DEVICE_DECIMALS, DEFAULT_DEVICE_DECIMALS
-                    ),
-                ): vol.In([DEFAULT_DEVICE_DECIMALS, 0, 1, 2, 3]),
                 vol.Optional(
                     CONF_DEVICE_USE_MEDIAN,
                     default=self._sel_device.get(
@@ -488,12 +470,6 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
                         CONF_USE_MEDIAN, DEFAULT_USE_MEDIAN
                     ),
                 ): cv.boolean,
-                vol.Optional(
-                    CONF_DECIMALS,
-                    default=self.config_entry.options.get(
-                        CONF_DECIMALS, DEFAULT_DECIMALS
-                    ),
-                ): cv.positive_int,
                 vol.Optional(
                     CONF_LOG_SPIKES,
                     default=self.config_entry.options.get(

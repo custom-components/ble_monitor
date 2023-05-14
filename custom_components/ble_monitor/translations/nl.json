@@ -7,7 +7,6 @@
         "data": {
           "devices": "Apparaten",
           "discovery": "Voeg apparaten en sensoren automatisch toe",
-          "decimals": "Aantal decimalen",
           "period": "Periode",
           "log_spikes": "Log uitschieters",
           "use_median": "Gebruik mediaan i.p.v. gemiddelde",
@@ -24,8 +23,7 @@
           "mac": "MAC adres",
           "uuid": "Beacon UUID",
           "encryption_key": "Encryptie sleutel",
-          "temperature_unit": "Temperatuur eenheid",
-          "decimals": "Aantal decimalen",
+          "temperature_unit": "Temperatuur eenheid [zoals verstuurd door apparaat]",
           "use_median": "Gebruik mediaan i.p.v. gemiddelde",
           "restore_state": "Herstel staat na herstart",
           "reset_timer": "Reset timer (in seconden, 0 = uit)",
@@ -35,7 +33,7 @@
           "consider_home": "Device tracker beschouw thuis interval (in seconden)",
           "delete device": "Verwijder apparaat"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC adres dient opgegeven te worden in de vorm 'AA:BB:CC:DD:EE:FF'.",
@@ -58,7 +56,6 @@
         "data": {
           "devices": "Apparaten",
           "discovery": "Voeg apparaten en sensoren automatisch toe",
-          "decimals": "Aantal decimalen",
           "period": "Periode",
           "log_spikes": "Log uitschieters",
           "use_median": "Gebruik mediaan i.p.v. gemiddelde",
@@ -76,8 +73,7 @@
           "mac": "MAC adres",
           "uuid": "Beacon UUID",
           "encryption_key": "Encryptie sleutel",
-          "temperature_unit": "Temperatuur eenheid",
-          "decimals": "Aantal decimalen",
+          "temperature_unit": "Temperatuur eenheid [zoals verstuurd door apparaat]",
           "use_median": "Gebruik mediaan i.p.v. gemiddelde",
           "restore_state": "Herstel staat na herstart",
           "reset_timer": "Reset timer (in seconden, 0 = uit)",
@@ -87,7 +83,7 @@
           "consider_home": "Device tracker beschouw thuis interval (in seconden)",
           "delete device": "Verwijder apparaat"
         }
-      }  
+      }
     },
     "error": {
       "invalid_mac": "MAC adres dient opgegeven te worden in de vorm 'AA:BB:CC:DD:EE:FF'.",

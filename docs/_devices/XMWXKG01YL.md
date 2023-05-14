@@ -1,7 +1,7 @@
 ---
 manufacturer: Xiaomi
 name: Smart Switch (two button version)
-model: XMWXKG01YL 
+model: XMWXKG01YL
 image: XMWXKG01YL.png
 physical_description:
 broadcasted_properties:

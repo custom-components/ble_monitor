@@ -22,7 +22,7 @@ active_scan:
 encryption_key: See Notes
 custom_firmware:
 notes: >
-  - This sensor sends advertisements in Xiaomi MiBeacon format when connected to MiHome. In this case, communication is encrypted, so it requires an encryption key to be set in the configuration options. If it is not connected to MiHome, it will broadcast advertisements in Qingping format. This advertisement format is not encrypted, so it won't require an encryption key. 
+  - This sensor sends advertisements in Xiaomi MiBeacon format when connected to MiHome. In this case, communication is encrypted, so it requires an encryption key to be set in the configuration options. If it is not connected to MiHome, it will broadcast advertisements in Qingping format. This advertisement format is not encrypted, so it won't require an encryption key.
   - Switching to Qingping mode is done by pressing the button for a very long time until the LED stops flashing.
   - In Xiaomi MiBeacon mode, illuminance is broadcasted upon every 10 minutes and when motion is detected. Motion state is broadcasted when motion is detected. Additionally, `motion clear` messages are broadcasted at 1, 2, 5, 10, 20 and 30 minutes after the last motion.
   - In Qingping mode, broadcast rate of illumination and battery is every second.

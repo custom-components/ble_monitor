@@ -1,7 +1,7 @@
 ---
 manufacturer: Ela
 name: Ela Blue Puck RHT
-model: Blue Puck RHT 
+model: Blue Puck RHT
 image: Ela_Blue-PUCK-T-EN12830.png
 physical_description: Round puck, no screen
 broadcasted_properties:
