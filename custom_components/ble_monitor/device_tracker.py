@@ -165,7 +165,7 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
         self._fkey = identifier_normalize(key)
         self._device_settings = self.get_device_settings()
         self._device_name = self._device_settings["name"]
-        self._name = "ble tracker {}".format(self._device_name)
+        self._name = f"ble tracker {self._device_name}"
         self._state = None
         self._extra_state_attributes = {}
         self._unique_id = "ble_tracker_" + self._device_name

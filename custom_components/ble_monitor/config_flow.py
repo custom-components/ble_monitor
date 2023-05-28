@@ -167,7 +167,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                     and user_input[key].upper()
                     != self._sel_device.get(key).upper()
                 ):
-                    errors[key] = "cannot_change_{}".format(key)
+                    errors[key] = f"cannot_change_{key}"
                     user_input[key] = self._sel_device.get(key)
                 else:
                     self._validate(user_input[key], key, errors)
@@ -248,7 +248,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 else:
                     _LOGGER.error("Removing BLE monitor device %s from device registry", key)
                     device_registry.async_remove_device(device.id)
-                _LOGGER.error("Removing BLE monitor device %s from configuration {}".format(device), key)
+                _LOGGER.error(f"Removing BLE monitor device %s from configuration {device}", key)
                 del self._devices[key]
             return self._show_main_form(errors)
         device_option_schema = vol.Schema(
