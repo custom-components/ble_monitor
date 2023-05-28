@@ -4,31 +4,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from homeassistant.components.binary_sensor import (
-    BinarySensorDeviceClass,
-    BinarySensorEntityDescription,
-)
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntityDescription,
-    SensorStateClass,
-)
-from homeassistant.const import (
-    CONCENTRATION_PARTS_PER_MILLION,
-    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
-    CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER,
-    CONDUCTIVITY,
-    LIGHT_LUX,
-    PERCENTAGE,
-    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
-    Platform,
-    UnitOfElectricPotential,
-    UnitOfEnergy,
-    UnitOfMass,
-    UnitOfPower,
-    UnitOfPressure,
-    UnitOfTemperature,
-    UnitOfVolume,
-)
+    BinarySensorDeviceClass, BinarySensorEntityDescription)
+from homeassistant.components.sensor import (SensorDeviceClass,
+                                             SensorEntityDescription,
+                                             SensorStateClass)
+from homeassistant.const import (CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+                                 CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER,
+                                 CONCENTRATION_PARTS_PER_MILLION, CONDUCTIVITY,
+                                 LIGHT_LUX, PERCENTAGE,
+                                 SIGNAL_STRENGTH_DECIBELS_MILLIWATT, Platform,
+                                 UnitOfElectricPotential, UnitOfEnergy,
+                                 UnitOfMass, UnitOfPower, UnitOfPressure,
+                                 UnitOfTemperature, UnitOfVolume)
 from homeassistant.helpers.entity import EntityCategory
 
 DOMAIN = "ble_monitor"

@@ -1,78 +1,38 @@
 """Config flow for BLE Monitor."""
 import copy
 import logging
+
 import voluptuous as vol
-
+from homeassistant import config_entries, data_entry_flow
+from homeassistant.const import (CONF_DEVICES, CONF_DISCOVERY, CONF_MAC,
+                                 CONF_NAME, CONF_TEMPERATURE_UNIT,
+                                 TEMP_CELSIUS, TEMP_FAHRENHEIT)
 from homeassistant.core import callback
-from homeassistant import data_entry_flow
-from homeassistant.helpers import device_registry, config_validation as cv
-from homeassistant import config_entries
-from homeassistant.const import (
-    CONF_DEVICES,
-    CONF_DISCOVERY,
-    CONF_MAC,
-    CONF_NAME,
-    CONF_TEMPERATURE_UNIT,
-    TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
-)
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import device_registry
 
-from .helper import (
-    detect_conf_type,
-    dict_get_key_or,
-    dict_get_or,
-    validate_mac,
-    validate_uuid,
-    validate_key,
-)
-
-from .const import (
-    CONF_ACTIVE_SCAN,
-    CONF_BT_AUTO_RESTART,
-    CONF_BT_INTERFACE,
-    CONF_DEVICE_ENCRYPTION_KEY,
-    CONF_DEVICE_USE_MEDIAN,
-    CONF_DEVICE_REPORT_UNKNOWN,
-    CONF_DEVICE_RESTORE_STATE,
-    CONF_DEVICE_RESET_TIMER,
-    CONF_DEVICE_TRACK,
-    CONF_DEVICE_TRACKER_SCAN_INTERVAL,
-    CONF_DEVICE_TRACKER_CONSIDER_HOME,
-    CONF_DEVICE_DELETE_DEVICE,
-    CONF_LOG_SPIKES,
-    CONF_PERIOD,
-    CONF_REPORT_UNKNOWN,
-    CONF_RESTORE_STATE,
-    CONF_USE_MEDIAN,
-    CONF_UUID,
-    CONFIG_IS_FLOW,
-    DEFAULT_ACTIVE_SCAN,
-    DEFAULT_BT_AUTO_RESTART,
-    DEFAULT_DEVICE_ENCRYPTION_KEY,
-    DEFAULT_DEVICE_MAC,
-    DEFAULT_DEVICE_UUID,
-    DEFAULT_DEVICE_USE_MEDIAN,
-    DEFAULT_DEVICE_REPORT_UNKNOWN,
-    DEFAULT_DEVICE_RESTORE_STATE,
-    DEFAULT_DEVICE_RESET_TIMER,
-    DEFAULT_DEVICE_TRACK,
-    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
-    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
-    DEFAULT_DEVICE_DELETE_DEVICE,
-    DEFAULT_DISCOVERY,
-    DEFAULT_LOG_SPIKES,
-    DEFAULT_PERIOD,
-    DEFAULT_REPORT_UNKNOWN,
-    DEFAULT_RESTORE_STATE,
-    DEFAULT_USE_MEDIAN,
-    DOMAIN,
-    REPORT_UNKNOWN_LIST,
-)
-
-from . import (
-    DEFAULT_BT_INTERFACE,
-    BT_MULTI_SELECT,
-)
+from . import BT_MULTI_SELECT, DEFAULT_BT_INTERFACE
+from .const import (CONF_ACTIVE_SCAN, CONF_BT_AUTO_RESTART, CONF_BT_INTERFACE,
+                    CONF_DEVICE_DELETE_DEVICE, CONF_DEVICE_ENCRYPTION_KEY,
+                    CONF_DEVICE_REPORT_UNKNOWN, CONF_DEVICE_RESET_TIMER,
+                    CONF_DEVICE_RESTORE_STATE, CONF_DEVICE_TRACK,
+                    CONF_DEVICE_TRACKER_CONSIDER_HOME,
+                    CONF_DEVICE_TRACKER_SCAN_INTERVAL, CONF_DEVICE_USE_MEDIAN,
+                    CONF_LOG_SPIKES, CONF_PERIOD, CONF_REPORT_UNKNOWN,
+                    CONF_RESTORE_STATE, CONF_USE_MEDIAN, CONF_UUID,
+                    CONFIG_IS_FLOW, DEFAULT_ACTIVE_SCAN,
+                    DEFAULT_BT_AUTO_RESTART, DEFAULT_DEVICE_DELETE_DEVICE,
+                    DEFAULT_DEVICE_ENCRYPTION_KEY, DEFAULT_DEVICE_MAC,
+                    DEFAULT_DEVICE_REPORT_UNKNOWN, DEFAULT_DEVICE_RESET_TIMER,
+                    DEFAULT_DEVICE_RESTORE_STATE, DEFAULT_DEVICE_TRACK,
+                    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
+                    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
+                    DEFAULT_DEVICE_USE_MEDIAN, DEFAULT_DEVICE_UUID,
+                    DEFAULT_DISCOVERY, DEFAULT_LOG_SPIKES, DEFAULT_PERIOD,
+                    DEFAULT_REPORT_UNKNOWN, DEFAULT_RESTORE_STATE,
+                    DEFAULT_USE_MEDIAN, DOMAIN, REPORT_UNKNOWN_LIST)
+from .helper import (detect_conf_type, dict_get_key_or, dict_get_or,
+                     validate_key, validate_mac, validate_uuid)
 
 _LOGGER = logging.getLogger(__name__)
 

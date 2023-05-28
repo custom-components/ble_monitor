@@ -4,96 +4,46 @@ import copy
 import json
 import logging
 from threading import Thread
-import voluptuous as vol
 
 import aioblescan as aiobs
 import janus
-
+import voluptuous as vol
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
-from homeassistant.const import (
-    CONF_DEVICES,
-    CONF_DISCOVERY,
-    CONF_MAC,
-    CONF_NAME,
-    CONF_TEMPERATURE_UNIT,
-    CONF_UNIQUE_ID,
-    EVENT_HOMEASSISTANT_STOP,
-)
+from homeassistant.const import (CONF_DEVICES, CONF_DISCOVERY, CONF_MAC,
+                                 CONF_NAME, CONF_TEMPERATURE_UNIT,
+                                 CONF_UNIQUE_ID, EVENT_HOMEASSISTANT_STOP)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.entity_registry import (
-    async_entries_for_device,
-)
+from homeassistant.helpers.entity_registry import async_entries_for_device
 from homeassistant.util import dt
 
 from .ble_parser import BleParser
-from .const import (
-    AUTO_BINARY_SENSOR_LIST,
-    AUTO_MANUFACTURER_DICT,
-    AUTO_SENSOR_LIST,
-    AES128KEY24_REGEX,
-    AES128KEY32_REGEX,
-    CONF_ACTIVE_SCAN,
-    CONF_BATT_ENTITIES,
-    CONF_BT_AUTO_RESTART,
-    CONF_BT_INTERFACE,
-    CONF_DEVICE_ENCRYPTION_KEY,
-    CONF_DEVICE_USE_MEDIAN,
-    CONF_DEVICE_REPORT_UNKNOWN,
-    CONF_DEVICE_RESTORE_STATE,
-    CONF_DEVICE_RESET_TIMER,
-    CONF_DEVICE_TRACK,
-    CONF_DEVICE_TRACKER_SCAN_INTERVAL,
-    CONF_DEVICE_TRACKER_CONSIDER_HOME,
-    CONF_HCI_INTERFACE,
-    CONF_PACKET,
-    CONF_GATEWAY_ID,
-    CONF_PERIOD,
-    CONF_LOG_SPIKES,
-    CONF_REPORT_UNKNOWN,
-    CONF_RESTORE_STATE,
-    CONF_USE_MEDIAN,
-    CONF_UUID,
-    CONFIG_IS_FLOW,
-    DEFAULT_ACTIVE_SCAN,
-    DEFAULT_BATT_ENTITIES,
-    DEFAULT_BT_AUTO_RESTART,
-    DEFAULT_DEVICE_REPORT_UNKNOWN,
-    DEFAULT_DEVICE_RESTORE_STATE,
-    DEFAULT_DEVICE_RESET_TIMER,
-    DEFAULT_DEVICE_TRACK,
-    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
-    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
-    DEFAULT_DEVICE_USE_MEDIAN,
-    DEFAULT_DISCOVERY,
-    DEFAULT_LOG_SPIKES,
-    DEFAULT_PERIOD,
-    DEFAULT_REPORT_UNKNOWN,
-    DEFAULT_RESTORE_STATE,
-    DEFAULT_USE_MEDIAN,
-    DOMAIN,
-    PLATFORMS,
-    MAC_REGEX,
-    MANUFACTURER_DICT,
-    MEASUREMENT_DICT,
-    REPORT_UNKNOWN_LIST,
-    SERVICE_CLEANUP_ENTRIES,
-    SERVICE_PARSE_DATA,
-)
-
-from .bt_helpers import (
-    BT_INTERFACES,
-    BT_MULTI_SELECT,
-    DEFAULT_BT_INTERFACE,
-    reset_bluetooth
-)
-
-from .helper import (
-    config_validation_uuid,
-    identifier_clean,
-    dict_get_or,
-    dict_get_or_clean,
-)
+from .bt_helpers import (BT_INTERFACES, BT_MULTI_SELECT, DEFAULT_BT_INTERFACE,
+                         reset_bluetooth)
+from .const import (AES128KEY24_REGEX, AES128KEY32_REGEX,
+                    AUTO_BINARY_SENSOR_LIST, AUTO_MANUFACTURER_DICT,
+                    AUTO_SENSOR_LIST, CONF_ACTIVE_SCAN, CONF_BATT_ENTITIES,
+                    CONF_BT_AUTO_RESTART, CONF_BT_INTERFACE,
+                    CONF_DEVICE_ENCRYPTION_KEY, CONF_DEVICE_REPORT_UNKNOWN,
+                    CONF_DEVICE_RESET_TIMER, CONF_DEVICE_RESTORE_STATE,
+                    CONF_DEVICE_TRACK, CONF_DEVICE_TRACKER_CONSIDER_HOME,
+                    CONF_DEVICE_TRACKER_SCAN_INTERVAL, CONF_DEVICE_USE_MEDIAN,
+                    CONF_GATEWAY_ID, CONF_HCI_INTERFACE, CONF_LOG_SPIKES,
+                    CONF_PACKET, CONF_PERIOD, CONF_REPORT_UNKNOWN,
+                    CONF_RESTORE_STATE, CONF_USE_MEDIAN, CONF_UUID,
+                    CONFIG_IS_FLOW, DEFAULT_ACTIVE_SCAN, DEFAULT_BATT_ENTITIES,
+                    DEFAULT_BT_AUTO_RESTART, DEFAULT_DEVICE_REPORT_UNKNOWN,
+                    DEFAULT_DEVICE_RESET_TIMER, DEFAULT_DEVICE_RESTORE_STATE,
+                    DEFAULT_DEVICE_TRACK, DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
+                    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
+                    DEFAULT_DEVICE_USE_MEDIAN, DEFAULT_DISCOVERY,
+                    DEFAULT_LOG_SPIKES, DEFAULT_PERIOD, DEFAULT_REPORT_UNKNOWN,
+                    DEFAULT_RESTORE_STATE, DEFAULT_USE_MEDIAN, DOMAIN,
+                    MAC_REGEX, MANUFACTURER_DICT, MEASUREMENT_DICT, PLATFORMS,
+                    REPORT_UNKNOWN_LIST, SERVICE_CLEANUP_ENTRIES,
+                    SERVICE_PARSE_DATA)
+from .helper import (config_validation_uuid, dict_get_or, dict_get_or_clean,
+                     identifier_clean)
 
 _LOGGER = logging.getLogger(__name__)
 

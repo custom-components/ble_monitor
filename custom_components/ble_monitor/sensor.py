@@ -1,66 +1,32 @@
 """Passive BLE monitor sensor platform."""
-from datetime import timedelta
 import asyncio
 import logging
 import statistics as sts
+from datetime import timedelta
 
-from homeassistant.const import (
-    ATTR_BATTERY_LEVEL,
-    CONF_DEVICES,
-    CONF_NAME,
-    CONF_TEMPERATURE_UNIT,
-    CONF_UNIQUE_ID,
-    CONF_MAC,
-    UnitOfMass,
-    UnitOfTemperature,
-)
-
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.const import (ATTR_BATTERY_LEVEL, CONF_DEVICES, CONF_MAC,
+                                 CONF_NAME, CONF_TEMPERATURE_UNIT,
+                                 CONF_UNIQUE_ID, UnitOfMass, UnitOfTemperature)
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import StateType
-from homeassistant.components.sensor import SensorEntity
 from homeassistant.util import dt
 from homeassistant.util.unit_conversion import TemperatureConverter
 
-from .helper import (
-    identifier_normalize,
-    identifier_clean,
-    detect_conf_type,
-    dict_get_or,
-    dict_get_or_normalize,
-)
-
-from .const import (
-    AUTO_MANUFACTURER_DICT,
-    AUTO_SENSOR_LIST,
-    CONF_PERIOD,
-    CONF_UUID,
-    CONF_LOG_SPIKES,
-    CONF_USE_MEDIAN,
-    CONF_RESTORE_STATE,
-    CONF_DEVICE_USE_MEDIAN,
-    CONF_DEVICE_RESTORE_STATE,
-    CONF_DEVICE_RESET_TIMER,
-    CONF_TMIN,
-    CONF_TMAX,
-    CONF_TMIN_KETTLES,
-    CONF_TMAX_KETTLES,
-    CONF_TMIN_PROBES,
-    CONF_TMAX_PROBES,
-    CONF_HMIN,
-    CONF_HMAX,
-    DEFAULT_DEVICE_RESET_TIMER,
-    KETTLES,
-    MANUFACTURER_DICT,
-    MEASUREMENT_DICT,
-    PROBES,
-    RENAMED_FIRMWARE_DICT,
-    RENAMED_MANUFACTURER_DICT,
-    RENAMED_MODEL_DICT,
-    DOMAIN,
-    SENSOR_TYPES,
-    BLEMonitorSensorEntityDescription,
-)
+from .const import (AUTO_MANUFACTURER_DICT, AUTO_SENSOR_LIST,
+                    CONF_DEVICE_RESET_TIMER, CONF_DEVICE_RESTORE_STATE,
+                    CONF_DEVICE_USE_MEDIAN, CONF_HMAX, CONF_HMIN,
+                    CONF_LOG_SPIKES, CONF_PERIOD, CONF_RESTORE_STATE,
+                    CONF_TMAX, CONF_TMAX_KETTLES, CONF_TMAX_PROBES, CONF_TMIN,
+                    CONF_TMIN_KETTLES, CONF_TMIN_PROBES, CONF_USE_MEDIAN,
+                    CONF_UUID, DEFAULT_DEVICE_RESET_TIMER, DOMAIN, KETTLES,
+                    MANUFACTURER_DICT, MEASUREMENT_DICT, PROBES,
+                    RENAMED_FIRMWARE_DICT, RENAMED_MANUFACTURER_DICT,
+                    RENAMED_MODEL_DICT, SENSOR_TYPES,
+                    BLEMonitorSensorEntityDescription)
+from .helper import (detect_conf_type, dict_get_or, dict_get_or_normalize,
+                     identifier_clean, identifier_normalize)
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ broadcasted_properties:
   - rssi
 broadcasted_property_notes:
   - property: temperature probe 1
-    note: The external temperture probe is only available on the plus version of the Inkbird sensor. When the external probe is connected, the sensor will stop reporting the internal temperature.
+    note: The external temperature probe is only available on the plus version of the Inkbird sensor. When the external probe is connected, the sensor will stop reporting the internal temperature.
   - property: humidity
     note: Humidity is only reported by the internal sensor.
 broadcast_rate:

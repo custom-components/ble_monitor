@@ -2,10 +2,8 @@
 import logging
 import math
 from struct import unpack
-from .helpers import (
-    to_mac,
-    to_unformatted_mac,
-)
+
+from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
 

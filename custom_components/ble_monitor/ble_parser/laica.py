@@ -1,9 +1,7 @@
 """Parser for Laica Smart Scale BLE advertisements"""
 import logging
 
-from .helpers import (
-    to_unformatted_mac,
-)
+from .helpers import to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
 

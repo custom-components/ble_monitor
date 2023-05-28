@@ -1,10 +1,10 @@
 """BT helpers for ble_monitor."""
 import logging
 import time
-from btsocket import btmgmt_sync
-from btsocket import btmgmt_protocol
-from btsocket.btmgmt_socket import BluetoothSocketError
+
 import pyric.utils.rfkill as rfkill
+from btsocket import btmgmt_protocol, btmgmt_sync
+from btsocket.btmgmt_socket import BluetoothSocketError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -145,7 +145,7 @@ def reset_bluetooth(hci):
     pstate_after = adapter.powered
     if pstate_after is True:
         if pstate_before is False:
-            _LOGGER.warning("Bluetooth adapter hci%i successfuly turned back ON.", hci)
+            _LOGGER.warning("Bluetooth adapter hci%i successfully turned back ON.", hci)
         else:
             _LOGGER.debug("Power state of bluetooth adapter is ON after power cycle.")
     elif pstate_after is False:

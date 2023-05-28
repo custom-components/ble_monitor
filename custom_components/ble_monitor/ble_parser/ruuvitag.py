@@ -4,10 +4,7 @@ import logging
 import math
 from struct import unpack
 
-from .helpers import (
-    to_mac,
-    to_unformatted_mac,
-)
+from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,7 +33,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                     encoded = encoded[:8]
                 decoded = bytearray(base64.b64decode(encoded, "-_"))
 
-                (version, humi, temp, frac, pres) = unpack(">BBbBH", decoded)
+                (version, humi, temp, frac, press) = unpack(">BBbBH", decoded)
 
                 temp_val = (temp & 127) + frac / 100
                 sign = (temp >> 7) & 1
@@ -48,7 +45,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                     {
                         "humidity": humi * 0.5,
                         "temperature": temperature,
-                        "pressure": round((pres + 50000) / 100, 2),
+                        "pressure": round((press + 50000) / 100, 2),
                         "firmware": "Ruuvitag V" + str(version),
                         "packet": "no packet id",
                         "data": True,
@@ -66,7 +63,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
             version = data[4]
             if version == 3:
                 # Ruuvitag V3 format
-                (version, humi, temp, frac, pres, accx, accy, accz, volt) = unpack(
+                (version, humi, temp, frac, press, accx, accy, accz, volt) = unpack(
                     ">BBbBHhhhH", data[4:18]
                 )
 
@@ -88,7 +85,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                     {
                         "humidity": humi * 0.5,
                         "temperature": temperature,
-                        "pressure": round((pres + 50000) / 100, 2),
+                        "pressure": round((press + 50000) / 100, 2),
                         "acceleration": math.sqrt(accx ** 2 + accy ** 2 + accz ** 2),
                         "acceleration x": accx,
                         "acceleration y": accy,
@@ -101,7 +98,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                 )
             elif version == 5:
                 # Ruuvitag V5 format
-                (version, temp, humi, pres, accx, accy, accz, power, move_cnt, packet_id) = unpack(
+                (version, temp, humi, press, accx, accy, accz, power, move_cnt, packet_id) = unpack(
                     ">BhHHhhhHBH", data[4:22]
                 )
 
@@ -136,7 +133,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                     {
                         "temperature": round(temp / 200, 2),
                         "humidity": round(humi / 400, 2),
-                        "pressure": round((pres + 50000) / 100, 2),
+                        "pressure": round((press + 50000) / 100, 2),
                         "acceleration": math.sqrt(accx ** 2 + accy ** 2 + accz ** 2),
                         "acceleration x": accx,
                         "acceleration y": accy,

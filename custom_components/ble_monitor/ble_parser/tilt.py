@@ -2,27 +2,11 @@
 import logging
 from struct import unpack
 
-from .const import (
-    CONF_MAC,
-    CONF_TYPE,
-    CONF_PACKET,
-    CONF_FIRMWARE,
-    CONF_DATA,
-    CONF_RSSI,
-    CONF_UUID,
-    CONF_TRACKER_ID,
-    CONF_MAJOR,
-    CONF_MINOR,
-    CONF_MEASURED_POWER,
-    CONF_TEMPERATURE,
-    CONF_GRAVITY,
-    TILT_TYPES,
-)
-from .helpers import (
-    to_mac,
-    to_uuid,
-    to_unformatted_mac,
-)
+from .const import (CONF_DATA, CONF_FIRMWARE, CONF_GRAVITY, CONF_MAC,
+                    CONF_MAJOR, CONF_MEASURED_POWER, CONF_MINOR, CONF_PACKET,
+                    CONF_RSSI, CONF_TEMPERATURE, CONF_TRACKER_ID, CONF_TYPE,
+                    CONF_UUID, TILT_TYPES)
+from .helpers import to_mac, to_unformatted_mac, to_uuid
 
 _LOGGER = logging.getLogger(__name__)
 

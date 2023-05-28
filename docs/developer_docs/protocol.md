@@ -8,7 +8,7 @@ nav_order: 2
 
 ## Reverse engineering the MiBeacon protocol
 
-With the `report_unknown` option, you can collect information about new devices that are not supported yet. An example of the LYWSDCGQ sensor is given below. This sensor supports Temperature, Humidity and battery level and is not encrypted. Enabling this option will genereate a lot of output in the logs, which look like this.
+With the `report_unknown` option, you can collect information about new devices that are not supported yet. An example of the LYWSDCGQ sensor is given below. This sensor supports Temperature, Humidity and battery level and is not encrypted. Enabling this option will generate a lot of output in the logs, which look like this.
 
 `2020-12-23 17:42:12 INFO (Thread-3) [custom_components.ble_monitor] BLE ADV from UNKNOWN: RSSI: -53, MAC: 4C65A8DDB89B, ADV: 043e25020100009bb8dda8654c19020106151695fe5020aa01fe9bb8dda8654c0d1004b2007502cb`
 
@@ -89,7 +89,7 @@ type code    evt rep type addr                             flag         type  UU
 ### Explanation of the data
 
 - A HCI Packet Type: HCI Event (`0x04`)
-- B Event Code: LE Mata (`0x3e`)
+- B Event Code: LE Data (`0x3e`)
 - C Total length of the advertisement (37)
 - D Sub Event: LE Advertising report (`0x02`)
 - E Num Reports: 1

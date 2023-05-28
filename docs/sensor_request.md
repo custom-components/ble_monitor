@@ -8,7 +8,7 @@ has_children: true
 
 ## Request support for new sensor
 
-To be able to add support for a new sensor, we need some info from the device you want us to add. The most important info we need are some examples of the BLE advertisement data that the sensor is sending. There are multiple ways to get this data, we explain two possibilities, one posibility is with the logger in Home Assistant and another option is creating a HCIdump.
+To be able to add support for a new sensor, we need some info from the device you want us to add. The most important info we need are some examples of the BLE advertisement data that the sensor is sending. There are multiple ways to get this data, we explain two possibilities, one possibility is with the logger in Home Assistant and another option is creating a HCIdump.
 
 ### Getting BLE advertisements with the Home Assistant logger
 

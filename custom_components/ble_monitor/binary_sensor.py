@@ -1,52 +1,25 @@
 """Passive BLE monitor binary sensor platform."""
-from datetime import timedelta
 import asyncio
 import logging
+from datetime import timedelta
 
-from homeassistant.components.binary_sensor import (
-    BinarySensorEntity
-)
-
-from homeassistant.const import (
-    CONF_DEVICES,
-    CONF_NAME,
-    CONF_MAC,
-    CONF_UNIQUE_ID,
-    ATTR_BATTERY_LEVEL,
-    STATE_OFF,
-    STATE_ON,
-)
+from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.const import (ATTR_BATTERY_LEVEL, CONF_DEVICES, CONF_MAC,
+                                 CONF_NAME, CONF_UNIQUE_ID, STATE_OFF,
+                                 STATE_ON)
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import dt
 
-from .helper import (
-    identifier_normalize,
-    identifier_clean,
-    detect_conf_type,
-    dict_get_or,
-    dict_get_or_normalize,
-)
-
-from .const import (
-    AUTO_MANUFACTURER_DICT,
-    AUTO_BINARY_SENSOR_LIST,
-    CONF_PERIOD,
-    CONF_RESTORE_STATE,
-    CONF_DEVICE_RESTORE_STATE,
-    CONF_DEVICE_RESET_TIMER,
-    CONF_UUID,
-    DEFAULT_DEVICE_RESET_TIMER,
-    KETTLES,
-    MANUFACTURER_DICT,
-    MEASUREMENT_DICT,
-    RENAMED_FIRMWARE_DICT,
-    RENAMED_MANUFACTURER_DICT,
-    RENAMED_MODEL_DICT,
-    BINARY_SENSOR_TYPES,
-    DOMAIN,
-    BLEMonitorBinarySensorEntityDescription,
-)
+from .const import (AUTO_BINARY_SENSOR_LIST, AUTO_MANUFACTURER_DICT,
+                    BINARY_SENSOR_TYPES, CONF_DEVICE_RESET_TIMER,
+                    CONF_DEVICE_RESTORE_STATE, CONF_PERIOD, CONF_RESTORE_STATE,
+                    CONF_UUID, DEFAULT_DEVICE_RESET_TIMER, DOMAIN, KETTLES,
+                    MANUFACTURER_DICT, MEASUREMENT_DICT, RENAMED_FIRMWARE_DICT,
+                    RENAMED_MANUFACTURER_DICT, RENAMED_MODEL_DICT,
+                    BLEMonitorBinarySensorEntityDescription)
+from .helper import (detect_conf_type, dict_get_or, dict_get_or_normalize,
+                     identifier_clean, identifier_normalize)
 
 _LOGGER = logging.getLogger(__name__)
 

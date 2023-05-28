@@ -64,7 +64,7 @@ When plugin installation is complete, open a browser to http://0.0.0.0:4000/ble_
 ## Notes about theme being used.
 
 * Values are displayed through the device HTML template, `docs/_includes/device.html`
-* Addtional notes can be added below the block of properties.
+* Additional notes can be added below the block of properties.
 * Additional properties can be added as needed.  Simply add to the property to each device markdown file and display it accordingly in the template.
 * `physical_description`, `broadcast_rate`, `active_scan`, `encryption_key`, `custom_firmware` are hidden when the value is false.
 

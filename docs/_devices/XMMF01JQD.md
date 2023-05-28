@@ -9,7 +9,7 @@ broadcasted_properties:
   - rssi
 broadcasted_property_notes:
   - property: button
-    note: Possible states are 'left' and 'right', corresponding to the directon you rotate the cube. No edge information is available, only the direction, as this edge info is only available after connecting to the cube. This is not supported in BLE monitor.
+    note: Possible states are 'left' and 'right', corresponding to the direction you rotate the cube. No edge information is available, only the direction, as this edge info is only available after connecting to the cube. This is not supported in BLE monitor.
 broadcast_rate:
 active_scan:
 encryption_key: true

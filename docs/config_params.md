@@ -128,7 +128,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    **Report unknown sensors**
 
-   (`Off`, `Acconeer`, `Air Mentor`, `Amazfit`, `ATC`, `BlueMaestro`, `Blustream`, `Brifit`, `BTHome`, `Govee`, `Hormann`, `HHCC`, `iNode`, `iBeacon`, `Jinou`, `Kegtron`, `Mi Scale`, `Mi Band`,`Mikrotik`, `Oras`, `Qingping`, `Relsib`, `rbaron`, `Ruuvitag`, `Sensirion`, `SensorPush`, `SmartDry`, `Switchbot`, `Teltonika`, `Thermoplus`, `Xiaogui`, `Xiaomi`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](devices). If you set this parameter to one of the sensor brands, then the component will log all messages from unknown devices of the specified brand to the Home Assitant log (`logger` component must be enabled at info level, see for instructions the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)). Using a sensor brand might not catch all BLE advertisements.
+   (`Off`, `Acconeer`, `Air Mentor`, `Amazfit`, `ATC`, `BlueMaestro`, `Blustream`, `Brifit`, `BTHome`, `Govee`, `Hormann`, `HHCC`, `iNode`, `iBeacon`, `Jinou`, `Kegtron`, `Mi Scale`, `Mi Band`,`Mikrotik`, `Oras`, `Qingping`, `Relsib`, `rbaron`, `Ruuvitag`, `Sensirion`, `SensorPush`, `SmartDry`, `Switchbot`, `Teltonika`, `Thermoplus`, `Xiaogui`, `Xiaomi`, `Other` or `False`)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](devices). If you set this parameter to one of the sensor brands, then the component will log all messages from unknown devices of the specified brand to the Home Assistant log (`logger` component must be enabled at info level, see for instructions the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)). Using a sensor brand might not catch all BLE advertisements.
 
    If you can't find the advertisements in this way, you can set this option to `Other`, which will result is all BLE advertisements being logged. You can also enable this option at device level. **Attention!** Enabling this option can lead to huge output to the Home Assistant log, especially when set to `Other`, do not enable it if you do not need it! If you know the MAC address of the sensor, its advised to set this option at device level. Details in the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation). Default value: `Off`
 
@@ -145,7 +145,7 @@ Data from sensors with other addresses will be ignored. Default value: True
 
   ![device setup]({{site.baseurl}}/assets/images/device_screen.png)
 
-#### Configuraton in YAML
+#### Configuration in YAML
 
    To add a device, add the following to your `configuration.yaml`
 
@@ -184,9 +184,9 @@ ble_monitor:
 
 ### name
 
-   When using configuration in the User Interface, you can modify the device name by opening your device, via configuration, integrations and clicking on devices on the BLE monitor tile. Select the device you want to change the name of and click on the cogwheel in the topright corner, where you can change the name. You will get a question wether you want to rename the individual entities of this device as well (normally, it is advised to do this).
+   When using configuration in the User Interface, you can modify the device name by opening your device, via configuration, integrations and clicking on devices on the BLE monitor tile. Select the device you want to change the name of and click on the cogwheel in the topright corner, where you can change the name. You will get a question whether you want to rename the individual entities of this device as well (normally, it is advised to do this).
 
-   (string)(Optional) When using YAML, you can use the `name` option to link a device name and sensor name to the mac-address of the device. Using this option (or changing a name) will create new sensor/tracker entities. The old data won't be transfered to the new sensor/tracker. The old sensor/tracker entities can be safely deleted afterwards, but this has to be done manually at the moment, see the instructions [in the FAQ](faq#how-to-remove-devices-and-sensors). The sensors/trackers are named with the following convention: `sensor.ble_sensortype_device_name` (e.g. `sensor.ble_temperature_livingroom`) in stead of the default `ble_sensortype_mac` (e.g. `sensor.ble_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. Default value: Empty
+   (string)(Optional) When using YAML, you can use the `name` option to link a device name and sensor name to the mac-address of the device. Using this option (or changing a name) will create new sensor/tracker entities. The old data won't be transferred to the new sensor/tracker. The old sensor/tracker entities can be safely deleted afterwards, but this has to be done manually at the moment, see the instructions [in the FAQ](faq#how-to-remove-devices-and-sensors). The sensors/trackers are named with the following convention: `sensor.ble_sensortype_device_name` (e.g. `sensor.ble_temperature_livingroom`) in stead of the default `ble_sensortype_mac` (e.g. `sensor.ble_temperature_A4C1382F86C`). You will have to update your lovelace cards, automation and scripts after each change. Note that you can still override the entity_id from the UI. Default value: Empty
 
 ```yaml
 ble_monitor:
@@ -258,7 +258,7 @@ ble_monitor:
 
 ### reset_timer
 
-   (possitive integer)(Optional) This option sets the time (in seconds) after which a sensor is reset to `motion clear` (motion sensors) or `no press` (button and dimmer sensors). After each `motion detected` advertisement or `button/dimmer press`, the timer starts counting down again. Setting this option to 0 seconds will turn this resetting behavior off.
+   (positive integer)(Optional) This option sets the time (in seconds) after which a sensor is reset to `motion clear` (motion sensors) or `no press` (button and dimmer sensors). After each `motion detected` advertisement or `button/dimmer press`, the timer starts counting down again. Setting this option to 0 seconds will turn this resetting behavior off.
 
    Note that motion sensors also sends advertisements themselves that can overrule this setting. To our current knowledge, advertisements after 30 seconds of no motion send by the sensor are `motion clear` messages, advertisements within 30 seconds are `motion detected` messages. For button and dimmer sensors, it is advised to set the `reset_timer` to 1 second. Default value: 35
 
@@ -271,7 +271,7 @@ ble_monitor:
 
 ### report_unknown (device level)
 
-   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](devices). If you enable this parameter, then the component will log all messages from the MAC address or UUID in the Home Assitant log (`logger` component must be enabled at info level, see for instructions the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)). Default value: False
+   (boolean)(Optional) This option is needed primarily for those who want to request an implementation of device support that is not in the list of [supported sensors](devices). If you enable this parameter, then the component will log all messages from the MAC address or UUID in the Home Assistant log (`logger` component must be enabled at info level, see for instructions the [FAQ](faq#my-sensor-from-the-xiaomi-ecosystem-is-not-in-the-list-of-supported-ones-how-to-request-implementation)). Default value: False
 
 
 ```yaml

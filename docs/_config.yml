@@ -74,4 +74,4 @@ collections:
     permalink: "/:collection/:path/"
     output: true
 
-request_new_devices_msg: '<div class="request_new_devices_msg"><div class="open-issue">Support for additional sensors can be requested by <a href="https://github.com/custom-components/ble_monitor/issues">opening an issue</a>.</div><div>Check the <a href="sensor_request">Senor Request page</a> on how to provide usefull information for adding new sensors.</div></div>'
+request_new_devices_msg: '<div class="request_new_devices_msg"><div class="open-issue">Support for additional sensors can be requested by <a href="https://github.com/custom-components/ble_monitor/issues">opening an issue</a>.</div><div>Check the <a href="sensor_request">Senor Request page</a> on how to provide useful information for adding new sensors.</div></div>'

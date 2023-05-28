@@ -22,7 +22,7 @@ broadcasted_property_notes:
       `key id` is an id number. For the fingerprint sensor, it can also be `administrator` or `unknown operator`
   - property: action
     note: >
-      `action` shows the last change in of the lock and can have the followng values:
+      `action` shows the last change in of the lock and can have the following values:
         * unlock outside the door
         * lock
         * turn on anti-lock
