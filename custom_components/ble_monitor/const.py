@@ -305,6 +305,16 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         force_update=False,
     ),
     BLEMonitorBinarySensorEntityDescription(
+        key="vibration",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="ble vibration",
+        unique_id="vi_",
+        icon="mdi:vibration",
+        device_class=BinarySensorDeviceClass.VIBRATION,
+        force_update=True,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
         key="dropping",
         sensor_class="BaseBinarySensor",
         update_behavior="Instantly",
@@ -1290,6 +1300,7 @@ MEASUREMENT_DICT = {
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
+    'HolyIOT BLE tracker'     : [["battery", "rssi"], [], ["remote single press", "vibration"]],
 }
 
 # Sensor manufacturer dictionary
@@ -1420,6 +1431,7 @@ MANUFACTURER_DICT = {
     'Acconeer XM122'          : 'Acconeer',
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
+    'HolyIOT BLE tracker'     : 'HolyIOT',
 }
 
 

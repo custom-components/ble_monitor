@@ -16,6 +16,7 @@ from .govee import parse_govee
 from .helpers import to_mac, to_unformatted_mac
 from .bthome import parse_bthome
 from .hhcc import parse_hhcc
+from .holyiot import parse_holyiot
 from .hormann import parse_hormann
 from .ibeacon import parse_ibeacon
 from .inkbird import parse_inkbird
@@ -206,6 +207,10 @@ class BleParser:
                     elif uuid16 in [0x181C, 0x181E]:
                         # UUID16 = User Data and Bond Management (used by BTHome)
                         sensor_data = parse_bthome(self, service_data, uuid16, mac, rssi)
+                        break
+                    elif uuid16 == 0x5242:
+                        # UUID16 = HolyIOT
+                        sensor_data = parse_holyiot(self, service_data, mac, rssi)
                         break
                     elif uuid16 in [0xAA20, 0xAA21, 0xAA22] and local_name == "ECo":
                         # UUID16 = Relsib
