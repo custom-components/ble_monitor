@@ -95,7 +95,7 @@ AES128KEY24_REGEX = "(?i)^[A-F0-9]{24}$"
 # MiBeacon V4/V5 uses 32 character long key
 AES128KEY32_REGEX = "(?i)^[A-F0-9]{32}$"
 
-"""Fixed constants."""
+# Fixed constants
 
 # Sensor measurement limits to exclude erroneous spikes from the results (temperature in °C)
 CONF_TMIN = -40.0
