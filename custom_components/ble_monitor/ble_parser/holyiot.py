@@ -26,12 +26,27 @@ def parse_holyiot(self, data, source_mac, rssi):
             return None
         batt = data[5]
         meas_type = data[14]
-        meas_value, = unpack(">H", data[15:17])
 
-        if meas_type == 4:
+        if meas_type == 0:
+            return None
+        elif meas_type == 1:
+            measurement_type = "temperature"
+            meas_value = data[15] + data[16]/100
+        elif meas_type == 2:
+            measurement_type = "pressure"
+            meas_value, = 8000 + unpack(">H", data[15:17])
+        elif meas_type == 3:
+            measurement_type = "humidity"
+            meas_value = data[15]
+        elif meas_type == 4:
             measurement_type = "vibration"
+            meas_value = data[15]
+        elif meas_type == 5:
+            measurement_type = "side"
+            meas_value = data[15]
         elif meas_type == 6:
             measurement_type = "remote single press"
+            meas_value = data[15]
         else:
             return None
         result.update(
