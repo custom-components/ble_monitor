@@ -32,7 +32,10 @@ def parse_holyiot(self, data, source_mac, rssi):
         elif meas_type == 1:
             measurement_type = "temperature"
             value, fraction = unpack(">bB", data[15:17])
-            meas_value = value + fraction / 100
+            if value >= 0:
+                meas_value = value + fraction / 100
+            else:
+                meas_value = value - fraction / 100
         elif meas_type == 2:
             measurement_type = "pressure"
             value, = unpack(">h", data[15:17])
