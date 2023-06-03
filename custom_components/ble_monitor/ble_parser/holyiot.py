@@ -39,7 +39,7 @@ def parse_holyiot(self, data, source_mac, rssi):
         elif meas_type == 2:
             measurement_type = "pressure"
             value, = unpack(">h", data[15:17])
-            meas_value = 8000 + value
+            meas_value = 80000 + value
         elif meas_type == 3:
             measurement_type = "humidity"
             meas_value = data[15]
