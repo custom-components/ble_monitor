@@ -1287,7 +1287,6 @@ MEASUREMENT_DICT = {
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
-    'HolyIOT BLE tracker'     : [["battery", "rssi"], [], ["remote single press", "vibration"]],
 }
 
 # Sensor manufacturer dictionary
@@ -1418,7 +1417,6 @@ MANUFACTURER_DICT = {
     'Acconeer XM122'          : 'Acconeer',
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
-    'HolyIOT BLE tracker'     : 'HolyIOT',
 }
 
 
@@ -1478,6 +1476,7 @@ AUTO_MANUFACTURER_DICT = {
     'Electra Washbasin Faucet': 'Oras',
     'Supramatic E4 BS'        : 'Hörmann',
     'Blustream'               : 'Blustream',
+    'HolyIOT BLE tracker'     : 'HolyIOT',
 }
 
 
@@ -1494,6 +1493,7 @@ AUTO_BINARY_SENSOR_LIST = [
     "smoke",
     "switch",
     "tilt",
+    "vibration",
 ]
 
 
@@ -1501,6 +1501,7 @@ AUTO_BINARY_SENSOR_LIST = [
 AUTO_SENSOR_LIST = [
     "acceleration",
     "battery",
+    "button",
     "co2",
     "conductivity",
     "count",
@@ -1540,6 +1541,7 @@ REPORT_UNKNOWN_LIST = [
     "BTHome",
     "Govee",
     "HHCC",
+    'HolyIOT',
     "Hormann",
     "Inkbird",
     "iNode",

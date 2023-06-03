@@ -103,5 +103,5 @@ class TestHolyIOT:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["battery"] == 100
-        assert sensor_msg["remote single press"]
+        assert sensor_msg["button"] == "toggle"
         assert sensor_msg["rssi"] == -52

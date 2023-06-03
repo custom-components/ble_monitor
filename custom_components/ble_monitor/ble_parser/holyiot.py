@@ -50,8 +50,11 @@ def parse_holyiot(self, data, source_mac, rssi):
             measurement_type = "side"
             meas_value = data[15]
         elif meas_type == 6:
-            measurement_type = "remote single press"
-            meas_value = data[15]
+            measurement_type = "button"
+            if data[15] == 1:
+                meas_value = "toggle"
+            else:
+                return None
         else:
             return None
         result.update(
