@@ -2,7 +2,7 @@
 import base64
 import logging
 import math
-from struct import unpack
+import struct
 
 from .helpers import to_mac, to_unformatted_mac
 
@@ -33,7 +33,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                     encoded = encoded[:8]
                 decoded = bytearray(base64.b64decode(encoded, "-_"))
 
-                (version, humi, temp, frac, press) = unpack(">BBbBH", decoded)
+                (version, humi, temp, frac, press) = struct.unpack(">BBbBH", decoded)
 
                 temp_val = (temp & 127) + frac / 100
                 sign = (temp >> 7) & 1
@@ -51,8 +51,8 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                         "data": True,
                     }
                 )
-            except base64.binascii.Error:
-                _LOGGER.debug("Encoded value: %s not valid", encoded)
+            except (base64.binascii.Error, struct.error):
+                _LOGGER.debug("Encoded value: %s from data: %s not valid", encoded, data.hex())
                 return None
         else:
             result = None
@@ -63,7 +63,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
             version = data[4]
             if version == 3:
                 # Ruuvitag V3 format
-                (version, humi, temp, frac, press, accx, accy, accz, volt) = unpack(
+                (version, humi, temp, frac, press, accx, accy, accz, volt) = struct.unpack(
                     ">BBbBHhhhH", data[4:18]
                 )
 
@@ -98,7 +98,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                 )
             elif version == 5:
                 # Ruuvitag V5 format
-                (version, temp, humi, press, accx, accy, accz, power, move_cnt, packet_id) = unpack(
+                (version, temp, humi, press, accx, accy, accz, power, move_cnt, packet_id) = struct.unpack(
                     ">BhHHhhhHBH", data[4:22]
                 )
 
