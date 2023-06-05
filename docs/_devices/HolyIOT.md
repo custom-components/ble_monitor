@@ -12,7 +12,6 @@ broadcasted_properties:
   - pressure
   - button
   - vibration
-  - side
 broadcasted_property_notes:
   - property: button
     note: press types are 'toggle' or 'no press'

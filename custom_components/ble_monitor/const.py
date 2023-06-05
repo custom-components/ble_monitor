@@ -297,7 +297,7 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         update_behavior="Instantly",
         name="ble vibration",
         unique_id="vi_",
-        icon="mdi:vibration",
+        icon="mdi:vibrate",
         device_class=BinarySensorDeviceClass.VIBRATION,
         force_update=True,
     ),
