@@ -1,47 +1,25 @@
 """Passive BLE monitor device tracker platform."""
-from datetime import timedelta
 import asyncio
 import logging
+from datetime import timedelta
 
 from homeassistant.components.device_tracker import SourceType
-
 from homeassistant.components.device_tracker.config_entry import ScannerEntity
-
-from homeassistant.const import (
-    CONF_DEVICES,
-    CONF_NAME,
-    CONF_UNIQUE_ID,
-    CONF_MAC,
-    STATE_HOME,
-    STATE_NOT_HOME,
-)
-
-from homeassistant.helpers.event import async_call_later
+from homeassistant.const import (CONF_DEVICES, CONF_MAC, CONF_NAME,
+                                 CONF_UNIQUE_ID, STATE_HOME, STATE_NOT_HOME)
 from homeassistant.helpers import device_registry
+from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import dt
 
-from .helper import (
-    identifier_normalize,
-    identifier_clean,
-    detect_conf_type,
-    dict_get_or,
-)
-
-from .const import (
-    CONF_RESTORE_STATE,
-    CONF_DEVICE_RESTORE_STATE,
-    CONF_DEVICE_TRACK,
-    CONF_DEVICE_TRACKER_SCAN_INTERVAL,
-    CONF_DEVICE_TRACKER_CONSIDER_HOME,
-    CONF_PERIOD,
-    CONF_GATEWAY_ID,
-    CONF_UUID,
-    DEFAULT_DEVICE_TRACK,
-    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
-    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
-    DOMAIN,
-)
+from .const import (CONF_DEVICE_RESTORE_STATE, CONF_DEVICE_TRACK,
+                    CONF_DEVICE_TRACKER_CONSIDER_HOME,
+                    CONF_DEVICE_TRACKER_SCAN_INTERVAL, CONF_GATEWAY_ID,
+                    CONF_PERIOD, CONF_RESTORE_STATE, CONF_UUID,
+                    DEFAULT_DEVICE_TRACK, DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
+                    DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL, DOMAIN)
+from .helper import (detect_conf_type, dict_get_or, identifier_clean,
+                     identifier_normalize)
 
 RESTORE_ATTRIBUTES = [
     'rssi',
@@ -187,7 +165,7 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
         self._fkey = identifier_normalize(key)
         self._device_settings = self.get_device_settings()
         self._device_name = self._device_settings["name"]
-        self._name = "ble tracker {}".format(self._device_name)
+        self._name = f"ble tracker {self._device_name}"
         self._state = None
         self._extra_state_attributes = {}
         self._unique_id = "ble_tracker_" + self._device_name

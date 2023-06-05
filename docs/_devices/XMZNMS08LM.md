@@ -20,7 +20,7 @@ broadcasted_property_notes:
     note: The state of the lock depends on the last `action`. The lock entity has five extra attributes, `action`, `method`, `error` and `key id` and `timestamp`
   - property: action
     note: >
-      `action` shows the last change of the lock (displayed as an attribute of the lock sensor) and can have the followng values:
+      `action` shows the last change of the lock (displayed as an attribute of the lock sensor) and can have the following values:
         * unlock outside the door
         * lock
         * turn on anti-lock
@@ -59,7 +59,7 @@ broadcasted_property_notes:
     note: The door entity has one extra attributes `door action`.
   - property: door action
     note: >
-      `door action` shows the last change in of the door state (displayed as an attribute of the door sensor) and can have the followng values:
+      `door action` shows the last change in of the door state (displayed as an attribute of the door sensor) and can have the following values:
         * open the door
         * close the door
         * timeout, not closed

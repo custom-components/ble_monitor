@@ -1,10 +1,7 @@
 """Parser for Sensirion BLE advertisements"""
 import logging
 
-from .helpers import (
-    to_mac,
-    to_unformatted_mac,
-)
+from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -67,12 +64,9 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
         _LOGGER.debug("Advertisement Type %s not supported ", advertisementType)
         return None
 
-
-'''
-The following functions are based on Sensirion_GadgetBle_Lib.cpp from  https://github.com/Sensirion/arduino-ble-gadget/
-support from other devices should be easily added by looking at GadgetBle::setDataType and updating _parse_data_type
-accordingly. Note that the device name also has to be added to the SENSIRION_DEVICES list.
-'''
+# The following functions are based on Sensirion_GadgetBle_Lib.cpp from  https://github.com/Sensirion/arduino-ble-gadget/
+# support from other devices should be easily added by looking at GadgetBle::setDataType and updating _parse_data_type
+# accordingly. Note that the device name also has to be added to the SENSIRION_DEVICES list.
 
 
 def _parse_data_type(advSampleType, byte_data):

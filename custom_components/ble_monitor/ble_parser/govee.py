@@ -2,10 +2,7 @@
 import logging
 from struct import unpack
 
-from .helpers import (
-    to_mac,
-    to_unformatted_mac,
-)
+from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -202,7 +199,7 @@ def parse_govee(self, data, service_class_uuid16, source_mac, rssi):
                 "low temperature alarm probe 4": decode_temps_probes(low_temp_alarm_second),
             })
         else:
-            _LOGGER.debug("Unkown sensor id found for Govee H5198. Data %s", data.hex())
+            _LOGGER.debug("Unknown sensor id found for Govee H5198. Data %s", data.hex())
             return None
     else:
         if self.report_unknown == "Govee":

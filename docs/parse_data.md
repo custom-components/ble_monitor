@@ -12,7 +12,7 @@ nav_order: 5
 
 ### ESPHome BLE Gateway
 
-It is possible to extend the Bluetooth range of your Home Assistant device / BLE monitor, by using an ESPHome device with ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway). An ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) device is able to receive BLE advertisements and will forward the messages over Wifi to your Home Assistant device with BLE monotir. BLE monitor has a built in service to parse the incoming BLE advertisements from your ESPHome device, just like the BLE advertisemetns that are received with a Bluetooth dongle.
+It is possible to extend the Bluetooth range of your Home Assistant device / BLE monitor, by using an ESPHome device with ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway). An ESPHome [BLE Gateway](https://github.com/myhomeiot/esphome-components#ble-gateway) device is able to receive BLE advertisements and will forward the messages over Wifi to your Home Assistant device with BLE monitor. BLE monitor has a built in service to parse the incoming BLE advertisements from your ESPHome device, just like the BLE advertisemetns that are received with a Bluetooth dongle.
 
 ### Why isn't BLE monitor working with ESPHome Bluetooth Proxies?
 

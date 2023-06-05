@@ -4,31 +4,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from homeassistant.components.binary_sensor import (
-    BinarySensorDeviceClass,
-    BinarySensorEntityDescription,
-)
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntityDescription,
-    SensorStateClass,
-)
-from homeassistant.const import (
-    CONCENTRATION_PARTS_PER_MILLION,
-    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
-    CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER,
-    CONDUCTIVITY,
-    LIGHT_LUX,
-    PERCENTAGE,
-    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
-    Platform,
-    UnitOfElectricPotential,
-    UnitOfEnergy,
-    UnitOfMass,
-    UnitOfPower,
-    UnitOfPressure,
-    UnitOfTemperature,
-    UnitOfVolume,
-)
+    BinarySensorDeviceClass, BinarySensorEntityDescription)
+from homeassistant.components.sensor import (SensorDeviceClass,
+                                             SensorEntityDescription,
+                                             SensorStateClass)
+from homeassistant.const import (CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+                                 CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER,
+                                 CONCENTRATION_PARTS_PER_MILLION, CONDUCTIVITY,
+                                 LIGHT_LUX, PERCENTAGE,
+                                 SIGNAL_STRENGTH_DECIBELS_MILLIWATT, Platform,
+                                 UnitOfElectricPotential, UnitOfEnergy,
+                                 UnitOfMass, UnitOfPower, UnitOfPressure,
+                                 UnitOfTemperature, UnitOfVolume)
 from homeassistant.helpers.entity import EntityCategory
 
 DOMAIN = "ble_monitor"
@@ -95,7 +82,7 @@ AES128KEY24_REGEX = "(?i)^[A-F0-9]{24}$"
 # MiBeacon V4/V5 uses 32 character long key
 AES128KEY32_REGEX = "(?i)^[A-F0-9]{32}$"
 
-"""Fixed constants."""
+# Fixed constants
 
 # Sensor measurement limits to exclude erroneous spikes from the results (temperature in °C)
 CONF_TMIN = -40.0
@@ -303,6 +290,16 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         icon="mdi:rotate-orbit",
         device_class=None,
         force_update=False,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="vibration",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="ble vibration",
+        unique_id="vi_",
+        icon="mdi:vibrate",
+        device_class=BinarySensorDeviceClass.VIBRATION,
+        force_update=True,
     ),
     BLEMonitorBinarySensorEntityDescription(
         key="dropping",
@@ -1479,6 +1476,7 @@ AUTO_MANUFACTURER_DICT = {
     'Electra Washbasin Faucet': 'Oras',
     'Supramatic E4 BS'        : 'Hörmann',
     'Blustream'               : 'Blustream',
+    'HolyIOT BLE tracker'     : 'HolyIOT',
 }
 
 
@@ -1495,6 +1493,7 @@ AUTO_BINARY_SENSOR_LIST = [
     "smoke",
     "switch",
     "tilt",
+    "vibration",
 ]
 
 
@@ -1502,6 +1501,7 @@ AUTO_BINARY_SENSOR_LIST = [
 AUTO_SENSOR_LIST = [
     "acceleration",
     "battery",
+    "button",
     "co2",
     "conductivity",
     "count",
@@ -1541,6 +1541,7 @@ REPORT_UNKNOWN_LIST = [
     "BTHome",
     "Govee",
     "HHCC",
+    'HolyIOT',
     "Hormann",
     "Inkbird",
     "iNode",

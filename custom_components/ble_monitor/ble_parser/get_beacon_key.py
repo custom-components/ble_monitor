@@ -14,11 +14,11 @@
 # Example:
 #   python3 get_beacon_key.py AB:CD:EF:12:34:56 950
 
-from bluepy.btle import UUID, Peripheral, DefaultDelegate
-
 import random
 import re
 import sys
+
+from bluepy.btle import UUID, DefaultDelegate, Peripheral
 
 MAC_PATTERN = r"^[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}$"
 

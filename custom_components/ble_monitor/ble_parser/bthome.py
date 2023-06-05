@@ -2,13 +2,11 @@
 import logging
 import struct
 from typing import Any
+
 from Cryptodome.Cipher import AES
 
 from .bthome_const import MEAS_TYPES
-from .helpers import (
-    to_mac,
-    to_unformatted_mac,
-)
+from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
 

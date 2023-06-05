@@ -17,7 +17,7 @@ broadcasted_properties:
   - rssi
 broadcasted_property_notes:
   - property: fingerprint
-    note: The fingerprint sensor is `On` if the fingerprint scan was succesful, otherwise it is `Off` The fingerprint entity has two extra attributes, `result` and `key id`.
+    note: The fingerprint sensor is `On` if the fingerprint scan was successful, otherwise it is `Off` The fingerprint entity has two extra attributes, `result` and `key id`.
   - property: result
     note: >
       `result` shows the result of the last fingerprint reading and can have the following values:
@@ -35,7 +35,7 @@ broadcasted_property_notes:
     note: The state of the lock depends on the last `action`. The lock entity has five extra attributes, `action`, `method`, `error` and `key id` and `timestamp`
   - property: action
     note: >
-      `action` shows the last change of the lock and can have the followng values:
+      `action` shows the last change of the lock and can have the following values:
         * unlock outside the door
         * lock
         * turn on anti-lock

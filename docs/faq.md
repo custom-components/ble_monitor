@@ -43,7 +43,7 @@ HCIdump thread: Something wrong - interface hci0 not ready, and will be skipped 
 
 **Steps to solve**
 
-When using a docker container or venv environement, run the following command from inside the docker container / or venv environment.
+When using a docker container or venv environment, run the following command from inside the docker container / or venv environment.
 First, try to set root access with
 
 ```shell
@@ -241,13 +241,13 @@ Try to keep the distance as limited as possible.
 
 - Interference with other electrical devices.
 
-Especially USB3 devices (and its cable connections) are known to affect the Bluetooth reception (the entire 2.4GHz band, generally speaking - that is, WiFi, ZigBee, etc.), try to place your SSD drive as far as possible from your Bluetooth tranceiver. However, better results can be achieved by using an external USB-BT adapter in combination with a number of additional interference suppression and shielding techniques. Read the following thread on the specific situation with Raspberry Pi4 and external SSD, which describes the main methods for solving problems with reception in the 2.4GHz band associated with the use of USB3 peripherals - [Migrated to PI 4, bad range? (USB3 2.4GHz interference)](https://github.com/custom-components/ble_monitor/issues/430)
+Especially USB3 devices (and its cable connections) are known to affect the Bluetooth reception (the entire 2.4GHz band, generally speaking - that is, WiFi, ZigBee, etc.), try to place your SSD drive as far as possible from your Bluetooth transceiver. However, better results can be achieved by using an external USB-BT adapter in combination with a number of additional interference suppression and shielding techniques. Read the following thread on the specific situation with Raspberry Pi4 and external SSD, which describes the main methods for solving problems with reception in the 2.4GHz band associated with the use of USB3 peripherals - [Migrated to PI 4, bad range? (USB3 2.4GHz interference)](https://github.com/custom-components/ble_monitor/issues/430)
 
 - Metal cases are a big problem for built-in bluetooth and wifi without an external antenna!
 
 - The quality of your Bluetooth transceiver.
 
-The range of the built-in Bluetooth tranceiver of a Raspberry Pi is known to be limited. Try using an external Bluetooth transceiver to increase the range, e.g. with an external antenna.
+The range of the built-in Bluetooth transceiver of a Raspberry Pi is known to be limited. Try using an external Bluetooth transceiver to increase the range, e.g. with an external antenna.
 It is also worth noting that starting from v0.5.5, a component can receive data from multiple interfaces simultaneously (see the `hci_interface` option).
 
 - You should also pay attention to [this issue](#my-sensor-stops-receiving-updates-some-time-after-the-system-restart), since your problem may not be directly related to reception.
@@ -300,7 +300,7 @@ When you have a LYWSD03MMC, MHO-C401 or Qingping CGG1, you can also use the [Tel
 
 Get the key with the customized [MiHome mod](https://www.vevs.me/2017/11/mi-home.html) with the following steps.
 
-- You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
+- You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknown sources).
 - Create a folder `/devicestorage/vevs/logs/`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app.
 - [Download](https://www.vevs.me/2017/11/mi-home.html) the latest version of MiHome mod and install the MiHome mod apk on your android phone. Use google translate to translate the website, as the website is only available in Russian. At the bottom, you will find the download link to the latest version. For dimmers, a special version has been created, which can be downloaded [here](https://mi.vevs.me/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk). MiHome mod is basically just MiHome with some translatons from chinese to English and Russian, but also with the possibility to save the encryption key.
 - During setup of the app, give access to the local device storage. If it doesn't ask for permission during the setup, manually give your mod apk permission to write to storage.
@@ -313,7 +313,7 @@ Get the key with the customized [MiHome mod](https://www.vevs.me/2017/11/mi-home
 
 Get the key from the MiHome application traffic (in violation of the Xiaomi user agreement terms).
 
-Unfortunately, Xiaomi has enabled additional encryption of API requests recently, and therefore the procedure for intercepting traffic has become much more complicated. Most of the instructions below won't work anymore, as they are written at the time before encryption was enabled, but we are currently (successfully) looking into the [Charles proxy method](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122) to deal with this encryption. If you are successfull with this or one of the other methods, please open an issue and share the steps you took with us.
+Unfortunately, Xiaomi has enabled additional encryption of API requests recently, and therefore the procedure for intercepting traffic has become much more complicated. Most of the instructions below won't work anymore, as they are written at the time before encryption was enabled, but we are currently (successfully) looking into the [Charles proxy method](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122) to deal with this encryption. If you are successful with this or one of the other methods, please open an issue and share the steps you took with us.
 
   - iOS:
     - [using Charles proxy, paid $7-10](https://github.com/custom-components/ble_monitor/issues/7#issuecomment-595327131). For more detailed instructions, check [these instructions](https://github.com/custom-components/ble_monitor/issues/198#issuecomment-748638122).
@@ -382,7 +382,7 @@ Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key yo
 
 If you don't have a device (ceiling light) to pair your remote/dimmer with, you can get the key with the customized [MiHome mod](https://mi.vevs.me/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) with the following steps.
 
-- You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknow sources).
+- You will first have to allow apps to be installed from “unknown sources” in your android settings (Settings – security – select “unknown sources).
 - Create a folder `/devicestorage/vevs/logs/`, where `devicestorage` is the internal storage of your phone. It's important to do this before installing the app.
 - [Download MiHome mod](https://mi.vevs.me/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) (Make sure your have the modified version 6.5.700_63911_vevs_dimmer.apk) and install the MiHome mod apk on your android phone. MiHome mod is basically just MiHome with some translatons from Chinese to English and Russian, but also with the possibility to save the encryption key and in this specific version the possibility to add the dimmer/remote.
 - During setup of the app, give access to the local device storage.
@@ -396,7 +396,7 @@ If you don't have a device (ceiling light) to pair your remote/dimmer with, you 
 
 ### How can I use my device as a tracker
 
-This integration is also capable of tracking Bluetooth devices. You can track devices based on its MAC address, as long as it is using a static MAC address (public or random static (lifetime) address), or you can use the UUID. To track a device, add the [mac](configuration_params#mac) address or the [UUID](configuration_params#uuid) of the device to track under the [devices](configuration_params#devices) option and enable the option [track_device](configuration_params#track_device). The tracker will listen to every advertisement that is send by the device. As this can be quite often, an [tracker_scan_interval](configuration_params#tracker_scan_interval) can be set to reduce the number of state updates in Home Assistant (default 20 seconds). When no advertisments are received anymore, the device tracker entity state will turn to `Away` after the set [consider_home](configuration_params#consider_home) interval (default 180 seconds).
+This integration is also capable of tracking Bluetooth devices. You can track devices based on its MAC address, as long as it is using a static MAC address (public or random static (lifetime) address), or you can use the UUID. To track a device, add the [mac](configuration_params#mac) address or the [UUID](configuration_params#uuid) of the device to track under the [devices](configuration_params#devices) option and enable the option [track_device](configuration_params#track_device). The tracker will listen to every advertisement that is send by the device. As this can be quite often, an [tracker_scan_interval](configuration_params#tracker_scan_interval) can be set to reduce the number of state updates in Home Assistant (default 20 seconds). When no advertisements are received anymore, the device tracker entity state will turn to `Away` after the set [consider_home](configuration_params#consider_home) interval (default 180 seconds).
 
 
 ### How to remove devices and sensors

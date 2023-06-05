@@ -19,7 +19,7 @@ broadcasted_properties:
   - rssi
 broadcasted_property_notes:
   - property: fingerprint
-    note: The fingerprint sensor is `On` if the fingerprint scan was succesful, otherwise it is `Off` The fingerprint entity has two extra attributes, `result` and `key id`.
+    note: The fingerprint sensor is `On` if the fingerprint scan was succesaful, otherwise it is `Off` The fingerprint entity has two extra attributes, `result` and `key id`.
   - property: result
     note: >
       `result` shows the result of the last fingerprint reading and can have the following values:
@@ -37,7 +37,7 @@ broadcasted_property_notes:
     note: The state of the lock depends on the last `action`. The lock entity has five extra attributes, `action`, `method`, `error` and `key id` and `timestamp`
   - property: action
     note: >
-      `action` shows the last change of the lock (displayed as attribute of the lock sensor) and can have the followng values:
+      `action` shows the last change of the lock (displayed as attribute of the lock sensor) and can have the following values:
         * unlock outside the door
         * lock
         * turn on anti-lock
@@ -50,7 +50,7 @@ broadcasted_property_notes:
         * abnormal
   - property: method
     note: >
-      `method` shows the last used locking mechanis (displayed as attribute of the lock sensor) and can have the following values:
+      `method` shows the last used locking mechanism (displayed as attribute of the lock sensor) and can have the following values:
         * unlock outside the door
         * lock
         * bluetooth
@@ -74,7 +74,7 @@ broadcasted_property_notes:
     note: The door entity has one extra attributes `door action`.
   - property: door action
     note: >
-      `door action` shows the last change in of the door state (displayed as attribute of the door sensor) and can have the followng values:
+      `door action` shows the last change in of the door state (displayed as attribute of the door sensor) and can have the following values:
         * open the door
         * close the door
         * timeout, not closed
