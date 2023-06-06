@@ -112,6 +112,24 @@ class TestGovee:
         assert sensor_msg["battery"] == 100
         assert sensor_msg["rssi"] == -77
 
+    def test_Govee_H5106(self):
+        """Test Govee H5106 parser."""
+        data_string = "043e46020102018ef1f645b5c63a0201060D09475648353130365f34423939030388EC09ff010001010deeaa6f1aff4c000215494e54454c4c495f524f434b535f48575075f2ff0ccc"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Govee"
+        assert sensor_msg["type"] == "H5106"
+        assert sensor_msg["mac"] == "C6B545F6F18E"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 23.3
+        assert sensor_msg["humidity"] == 74.5
+        assert sensor_msg["pm2.5"] == 7
+        assert sensor_msg["rssi"] == -52
+
     def test_Govee_H5178_sensor_0(self):
         """Test Govee H5178 parser."""
         data_string = "043E2B0201000045C5DF38C1A41F0A09423531373843353435030388EC0201050CFF010001010003A00F640000BF"

@@ -16,10 +16,25 @@ def decode_temps(packet_value: int) -> float:
     return float(int(packet_value / 1000) / 10)
 
 
+def decode_temps_from_4_bytes(packet_value: int) -> float:
+    """Decode temperature values (to one decimal place)."""
+    if packet_value & 0x80000000:
+        # Handle freezing temperatures
+        packet_value &= 0x7FFFFFFF
+        return float(int(packet_value / -10000000) / -10)
+    return float(int(packet_value / 1000000) / 10)
+
+
 def decode_humi(packet_value: int) -> float:
     """Decode humidity values (to one decimal place)"""
     packet_value &= 0x7FFFFF
     return float((packet_value % 1000) / 10)
+
+
+def decode_humi_from_4_bytes(packet_value: int) -> float:
+    """Decode humidity values (to one decimal place)"""
+    packet_value &= 0x7FFFFFFF
+    return float(int((packet_value % 1000000) / 1000) / 10)
 
 
 def decode_temps_probes(packet_value: int) -> float:
@@ -29,7 +44,13 @@ def decode_temps_probes(packet_value: int) -> float:
     return float(packet_value / 100)
 
 
-def parse_govee(self, data, service_class_uuid16, source_mac, rssi):
+def decode_pm25_from_4_bytes(packet_value: int) -> int:
+    """Decode humidity values"""
+    packet_value &= 0x7FFFFFFF
+    return int(packet_value % 1000)
+
+
+def parse_govee(self, data, service_class_uuid16, local_name, source_mac, rssi):
     """Parser for Govee sensors"""
     # The parser needs to handle the bug in the Govee BLE advertisement
     # data as INTELLI_ROCKS sometimes ends up glued on to the end of the message
@@ -50,6 +71,16 @@ def parse_govee(self, data, service_class_uuid16, source_mac, rssi):
         humi = decode_humi(packet)
         batt = int(data[8])
         result.update({"temperature": temp, "humidity": humi, "battery": batt})
+    elif msg_length == 10 and (
+        service_class_uuid16 == 0x5106 or (device_id == 0x0001 and local_name.startswith("GVH5106"))
+    ):
+        device_type = "H5106"
+        packet_5106 = data[6:10].hex()
+        packet = int(packet_5106, 16)
+        temp = decode_temps_from_4_bytes(packet)
+        humi = decode_humi_from_4_bytes(packet)
+        pm25 = decode_pm25_from_4_bytes(packet)
+        result.update({"temperature": temp, "humidity": humi, "pm2.5": pm25})
     elif msg_length == 10 and (
         service_class_uuid16 == 0x5101
         or service_class_uuid16 == 0x5102
