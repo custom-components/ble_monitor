@@ -126,7 +126,7 @@ class TestGovee:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["temperature"] == 23.3
-        assert sensor_msg["humidity"] == 47.5
+        assert sensor_msg["humidity"] == 74.5
         assert sensor_msg["pm2.5"] == 7
         assert sensor_msg["rssi"] == -52
 
