@@ -4,12 +4,11 @@ import logging
 import statistics as sts
 from datetime import timedelta
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import RestoreSensor, SensorEntity
 from homeassistant.const import (ATTR_BATTERY_LEVEL, CONF_DEVICES, CONF_MAC,
                                  CONF_NAME, CONF_TEMPERATURE_UNIT,
                                  CONF_UNIQUE_ID, UnitOfMass, UnitOfTemperature)
 from homeassistant.helpers.event import async_call_later
-from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import dt
 from homeassistant.util.unit_conversion import TemperatureConverter
@@ -299,7 +298,7 @@ class BLEupdater:
             ble_adv_cnt = 0
 
 
-class BaseSensor(RestoreEntity, SensorEntity):
+class BaseSensor(RestoreSensor, SensorEntity):
     """Base class for all sensor entities."""
 
     # BaseSensor (Class)
@@ -441,7 +440,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
             self.ready_for_update = True
             return
         # Retrieve the old state from the registry
-        old_state = await self.async_get_last_state()
+        old_state = await self.async_get_last_sensor_data()
         if not old_state:
             self.ready_for_update = True
             return
@@ -451,16 +450,16 @@ class BaseSensor(RestoreEntity, SensorEntity):
             if old_state.attributes["unit_of_measurement"] in [UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT]:
                 # Convert old state temperature to a temperature in the device setting temperature unit
                 self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
-                self._state = TemperatureConverter.convert(
-                    value=float(old_state.state),
+                self._attr_native_value = TemperatureConverter.convert(
+                    value=float(old_state.native_value),
                     from_unit=old_state.attributes["unit_of_measurement"],
                     to_unit=self._device_settings["temperature unit"],
                 )
             else:
                 self._attr_native_unit_of_measurement = old_state.attributes["unit_of_measurement"]
-                self._state = old_state.state
+                self._attr_native_value = old_state.native_value
         except (KeyError, ValueError):
-            self._state = old_state.state
+            self._attr_native_value = old_state.native_value
 
         # Restore the old attributes
         restore_attr = RESTORE_ATTRIBUTES
