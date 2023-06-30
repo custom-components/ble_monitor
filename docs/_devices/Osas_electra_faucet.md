@@ -2,7 +2,7 @@
 manufacturer: Oras
 name: Oras Electra Washbasin Faucet
 model: Faucet
-image: oras_faucet.jpg
+image: oras_faucet.png
 physical_description:
 broadcasted_properties:
   - rssi
