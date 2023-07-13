@@ -451,6 +451,10 @@ class BaseSensor(RestoreSensor, SensorEntity):
         last_native_value = last_sensor_data.native_value
         last_native_unit_of_measurement = last_sensor_data.native_unit_of_measurement
 
+        if last_native_value is None:
+            self.ready_for_update = True
+            return
+
         # Restore the old state and unit of measurement
         try:
             if last_native_unit_of_measurement in [
