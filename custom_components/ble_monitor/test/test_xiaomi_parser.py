@@ -419,6 +419,7 @@ class TestXiaomi:
 
     def test_Xiaomi_T700(self):
         """Test Xiaomi parser for T700."""
+        self.aeskeys = {}
         data_string = "043e28020102010c483f34deed1c020106181695fe48580608c9480ef11281079733fc1400005644db41c6"
         data = bytes(bytearray.fromhex(data_string))
 
