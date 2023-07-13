@@ -46,6 +46,8 @@ XIAOMI_TYPE_DICT = {
     0x0391: "MMC-W505",
     0x03DD: "MUE4094RT",
     0x0489: "M1S-T500",
+    0x0806: "T700",
+    0x1790: "T700i",
     0x0A8D: "RTCGQ02LM",
     0x0863: "SJWS01LM",
     0x045C: "V-SK152",
