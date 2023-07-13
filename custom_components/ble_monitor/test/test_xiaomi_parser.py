@@ -1,4 +1,6 @@
 """The tests for the Xiaomi ble_parser."""
+import datetime
+
 from ble_monitor.ble_parser import BleParser
 
 
@@ -442,7 +444,7 @@ class TestXiaomi:
         assert sensor_msg["data"]
         assert sensor_msg["toothbrush"] == 0
         assert sensor_msg["score"] == 83
-        assert sensor_msg["end time"] == "datetime.datetime(2023, 6, 29, 12, 50, 43)"
+        assert sensor_msg["end time"] == datetime.datetime(2023, 6, 29, 12, 50, 43)
         assert sensor_msg["rssi"] == -58
 
     def test_Xiaomi_ZNMS16LM_fingerprint(self):
