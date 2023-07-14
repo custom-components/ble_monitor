@@ -46,6 +46,8 @@ XIAOMI_TYPE_DICT = {
     0x0391: "MMC-W505",
     0x03DD: "MUE4094RT",
     0x0489: "M1S-T500",
+    0x0806: "T700",
+    0x1790: "T700i",
     0x0A8D: "RTCGQ02LM",
     0x0863: "SJWS01LM",
     0x045C: "V-SK152",
@@ -669,6 +671,27 @@ def obj2000(xobj):
         return {}
 
 
+def obj3003(xobj):
+    """Brushing"""
+    result = {}
+    print("brush %s", xobj.hex())
+    start_obj = xobj[0]
+    if start_obj == 0:
+        # Start of brushing
+        result["toothbrush"] = 1
+        start_time = struct.unpack('<L', xobj[1:5])[0]
+        result["start time"] = datetime.fromtimestamp(start_time)
+    elif start_obj == 1:
+        # End of brushing
+        result["toothbrush"] = 0
+        end_time = struct.unpack('<L', xobj[1:5])[0]
+        result["end time"] = datetime.fromtimestamp(end_time)
+
+    if len(xobj) == 6:
+        result["score"] = xobj[5]
+    return result
+
+
 # The following data objects are device specific. For now only added for
 # LYWSD02MMC, XMWSDJ04MMC, MJWSD05MMC, XMWXKG01YL, LINPTECH MS1BB(MI), HS1BB(MI), K9BB
 # https://miot-spec.org/miot-spec-v2/instances?status=all
@@ -1023,6 +1046,7 @@ xiaomi_dataobject_dict = {
     0x100D: obj100d,
     0x100E: obj100e,
     0x2000: obj2000,
+    0x3003: obj3003,
     0x4803: obj4803,
     0x4804: obj4804,
     0x4805: obj4805,

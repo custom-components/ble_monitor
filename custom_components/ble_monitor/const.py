@@ -1182,6 +1182,8 @@ MEASUREMENT_DICT = {
     'RTCGQ02LM'               : [["battery", "rssi"], ["button"], ["light", "motion"]],
     'MMC-T201-1'              : [["temperature", "battery", "rssi"], [], []],
     'M1S-T500'                : [["battery", "rssi"], [], ["toothbrush"]],
+    'T700'                    : [["consumable", "battery", "rssi"], [], ["toothbrush"]],
+    'T700i'                   : [["consumable", "battery", "rssi"], [], ["toothbrush"]],
     'ZNMS16LM'                : [["battery", "rssi"], [], ["lock", "door", "fingerprint", "armed away"]],
     'ZNMS17LM'                : [["battery", "rssi"], [], ["lock", "door", "fingerprint", "antilock", "childlock", "armed away"]],
     'MJZNMSQ01YD'             : [["battery", "rssi"], [], ["lock", "fingerprint"]],
@@ -1312,6 +1314,8 @@ MANUFACTURER_DICT = {
     'MUE4094RT'               : 'Xiaomi',
     'RTCGQ02LM'               : 'Xiaomi',
     'MMC-T201-1'              : 'Xiaomi',
+    'T700'                    : 'Xiaomi',
+    'T700i'                   : 'Xiaomi',
     'M1S-T500'                : 'Xiaomi Soocas',
     'ZNMS16LM'                : 'Xiaomi Aqara',
     'ZNMS17LM'                : 'Xiaomi Aqara',
@@ -1432,7 +1436,7 @@ RENAMED_MODEL_DICT = {
 
 
 # Renamed firmware dictionary
-RENAMED_FIRMWARE_DICT =  {
+RENAMED_FIRMWARE_DICT = {
     'HA BLE': 'BTHome',
     'HA BLE (encrypted)': 'BTHome (encrypted)',
     'Thermoplus': 'Thermobeacon',
@@ -1442,7 +1446,7 @@ RENAMED_FIRMWARE_DICT =  {
 
 
 # Renamed manufacturer dictionary
-RENAMED_MANUFACTURER_DICT =  {
+RENAMED_MANUFACTURER_DICT = {
     'Home Assistant DIY': 'BTHome',
     'Thermoplus': 'Thermobeacon',
     'Brifit': 'Thermobeacon',
