@@ -4,12 +4,11 @@ import logging
 import statistics as sts
 from datetime import timedelta
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import RestoreSensor, SensorEntity
 from homeassistant.const import (ATTR_BATTERY_LEVEL, CONF_DEVICES, CONF_MAC,
                                  CONF_NAME, CONF_TEMPERATURE_UNIT,
                                  CONF_UNIQUE_ID, UnitOfMass, UnitOfTemperature)
 from homeassistant.helpers.event import async_call_later
-from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import dt
 from homeassistant.util.unit_conversion import TemperatureConverter
@@ -299,7 +298,7 @@ class BLEupdater:
             ble_adv_cnt = 0
 
 
-class BaseSensor(RestoreEntity, SensorEntity):
+class BaseSensor(RestoreSensor, SensorEntity):
     """Base class for all sensor entities."""
 
     # BaseSensor (Class)
@@ -418,6 +417,8 @@ class BaseSensor(RestoreEntity, SensorEntity):
         self._restore_state = self._device_settings["restore_state"]
         self._err = None
 
+        self._attr_native_value = None
+        self._attr_native_unit_of_measurement = None
         self._attr_name = f"{self.entity_description.name} {self._device_name}"
         self._attr_unique_id = f"{self.entity_description.unique_id}{self._device_name}"
         self._attr_should_poll = False
@@ -440,39 +441,55 @@ class BaseSensor(RestoreEntity, SensorEntity):
         if self._restore_state is False:
             self.ready_for_update = True
             return
-        # Retrieve the old state from the registry
-        old_state = await self.async_get_last_state()
-        if not old_state:
+        # Retrieve the old state and unit of measumrement from the registry
+        last_sensor_data = await self.async_get_last_sensor_data()
+
+        if not last_sensor_data:
+            self.ready_for_update = True
+            return
+
+        last_native_value = last_sensor_data.native_value
+        last_native_unit_of_measurement = last_sensor_data.native_unit_of_measurement
+
+        if last_native_value is None:
             self.ready_for_update = True
             return
 
         # Restore the old state and unit of measurement
         try:
-            if old_state.attributes["unit_of_measurement"] in [UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT]:
+            if last_native_unit_of_measurement in [
+                UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT
+            ]:
                 # Convert old state temperature to a temperature in the device setting temperature unit
                 self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
-                self._state = TemperatureConverter.convert(
-                    value=float(old_state.state),
-                    from_unit=old_state.attributes["unit_of_measurement"],
-                    to_unit=self._device_settings["temperature unit"],
-                )
+                if last_native_value:
+                    self._attr_native_value = TemperatureConverter.convert(
+                        value=float(last_native_value),
+                        from_unit=last_native_unit_of_measurement,
+                        to_unit=self._device_settings["temperature unit"],
+                    )
+                else:
+                    self._attr_native_value = last_native_value
             else:
-                self._attr_native_unit_of_measurement = old_state.attributes["unit_of_measurement"]
-                self._state = old_state.state
+                self._attr_native_unit_of_measurement = last_native_unit_of_measurement
+                self._attr_native_value = last_native_value
         except (KeyError, ValueError):
-            self._state = old_state.state
+            self._attr_native_value = last_native_value
 
         # Restore the old attributes
+        last_state = await self.async_get_last_state()
         restore_attr = RESTORE_ATTRIBUTES
         restore_attr.append('mac_address' if self.is_beacon else 'uuid')
 
         for attr in restore_attr:
-            if attr in old_state.attributes:
+            if attr in last_state.attributes:
                 if attr in ['uuid', 'mac_address']:
-                    self._extra_state_attributes[attr] = identifier_normalize(old_state.attributes[attr])
+                    self._extra_state_attributes[attr] = identifier_normalize(
+                        last_state.attributes[attr]
+                    )
                     continue
 
-                self._extra_state_attributes[attr] = old_state.attributes[attr]
+                self._extra_state_attributes[attr] = last_state.attributes[attr]
         self.ready_for_update = True
 
     @property
