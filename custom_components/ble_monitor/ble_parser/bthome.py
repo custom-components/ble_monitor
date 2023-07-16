@@ -89,7 +89,10 @@ def parse_bthome_v1(self, data):
         except (ValueError, TypeError):
             return None
 
-        self.packet_id = parse_uint(count_id)
+        if count_id:
+            self.packet_id = parse_uint(count_id)
+        else:
+            return None
     else:
         return None
 
@@ -127,7 +130,10 @@ def parse_bthome_v2(self, data):
         except (ValueError, TypeError):
             return None
 
-        self.packet_id = parse_uint(count_id)
+        if count_id:
+            self.packet_id = parse_uint(count_id)
+        else:
+            return None
 
     return parse_payload(self, payload, sw_version)
 

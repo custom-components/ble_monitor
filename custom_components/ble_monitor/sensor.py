@@ -417,8 +417,6 @@ class BaseSensor(RestoreSensor, SensorEntity):
         self._restore_state = self._device_settings["restore_state"]
         self._err = None
 
-        self._attr_native_value = None
-        self._attr_native_unit_of_measurement = None
         self._attr_name = f"{self.entity_description.name} {self._device_name}"
         self._attr_unique_id = f"{self.entity_description.unique_id}{self._device_name}"
         self._attr_should_poll = False
