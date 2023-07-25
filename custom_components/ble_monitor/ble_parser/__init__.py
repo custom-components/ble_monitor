@@ -83,6 +83,7 @@ class BleParser:
         self.lpacket_ids = {}
         self.movements_list = {}
         self.adv_priority = {}
+        self.no_key_message = []
 
     def parse_raw_data(self, data):
         """Parse the raw data."""
