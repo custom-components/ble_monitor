@@ -106,11 +106,6 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
 
-### decimals
-
-   **Number of decimals**
-   (positive integer)(Optional) Number of decimal places to round. This setting can be overruled with for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: 1
-
 ### log_spikes
 
    **Log spikes**
@@ -157,7 +152,6 @@ ble_monitor:
       name: 'Livingroom'
       encryption_key: '217C568CF5D22808DA20181502D84C1B'
       temperature_unit: C
-      decimals: 2
       use_median: False
       restore_state: default
     - mac: 'C4:3C:4D:6B:4F:F3'
@@ -215,19 +209,6 @@ ble_monitor:
   devices:
     - mac: 'A4:C1:38:2F:86:6C'
       temperature_unit: F
-```
-
-### decimals (device level)
-
-   (positive integer or `default`)(Optional) Number of decimal places to round. Overrules the setting at integration level. Default value: default (which means: use setting at integration level)
-
-```yaml
-ble_monitor:
-  devices:
-    - mac: 'A4:C1:38:2F:86:6C'
-      decimals: 2
-    - mac: 'A4:C1:38:2F:86:6B'
-      decimals: default
 ```
 
 ### use_median (device level)
