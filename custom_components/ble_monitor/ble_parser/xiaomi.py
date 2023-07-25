@@ -1294,7 +1294,9 @@ def decrypt_mibeacon_v4_v5(self, data, i, xiaomi_mac):
             return None
     except KeyError:
         # no encryption key found
-        _LOGGER.error("No encryption key found for device with MAC %s", to_mac(xiaomi_mac))
+        if xiaomi_mac not in self.no_key_message:
+            _LOGGER.error("No encryption key found for device with MAC %s", to_mac(xiaomi_mac))
+            self.no_key_message.append(xiaomi_mac)
         return None
 
     nonce = b"".join([xiaomi_mac[::-1], data[6:9], data[-7:-4]])

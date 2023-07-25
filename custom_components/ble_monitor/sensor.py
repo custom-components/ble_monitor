@@ -461,18 +461,18 @@ class BaseSensor(RestoreSensor, SensorEntity):
                 # Convert old state temperature to a temperature in the device setting temperature unit
                 self._attr_native_unit_of_measurement = self._device_settings["temperature unit"]
                 if last_native_value:
-                    self._attr_native_value = TemperatureConverter.convert(
+                    self._state = TemperatureConverter.convert(
                         value=float(last_native_value),
                         from_unit=last_native_unit_of_measurement,
                         to_unit=self._device_settings["temperature unit"],
                     )
                 else:
-                    self._attr_native_value = last_native_value
+                    self._state = last_native_value
             else:
                 self._attr_native_unit_of_measurement = last_native_unit_of_measurement
-                self._attr_native_value = last_native_value
+                self._state = last_native_value
         except (KeyError, ValueError):
-            self._attr_native_value = last_native_value
+            self._state = last_native_value
 
         # Restore the old attributes
         last_state = await self.async_get_last_state()
