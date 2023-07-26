@@ -13,7 +13,13 @@ def parse_switchbot(self, data, source_mac, rssi):
     switchbot_mac = source_mac
     device_id = data[4]
 
-    if msg_length == 10 and device_id in [0x54, 0x69]:
+    if msg_length == 7 and device_id == 0x77:
+        device_type = "Meter THO"
+        firmware = "Switchbot"
+        result = {
+           "battery": data[-1]
+        }
+    elif msg_length == 10 and device_id in [0x54, 0x69]:
         xvalue = data[6:10]
         (batt, temp_frac, temp_int, humi) = unpack("<BBBB", xvalue)
         batt = (batt & 127)
@@ -36,6 +42,24 @@ def parse_switchbot(self, data, source_mac, rssi):
             "temperature": temp,
             "humidity": humi,
             "battery": batt
+        }
+    elif msg_length == 16 and device_id == 0xd6:
+        device_type = "Meter THO"
+        firmware = "Switchbot"
+        xvalue = data[10:16]
+        (temp_frac, temp_int, humi) = unpack("<HHH", xvalue)
+
+        temp_sign = temp_int & 128
+        temp = float(temp_int & 127) + float((temp_frac & 15) / 10.0)
+        if temp_sign == 0:
+            # Negative temperature
+            temp = -1 * temp
+
+        humi = (humi & 127)
+
+        result = {
+            "temperature": temp,
+            "humidity": humi,
         }
     else:
         device_type = "unknown"

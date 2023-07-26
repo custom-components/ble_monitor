@@ -57,3 +57,36 @@ class TestSwitchbot:
         assert sensor_msg["humidity"] == 56
         assert sensor_msg["battery"] == 58
         assert sensor_msg["rssi"] == -57
+
+    def test_meter_tho_battery(self):
+        """Test Switchbot parser for Meter THO."""
+        data_string = "043e1302010401f269352207ce0706163dfd7700e4c7"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Switchbot"
+        assert sensor_msg["type"] == "Meter THO"
+        assert sensor_msg["mac"] == "CE07223569F2"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["battery"] == 228
+        assert sensor_msg["rssi"] == -57
+
+    def test_meter_tho_temp_humi(self):
+        """Test Switchbot parser for Meter THO."""
+        data_string = "043e1c02010401f269352207ce100fff6909d65d706dc117c70300973b00c7"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Switchbot"
+        assert sensor_msg["type"] == "Meter THO"
+        assert sensor_msg["mac"] == "CE07223569F2"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == -0.7
+        assert sensor_msg["humidity"] == 59
+        assert sensor_msg["rssi"] == -57

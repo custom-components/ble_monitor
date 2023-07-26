@@ -349,6 +349,10 @@ class BleParser:
                         # Sensirion
                         sensor_data = parse_sensirion(self, man_spec_data, local_name, mac, rssi)
                         break
+                    elif comp_id == 0x0969:
+                        # Switchbot
+                        sensor_data = parse_switchbot(self, man_spec_data, mac, rssi)
+                        break
                     elif comp_id in [0x2111, 0x2112, 0x2121, 0x2122] and data_len == 0x0B:
                         # Air Mentor
                         sensor_data = parse_airmentor(self, man_spec_data, mac, rssi)
