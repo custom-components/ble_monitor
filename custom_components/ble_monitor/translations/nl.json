@@ -97,5 +97,25 @@
     "abort": {
       "not_in_use": "Je hebt BLE monitor in YAML geconfigureerd. Pas je instellingen aan in YAML."
     }
+  },
+  "services": {
+    "cleanup_entries": {
+      "name": "Entiteiten opruimen",
+      "description": "Ruim achtergebleven apparaten en entiteiten van de BLE Monitor integratie op."
+    },
+    "parse_data": {
+      "name": "Parse data",
+      "description": "Stuur RAW HCI packet data naar de BLE Montitor integratie.",
+      "fields": {
+        "packet": {
+          "name": "Packet",
+          "description": "RAW HCI packet data hex."
+        },
+        "gateway_id": {
+          "name": "Gateway ID",
+          "description": "Identifier van de gateway die de RAW HCI packet data verzend (alleen voor device trackers)."
+        }
+      }
+    }
   }
 }
