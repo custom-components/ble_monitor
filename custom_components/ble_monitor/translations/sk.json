@@ -97,5 +97,25 @@
     "abort": {
       "not_in_use": "Nakonfigurovali ste BLE monitor v YAML. Zmeňte svoje možnosti v YAML."
     }
+  },
+  "services": {
+    "cleanup_entries": {
+      "name": "Čistenie záznamov",
+      "description": "Vyčistenie visiacich zariadení integrácie BLE Montitor."
+    },
+    "parse_data": {
+      "name": "Analýza údajov",
+      "description": "Odoslanie paketových údajov RAW HCI do integrácie BLE Montitor.",
+      "fields": {
+        "packet": {
+          "name": "Packet",
+          "description": "RAW HCI packet data hex."
+        },
+        "gateway_id": {
+          "name": "Gateway ID",
+          "description": "Identifikátor brány, ktorý prenáša údaje paketu RAO HCI (len pre sledovacie zariadenia)."
+        }
+      }
+    }
   }
 }
