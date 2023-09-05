@@ -101,11 +101,11 @@
   "services": {
     "cleanup_entries": {
       "name": "Cleanup entries",
-      "description": "Clean up of dangling devices of the BLE Montitor integration."
+      "description": "Clean up of dangling devices of the BLE Monitor integration."
     },
     "parse_data": {
       "name": "Parse data",
-      "description": "Send RAW HCI packet data to the BLE Montitor integration.",
+      "description": "Send RAW HCI packet data to the BLE Monitor integration.",
       "fields": {
         "packet": {
           "name": "Packet",
