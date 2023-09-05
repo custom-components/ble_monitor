@@ -95,5 +95,25 @@
     "abort": {
       "not_in_use": "Вы настроили BLE Monitor в YAML. Пожалуйста, измените параметры в YAML."
     }
+  },
+  "services": {
+    "cleanup_entries": {
+      "name": "Очистка устройств",
+      "description": "Очистка зависших устройств интеграции BLE Monitor."
+    },
+    "parse_data": {
+      "name": "Анализ данных",
+      "description": "Отправка RAW HCI пакета в интеграцию BLE Monitor.",
+      "fields": {
+        "packet": {
+          "name": "Пакет",
+          "description": "Шестнадцатеричный формат RAW HCI пакета."
+        },
+        "gateway_id": {
+          "name": "Идентификатор шлюза",
+          "description": "Идентификатор шлюза, передающего RAW HCI пакет (только для устройств-трекеров)."
+        }
+      }
+    }
   }
 }
