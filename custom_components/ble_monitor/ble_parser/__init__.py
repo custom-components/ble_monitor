@@ -453,7 +453,7 @@ class BleParser:
                         # Inkbird IBS-TH
                         sensor_data = parse_inkbird(self, man_spec_data, local_name, mac, rssi)
                         break
-                    elif local_name[0:5] in ["TP357", "TP359"] and data_len == 0x07:
+                    elif local_name[0:5] in ["TP357", "TP359"] and data_len >= 0x07:
                         # Thermopro
                         sensor_data = parse_thermopro(self, man_spec_data, local_name[0:5], mac, rssi)
                         break
