@@ -335,6 +335,7 @@ We have created a python script that will get the beaconkey by connecting to the
 
 ```
 wget https://raw.githubusercontent.com/custom-components/ble_monitor/master/custom_components/ble_monitor/ble_parser/get_beacon_key.py
+apt-get install python3-pip libglib2.0-dev
 pip3 install bluepy
 python3 get_beacon_key.py <MAC> <PRODUCT_ID>
 ```
