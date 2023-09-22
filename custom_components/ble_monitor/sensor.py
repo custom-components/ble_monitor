@@ -338,6 +338,7 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**major
     # |  |  |**minor
     # |  |  |**count
+    # |  |  |**score
     # |  |  |**air quality
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
