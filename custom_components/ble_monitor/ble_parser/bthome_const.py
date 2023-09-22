@@ -205,6 +205,13 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="moisture",
         unit_of_measurement="%",
     ),
+    0x3A: MeasTypes(
+        meas_format="button",
+    ),
+    0x3C: MeasTypes(
+        meas_format="dimmer",
+        data_length=2,
+    ),
     0x3D: MeasTypes(
         meas_format="count",
         data_length=2,
@@ -260,5 +267,79 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="uv_index",
         data_length=1,
         factor=0.1,
+    ),
+    0x47: MeasTypes(
+        meas_format="volume",
+        unit_of_measurement="L",
+        data_length=2,
+        factor=0.1,
+    ),
+    0x48: MeasTypes(
+        meas_format="volume",
+        unit_of_measurement="mL",
+        data_length=2,
+    ),
+    0x49: MeasTypes(
+        meas_format="volume flow rate",
+        unit_of_measurement="m3/h",
+        data_length=2,
+        factor=0.001,
+    ),
+    0x4A: MeasTypes(
+        meas_format="voltage",
+        unit_of_measurement="V",
+        data_length=2,
+        factor=0.1,
+    ),
+    0x4B: MeasTypes(
+        meas_format="gas",
+        unit_of_measurement="m3",
+        data_length=3,
+        factor=0.001,
+    ),
+    0x4C: MeasTypes(
+        meas_format="gas",
+        unit_of_measurement="m3",
+        data_length=4,
+        factor=0.001,
+    ),
+    0x4D: MeasTypes(
+        meas_format="energy",
+        unit_of_measurement="kWh",
+        data_length=4,
+        factor=0.001,
+    ),
+    0x4E: MeasTypes(
+        meas_format="volume",
+        unit_of_measurement="L",
+        data_length=4,
+        factor=0.001,
+    ),
+    0x4F: MeasTypes(
+        meas_format="water",
+        unit_of_measurement="L",
+        data_length=4,
+        factor=0.001,
+    ),
+    0x50: MeasTypes(
+        meas_format="timestamp",
+        data_length=4,
+        data_format="timestamp",
+    ),
+    0x51: MeasTypes(
+        meas_format="acceleration",
+        unit_of_measurement="m/s²",
+        data_length=2,
+        factor=0.001,
+    ),
+    0x52: MeasTypes(
+        meas_format="gyroscope",
+        unit_of_measurement="°/s",
+        data_length=2,
+        factor=0.001,
+    ),
+    0x53: MeasTypes(
+        meas_format="text",
+        data_format="string",
     ),
 }

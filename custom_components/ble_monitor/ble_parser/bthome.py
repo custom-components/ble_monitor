@@ -1,6 +1,7 @@
 """Parser for BTHome (DIY sensors) advertisements"""
 import logging
 import struct
+from datetime import datetime, timezone
 from typing import Any
 
 from Cryptodome.Cipher import AES
@@ -47,11 +48,20 @@ def parse_string(data_obj: bytes) -> str:
     return data_obj.decode("UTF-8")
 
 
+def parse_timestamp(data_obj: bytes) -> datetime:
+    """Convert bytes to a datetime object."""
+    value = datetime.fromtimestamp(
+        int.from_bytes(data_obj, "little", signed=False), tz=timezone.utc
+    )
+    return value
+
+
 dispatch = {
     0x00: parse_uint,
     0x01: parse_int,
     0x02: parse_float,
     0x03: parse_string,
+    0x05: parse_timestamp,
 }
 
 
@@ -236,7 +246,7 @@ def parse_payload(self, payload, sw_version):
         meas_unit = meas_type.unit_of_measurement
         meas_format = meas_type.meas_format
         meas_factor = meas_type.factor
-        value: None | str | int | float
+        value: None | str | int | float | datetime
 
         if meas["data format"] == 0 or meas["data format"] == "unsigned_integer":
             value = parse_uint(meas["measurement data"], meas_factor)
@@ -246,6 +256,8 @@ def parse_payload(self, payload, sw_version):
             value = parse_float(meas["measurement data"], meas_factor)
         elif meas["data format"] == 3 or meas["data format"] == "string":
             value = parse_string(meas["measurement data"])
+        elif meas["data format"] == 5 or meas["data format"] == "datetime":
+            value = parse_timestamp(meas["measurement data"])
         else:
             _LOGGER.error(
                 "UNKNOWN dataobject in BTHome BLE payload! Adv: %s",
