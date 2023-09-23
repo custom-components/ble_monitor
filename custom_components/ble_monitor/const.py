@@ -1239,7 +1239,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         update_behavior="Instantly",
         name="timestamp",
         unique_id="timestamp_",
-        device_class=SensorStateClass.TIMESTAMP,
+        device_class=SensorDeviceClass.TIMESTAMP,
     ),
     BLEMonitorSensorEntityDescription(
         key="acceleration",
