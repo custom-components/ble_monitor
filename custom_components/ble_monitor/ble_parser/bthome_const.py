@@ -144,7 +144,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="garage_door",
     ),
     0x1C: MeasTypes(
-        meas_format="gas",
+        meas_format="gas_detected",
     ),
     0x1D: MeasTypes(
         meas_format="heat",
@@ -156,7 +156,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="lock",
     ),
     0x20: MeasTypes(
-        meas_format="moisture",
+        meas_format="moisture_detected",
     ),
     0x21: MeasTypes(
         meas_format="motion",
