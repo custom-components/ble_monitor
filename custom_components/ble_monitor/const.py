@@ -279,12 +279,12 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         force_update=True,
     ),
     BLEMonitorBinarySensorEntityDescription(
-        key="pressence",
+        key="presence",
         sensor_class="BaseBinarySensor",
         update_behavior="Instantly",
-        name="pressence",
-        unique_id="pressence_",
-        device_class=BinarySensorDeviceClass.PRESSENCE,
+        name="presence",
+        unique_id="presence_",
+        device_class=BinarySensorDeviceClass.PRESENCE,
         force_update=True,
     ),
     BLEMonitorBinarySensorEntityDescription(
