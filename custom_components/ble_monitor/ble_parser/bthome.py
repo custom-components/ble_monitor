@@ -188,11 +188,16 @@ def parse_payload(self, payload, sw_version):
                 )
                 break
             prev_obj_meas_type = obj_meas_type
-            obj_data_length = MEAS_TYPES[obj_meas_type].data_length
             obj_data_format = MEAS_TYPES[obj_meas_type].data_format
+
+            if obj_data_format == "string":
+                obj_data_length = payload[obj_start + 1]
+                obj_data_start = obj_start + 2
+            else:
+                obj_data_length = MEAS_TYPES[obj_meas_type].data_length
+                obj_data_start = obj_start + 1
+            next_obj_start = obj_data_start + obj_data_length
             obj_data_unit = MEAS_TYPES[obj_meas_type].unit_of_measurement
-            obj_data_start = obj_start + 1
-            next_obj_start = obj_start + obj_data_length + 1
 
         if obj_data_length == 0:
             _LOGGER.debug(
