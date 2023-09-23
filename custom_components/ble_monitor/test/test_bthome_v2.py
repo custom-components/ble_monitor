@@ -847,7 +847,7 @@ class TestBTHome:
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["distance"] == 12
+        assert sensor_msg["distance mm"] == 12
         assert sensor_msg["rssi"] == -52
 
     def test_bthome_v2_distance_m(self):
@@ -983,7 +983,7 @@ class TestBTHome:
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["volume"] == 34780
+        assert sensor_msg["volume mL"] == 34780
         assert sensor_msg["rssi"] == -52
 
     def test_bthome_v2_volume_flow_rate(self):

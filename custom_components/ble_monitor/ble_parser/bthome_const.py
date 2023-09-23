@@ -228,7 +228,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         factor=0.1,
     ),
     0x40: MeasTypes(
-        meas_format="distance",
+        meas_format="distance mm",
         unit_of_measurement="mm",
         data_length=2,
     ),
@@ -275,7 +275,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         factor=0.1,
     ),
     0x48: MeasTypes(
-        meas_format="volume",
+        meas_format="volume mL",
         unit_of_measurement="mL",
         data_length=2,
     ),
