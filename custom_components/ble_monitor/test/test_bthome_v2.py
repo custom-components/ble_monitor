@@ -798,7 +798,7 @@ class TestBTHome:
 
     def test_bthome_v2_text(self):
         """Test BTHome parser for text measurement"""
-        data_string = "043E1702010000A5808FE648540B0201060716D2FC40530C48656C6C6F20576F726C6421CC"
+        data_string = "043E2202010000A5808FE64854160201061216D2FC40530C48656C6C6F20576F726C6421CC"
         data = bytes(bytearray.fromhex(data_string))
 
         # pylint: disable=unused-variable
