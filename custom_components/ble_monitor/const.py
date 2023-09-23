@@ -126,6 +126,42 @@ class BLEMonitorBinarySensorEntityDescription(
 
 BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
     BLEMonitorBinarySensorEntityDescription(
+        key="battery_charging",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="battery_charging",
+        unique_id="bc_",
+        device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
+        force_update=True,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="carbon_monoxide",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="carbon monoxide",
+        unique_id="bco_",
+        device_class=BinarySensorDeviceClass.CO,
+        force_update=True,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="cold",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="cold",
+        unique_id="bcold_",
+        device_class=BinarySensorDeviceClass.COLD,
+        force_update=True,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="connectivity",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="connectivity",
+        unique_id="bconn_",
+        device_class=BinarySensorDeviceClass.CONNECTIVITY,
+        force_update=True,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
         key="binary",
         sensor_class="BaseBinarySensor",
         update_behavior="Instantly",
@@ -1500,6 +1536,10 @@ AUTO_MANUFACTURER_DICT = {
 
 # Binary Sensors that are automatically added if device is in AUTO_MANUFACTURER_DICT
 AUTO_BINARY_SENSOR_LIST = [
+    "battery_charging",
+    "carbon_monoxide",
+    "cold",
+    "connectivity",
     "binary",
     "door",
     "dropping",
@@ -1524,6 +1564,7 @@ AUTO_SENSOR_LIST = [
     "conductivity",
     "count",
     "dewpoint",
+    "dimmer",
     "energy",
     "gravity",
     "humidity",
