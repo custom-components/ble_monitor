@@ -5,7 +5,7 @@ model: JTYJGD03MI
 image: JTYJGD03MI.png
 physical_description: Smoke detector
 broadcasted_properties:
-  - smoke detector
+  - smoke
   - button
   - battery
   - rssi

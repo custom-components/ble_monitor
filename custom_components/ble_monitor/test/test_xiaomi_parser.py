@@ -233,7 +233,7 @@ class TestXiaomi:
         assert sensor_msg["mac"] == "54EF44E39CBC"
         assert sensor_msg["packet"] == 102
         assert sensor_msg["data"]
-        assert sensor_msg["smoke detector"] == 1
+        assert sensor_msg["smoke"] == 1
         assert sensor_msg["rssi"] == -53
 
     def test_Xiaomi_JTYJGD03MI_press(self):

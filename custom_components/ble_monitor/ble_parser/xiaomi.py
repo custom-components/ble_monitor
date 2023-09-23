@@ -576,7 +576,7 @@ def obj1014(xobj):
 
 def obj1015(xobj):
     """Smoke"""
-    return {"smoke detector": xobj[0]}
+    return {"smoke": xobj[0]}
 
 
 def obj1017(xobj):
