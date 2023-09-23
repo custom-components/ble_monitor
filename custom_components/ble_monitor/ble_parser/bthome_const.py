@@ -343,3 +343,19 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         data_format="string",
     ),
 }
+
+BUTTON_EVENTS: dict[int, str | None] = {
+    0x00: None,
+    0x01: "press",
+    0x02: "double press",
+    0x03: "triple press",
+    0x04: "long press",
+    0x05: "long double press",
+    0x06: "long triple press",
+}
+
+DIMMER_EVENTS: dict[int, str | None] = {
+    0x00: None,
+    0x01: "rotate left",
+    0x02: "rotate right",
+}

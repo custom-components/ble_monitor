@@ -6,7 +6,7 @@ from typing import Any
 
 from Cryptodome.Cipher import AES
 
-from .bthome_const import MEAS_TYPES
+from .bthome_const import BUTTON_EVENTS, DIMMER_EVENTS, MEAS_TYPES
 from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,6 +54,28 @@ def parse_timestamp(data_obj: bytes) -> datetime:
         int.from_bytes(data_obj, "little", signed=False), tz=timezone.utc
     )
     return value
+
+
+def parse_event_type(event_device: str, data_obj: int) -> str | None:
+    """Convert bytes to event type."""
+    if event_device == "dimmer":
+        event_type = DIMMER_EVENTS.get(data_obj)
+    elif event_device == "button":
+        event_type = BUTTON_EVENTS.get(data_obj)
+    else:
+        event_type = None
+    return event_type
+
+
+def parse_event_properties(
+    event_device: str, data_obj: bytes
+) -> dict[str, str | int | float | None] | None:
+    """Convert bytes to event properties."""
+    if event_device == "dimmer":
+        # number of steps for rotating a dimmer
+        return {"steps": int.from_bytes(data_obj, "little", signed=True)}
+    else:
+        return None
 
 
 dispatch = {
@@ -252,6 +274,7 @@ def parse_payload(self, payload, sw_version):
         meas_format = meas_type.meas_format
         meas_factor = meas_type.factor
         value: None | str | int | float | datetime
+        event_property = None
 
         if meas["data format"] == 0 or meas["data format"] == "unsigned_integer":
             value = parse_uint(meas["measurement data"], meas_factor)
@@ -270,16 +293,28 @@ def parse_payload(self, payload, sw_version):
             )
             continue
 
+        if meas_type.meas_format in ["button", "dimmer"]:
+            value = parse_event_type(
+                event_device=meas_format,
+                data_obj=meas["measurement data"][0],
+            )
+            event_property = parse_event_properties(
+                event_device=meas_format,
+                data_obj=meas["measurement data"][1:],
+            )
+
         if value is not None:
             result.update({meas_format: value})
             if meas_unit == "lbs":
                 # Weight measurement with non-standard unit of measurement (lb)
                 result.update({"weight unit": meas_unit})
+        if event_property is not None:
+            result.update(event_property)
 
     if not result:
         if self.report_unknown == "BTHome":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Home Assistant BLE DEVICE: RSSI: %s, MAC: %s, ADV: %s",
+                "BLE ADV from BTHome DEVICE: RSSI: %s, MAC: %s, ADV: %s",
                 self.rssi,
                 to_mac(self.bthome_mac),
                 payload.hex()
