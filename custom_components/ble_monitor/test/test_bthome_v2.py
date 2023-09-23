@@ -742,7 +742,7 @@ class TestBTHome:
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["gas"] == 19551.879
+        assert sensor_msg["water"] == 19551.879
         assert sensor_msg["rssi"] == -52
 
     def test_bthome_v2_timestamp(self):

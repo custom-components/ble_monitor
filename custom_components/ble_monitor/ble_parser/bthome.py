@@ -261,7 +261,7 @@ def parse_payload(self, payload, sw_version):
             value = parse_float(meas["measurement data"], meas_factor)
         elif meas["data format"] == 3 or meas["data format"] == "string":
             value = parse_string(meas["measurement data"])
-        elif meas["data format"] == 5 or meas["data format"] == "datetime":
+        elif meas["data format"] == 5 or meas["data format"] == "timestamp":
             value = parse_timestamp(meas["measurement data"])
         else:
             _LOGGER.error(
