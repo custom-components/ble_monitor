@@ -126,10 +126,10 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="battery",
     ),
     0x16: MeasTypes(
-        meas_format="battery_charging",
+        meas_format="battery charging",
     ),
     0x17: MeasTypes(
-        meas_format="carbon_monoxide",
+        meas_format="carbon monoxide",
     ),
     0x18: MeasTypes(
         meas_format="cold",
@@ -141,10 +141,10 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="door",
     ),
     0x1B: MeasTypes(
-        meas_format="garage_door",
+        meas_format="garage door",
     ),
     0x1C: MeasTypes(
-        meas_format="gas_detected",
+        meas_format="gas detected",
     ),
     0x1D: MeasTypes(
         meas_format="heat",
@@ -156,7 +156,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="lock",
     ),
     0x20: MeasTypes(
-        meas_format="moisture_detected",
+        meas_format="moisture detected",
     ),
     0x21: MeasTypes(
         meas_format="motion",
