@@ -264,7 +264,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         factor=0.1,
     ),
     0x46: MeasTypes(
-        meas_format="uv_index",
+        meas_format="uv index",
         data_length=1,
         factor=0.1,
     ),
