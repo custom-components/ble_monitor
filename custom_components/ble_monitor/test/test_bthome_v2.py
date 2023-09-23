@@ -319,7 +319,7 @@ class TestBTHome:
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["button"] == "double_press"
+        assert sensor_msg["button"] == "double press"
         assert sensor_msg["rssi"] == -52
 
     def test_bthome_v2_dimmer(self):
@@ -337,7 +337,7 @@ class TestBTHome:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["dimmer"] == "rotate left"
-        assert sensor_msg["steps"] == "3"
+        assert sensor_msg["steps"] == 3
         assert sensor_msg["rssi"] == -52
 
     def test_bthome_v2_door(self):

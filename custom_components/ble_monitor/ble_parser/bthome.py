@@ -293,7 +293,12 @@ def parse_payload(self, payload, sw_version):
             )
             continue
 
-        if meas_type.meas_format in ["button", "dimmer"]:
+        if meas_type.meas_format == "button":
+            value = parse_event_type(
+                event_device=meas_format,
+                data_obj=meas["measurement data"][0],
+            )
+        if meas_type.meas_format == "dimmer":
             value = parse_event_type(
                 event_device=meas_format,
                 data_obj=meas["measurement data"][0],
