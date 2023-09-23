@@ -1,4 +1,6 @@
 """The tests for the BTHome (DIY sensor) ble_parser."""
+import datetime
+
 from ble_monitor.ble_parser import BleParser
 
 
@@ -759,7 +761,7 @@ class TestBTHome:
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["timestamp"] == "2023-5-14, 19:41:17"
+        assert sensor_msg["timestamp"] == datetime.datetime(2023, 5, 14, 19, 41, 17, tzinfo=datetime.timezone.utc)
         assert sensor_msg["rssi"] == -52
 
     def test_bthome_v2_acceleration(self):
@@ -810,7 +812,7 @@ class TestBTHome:
         assert sensor_msg["mac"] == "5448E68F80A5"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["text"] == 22.151
+        assert sensor_msg["text"] == "Hello World!"
         assert sensor_msg["rssi"] == -52
 
     def test_bthome_v2_double_temperature(self):
