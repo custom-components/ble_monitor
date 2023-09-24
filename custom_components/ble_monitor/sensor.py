@@ -326,12 +326,28 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |**gravity
     # |  |**TVOC
     # |  |**Air Quality Index
+    # |  |**UV index
+    # |  |**Volume
+    # |  |**Volume mL
+    # |  |**Volume flow rate
+    # |  |**Gas
+    # |  |**Water
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
     # |  |**heart rate
     # |  |**opening percentage
     # |  |**pulse
     # |  |**shake
+    # |  |**rotation
+    # |  |**distance
+    # |  |**distance mm
+    # |  |**duration
+    # |  |**current
+    # |  |**speed
+    # |  |**gyroscope
+    # |  |**MagneticFieldSensor
+    # |  |**MagneticFieldDirectionSensor
+    # |  |**ImpedanceSensor
     # |  |--StateChangedSensor (Class)
     # |  |  |**mac
     # |  |  |**uuid
@@ -340,6 +356,8 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**count
     # |  |  |**score
     # |  |  |**air quality
+    # |  |  |**text
+    # |  |  |**timestamp
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
     # |  |--WeightSensor (Class)
@@ -347,9 +365,6 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**stabilized weight
     # |  |  |**non-stabilized weight
     # |  |  |**impedance
-    # |  |**MagneticFieldSensor
-    # |  |**MagneticFieldDirectionSensor
-    # |  |**ImpedanceSensor
     # |  |--EnergySensor (Class)
     # |  |  |**energy
     # |  |--PowerSensor (Class)
