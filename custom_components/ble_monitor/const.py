@@ -231,7 +231,7 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         name="ble moisture",
         unique_id="mo_",
         device_class=BinarySensorDeviceClass.MOISTURE,
-        force_update=False,
+        force_update=True,
     ),
     BLEMonitorBinarySensorEntityDescription(
         key="motion",
@@ -1851,7 +1851,7 @@ AUTO_BINARY_SENSOR_LIST = [
     "light",
     "lock",
     "motion",
-    "moisture detected"
+    "moisture detected",
     "moving",
     "occupancy",
     "opening",
@@ -1864,7 +1864,7 @@ AUTO_BINARY_SENSOR_LIST = [
     "sound",
     "switch",
     "sound",
-    "tamper"
+    "tamper",
     "tilt",
     "vibration",
     "window",
