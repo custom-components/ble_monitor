@@ -413,10 +413,10 @@ def obj1001(xobj, device_type):
         elif button_type == 8:
             bathroom_remote_command = "heat"
 
-        # press type and dimmer
+        # press type and dimmer steps
         button_press_type = "no press"
         btn_switch_press_type = "no press"
-        dimmer = None
+        steps = None
 
         if press == 0:
             button_press_type = "single press"
@@ -430,24 +430,24 @@ def obj1001(xobj, device_type):
         elif press == 3:
             if button_type == 0:
                 button_press_type = "short press"
-                dimmer = value
+                steps = value
             if button_type == 1:
                 button_press_type = "long press"
-                dimmer = value
+                steps = value
         elif press == 4:
             if button_type == 0:
                 if value <= 127:
                     button_press_type = "rotate right"
-                    dimmer = value
+                    steps = value
                 else:
                     button_press_type = "rotate left"
-                    dimmer = 256 - value
+                    steps = 256 - value
             elif button_type <= 127:
                 button_press_type = "rotate right (pressed)"
-                dimmer = button_type
+                steps = button_type
             else:
                 button_press_type = "rotate left (pressed)"
-                dimmer = 256 - button_type
+                steps = 256 - button_type
         elif press == 5:
             button_press_type = "short press"
         elif press == 6:
@@ -477,8 +477,8 @@ def obj1001(xobj, device_type):
             result["bathroom heater remote"] = bathroom_remote_command
             result["button"] = button_press_type
         elif device_type == "YLKG07YL/YLKG08YL":
-            result["dimmer"] = dimmer
-            result["button"] = button_press_type
+            result["steps"] = steps
+            result["dimmer"] = button_press_type
         elif device_type == "K9B-1BTN":
             result["button switch"] = btn_switch_press_type
             result["one btn switch"] = one_btn_switch
@@ -570,13 +570,13 @@ def obj1013(xobj):
 
 
 def obj1014(xobj):
-    """Moisture"""
-    return {"moisture": xobj[0]}
+    """Moisture detected (wet/dry)"""
+    return {"moisture detected": xobj[0]}
 
 
 def obj1015(xobj):
     """Smoke"""
-    return {"smoke detector": xobj[0]}
+    return {"smoke": xobj[0]}
 
 
 def obj1017(xobj):

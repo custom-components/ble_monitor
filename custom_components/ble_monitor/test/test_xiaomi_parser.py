@@ -233,7 +233,7 @@ class TestXiaomi:
         assert sensor_msg["mac"] == "54EF44E39CBC"
         assert sensor_msg["packet"] == 102
         assert sensor_msg["data"]
-        assert sensor_msg["smoke detector"] == 1
+        assert sensor_msg["smoke"] == 1
         assert sensor_msg["rssi"] == -53
 
     def test_Xiaomi_JTYJGD03MI_press(self):
@@ -541,8 +541,8 @@ class TestXiaomi:
         assert sensor_msg["mac"] == "F82441C5988B"
         assert sensor_msg["packet"] == 210
         assert sensor_msg["data"]
-        assert sensor_msg["dimmer"] == 1
-        assert sensor_msg["button"] == "short press"
+        assert sensor_msg["steps"] == 1
+        assert sensor_msg["dimmer"] == "short press"
         assert sensor_msg["rssi"] == -34
 
     def test_Xiaomi_YLKG07YL_rotate(self):
@@ -568,8 +568,8 @@ class TestXiaomi:
         assert sensor_msg["mac"] == "F82441C5988B"
         assert sensor_msg["packet"] == 54
         assert sensor_msg["data"]
-        assert sensor_msg["dimmer"] == 1
-        assert sensor_msg["button"] == "rotate left"
+        assert sensor_msg["steps"] == 1
+        assert sensor_msg["dimmer"] == "rotate left"
         assert sensor_msg["rssi"] == -17
 
     def test_Xiaomi_K9B(self):

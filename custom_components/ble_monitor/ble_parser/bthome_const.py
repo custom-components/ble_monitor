@@ -126,10 +126,10 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="battery",
     ),
     0x16: MeasTypes(
-        meas_format="battery_charging",
+        meas_format="battery charging",
     ),
     0x17: MeasTypes(
-        meas_format="carbon_monoxide",
+        meas_format="carbon monoxide",
     ),
     0x18: MeasTypes(
         meas_format="cold",
@@ -141,10 +141,10 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="door",
     ),
     0x1B: MeasTypes(
-        meas_format="garage_door",
+        meas_format="garage door",
     ),
     0x1C: MeasTypes(
-        meas_format="gas",
+        meas_format="gas detected",
     ),
     0x1D: MeasTypes(
         meas_format="heat",
@@ -156,7 +156,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="lock",
     ),
     0x20: MeasTypes(
-        meas_format="moisture",
+        meas_format="moisture detected",
     ),
     0x21: MeasTypes(
         meas_format="motion",
@@ -183,7 +183,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="safety",
     ),
     0x29: MeasTypes(
-        meas_format="smoke detector",
+        meas_format="smoke",
     ),
     0x2A: MeasTypes(
         meas_format="sound",
@@ -205,6 +205,13 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         meas_format="moisture",
         unit_of_measurement="%",
     ),
+    0x3A: MeasTypes(
+        meas_format="button",
+    ),
+    0x3C: MeasTypes(
+        meas_format="dimmer",
+        data_length=2,
+    ),
     0x3D: MeasTypes(
         meas_format="count",
         data_length=2,
@@ -221,7 +228,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         factor=0.1,
     ),
     0x40: MeasTypes(
-        meas_format="distance",
+        meas_format="distance mm",
         unit_of_measurement="mm",
         data_length=2,
     ),
@@ -257,8 +264,98 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         factor=0.1,
     ),
     0x46: MeasTypes(
-        meas_format="uv_index",
+        meas_format="uv index",
         data_length=1,
         factor=0.1,
     ),
+    0x47: MeasTypes(
+        meas_format="volume",
+        unit_of_measurement="L",
+        data_length=2,
+        factor=0.1,
+    ),
+    0x48: MeasTypes(
+        meas_format="volume mL",
+        unit_of_measurement="mL",
+        data_length=2,
+    ),
+    0x49: MeasTypes(
+        meas_format="volume flow rate",
+        unit_of_measurement="m3/h",
+        data_length=2,
+        factor=0.001,
+    ),
+    0x4A: MeasTypes(
+        meas_format="voltage",
+        unit_of_measurement="V",
+        data_length=2,
+        factor=0.1,
+    ),
+    0x4B: MeasTypes(
+        meas_format="gas",
+        unit_of_measurement="m3",
+        data_length=3,
+        factor=0.001,
+    ),
+    0x4C: MeasTypes(
+        meas_format="gas",
+        unit_of_measurement="m3",
+        data_length=4,
+        factor=0.001,
+    ),
+    0x4D: MeasTypes(
+        meas_format="energy",
+        unit_of_measurement="kWh",
+        data_length=4,
+        factor=0.001,
+    ),
+    0x4E: MeasTypes(
+        meas_format="volume",
+        unit_of_measurement="L",
+        data_length=4,
+        factor=0.001,
+    ),
+    0x4F: MeasTypes(
+        meas_format="water",
+        unit_of_measurement="L",
+        data_length=4,
+        factor=0.001,
+    ),
+    0x50: MeasTypes(
+        meas_format="timestamp",
+        data_length=4,
+        data_format="timestamp",
+    ),
+    0x51: MeasTypes(
+        meas_format="acceleration",
+        unit_of_measurement="m/s²",
+        data_length=2,
+        factor=0.001,
+    ),
+    0x52: MeasTypes(
+        meas_format="gyroscope",
+        unit_of_measurement="°/s",
+        data_length=2,
+        factor=0.001,
+    ),
+    0x53: MeasTypes(
+        meas_format="text",
+        data_format="string",
+    ),
+}
+
+BUTTON_EVENTS: dict[int, str | None] = {
+    0x00: None,
+    0x01: "press",
+    0x02: "double press",
+    0x03: "triple press",
+    0x04: "long press",
+    0x05: "long double press",
+    0x06: "long triple press",
+}
+
+DIMMER_EVENTS: dict[int, str | None] = {
+    0x00: None,
+    0x01: "rotate left",
+    0x02: "rotate right",
 }

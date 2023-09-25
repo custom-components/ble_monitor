@@ -326,12 +326,28 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |**gravity
     # |  |**TVOC
     # |  |**Air Quality Index
+    # |  |**UV index
+    # |  |**Volume
+    # |  |**Volume mL
+    # |  |**Volume flow rate
+    # |  |**Gas
+    # |  |**Water
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
     # |  |**heart rate
     # |  |**opening percentage
     # |  |**pulse
     # |  |**shake
+    # |  |**rotation
+    # |  |**distance
+    # |  |**distance mm
+    # |  |**duration
+    # |  |**current
+    # |  |**speed
+    # |  |**gyroscope
+    # |  |**MagneticFieldSensor
+    # |  |**MagneticFieldDirectionSensor
+    # |  |**ImpedanceSensor
     # |  |--StateChangedSensor (Class)
     # |  |  |**mac
     # |  |  |**uuid
@@ -340,6 +356,8 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**count
     # |  |  |**score
     # |  |  |**air quality
+    # |  |  |**text
+    # |  |  |**timestamp
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
     # |  |--WeightSensor (Class)
@@ -347,9 +365,6 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**stabilized weight
     # |  |  |**non-stabilized weight
     # |  |  |**impedance
-    # |  |**MagneticFieldSensor
-    # |  |**MagneticFieldDirectionSensor
-    # |  |**ImpedanceSensor
     # |  |--EnergySensor (Class)
     # |  |  |**energy
     # |  |--PowerSensor (Class)
@@ -1024,22 +1039,22 @@ class DimmerSensor(InstantUpdateSensor):
     def __init__(self, config, key, devtype, firmware, entity_description, manufacturer=None):
         """Initialize the sensor."""
         super().__init__(config, key, devtype, firmware, entity_description, manufacturer)
-        self._button = "button"
         self._dimmer = self.entity_description.key
+        self._steps = "steps"
 
     def collect(self, data, period_cnt, batt_attr=None):
         """Measurements collector."""
         if self.enabled is False:
             self.pending_update = False
             return
-        self._state = data[self._button] + " " + str(data[self._dimmer]) + " steps"
+        self._state = data[self._dimmer] + " " + str(data[self._steps]) + " steps"
         self._extra_state_attributes["last_packet_id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
         self._extra_state_attributes['mac_address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
         )
-        self._extra_state_attributes["dimmer_value"] = data[self._dimmer]
-        self._extra_state_attributes["last_type_of_press"] = data[self._button]
+        self._extra_state_attributes["dimmer_value"] = data[self._steps]
+        self._extra_state_attributes["last_type_of_press"] = data[self._dimmer]
         if batt_attr is not None:
             self._extra_state_attributes[ATTR_BATTERY_LEVEL] = batt_attr
         self.pending_update = True

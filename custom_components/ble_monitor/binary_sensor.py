@@ -449,10 +449,13 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
             self._extra_state_attributes["key_id"] = data["key id"]
             self._extra_state_attributes["timestamp"] = data["timestamp"]
         if self.entity_description.key == "door":
-            self._extra_state_attributes["door_action"] = data["door action"]
+            if "door action" in data:
+                self._extra_state_attributes["door_action"] = data["door action"]
         if self.entity_description.key == "fingerprint":
-            self._extra_state_attributes["result"] = data["result"]
-            self._extra_state_attributes["key_id"] = data["key id"]
+            if "result" in data:
+                self._extra_state_attributes["result"] = data["result"]
+            if "key id" in data:
+                self._extra_state_attributes["key_id"] = data["key id"]
         if self.entity_description.key == "toothbrush":
             if "counter" in data:
                 self._extra_state_attributes["counter"] = data["counter"]
