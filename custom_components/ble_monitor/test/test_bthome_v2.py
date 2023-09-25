@@ -765,7 +765,7 @@ class TestBTHome:
         assert sensor_msg["rssi"] == -52
 
     def test_bthome_v2_dimmer(self):
-        """Test BTHome parser for button sensor measurement"""
+        """Test BTHome parser for dimmer sensor measurement"""
         data_string = "043E1702010000A5808FE648540B0201060716D2FC403C0103CC"
         data = bytes(bytearray.fromhex(data_string))
 
