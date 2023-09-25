@@ -570,8 +570,8 @@ def obj1013(xobj):
 
 
 def obj1014(xobj):
-    """Moisture"""
-    return {"moisture": xobj[0]}
+    """Moisture detected (wet/dry)"""
+    return {"moisture detected": xobj[0]}
 
 
 def obj1015(xobj):
