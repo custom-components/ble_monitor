@@ -82,17 +82,17 @@ def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
                         # Magnetic sensor presence
                         if flags & (1 << 3):  # bit 3
                             # magnetic field is detected
-                            result.update({"magnetic field": 1})
+                            result.update({"magnetic field detected": 1})
                         else:
                             # magnetic field is not detected
-                            result.update({"magnetic field": 0})
+                            result.update({"magnetic field detected": 0})
                     if flags & (1 << 4):  # bit 4
                         # Movement sensor counter
                         # Most significant bit indicates movement state
                         # 15 least significant bits represent count of movement events.
-                        movement = sensor_data[0] & (1 << 7)
+                        moving = sensor_data[0] & (1 << 7)
                         count = ((sensor_data[0] & 0b01111111) << 8) + sensor_data[1]
-                        result.update({"movement": movement, "count": count})
+                        result.update({"moving": moving, "count": count})
                         sensor_data = sensor_data[2:]
                     if flags & (1 << 5):  # bit 5
                         # Movement sensor angle
@@ -103,7 +103,7 @@ def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
                         sensor_data = sensor_data[3:]
                     if flags & (1 << 6):  # bit 6
                         # Low battery indication sensor presence
-                        result.update({"low battery": 1})
+                        result.update({"battery low": 1})
                     if flags & (1 << 7):  # bit 7
                         # Battery voltage value presence
                         volt = round(2.0 + sensor_data[0] * 0.01, 3)
