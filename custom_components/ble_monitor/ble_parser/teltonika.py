@@ -11,8 +11,11 @@ def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
     """Teltonika parser"""
     result = {"firmware": "Teltonika"}
     teltonika_mac = source_mac
+    device_id = (data[3] << 8) | data[2]
 
-    if complete_local_name == "PUCK_T1":
+    if device_id == 0x089A:
+        device_type = "EYE sensor"
+    elif complete_local_name == "PUCK_T1":
         device_type = "Blue Puck T"
     elif complete_local_name == "PUCK_TH":
         device_type = "Blue Puck RHT"
@@ -62,6 +65,49 @@ def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
                         # Battery
                         (batt,) = unpack("<b", packet[5:6])
                         result.update({"battery": batt})
+                elif comp_id == 0x089A:
+                    flags = packet[5]
+                    sensor_data = packet[6:]
+                    if flags & (1 << 0):  # bit 0
+                        # Temperature
+                        (temp,) = unpack(">h", sensor_data[0:2])
+                        result.update({"temperature": temp / 100})
+                        sensor_data = sensor_data[2:]
+                    if flags & (1 << 1):  # bit 1
+                        # Humidity
+                        humi = sensor_data[0]
+                        result.update({"humidity": humi})
+                        sensor_data = sensor_data[1:]
+                    if flags & (1 << 2):  # bit 2
+                        # Magnetic sensor presence
+                        if flags & (1 << 3):  # bit 3
+                            # magnetic field is detected
+                            result.update({"magnetic field detected": 1})
+                        else:
+                            # magnetic field is not detected
+                            result.update({"magnetic field detected": 0})
+                    if flags & (1 << 4):  # bit 4
+                        # Movement sensor counter
+                        # Most significant bit indicates movement state
+                        # 15 least significant bits represent count of movement events.
+                        moving = sensor_data[0] & (1 << 7)
+                        count = ((sensor_data[0] & 0b01111111) << 8) + sensor_data[1]
+                        result.update({"moving": moving, "movement counter": count})
+                        sensor_data = sensor_data[2:]
+                    if flags & (1 << 5):  # bit 5
+                        # Movement sensor angle
+                        # Most significant byte – pitch (-90/+90)
+                        # Two least significant bytes – roll (-180/+180)
+                        (pitch, roll,) = unpack(">bh", sensor_data[0:3])
+                        result.update({"roll": roll, "pitch": pitch})
+                        sensor_data = sensor_data[3:]
+                    if flags & (1 << 6):  # bit 6
+                        # Low battery indication sensor presence
+                        result.update({"battery low": 1})
+                    if flags & (1 << 7):  # bit 7
+                        # Battery voltage value presence
+                        volt = round(2.0 + sensor_data[0] * 0.01, 3)
+                        result.update({"voltage": volt})
         data_size -= packet_size
         packet_start += packet_size
 

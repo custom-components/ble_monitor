@@ -123,7 +123,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
         factor=0.01,
     ),
     0x15: MeasTypes(
-        meas_format="battery",
+        meas_format="battery low",
     ),
     0x16: MeasTypes(
         meas_format="battery charging",

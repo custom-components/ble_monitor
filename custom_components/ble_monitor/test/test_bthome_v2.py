@@ -305,6 +305,23 @@ class TestBTHome:
         assert sensor_msg["moisture"] == 3.07
         assert sensor_msg["rssi"] == -52
 
+    def test_bthome_v2_battery_low(self):
+        """Test BTHome parser for battery low measurement"""
+        data_string = "043E1602010000A5808FE648540A0201060616D2FC401501CC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "BTHome V2"
+        assert sensor_msg["type"] == "BTHome"
+        assert sensor_msg["mac"] == "5448E68F80A5"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["battery low"] == 1
+        assert sensor_msg["rssi"] == -52
+
     def test_bthome_v2_battery_charging(self):
         """Test BTHome parser for battery charging measurement"""
         data_string = "043E1602010000A5808FE648540A0201060616D2FC401601CC"

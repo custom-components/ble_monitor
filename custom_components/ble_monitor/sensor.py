@@ -339,6 +339,8 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |**pulse
     # |  |**shake
     # |  |**rotation
+    # |  |**roll
+    # |  |**pitch
     # |  |**distance
     # |  |**distance mm
     # |  |**duration
@@ -354,6 +356,7 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**major
     # |  |  |**minor
     # |  |  |**count
+    # |  |  |**movement counter
     # |  |  |**score
     # |  |  |**air quality
     # |  |  |**text

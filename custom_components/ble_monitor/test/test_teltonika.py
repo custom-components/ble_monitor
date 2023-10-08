@@ -102,3 +102,26 @@ class TestTeltonika:
         assert sensor_msg["temperature"] == 27.12
         assert sensor_msg["battery"] == 13
         assert sensor_msg["rssi"] == -35
+
+    def test_teltonika_eye(self):
+        """Test Teltonika parser for Teltonika Eye sensor."""
+        data_string = "043E46020103001897035ECFD03a0201061AFF4C000215FFFFFFFF0B8C404510C655AAB636EBEFBB700055020C094D50315F313233343536370EFF9A0801B708B4120CCB0BFFC767DD"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Teltonika"
+        assert sensor_msg["type"] == "EYE sensor"
+        assert sensor_msg["mac"] == "D0CF5E039718"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 22.28
+        assert sensor_msg["humidity"] == 18
+        assert sensor_msg["magnetic field detected"] == 0
+        assert sensor_msg["moving"] == 0
+        assert sensor_msg["movement counter"] == 3275
+        assert sensor_msg["roll"] == -57
+        assert sensor_msg["pitch"] == 11
+        assert sensor_msg["voltage"] == 3.03
+        assert sensor_msg["rssi"] == -35
