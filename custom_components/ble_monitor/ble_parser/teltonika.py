@@ -92,7 +92,7 @@ def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
                         # 15 least significant bits represent count of movement events.
                         moving = sensor_data[0] & (1 << 7)
                         count = ((sensor_data[0] & 0b01111111) << 8) + sensor_data[1]
-                        result.update({"moving": moving, "count": count})
+                        result.update({"moving": moving, "movement counter": count})
                         sensor_data = sensor_data[2:]
                     if flags & (1 << 5):  # bit 5
                         # Movement sensor angle

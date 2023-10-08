@@ -356,6 +356,7 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**major
     # |  |  |**minor
     # |  |  |**count
+    # |  |  |**movement counter
     # |  |  |**score
     # |  |  |**air quality
     # |  |  |**text

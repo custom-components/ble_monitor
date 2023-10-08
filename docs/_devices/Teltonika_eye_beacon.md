@@ -11,7 +11,7 @@ broadcasted_properties:
   - pitch
   - magnetic field detected
   - moving
-  - count
+  - movement counter
   - battery low
   - rssi
 broadcasted_property_notes:

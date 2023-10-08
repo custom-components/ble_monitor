@@ -120,7 +120,7 @@ class TestTeltonika:
         assert sensor_msg["humidity"] == 18
         assert sensor_msg["magnetic field detected"] == 0
         assert sensor_msg["moving"] == 0
-        assert sensor_msg["count"] == 3275
+        assert sensor_msg["movement counter"] == 3275
         assert sensor_msg["roll"] == -57
         assert sensor_msg["pitch"] == 11
         assert sensor_msg["voltage"] == 3.03
