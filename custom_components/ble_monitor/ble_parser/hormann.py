@@ -18,7 +18,7 @@ def parse_hormann(self, data, source_mac, rssi):
 
     while data_size > 1:
         packet_size = data[packet_start] + 1
-        if packet_size > 1 and packet_size <= packet_size:
+        if packet_size > 1 and packet_size <= data_size:
             packet = data[packet_start:packet_start + packet_size]
             packet_type = packet[1]
 
