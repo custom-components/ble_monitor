@@ -336,7 +336,7 @@ We have created a python script that will get the beaconkey by connecting to the
 ```
 wget https://raw.githubusercontent.com/custom-components/ble_monitor/master/custom_components/ble_monitor/ble_parser/get_beacon_key.py
 apt-get install python3-pip libglib2.0-dev
-pip3 install bluepy
+pip3 install bleak asyncio
 python3 get_beacon_key.py <MAC> <PRODUCT_ID>
 ```
 Replace `<MAC>` with your MAC address of the remote/dimmer and replace `<PRODUCT_ID>` with one of the following numbers, corresponding to your remote/dimmer.
