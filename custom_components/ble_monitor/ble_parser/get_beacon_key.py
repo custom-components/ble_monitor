@@ -19,9 +19,7 @@ import random
 import re
 import sys
 
-from bleak import BleakClient, BleakScanner
-from bleak.backends.characteristic import BleakGATTCharacteristic
-from bleak.uuids import normalize_uuid_16
+from bleak import BleakClient
 
 MAC_PATTERN = r"^[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}$"
 
