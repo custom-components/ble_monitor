@@ -107,15 +107,14 @@ async def get_beacon_key(mac, product_id):
         # (use 'python service_explorer.py --address <MAC> --service fe95' to dump the 'Xiaomi Inc.' service)
         for service in client.services:
             for char in service.characteristics:
-                match char.description:
-                    case 'token':
-                        HANDLE_AUTH = char.handle
-                    case 'Version':
-                        HANDLE_FIRMWARE_VERSION = char.handle
-                    case 'Authentication':
-                        HANDLE_AUTH_INIT = char.handle
-                    case 'beacon_key':
-                        HANDLE_BEACON_KEY = char.handle
+                if (char.description == 'token'):
+                    HANDLE_AUTH = char.handle
+                elif (char.description == 'Version'):
+                    HANDLE_FIRMWARE_VERSION = char.handle
+                elif (char.description == 'Authentication'):
+                    HANDLE_AUTH_INIT = char.handle
+                elif (char.description == 'beacon_key'):
+                    HANDLE_BEACON_KEY = char.handle
 
         # An asyncio future object is needed for callback handling
         future = asyncio.get_event_loop().create_future()
