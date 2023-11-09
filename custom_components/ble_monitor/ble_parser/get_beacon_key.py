@@ -20,10 +20,18 @@ import re
 import sys
 
 from bleak import BleakClient
+from bleak.uuids import normalize_uuid_16
 
 MAC_PATTERN = r"^[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}$"
 
 UUID_SERVICE = "fe95"
+
+# The characteristics of the 'fe95' service have unique uuid values and thus can be addressed via their uuid
+# this can be checked by using the service explorer from https://github.com/hbldh/bleak/blob/master/examples/service_explorer.py
+HANDLE_AUTH = normalize_uuid_16(0x0001)
+HANDLE_FIRMWARE_VERSION = normalize_uuid_16(0x0004)
+HANDLE_AUTH_INIT = normalize_uuid_16(0x0010)
+HANDLE_BEACON_KEY = normalize_uuid_16(0x0014)
 
 MI_KEY1 = bytes([0x90, 0xCA, 0x85, 0xDE])
 MI_KEY2 = bytes([0x92, 0xAB, 0x54, 0xFA])
@@ -99,22 +107,10 @@ async def get_beacon_key(mac, product_id):
 
     # Connect
     print("Connection in progress...")
-    async with BleakClient(mac, services=[UUID_SERVICE]) as client:
+    client = BleakClient(mac)
+    try:
+        await client.connect()
         print("Successful connection!")
-
-        # Map the characteristics name to the handle ids (uuids won't work)
-        # The service explorer from https://github.com/hbldh/bleak/blob/master/examples/service_explorer.py shows the characteristics
-        # (use 'python service_explorer.py --address <MAC> --service fe95' to dump the 'Xiaomi Inc.' service)
-        for service in client.services:
-            for char in service.characteristics:
-                if (char.description == 'token'):
-                    HANDLE_AUTH = char.handle
-                elif (char.description == 'Version'):
-                    HANDLE_FIRMWARE_VERSION = char.handle
-                elif (char.description == 'Authentication'):
-                    HANDLE_AUTH_INIT = char.handle
-                elif (char.description == 'beacon_key'):
-                    HANDLE_BEACON_KEY = char.handle
 
         # An asyncio future object is needed for callback handling
         future = asyncio.get_event_loop().create_future()
@@ -153,9 +149,12 @@ async def get_beacon_key(mac, product_id):
         print(f"beaconKey: '{beacon_key}'")
         print(f"firmware_version: '{firmware_version}'")
 
-        # Device will disconnect when block exits.
         print("Disconnection in progress...")
-    print("Disconnected!")
+    except Exception as e:
+        print(e)
+    finally:
+        await client.disconnect()
+        print("Disconnected!")
 
 
 async def main(argv):
