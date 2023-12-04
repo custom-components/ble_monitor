@@ -1682,6 +1682,7 @@ MEASUREMENT_DICT = {
     'Meter TH plus'           : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Laica Smart Scale'       : [["weight", "impedance", "rssi"], [], []],
     "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
+    "Acconeer XM126"          : [["temperature", "battery", "rssi"], [], ["motion"]],
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
@@ -1816,6 +1817,7 @@ MANUFACTURER_DICT = {
     'Meter TH plus'           : 'Switchbot',
     'Laica Smart Scale'       : 'Laica',
     'Acconeer XM122'          : 'Acconeer',
+    'Acconeer XM126'          : 'Acconeer',
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
 }

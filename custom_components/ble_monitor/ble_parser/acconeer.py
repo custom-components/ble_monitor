@@ -7,11 +7,13 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 ACCONEER_SENSOR_IDS = {
-    0x80: "Acconeer XM122"
+    0x80: "Acconeer XM122",
+    0x91: "Acconeer XM126",
 }
 
 MEASUREMENTS = {
     0x80: ["presence", "temperature"],
+    0x91: ["presence", "temperature"],
 }
 
 
