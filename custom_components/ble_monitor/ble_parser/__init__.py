@@ -136,10 +136,16 @@ class BleParser:
                     service_class_uuid128 = adstruct[2:]
                 elif adstuct_type == 0x08:
                     # AD type 'shortened local name'
-                    shortened_local_name = adstruct[2:].decode("utf-8")
+                    try:
+                        shortened_local_name = adstruct[2:].decode("utf-8")
+                    except UnicodeDecodeError:
+                        shortened_local_name = ""
                 elif adstuct_type == 0x09:
                     # AD type 'complete local name'
-                    complete_local_name = adstruct[2:].decode("utf-8")
+                    try:
+                        complete_local_name = adstruct[2:].decode("utf-8")
+                    except UnicodeDecodeError:
+                        complete_local_name = ""
                 elif adstuct_type == 0x16 and adstuct_size > 4:
                     # AD type 'Service Data - 16-bit UUID'
                     service_data_list.append(adstruct)
