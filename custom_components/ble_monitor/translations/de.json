@@ -1,0 +1,121 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Passiver BLE-Monitor",
+        "description": "Richte deine BLE-Monitor-Konfiguration ein",
+        "data": {
+          "bt_interface": "MAC-Adresse des Bluetooth-Interface/Adapters",
+          "devices": "Geräte",
+          "discovery": "Entdecke Geräte und Sensoren automatisch",
+          "period": "Zeitraum für die Durchschnittsberechnung",
+          "log_spikes": "Protokolliere Spitzen",
+          "use_median": "Verwende Median anstelle von Mittelwert",
+          "active_scan": "Verwende aktiven Scan anstelle von passivem Scan (beeinflusst die Batterie)",
+          "restore_state": "Stelle den Zustand nach einem Neustart wieder her",
+          "report_unknown": "Melde unbekannte BLE-Anzeigen im HA-Protokoll",
+          "bt_auto_restart": "Starte Bluetooth-Adapter bei Ausfall automatisch neu"
+        }
+      },
+      "add_remove_device": {
+        "title": "Gerät hinzufügen",
+        "data": {
+          "mac": "MAC-Adresse",
+          "uuid": "Beacon-UUID",
+          "encryption_key": "Verschlüsselungscode",
+          "temperature_unit": "Temperatureinheit [wie vom Gerät gesendet]",
+          "use_median": "Verwende Median anstelle von Mittelwert",
+          "restore_state": "Stelle den Zustand nach einem Neustart wieder her",
+          "reset_timer": "Timer zurücksetzen (in Sekunden, 0 = aus)",
+          "report_unknown": "Melde unbekannte BLE-Anzeigen im HA-Protokoll",
+          "track_device": "Verfolge Gerät",
+          "tracker_scan_interval": "Intervall für Geräte-Tracking-Scan (in Sekunden)",
+          "consider_home": "Intervall für Geräte-Tracking 'Zuhause' betrachten (in Sekunden)",
+          "delete device": "Gerät löschen"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "MAC-Adresse muss im Format 'AA:BB:CC:DD:EE:FF' sein.",
+      "invalid_uuid": "Beacon-UUID muss im Format '00000000-0000-0000-0000-000000000000' sein.",
+      "invalid_key": "Verschlüsselungscode muss 32 hexadezimale Zeichen sein (24 für Yeelight-Sensoren).",
+      "cannot_change_mac": "MAC-Adresse kann nicht geändert werden.",
+      "cannot_change_uuid": "Beacon-UUID kann nicht geändert werden.",
+      "cannot_delete_device": "Gerät kann nicht gelöscht werden.",
+      "cannot_disable_bt_interface": "Bluetooth-Interface kann nicht deaktiviert werden, solange eines oder mehrere BT-Interfaces noch ausgewählt sind. Wähle alle BT-Interfaces ab."
+    },
+    "abort": {
+      "single_instance_allowed": "Nur eine Konfiguration von BLE-Monitor ist erlaubt."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Optionen für passiven BLE-Monitor",
+        "description": "Das Scannen wird nach Drücken von 'Absenden' neu gestartet",
+        "data": {
+          "bt_interface": "MAC-Adresse des Bluetooth-Interface/Adapters",
+          "devices": "Geräte",
+          "discovery": "Entdecke Geräte und Sensoren automatisch",
+          "period": "Zeitraum für die Durchschnittsberechnung",
+          "log_spikes": "Protokolliere Spitzen",
+          "use_median": "Verwende Median anstelle von Mittelwert",
+          "active_scan": "Verwende aktiven Scan anstelle von passivem Scan (beeinflusst die Batterie)",
+          "report_unknown": "Melde unbekannte BLE-Anzeigen im HA-Protokoll",
+          "bt_auto_restart": "Starte Bluetooth-Adapter bei Ausfall automatisch neu",
+          "restore_state": "Stelle den Zustand nach einem Neustart wieder her",
+          "not_in_use": "YAML wird verwendet, ändere Optionen in YAML"
+        }
+      },
+      "add_remove_device": {
+        "title": "Gerät konfigurieren",
+        "data": {
+          "mac": "MAC-Adresse",
+          "uuid": "Beacon-UUID",
+          "encryption_key": "Verschlüsselungscode (auf '-' setzen, um zu entfernen)",
+          "temperature_unit": "Temperatureinheit [wie vom Gerät gesendet]",
+          "use_median": "Verwende Median anstelle von Mittelwert",
+          "restore_state": "Stelle den Zustand nach einem Neustart wieder her",
+          "reset_timer": "Timer zurücksetzen (in Sekunden, 0 = aus)",
+          "report_unknown": "Melde unbekannte BLE-Anzeigen im HA-Protokoll",
+          "track_device": "Verfolge Gerät",
+          "tracker_scan_interval": "Intervall für Geräte-Tracking-Scan (in Sekunden)",
+          "consider_home": "Intervall für Geräte-Tracking 'Zuhause' betrachten (in Sekunden)",
+          "delete device": "Gerät löschen"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "MAC-Adresse muss im Format 'AA:BB:CC:DD:EE:FF' sein.",
+      "invalid_uuid": "Beacon-UUID muss im Format '00000000-0000-0000-0000-000000000000' sein.",
+      "invalid_key": "Verschlüsselungscode muss 32 hexadezimale Zeichen lang sein (24 für Yeelight-Sensoren).",
+      "cannot_change_mac": "MAC-Adresse kann nicht geändert werden.",
+      "cannot_change_uuid": "Beacon-UUID kann nicht geändert werden.",
+      "cannot_delete_device": "Gerät kann nicht gelöscht werden.",
+      "cannot_disable_bt_interface": "Bluetooth-Interface kann nicht deaktiviert werden, solange eines oder mehrere BT-Interfaces noch ausgewählt sind. Wähle alle BT-Interfaces ab."
+    },
+    "abort": {
+      "not_in_use": "Du hast BLE-Monitor in YAML konfiguriert. Bitte ändere deine Optionen in YAML."
+    }
+  },
+  "services": {
+    "cleanup_entries": {
+      "name": "Einträge bereinigen",
+      "description": "Bereinigung von herumliegenden Geräten der BLE-Monitor-Integration."
+    },
+    "parse_data": {
+      "name": "Daten parsen",
+      "description": "Sende RAW-HCI-Paketdaten an die BLE-Monitor-Integration.",
+      "fields": {
+        "packet": {
+          "name": "Paket",
+          "description": "RAW-HCI-Paketdaten hex."
+        },
+        "gateway_id": {
+          "name": "Gateway-ID",
+          "description": "Kennung des Gateways, das die RAW-HCI-Paketdaten sendet (nur für Geräte-Tracker)."
+        }
+      }
+    }
+  }
+}
