@@ -1,17 +1,4 @@
 {
-    "python.linting.flake8Enabled": true,
-    "python.linting.flake8Args": [
-        "--max-line-length=120",
-        "--ignore=E402,F841,F401,E302,E305"
-    ],
-    "python.linting.enabled": true,
-    "python.linting.pydocstyleEnabled": true,
-    "python.linting.pydocstyleArgs": ["--max-line-length=120"],
-    "python.linting.pylintEnabled": true,
-    "python.linting.pycodestyleEnabled": true,
-    "python.linting.pycodestyleArgs": [
-        "--max-line-length=120"
-    ],
     "python.testing.unittestArgs": [
         "-v",
         "-s",

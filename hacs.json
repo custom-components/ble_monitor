@@ -1,4 +1,4 @@
 {
   "name": "Passive BLE monitor integration",
-  "homeassistant": "2023.1.0"
+  "homeassistant": "2023.11.0"
 }
