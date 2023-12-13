@@ -21,6 +21,8 @@ def parse_qingping(self, data, source_mac, rssi):
             device_type = "CGP1W"
         elif device_id == 0x12:
             device_type = "CGPR1"
+        elif device_id == 0x18:
+            device_type = "CGP23W"
         elif device_id == 0x0C:
             device_type = "CGD1"
         elif device_id in [0x0E, 0x24]:
