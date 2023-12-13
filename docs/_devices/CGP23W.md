@@ -1,9 +1,9 @@
 ---
 manufacturer: Qingping
-name: Temp & RH Monitor Lite
-model: GGP23W
-image:
-physical_description: Unknown
+name: Temp & RH Monitor Pro
+model: CGP23W
+image: CGP23W.jpg
+physical_description: Rounded square body, LCD display
 broadcasted_properties:
   - temperature
   - humidity

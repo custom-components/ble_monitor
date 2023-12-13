@@ -59,8 +59,8 @@ class TestQingping:
         assert sensor_msg["battery"] == 56
         assert sensor_msg["rssi"] == -81
 
-    def test_qingping_GGP23W(self):
-        """Test Qingping parser for GGP23W."""
+    def test_qingping_CGP23W(self):
+        """Test Qingping parser for CGP23W."""
         data_string = "043E2802010000072240342d581C0201061816cdfd8818072240342d5801041701ca0002016107027227D1"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
@@ -68,7 +68,7 @@ class TestQingping:
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Qingping"
-        assert sensor_msg["type"] == "GGP23W"
+        assert sensor_msg["type"] == "CGP23W"
         assert sensor_msg["mac"] == "582D34402207"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
