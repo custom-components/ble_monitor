@@ -850,7 +850,6 @@ class TestXiaomi:
         assert sensor_msg["battery"] == 76
         assert sensor_msg["rssi"] == -52
 
-
     def test_XMWXKG01LM_single_click(self):
         """Test Xiaomi parser for XMWXKG01LM single click on switch."""
         self.aeskeys = {}
@@ -881,7 +880,7 @@ class TestXiaomi:
     def test_XMWXKG01LM_double_click(self):
         """Test Xiaomi parser for XMWXKG01LM double click on switch."""
         self.aeskeys = {}
-        data_string = "043E28020100000d692a3cc2181C020106181695fe58598723ff0d692a3cc21876d7a70800006024e757C0"
+        data_string = "043E28020100000d692a3cc2181C020106181695fe58598723010d692a3cc218f397dd09000079826b9dC0"
         data = bytes(bytearray.fromhex(data_string))
 
         aeskey = "c533a5ab361b0a24de4d21d1d9a3d8a1"
