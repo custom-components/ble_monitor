@@ -1,6 +1,6 @@
 ---
 manufacturer: Qingping
-name: Temp & RH Monitor Pro
+name: Temp & RH Barometer Pro
 model: CGP23W
 image: CGP23W.jpg
 physical_description: Rounded square body, LCD display
