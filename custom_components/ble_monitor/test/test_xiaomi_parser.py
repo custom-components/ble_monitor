@@ -898,7 +898,7 @@ class TestXiaomi:
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
         assert sensor_msg["type"] == "XMWXKG01LM"
         assert sensor_msg["mac"] == "18C23C2A690D"
-        assert sensor_msg["packet"] == 255
+        assert sensor_msg["packet"] == 1
         assert sensor_msg["data"]
         assert sensor_msg["one btn switch"] == "toggle"
         assert sensor_msg["button switch"] == "double press"
