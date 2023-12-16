@@ -73,6 +73,7 @@ XIAOMI_TYPE_DICT = {
     0x0DE7: "SU001-T",
     0x20DB: "MJZNZ018H",
     0x18E3: "ZX1",
+    0x11C2: "SV40",
 }
 
 # Structured objects for data conversions
