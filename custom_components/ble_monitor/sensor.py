@@ -312,6 +312,7 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**humidity
     # |  |**moisture
     # |  |**pressure
+    # |  |**water pressure
     # |  |**conductivity
     # |  |**illuminance
     # |  |**formaldehyde
@@ -327,11 +328,12 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |**TVOC
     # |  |**Air Quality Index
     # |  |**UV index
-    # |  |**Volume
-    # |  |**Volume mL
-    # |  |**Volume flow rate
-    # |  |**Gas
-    # |  |**Water
+    # |  |**volume
+    # |  |**volume mL
+    # |  |**volume flow rate
+    # |  |**flow
+    # |  |**gas
+    # |  |**water
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
     # |  |**heart rate
@@ -360,6 +362,7 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**score
     # |  |  |**air quality
     # |  |  |**text
+    # |  |  |**pump mode
     # |  |  |**timestamp
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
@@ -864,7 +867,10 @@ class StateChangedSensor(InstantUpdateSensor):
         if self.enabled is False or state == data[self.entity_description.key]:
             self.pending_update = False
             return
-
+        if "pump id" in data:
+            self._extra_state_attributes["pump_id"] = data["pump id"]
+        if "battery status" in data:
+            self._extra_state_attributes["battery_status"] = data["battery status"]
         super().collect(data, period_cnt, batt_attr)
 
 
