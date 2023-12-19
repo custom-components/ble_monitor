@@ -19,7 +19,7 @@ class TestGrundfos:
         assert sensor_msg["data"]
         assert sensor_msg["temperature"] == 13
         assert sensor_msg["flow"] == 645.2
-        assert sensor_msg["water pressur"] == 0.119
+        assert sensor_msg["water pressure"] == 0.119
         assert sensor_msg["pump mode"] == "Constant differential pressure level 1"
         assert sensor_msg["pump id"] == 38917
         assert sensor_msg["battery status"] == 3
