@@ -1717,7 +1717,7 @@ MEASUREMENT_DICT = {
     'Laica Smart Scale'       : [["weight", "impedance", "rssi"], [], []],
     "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
     "Acconeer XM126"          : [["temperature", "battery", "rssi"], [], ["motion"]],
-    "Acconeer XM126 Distance" : [["temperature", "battery", "rssi"], ["distance_mm"], []],
+    "Acconeer XM126 Distance" : [["temperature", "battery", "rssi", "distance_mm"], [], []],
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
