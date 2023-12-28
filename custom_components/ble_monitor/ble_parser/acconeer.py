@@ -45,6 +45,15 @@ def parse_acconeer(self, data, source_mac, rssi):
                 result.update({
                     "distance_mm": distance_mm,
                 })
+
+            if "temperature" in measurements:
+                result.update({
+                    "temperature": temperature,
+                })
+
+            result.update({
+                "battery": battery_level,
+            })
         else:
             measurements = MEASUREMENTS[device_id]
             (
@@ -59,14 +68,14 @@ def parse_acconeer(self, data, source_mac, rssi):
                     "motion": 0 if presence == 0 else 1,
                 })
 
-        if "temperature" in measurements:
-            result.update({
-                "temperature": temperature,
-            })
+            if "temperature" in measurements:
+                result.update({
+                    "temperature": temperature,
+                })
 
-        result.update({
-            "battery": battery_level,
-        })
+            result.update({
+                "battery": battery_level,
+            })
     else:
         device_type = None
 
