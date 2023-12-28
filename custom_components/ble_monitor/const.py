@@ -1854,6 +1854,7 @@ MANUFACTURER_DICT = {
     'Laica Smart Scale'       : 'Laica',
     'Acconeer XM122'          : 'Acconeer',
     'Acconeer XM126'          : 'Acconeer',
+    'Acconeer XM126 Distance' : 'Acconeer',
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
 }
