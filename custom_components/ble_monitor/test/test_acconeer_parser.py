@@ -63,5 +63,5 @@ class TestAcconeer:
         assert sensor_msg["data"]
         assert sensor_msg["battery"] == 100
         assert sensor_msg["temperature"] == 22
-        assert sensor_msg["distance_mm"] == 1368
+        assert sensor_msg["distance mm"] == 1368
         assert sensor_msg["rssi"] == -62
