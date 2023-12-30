@@ -43,7 +43,7 @@ def parse_acconeer(self, data, source_mac, rssi):
 
             if "distance_mm" in measurements:
                 result.update({
-                    "distance_mm": distance_mm,
+                    "distance mm": distance_mm,
                 })
 
             if "temperature" in measurements:
