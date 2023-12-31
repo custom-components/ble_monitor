@@ -24,7 +24,7 @@
           "uuid": "بیکن UUID",
           "encryption_key": "خفیہ کاری کلید",
           "temperature_unit": "درجہ حرارت کی اکائی [جیسا کہ آلے کے ذریعہ بھیجی گئی ہے]",
-          "use_median": "Use median instead of mean",
+          "use_median": "وسط کے بجائے میڈین کا استعمال کریں۔",
           "restore_state": "دوبارہ شروع کرنے کے بعد حالت کو بحال کریں۔",
           "reset_timer": "ٹائمر کو دوبارہ ترتیب دیں (سیکنڈ میں، 0 = آف)",
           "report_unknown": "نامعلوم BLE اشتہارات کی اطلاع HA لاگ کو دیں۔",
