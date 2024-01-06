@@ -17,8 +17,8 @@ def parse_jaalee(self, data, source_mac, rssi):
         jaalee_mac = source_mac
         (temp, humi, _, batt) = unpack(">HHBB", data[22:])
         # data follows the iBeacon temperature and humidity definition
-        temp = round(175.72 * temp / 65536 - 46.85, 2)
-        humi = round(125.0 * humi / 65536 - 6, 2)
+        temp = round(175 * temp / 65535 - 45, 2)
+        humi = round(100 * humi / 65535, 2)
 
         result.update(
             {
@@ -43,8 +43,8 @@ def parse_jaalee(self, data, source_mac, rssi):
             return None
         (temp, humi) = unpack(">HH", data[11:])
         # data follows the iBeacon temperature and humidity definition
-        temp = round(175.72 * temp / 65536 - 46.85, 2)
-        humi = round(125.0 * humi / 65536 - 6, 2)
+        temp = round(175 * temp / 65535 - 45, 2)
+        humi = round(100 * humi / 65535, 2)
 
         result.update(
             {
