@@ -12,6 +12,7 @@ from .bluemaestro import parse_bluemaestro
 from .blustream import parse_blustream
 from .bparasite import parse_bparasite
 from .bthome import parse_bthome
+from .chefiq import parse_chefiq
 from .const import JAALEE_TYPES, TILT_TYPES
 from .govee import parse_govee
 from .grundfos import parse_grundfos
@@ -310,6 +311,10 @@ class BleParser:
                     elif comp_id == 0x00DC and data_len == 0x0E:
                         # Oral-b
                         sensor_data = parse_oral_b(self, man_spec_data, mac, rssi)
+                        break
+                    elif comp_id == 0x05CD and data_len == 0x15:
+                        # Chef iQ
+                        sensor_data = parse_chefiq(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0x0131:
                         # Oras
