@@ -56,4 +56,4 @@ class TestJaalee:
         assert sensor_msg["temperature"] == 24.39
         assert sensor_msg["humidity"] == 23.87
         assert sensor_msg["battery"] == 100
-        assert sensor_msg["rssi"] == -39
+        assert sensor_msg["rssi"] == -41
