@@ -97,7 +97,7 @@ CONF_HMAX = 99.9
 
 # Sensors with deviating temperature range
 KETTLES = ('YM-K1501', 'YM-K1501EU', 'V-SK152')
-PROBES = ('iBBQ-2', 'iBBQ-4', 'iBBQ-6', 'H5182', 'H5183', 'H5184', 'H5185', 'H5198')
+PROBES = ('iBBQ-2', 'iBBQ-4', 'iBBQ-6', 'H5182', 'H5183', 'H5184', 'H5185', 'H5198', 'CQ60')
 
 
 # Sensor entity description
@@ -704,11 +704,44 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
+        key="temperature probe tip",
+        sensor_class="TemperatureSensor",
+        update_behavior="Averaging",
+        name="ble temperature probe tip",
+        unique_id="t_probe_tip_",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="temperature calibrated",
         sensor_class="TemperatureSensor",
         update_behavior="Averaging",
         name="ble temperature calibrated",
         unique_id="t_calibrated_",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="ambient temperature",
+        sensor_class="TemperatureSensor",
+        update_behavior="Averaging",
+        name="ble ambient temperature",
+        unique_id="t_ambient_",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        suggested_display_precision=1,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
+        key="meat temperature",
+        sensor_class="TemperatureSensor",
+        update_behavior="Averaging",
+        name="ble meat temperature",
+        unique_id="t_meat_",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         suggested_display_precision=1,
@@ -1963,6 +1996,7 @@ AUTO_BINARY_SENSOR_LIST = [
 # Sensors that are automatically added if device is in AUTO_MANUFACTURER_DICT
 AUTO_SENSOR_LIST = [
     "acceleration",
+    "ambient temperature",
     "battery",
     "button",
     "co2",
@@ -1982,6 +2016,7 @@ AUTO_SENSOR_LIST = [
     "humidity",
     "illuminance",
     "impedance",
+    "meat temperature",
     "moisture",
     "movement counter",
     "non-stabilized weight",
@@ -2005,6 +2040,7 @@ AUTO_SENSOR_LIST = [
     "temperature probe 4",
     "temperature probe 5",
     "temperature probe 6",
+    "temperature probe tip",
     "text",
     "timestamp",
     "tvoc",

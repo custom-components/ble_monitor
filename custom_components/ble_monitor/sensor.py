@@ -306,8 +306,11 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |--TemperatureSensor (Class)
     # |  |  |**temperature
     # |  |  |**temperature probe 1 till 6
+    # |  |  |**temperature probe tip
     # |  |  |**temperature alarm 1 till 4
     # |  |  |**low temperature alarm 1 till 4
+    # |  |  |**meat temperature
+    # |  |  |**ambient temperature
     # |  |--HumiditySensor (Class)
     # |  |  |**humidity
     # |  |**moisture

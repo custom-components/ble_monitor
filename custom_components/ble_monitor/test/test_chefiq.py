@@ -18,13 +18,11 @@ class TestChefiQ:
         assert sensor_msg["mac"] == "D938362E3373"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
-        assert sensor_msg["temperature"] == 19
-        assert sensor_msg["temperature probe 1"] == 19.2
-        assert sensor_msg["temperature probe 2"] == 20.1
-        assert sensor_msg["temperature probe 3"] == 20.1
-        assert sensor_msg["temperature probe 4"] == 20.2
-        assert sensor_msg["temperature probe 5"] == 20.3
-        assert sensor_msg["temperature probe 6"] == 19.2
-        assert sensor_msg["humidity"] == 44.93
+        assert sensor_msg["meat temperature"] == 20.1
+        assert sensor_msg["temperature probe tip"] == 20.1
+        assert sensor_msg["temperature probe 1"] == 20.2
+        assert sensor_msg["temperature probe 2"] == 20.3
+        assert sensor_msg["temperature probe 3"] == 19
+        assert sensor_msg["ambient temperature"] == 19.2
         assert sensor_msg["battery"] == 99
         assert sensor_msg["rssi"] == -52

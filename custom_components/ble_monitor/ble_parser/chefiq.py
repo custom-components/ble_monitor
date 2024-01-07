@@ -16,20 +16,18 @@ def parse_chefiq(self, data, source_mac, rssi):
     if msg_length == 22:
         # Chef iQ CQ60
         device_type = "CQ60"
-        (batt, temp_1, temp_2, temp_3, temp_4, temp_5, temp_6, temp_7, humi) = unpack(
+        (batt, temp_probe_3, _, temp_meat, temp_tip, temp_probe_1, temp_probe_2, temp_ambient, _) = unpack(
             "<BBHHHHHHh", msg
         )
         log_cnt = "no packet id"
         result = {
             "battery": batt,
-            "temperature": temp_1,
-            "temperature probe 1": temp_2 / 10,
-            "temperature probe 2": temp_3 / 10,
-            "temperature probe 3": temp_4 / 10,
-            "temperature probe 4": temp_5 / 10,
-            "temperature probe 5": temp_6 / 10,
-            "temperature probe 6": temp_7 / 10,
-            "humidity": humi / 100,
+            "meat temperature": temp_meat / 10,
+            "temperature probe tip": temp_tip / 10,
+            "temperature probe 1": temp_probe_1 / 10,
+            "temperature probe 2": temp_probe_2 / 10,
+            "temperature probe 3": temp_probe_3,
+            "ambient temperature": temp_ambient / 10,
         }
     else:
         if self.report_unknown == "Chef iQ":
