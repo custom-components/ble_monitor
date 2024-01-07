@@ -46,8 +46,8 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_MAC, default=DEFAULT_DEVICE_MAC): cv.string,
         vol.Optional(CONF_UUID, default=DEFAULT_DEVICE_UUID): cv.string,
         vol.Optional(CONF_DEVICE_ENCRYPTION_KEY, default=DEFAULT_DEVICE_ENCRYPTION_KEY): cv.string,
-        vol.Optional(CONF_TEMPERATURE_UNIT, default=UnitOfTemperature.TEMP_CELSIUS): vol.In(
-            [UnitOfTemperature.TEMP_CELSIUS, UnitOfTemperature.TEMP_FAHRENHEIT]
+        vol.Optional(CONF_TEMPERATURE_UNIT, default=UnitOfTemperature.CELSIUS): vol.In(
+            [UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT]
         ),
         vol.Optional(CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN): vol.In(
             [DEFAULT_DEVICE_USE_MEDIAN, True, False]
@@ -196,7 +196,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                         vol.Optional(
                             CONF_TEMPERATURE_UNIT,
                             default=user_input[CONF_TEMPERATURE_UNIT],
-                        ): vol.In([UnitOfTemperature.TEMP_CELSIUS, UnitOfTemperature.TEMP_FAHRENHEIT]),
+                        ): vol.In([UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT]),
                         vol.Optional(
                             CONF_DEVICE_USE_MEDIAN,
                             default=user_input[CONF_DEVICE_USE_MEDIAN],
@@ -274,9 +274,9 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 vol.Optional(
                     CONF_TEMPERATURE_UNIT,
                     default=self._sel_device.get(
-                        CONF_TEMPERATURE_UNIT, UnitOfTemperature.TEMP_CELSIUS
+                        CONF_TEMPERATURE_UNIT, UnitOfTemperature.CELSIUS
                     ),
-                ): vol.In([UnitOfTemperature.TEMP_CELSIUS, UnitOfTemperature.TEMP_FAHRENHEIT]),
+                ): vol.In([UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT]),
                 vol.Optional(
                     CONF_DEVICE_USE_MEDIAN,
                     default=self._sel_device.get(
