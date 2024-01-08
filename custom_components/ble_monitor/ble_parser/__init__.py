@@ -542,6 +542,7 @@ class BleParser:
         if tracker_id in self.tracker_whitelist:
             tracker_data.update({
                 "is connected": True,
+                "mac": to_unformatted_mac(mac),
                 "rssi": rssi,
                 "local_name": local_name,
             })
