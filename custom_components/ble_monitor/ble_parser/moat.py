@@ -48,11 +48,6 @@ def parse_moat(self, data, source_mac):
             )
         return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and moat_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(moat_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(moat_mac),
         "type": device_type,

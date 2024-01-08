@@ -53,13 +53,7 @@ def parse_almendo(self, data, source_mac):
                 data.hex(),
             )
         return None
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and source_mac not in self.sensor_whitelist:
-        _LOGGER.debug(
-            "Discovery is disabled. MAC: %s is not whitelisted!",
-            to_mac(source_mac),
-        )
-        return None
+
     if version != 1:
         _LOGGER.info(
             "Protocol version %i on device %s not yet known "

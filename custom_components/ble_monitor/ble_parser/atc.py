@@ -103,10 +103,6 @@ def parse_atc(self, data, source_mac):
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and atc_mac not in self.sensor_whitelist:
-        return None
-
     try:
         prev_packet = self.lpacket_ids[atc_mac]
     except KeyError:

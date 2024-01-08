@@ -62,11 +62,6 @@ def parse_relsib(self, data, source_mac):
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and relsib_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(relsib_mac))
-        return None
-
     result.update({
         "type": device_type,
         "data": True

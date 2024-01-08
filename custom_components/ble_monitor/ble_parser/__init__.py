@@ -16,7 +16,7 @@ from .chefiq import parse_chefiq
 from .const import JAALEE_TYPES, TILT_TYPES
 from .govee import parse_govee
 from .grundfos import parse_grundfos
-from .helpers import to_mac, to_unformatted_mac
+from .helpers import to_mac, to_unformatted_mac, to_uuid
 from .hhcc import parse_hhcc
 from .holyiot import parse_holyiot
 from .hormann import parse_hormann
@@ -185,8 +185,9 @@ class BleParser:
             man_spec_data_list: Optional[list] = None
     ):
         """parse BLE advertisement"""
-        sensor_data = None
-        tracker_data = None
+        sensor_data = {}
+        tracker_data = {}
+        uuid = None
         unknown_sensor = False
         if service_data_list is None:
             service_data_list = []
@@ -292,6 +293,7 @@ class BleParser:
                         if int.from_bytes(man_spec_data[6:22], byteorder='big') in TILT_TYPES:
                             # Tilt
                             sensor_data, tracker_data = parse_tilt(self, man_spec_data, mac)
+                            uuid = man_spec_data[6:22]
                             break
                         elif int.from_bytes(man_spec_data[6:22], byteorder='big') in JAALEE_TYPES:
                             # Jaalee
@@ -307,6 +309,7 @@ class BleParser:
                         else:
                             # iBeacon
                             sensor_data, tracker_data = parse_ibeacon(self, man_spec_data, mac)
+                            uuid = man_spec_data[6:22]
                             break
                     elif comp_id == 0x00DC and data_len == 0x0E:
                         # Oral-b
@@ -489,6 +492,7 @@ class BleParser:
                     elif data_len == 0x1B and ((man_spec_data[4] << 8) | man_spec_data[5]) == 0xBEAC:
                         # AltBeacon
                         sensor_data, tracker_data = parse_altbeacon(self, man_spec_data, comp_id, mac)
+                        uuid = man_spec_data[6:22]
                         break
 
                     elif man_spec_data[0] == 0x12 and comp_id == 0xACC0:  # Acconeer
@@ -515,29 +519,34 @@ class BleParser:
                 )
             break
 
+        # Ignore sensor data for MAC addresses not in sensor whitelist, when discovery is disabled
+        if self.discovery is False and mac not in self.sensor_whitelist:
+            _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(mac))
+            sensor_data = None
+        # Ignore sensor data for UUID not in sensor whitelist, when discovery is disabled
+        if self.discovery is False and uuid and uuid not in self.sensor_whitelist:
+            _LOGGER.debug("Discovery is disabled. UUID: %s is not whitelisted!", to_uuid(uuid))
+
+            sensor_data = None
         # add rssi and local name to the sensor_data output
         if sensor_data:
             sensor_data.update({
+                "mac": to_unformatted_mac(mac),
                 "rssi": rssi,
                 "local_name": local_name,
             })
+        else:
+            sensor_data = None
 
         # check for monitored device trackers
         tracker_id = tracker_data['tracker_id'] if tracker_data and 'tracker_id' in tracker_data else mac
         if tracker_id in self.tracker_whitelist:
-            if tracker_data is not None:
-                tracker_data.update({
-                    "is connected": True,
-                    "rssi": rssi,
-                    "local_name": local_name,
-                })
-            else:
-                tracker_data = {
-                    "is connected": True,
-                    "mac": to_unformatted_mac(mac),
-                    "rssi": rssi,
-                    "local_name": local_name,
-                }
+            tracker_data.update({
+                "is connected": True,
+                "mac": to_unformatted_mac(mac),
+                "rssi": rssi,
+                "local_name": local_name,
+            })
         else:
             tracker_data = None
 

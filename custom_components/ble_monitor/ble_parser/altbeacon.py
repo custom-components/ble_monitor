@@ -48,10 +48,4 @@ def parse_altbeacon(self, data: str, comp_id: int, source_mac: str):
             )
         return None, None
 
-    # check for UUID presence in sensor whitelist, if needed
-    if self.discovery is False and uuid and uuid not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. UUID: %s is not whitelisted!", to_uuid(uuid))
-
-        return None, None
-
     return sensor_data, tracker_data

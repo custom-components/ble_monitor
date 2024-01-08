@@ -69,9 +69,5 @@ def parse_kkm(self, data, source_mac):
         else:
             batt = 0
         result["battery"] = round(batt, 1)
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and kkm_mac.lower() not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(kkm_mac))
-        return None
 
     return result

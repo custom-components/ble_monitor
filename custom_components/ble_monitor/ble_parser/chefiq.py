@@ -32,19 +32,10 @@ def parse_chefiq(self, data, source_mac):
     else:
         if self.report_unknown == "Chef iQ":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Chef iQ DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Chef iQ DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
-        return None
-
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and chefiq_mac not in self.sensor_whitelist:
-        _LOGGER.debug(
-            "Discovery is disabled. MAC: %s is not whitelisted!",
-            to_mac(chefiq_mac)
-        )
         return None
 
     result.update({

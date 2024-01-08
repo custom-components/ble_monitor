@@ -29,12 +29,6 @@ def parse_sensirion(self, data, complete_local_name, source_mac):
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and source_mac not in self.sensor_whitelist:
-        _LOGGER.debug(
-            "Discovery is disabled. MAC: %s is not whitelisted!", to_mac(source_mac))
-        return None
-
     # not all of the following values are used yet, but this explains the full protocol
     # bytes 1+2 (length and type) are part of the header
     advertisementLength = data[0]  # redundant

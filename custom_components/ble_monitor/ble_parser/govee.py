@@ -241,11 +241,6 @@ def parse_govee(self, data, service_class_uuid16, local_name, source_mac):
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and govee_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(govee_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(govee_mac),
         "type": device_type,

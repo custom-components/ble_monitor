@@ -88,11 +88,6 @@ def parse_sensorpush(self, data, source_mac):
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and sensorpush_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(sensorpush_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(sensorpush_mac),
         "type": device_type,

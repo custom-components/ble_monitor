@@ -72,11 +72,6 @@ def parse_thermobeacon(self, data, source_mac):
         _LOGGER.debug("Invalid MAC address for Thermobeacon device")
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and thermobeacon_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(thermobeacon_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(thermobeacon_mac),
         "type": device_type,

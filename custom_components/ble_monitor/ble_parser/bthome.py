@@ -343,11 +343,6 @@ def parse_payload(self, payload, sw_version):
     else:
         self.packet_id = "no packet id"
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and self.bthome_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(self.bthome_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(self.bthome_mac),
         "packet": self.packet_id,

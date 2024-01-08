@@ -49,11 +49,6 @@ def parse_switchbot(self, data, source_mac):
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and switchbot_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(switchbot_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(switchbot_mac),
         "type": device_type,

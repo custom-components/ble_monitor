@@ -45,10 +45,6 @@ def parse_bparasite(self, data, source_mac):
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and bpara_mac not in self.sensor_whitelist:
-        return None
-
     try:
         prev_packet = self.lpacket_ids[bpara_mac]
     except KeyError:

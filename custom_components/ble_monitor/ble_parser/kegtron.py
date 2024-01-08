@@ -75,11 +75,6 @@ def parse_kegtron(self, data, source_mac):
         else:
             return None
 
-        # check for MAC presence in sensor whitelist, if needed
-        if self.discovery is False and kegtron_mac not in self.sensor_whitelist:
-            _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(kegtron_mac))
-            return None
-
         result.update({
             "type": device_type,
             "firmware": firmware,

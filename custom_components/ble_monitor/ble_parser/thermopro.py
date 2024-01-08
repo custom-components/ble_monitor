@@ -35,11 +35,6 @@ def parse_thermopro(self, data, device_type, source_mac):
         _LOGGER.debug("Invalid MAC address for Thermopro device")
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and thermopro_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(thermopro_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(thermopro_mac),
         "type": device_type,

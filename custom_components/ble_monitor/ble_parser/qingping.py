@@ -100,11 +100,6 @@ def parse_qingping(self, data, source_mac):
         _LOGGER.debug("Invalid MAC address for Qingping device")
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and qingping_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(qingping_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(qingping_mac),
         "type": device_type,

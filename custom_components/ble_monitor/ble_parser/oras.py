@@ -25,11 +25,6 @@ def parse_oras(self, data, source_mac):
             )
         return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and oras_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(oras_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(oras_mac),
         "type": device_type,

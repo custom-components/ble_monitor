@@ -87,9 +87,4 @@ def parse_xiaogui(self, data, source_mac):
         return None
     self.lpacket_ids[xiaogui_mac] = packet_id
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and xiaogui_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(xiaogui_mac))
-        return None
-
     return result

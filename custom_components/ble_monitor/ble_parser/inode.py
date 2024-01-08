@@ -218,11 +218,6 @@ def parse_inode(self, data, source_mac):
             return None
     self.lpacket_ids[inode_mac] = packet_id
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and inode_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(inode_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(inode_mac),
         "type": device_type,

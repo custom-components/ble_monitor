@@ -191,10 +191,7 @@ def parse_ruuvitag(self, data, source_mac):
         else:
             batt = 0
         result["battery"] = round(batt, 1)
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and ruuvitag_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(ruuvitag_mac))
-        return None
+
     if version < 5:
         _LOGGER.info(
             "Firmware version %i is outdated, consider updating your ruuvitag with MAC: %s to view all sensors",

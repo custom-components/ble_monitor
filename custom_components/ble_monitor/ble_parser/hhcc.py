@@ -59,9 +59,4 @@ def parse_hhcc(self, data: str, source_mac: bytes):
     else:
         packet_id = "no packet id"
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and hhcc_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(hhcc_mac))
-        return None
-
     return sensor_data

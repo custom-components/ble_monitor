@@ -99,11 +99,6 @@ def parse_oral_b(self, data, source_mac):
             )
         return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and oral_b_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(oral_b_mac))
-        return None
-
     result.update({
         "mac": to_unformatted_mac(oral_b_mac),
         "type": device_type,

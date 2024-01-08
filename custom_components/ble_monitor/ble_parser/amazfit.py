@@ -71,11 +71,6 @@ def parse_amazfit(self, service_data, man_spec_data, source_mac):
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and source_mac.lower() not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(source_mac))
-        return None
-
     result.update({
         "type": device_type,
         "firmware": firmware,
