@@ -531,7 +531,6 @@ class BleParser:
         # add rssi and local name to the sensor_data output
         if sensor_data:
             sensor_data.update({
-                "mac": to_unformatted_mac(mac),
                 "rssi": rssi,
                 "local_name": local_name,
             })
@@ -543,7 +542,6 @@ class BleParser:
         if tracker_id in self.tracker_whitelist:
             tracker_data.update({
                 "is connected": True,
-                "mac": to_unformatted_mac(mac),
                 "rssi": rssi,
                 "local_name": local_name,
             })
