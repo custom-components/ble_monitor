@@ -38,7 +38,6 @@ def parse_blustream(self, data, source_mac):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(blustream_mac),
         "type": device_type,
         "packet": "no packet id",
