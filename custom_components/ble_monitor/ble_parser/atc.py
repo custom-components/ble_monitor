@@ -9,7 +9,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_atc(self, data, source_mac, rssi):
+def parse_atc(self, data, source_mac):
     """Parse ATC BLE advertisements"""
     device_type = "ATC"
     msg_length = len(data)
@@ -97,8 +97,7 @@ def parse_atc(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "ATC":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN ATC DEVICE: RSSI: %s, MAC: %s, AdStruct: %s",
-                rssi,
+                "BLE ADV from UNKNOWN ATC DEVICE: MAC: %s, AdStruct: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -134,7 +133,6 @@ def parse_atc(self, data, source_mac, rssi):
     self.lpacket_ids[atc_mac] = packet_id
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(atc_mac),
         "type": device_type,
         "packet": packet_id,

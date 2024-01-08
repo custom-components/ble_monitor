@@ -17,7 +17,7 @@ MEASUREMENTS = {
 }
 
 
-def parse_acconeer(self, data, source_mac, rssi):
+def parse_acconeer(self, data, source_mac):
     """Acconeer parser"""
     msg_length = len(data)
     firmware = "Acconeer"
@@ -30,12 +30,7 @@ def parse_acconeer(self, data, source_mac, rssi):
         # Acconeer Sensors
         device_type = ACCONEER_SENSOR_IDS[device_id]
         measurements = MEASUREMENTS[device_id]
-        (
-            battery_level,
-            temperature,
-            presence,
-            reserved2
-        ) = unpack("<HhHQ", xvalue)
+        (battery_level, temperature, presence, _) = unpack("<HhHQ", xvalue)
 
         if "presence" in measurements:
             result.update({
@@ -56,8 +51,7 @@ def parse_acconeer(self, data, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "Acconeer":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Acconeer DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Acconeer DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -82,7 +76,6 @@ def parse_acconeer(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(acconeer_mac),
         "type": device_type,
         "packet": packet_id,

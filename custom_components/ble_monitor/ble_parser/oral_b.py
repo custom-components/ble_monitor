@@ -28,7 +28,7 @@ PRESSURE = {
 }
 
 
-def parse_oral_b(self, data, source_mac, rssi):
+def parse_oral_b(self, data, source_mac):
     """Parser for Oral-B toothbrush."""
     msg_length = len(data)
     firmware = "Oral-B"
@@ -93,8 +93,7 @@ def parse_oral_b(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "Oral-B":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Oral-B DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Oral-B DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -106,7 +105,6 @@ def parse_oral_b(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(oral_b_mac),
         "type": device_type,
         "packet": "no packet id",

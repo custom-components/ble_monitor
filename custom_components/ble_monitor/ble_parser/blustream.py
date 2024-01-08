@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_blustream(self, data, source_mac, rssi):
+def parse_blustream(self, data, source_mac):
     """Parse Blustream advertisement."""
     msg_length = len(data)
     firmware = "Blustream"
@@ -26,8 +26,7 @@ def parse_blustream(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "Blustream":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Blustream DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Blustream DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )

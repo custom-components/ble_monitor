@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_thermobeacon(self, data, source_mac, rssi):
+def parse_thermobeacon(self, data, source_mac):
     """Thermobeacon parser"""
     msg_length = len(data)
     device_id = data[2]
@@ -61,8 +61,7 @@ def parse_thermobeacon(self, data, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "Thermobeacon":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Thermobeacon DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Thermobeacon DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -79,7 +78,6 @@ def parse_thermobeacon(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(thermobeacon_mac),
         "type": device_type,
         "packet": "no packet id",

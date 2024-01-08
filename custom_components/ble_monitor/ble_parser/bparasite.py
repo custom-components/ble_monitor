@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_bparasite(self, data, source_mac, rssi):
+def parse_bparasite(self, data, source_mac):
     """Check for adstruc length"""
     msg_length = len(data)
     if msg_length == 22:  # TODO: Use protocol bits?
@@ -38,8 +38,7 @@ def parse_bparasite(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "b-parasite":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN b-parasite DEVICE: RSSI: %s, MAC: %s, AdStruct(%d): %s",
-                rssi,
+                "BLE ADV from UNKNOWN b-parasite DEVICE: MAC: %s, AdStruct(%d): %s",
                 to_mac(source_mac),
                 msg_length,
                 data.hex()
@@ -64,7 +63,6 @@ def parse_bparasite(self, data, source_mac, rssi):
     self.lpacket_ids[bpara_mac] = packet_id
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(bpara_mac),
         "type": device_type,
         "packet": packet_id,

@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_miscale(self, data, source_mac, rssi):
+def parse_miscale(self, data, source_mac):
     """Parser for Xiaomi Mi Scales."""
     msg_length = len(data)
     uuid16 = (data[3] << 8) | data[2]
@@ -116,7 +116,6 @@ def parse_miscale(self, data, source_mac, rssi):
         "firmware": firmware,
         "mac": to_unformatted_mac(miscale_mac),
         "packet": packet_id,
-        "rssi": rssi,
         "data": True,
     })
     return result

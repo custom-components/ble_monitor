@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_amazfit(self, service_data, man_spec_data, source_mac, rssi):
+def parse_amazfit(self, service_data, man_spec_data, source_mac):
     """parser for Amazfit scale and Miband 4 and 5"""
     if service_data:
         service_data_length = len(service_data)
@@ -81,7 +81,6 @@ def parse_amazfit(self, service_data, man_spec_data, source_mac, rssi):
         "firmware": firmware,
         "mac": to_unformatted_mac(source_mac),
         "packet": 'no packet id',
-        "rssi": rssi,
         "data": True,
     })
     return result

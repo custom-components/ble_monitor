@@ -13,7 +13,7 @@ def convert_8_8_to_float(val_1, val_2):
     return val_1 + (val_2 / 256)
 
 
-def parse_mikrotik(self, data, source_mac, rssi):
+def parse_mikrotik(self, data, source_mac):
     """Inkbird parser"""
     msg_length = len(data)
     firmware = "Mikrotik"
@@ -88,8 +88,7 @@ def parse_mikrotik(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "Mikrotik":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Mikrotik DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Mikrotik DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -101,7 +100,6 @@ def parse_mikrotik(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(source_mac),
         "type": device_type,
         "packet": "no packet id",

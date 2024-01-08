@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_jaalee(self, data, source_mac, rssi):
+def parse_jaalee(self, data, source_mac):
     """Jaalee parser"""
     msg_length = len(data)
     firmware = "Jaalee"
@@ -56,8 +56,7 @@ def parse_jaalee(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "Jaalee":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Jaalee DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Jaalee DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -69,7 +68,6 @@ def parse_jaalee(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(jaalee_mac),
         "type": device_type,
         "packet": "no packet id",

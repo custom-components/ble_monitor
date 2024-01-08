@@ -50,7 +50,7 @@ def decode_pm25_from_4_bytes(packet_value: int) -> int:
     return int(packet_value % 1000)
 
 
-def parse_govee(self, data, service_class_uuid16, local_name, source_mac, rssi):
+def parse_govee(self, data, service_class_uuid16, local_name, source_mac):
     """Parser for Govee sensors"""
     # The parser needs to handle the bug in the Govee BLE advertisement
     # data as INTELLI_ROCKS sometimes ends up glued on to the end of the message
@@ -235,8 +235,7 @@ def parse_govee(self, data, service_class_uuid16, local_name, source_mac, rssi):
     else:
         if self.report_unknown == "Govee":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Govee DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Govee DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -248,7 +247,6 @@ def parse_govee(self, data, service_class_uuid16, local_name, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(govee_mac),
         "type": device_type,
         "packet": "no packet id",

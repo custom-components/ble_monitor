@@ -1080,7 +1080,7 @@ xiaomi_dataobject_dict = {
 }
 
 
-def parse_xiaomi(self, data, source_mac, rssi):
+def parse_xiaomi(self, data, source_mac):
     """Parser for Xiaomi sensors"""
     # check for adstruc length
     i = 9  # till Frame Counter
@@ -1133,8 +1133,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
     except KeyError:
         if self.report_unknown == "Xiaomi":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Xiaomi device: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Xiaomi device: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -1245,7 +1244,6 @@ def parse_xiaomi(self, data, source_mac, rssi):
         return None
 
     result = {
-        "rssi": rssi,
         "mac": to_unformatted_mac(xiaomi_mac),
         "type": device_type,
         "packet": packet_id,

@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_bluemaestro(self, data, source_mac, rssi):
+def parse_bluemaestro(self, data, source_mac):
     """Parse BlueMaestro advertisement."""
     msg_length = len(data)
     firmware = "BlueMaestro"
@@ -52,8 +52,7 @@ def parse_bluemaestro(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "BlueMaestro":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN BlueMaestro DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN BlueMaestro DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -65,7 +64,6 @@ def parse_bluemaestro(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(bluemaestro_mac),
         "type": device_type,
         "packet": log_cnt,

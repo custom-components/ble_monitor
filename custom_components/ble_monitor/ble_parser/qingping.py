@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_qingping(self, data, source_mac, rssi):
+def parse_qingping(self, data, source_mac):
     """Qingping parser"""
     msg_length = len(data)
     if msg_length > 12:
@@ -37,7 +37,6 @@ def parse_qingping(self, data, source_mac, rssi):
             qingping_mac = qingping_mac_reversed[::-1]
 
         result = {
-            "rssi": rssi,
             "packet": "no packet id",
         }
         xdata_point = 14
@@ -90,8 +89,7 @@ def parse_qingping(self, data, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "Qingping":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Qingping DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Qingping DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -108,7 +106,6 @@ def parse_qingping(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(qingping_mac),
         "type": device_type,
         "firmware": firmware,

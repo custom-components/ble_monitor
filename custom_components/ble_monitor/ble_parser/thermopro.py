@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_thermopro(self, data, device_type, source_mac, rssi):
+def parse_thermopro(self, data, device_type, source_mac):
     """Thermopro parser"""
     if device_type in ["TP357", "TP359"]:
         firmware = "Thermopro"
@@ -24,8 +24,7 @@ def parse_thermopro(self, data, device_type, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "Thermopro":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Thermopro DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Thermopro DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -42,7 +41,6 @@ def parse_thermopro(self, data, device_type, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(thermopro_mac),
         "type": device_type,
         "packet": "no packet id",

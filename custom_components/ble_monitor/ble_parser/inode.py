@@ -41,7 +41,7 @@ def adj_acc(acc):
     return acc
 
 
-def parse_inode(self, data, source_mac, rssi):
+def parse_inode(self, data, source_mac):
     """iNode parser"""
     msg_length = len(data)
     firmware = "iNode"
@@ -198,8 +198,7 @@ def parse_inode(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "iNode":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN iNode DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN iNode DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -225,7 +224,6 @@ def parse_inode(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(inode_mac),
         "type": device_type,
         "packet": packet_id,

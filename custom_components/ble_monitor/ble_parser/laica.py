@@ -30,7 +30,7 @@ def read_impedance(data):
     return impedance
 
 
-def parse_laica(self, data, source_mac, rssi):
+def parse_laica(self, data, source_mac):
     """Parser for Laica sensors"""
     xvalue = data[4:]
 
@@ -38,7 +38,6 @@ def parse_laica(self, data, source_mac, rssi):
         "type": "Laica Smart Scale",
         "firmware": "Laica",
         "mac": to_unformatted_mac(source_mac),
-        "rssi": rssi,
         "data": False,
     }
 

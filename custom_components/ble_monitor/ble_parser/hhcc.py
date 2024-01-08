@@ -4,13 +4,13 @@ from struct import unpack
 
 from .const import (CONF_BATTERY, CONF_CONDUCTIVITY, CONF_DATA, CONF_FIRMWARE,
                     CONF_ILLUMINANCE, CONF_MAC, CONF_MOISTURE, CONF_PACKET,
-                    CONF_RSSI, CONF_TEMPERATURE, CONF_TYPE)
+                    CONF_TEMPERATURE, CONF_TYPE)
 from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_hhcc(self, data: str, source_mac: bytes, rssi: float):
+def parse_hhcc(self, data: str, source_mac: bytes):
     """HHCC parser"""
     if len(data) == 13:
         device_type = "HHCCJCY10"
@@ -32,14 +32,12 @@ def parse_hhcc(self, data: str, source_mac: bytes, rssi: float):
             CONF_ILLUMINANCE: illu,
             CONF_CONDUCTIVITY: cond,
             CONF_BATTERY: batt,
-            CONF_RSSI: rssi,
             CONF_MAC: to_unformatted_mac(hhcc_mac),
         }
     else:
         if self.report_unknown == "HHCC":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN HHCC DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN HHCC DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )

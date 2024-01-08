@@ -21,7 +21,7 @@ PUMP_MODE_DICT = {
 }
 
 
-def parse_grundfos(self, data, source_mac, rssi):
+def parse_grundfos(self, data, source_mac):
     """Grundfos parser"""
     device_type = "MI401"
     firmware = "Grundfos"
@@ -45,8 +45,7 @@ def parse_grundfos(self, data, source_mac, rssi):
 
     if self.report_unknown == "Grundfos":
         _LOGGER.info(
-            "BLE ADV from UNKNOWN Grundfos DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-            rssi,
+            "BLE ADV from UNKNOWN Grundfos DEVICE: MAC: %s, ADV: %s",
             to_mac(grundfos_mac),
             data.hex()
         )
@@ -57,7 +56,6 @@ def parse_grundfos(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(grundfos_mac),
         "type": device_type,
         "firmware": firmware,

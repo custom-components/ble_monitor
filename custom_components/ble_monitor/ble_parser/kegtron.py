@@ -21,7 +21,7 @@ KEGTRON_SIZE_DICT = {
 }
 
 
-def parse_kegtron(self, data, source_mac, rssi):
+def parse_kegtron(self, data, source_mac):
     """Parser for Kegtron sensors"""
     msg_length = len(data)
     if msg_length == 31:
@@ -85,7 +85,6 @@ def parse_kegtron(self, data, source_mac, rssi):
             "firmware": firmware,
             "mac": to_unformatted_mac(kegtron_mac),
             "packet": "no packet id",
-            "rssi": rssi,
             "data": True,
         })
         return result

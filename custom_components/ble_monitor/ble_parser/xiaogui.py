@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_xiaogui(self, data, source_mac, rssi):
+def parse_xiaogui(self, data, source_mac):
     """Xiaogui Scales parser"""
     msg_length = len(data)
 
@@ -22,7 +22,6 @@ def parse_xiaogui(self, data, source_mac, rssi):
         result = {
             "firmware": firmware,
             "mac": to_unformatted_mac(xiaogui_mac),
-            "rssi": rssi,
             "data": True,
         }
 

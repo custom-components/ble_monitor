@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_chefiq(self, data, source_mac, rssi):
+def parse_chefiq(self, data, source_mac):
     """Parse Chef iQ advertisement."""
     msg_length = len(data)
     firmware = "Chef iQ"
@@ -48,7 +48,6 @@ def parse_chefiq(self, data, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(chefiq_mac),
         "type": device_type,
         "packet": log_cnt,

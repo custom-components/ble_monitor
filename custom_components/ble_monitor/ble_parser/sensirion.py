@@ -13,7 +13,7 @@ SENSIRION_DEVICES = [
 ]
 
 
-def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
+def parse_sensirion(self, data, complete_local_name, source_mac):
     """Sensirion parser"""
     result = {"firmware": "Sensirion"}
     sensirion_mac = source_mac
@@ -22,9 +22,8 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
     if device_type not in SENSIRION_DEVICES:
         if self.report_unknown == "Sensirion":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Sensirion DEVICE: %s RSSI: %s, MAC: %s, ADV: %s",
+                "BLE ADV from UNKNOWN Sensirion DEVICE: %s, MAC: %s, ADV: %s",
                 device_type,
-                rssi,
                 to_mac(source_mac),
                 data.hex()
             )
@@ -52,7 +51,6 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
         else:
             result.update(samples)
             result.update({
-                "rssi": rssi,
                 "mac": to_unformatted_mac(sensirion_mac),
                 "type": device_type,
                 "packet": "no packet id",

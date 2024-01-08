@@ -87,11 +87,10 @@ dispatch = {
 }
 
 
-def parse_bthome(self, data, uuid16, source_mac, rssi):
+def parse_bthome(self, data, uuid16, source_mac):
     """BTHome BLE parser"""
     self.uuid16 = uuid16
     self.bthome_mac = source_mac
-    self.rssi = rssi
 
     if self.uuid16 == 0xFCD2:
         # BTHome V2 format
@@ -319,8 +318,7 @@ def parse_payload(self, payload, sw_version):
     if not result:
         if self.report_unknown == "BTHome":
             _LOGGER.info(
-                "BLE ADV from BTHome DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                self.rssi,
+                "BLE ADV from BTHome DEVICE: MAC: %s, ADV: %s",
                 to_mac(self.bthome_mac),
                 payload.hex()
             )
@@ -351,7 +349,6 @@ def parse_payload(self, payload, sw_version):
         return None
 
     result.update({
-        "rssi": self.rssi,
         "mac": to_unformatted_mac(self.bthome_mac),
         "packet": self.packet_id,
         "type": self.device_type,

@@ -16,7 +16,7 @@ def convert_temperature(temp):
     return temperature
 
 
-def parse_inkbird(self, data, complete_local_name, source_mac, rssi):
+def parse_inkbird(self, data, complete_local_name, source_mac):
     """Inkbird parser"""
     msg_length = len(data)
     firmware = "Inkbird"
@@ -123,8 +123,7 @@ def parse_inkbird(self, data, complete_local_name, source_mac, rssi):
     else:
         if self.report_unknown == "Inkbird":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Inkbird DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Inkbird DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex()
             )
@@ -136,7 +135,6 @@ def parse_inkbird(self, data, complete_local_name, source_mac, rssi):
         return None
 
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(source_mac),
         "type": device_type,
         "packet": "no packet id",

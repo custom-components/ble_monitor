@@ -9,14 +9,13 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_ruuvitag(self, data, source_mac, rssi):
+def parse_ruuvitag(self, data, source_mac):
     """Ruuvitag parser"""
     ruuvitag_mac = source_mac
     device_type = "Ruuvitag"
     result = {
         "mac": to_unformatted_mac(ruuvitag_mac),
         "type": device_type,
-        "rssi": rssi,
         "data": False,
     }
     adstuct_type = data[1]
@@ -172,8 +171,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
     if result is None:
         if self.report_unknown == "Ruuvitag":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Ruuvitag DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
+                "BLE ADV from UNKNOWN Ruuvitag DEVICE: MAC: %s, ADV: %s",
                 to_mac(source_mac),
                 data.hex(),
             )
