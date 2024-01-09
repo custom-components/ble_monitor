@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_bluemaestro(self, data, mac):
+def parse_bluemaestro(self, data: bytes, mac: str):
     """Parse BlueMaestro advertisement."""
     msg_length = len(data)
     firmware = "BlueMaestro"

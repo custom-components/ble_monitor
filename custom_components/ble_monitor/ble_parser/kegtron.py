@@ -21,7 +21,7 @@ KEGTRON_SIZE_DICT = {
 }
 
 
-def parse_kegtron(self, data, mac):
+def parse_kegtron(self, data: bytes, mac: str):
     """Parser for Kegtron sensors"""
     msg_length = len(data)
     if msg_length == 31:

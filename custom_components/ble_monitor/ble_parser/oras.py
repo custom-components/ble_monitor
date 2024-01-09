@@ -6,7 +6,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_oras(self, data, mac):
+def parse_oras(self, data: bytes, mac: str):
     """Parser for Oras toothbrush."""
     msg_length = len(data)
     firmware = "Oras"

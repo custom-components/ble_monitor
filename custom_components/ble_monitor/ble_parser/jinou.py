@@ -6,7 +6,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_jinou(self, data, mac):
+def parse_jinou(self, data: bytes, mac: str):
     """Jinou parser"""
     msg_length = len(data)
     firmware = "Jinou"

@@ -13,7 +13,7 @@ SENSIRION_DEVICES = [
 ]
 
 
-def parse_sensirion(self, data, complete_local_name, mac):
+def parse_sensirion(self, data: bytes, complete_local_name: str, mac: str):
     """Sensirion parser"""
     result = {"firmware": "Sensirion"}
     device_type = complete_local_name

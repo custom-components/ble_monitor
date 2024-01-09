@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_relsib(self, data, mac):
+def parse_relsib(self, data: bytes, mac: str):
     """Relsib parser"""
     msg_length = len(data)
     uuid16 = (data[3] << 8) | data[2]

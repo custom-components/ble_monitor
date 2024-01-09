@@ -41,7 +41,7 @@ def adj_acc(acc):
     return acc
 
 
-def parse_inode(self, data, mac):
+def parse_inode(self, data: bytes, mac: str):
     """iNode parser"""
     msg_length = len(data)
     firmware = "iNode"
