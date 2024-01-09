@@ -104,10 +104,9 @@ def parse_2s(msg_type, xvalue):
         return None
 
 
-def parse_airmentor(self, data: bytes, source_mac: str):
+def parse_airmentor(self, data: bytes, mac: str):
     """Parser for Air Mentor"""
     data_length = len(data)
-    airmentor_mac = source_mac
 
     device_type = None
     result = None
@@ -128,13 +127,13 @@ def parse_airmentor(self, data: bytes, source_mac: str):
         if self.report_unknown == "Air Mentor":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Air Mentor DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     result.update({
-        "mac": to_unformatted_mac(airmentor_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

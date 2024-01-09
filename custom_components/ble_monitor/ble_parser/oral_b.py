@@ -28,11 +28,10 @@ PRESSURE = {
 }
 
 
-def parse_oral_b(self, data, source_mac):
+def parse_oral_b(self, data, mac):
     """Parser for Oral-B toothbrush."""
     msg_length = len(data)
     firmware = "Oral-B"
-    oral_b_mac = source_mac
     result = {"firmware": firmware}
     if msg_length == 15:
         (state, pressure, counter, mode, sector, sector_timer, no_of_sectors) = unpack(
@@ -94,13 +93,13 @@ def parse_oral_b(self, data, source_mac):
         if self.report_unknown == "Oral-B":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Oral-B DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     result.update({
-        "mac": to_unformatted_mac(oral_b_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

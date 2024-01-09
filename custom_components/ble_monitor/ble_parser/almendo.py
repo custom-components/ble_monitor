@@ -7,10 +7,10 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_almendo(self, data, source_mac):
+def parse_almendo(self, data: bytes, mac: str):
     """Almendo parser"""
     result = {
-        "mac": to_unformatted_mac(source_mac),
+        "mac": to_unformatted_mac(mac),
         "data": False,
         "packet": "no packet id"
     }
@@ -49,7 +49,7 @@ def parse_almendo(self, data, source_mac):
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Almendo DEVICE: "
                 "MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex(),
             )
         return None
@@ -59,6 +59,6 @@ def parse_almendo(self, data, source_mac):
             "Protocol version %i on device %s not yet known "
             "by the Almendo parser",
             version,
-            to_mac(source_mac),
+            to_mac(mac),
         )
     return result

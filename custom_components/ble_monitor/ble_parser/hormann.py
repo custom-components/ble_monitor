@@ -6,10 +6,9 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_hormann(self, data, source_mac):
+def parse_hormann(self, data: str, mac: bytes):
     """Hörmann parser"""
     result = {"firmware": "Hörmann"}
-    hormann_mac = source_mac
 
     # Hörmann adv contain two 0xFF manufacturer specific data packets
     packet_start = 0
@@ -49,14 +48,14 @@ def parse_hormann(self, data, source_mac):
         if self.report_unknown == "Hormann":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Hormann DEVICE: MAC: %s, DEVICE TYPE: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 device_type,
                 data.hex()
             )
         return None
 
     result.update({
-        "mac": to_unformatted_mac(hormann_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "data": True

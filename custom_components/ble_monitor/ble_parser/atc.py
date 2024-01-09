@@ -9,7 +9,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_atc(self, data, source_mac):
+def parse_atc(self, data, mac):
     """Parse ATC BLE advertisements"""
     device_type = "ATC"
     msg_length = len(data)
@@ -45,7 +45,7 @@ def parse_atc(self, data, source_mac):
         adv_priority = 29
     elif msg_length == 15:
         # Parse BLE message in Custom format with encryption
-        atc_mac = source_mac
+        atc_mac = mac
         packet_id = data[4]
         firmware = "ATC (Custom encrypted)"
         decrypted_data = decrypt_atc(self, data, atc_mac)
@@ -70,7 +70,7 @@ def parse_atc(self, data, source_mac):
             adv_priority = 39
     elif msg_length == 12:
         # Parse BLE message in Atc1441 format with encryption
-        atc_mac = source_mac
+        atc_mac = mac
         packet_id = data[4]
         firmware = "ATC (Atc1441 encrypted)"
         decrypted_data = decrypt_atc(self, data, atc_mac)
@@ -98,7 +98,7 @@ def parse_atc(self, data, source_mac):
         if self.report_unknown == "ATC":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN ATC DEVICE: MAC: %s, AdStruct: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None

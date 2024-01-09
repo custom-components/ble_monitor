@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_miscale(self, data, source_mac):
+def parse_miscale(self, data, mac):
     """Parser for Xiaomi Mi Scales."""
     msg_length = len(data)
     uuid16 = (data[3] << 8) | data[2]
@@ -62,7 +62,7 @@ def parse_miscale(self, data, source_mac):
         if self.report_unknown == "Mi Scale":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Mi Scale DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
@@ -87,12 +87,11 @@ def parse_miscale(self, data, source_mac):
         pass
 
     firmware = device_type
-    miscale_mac = source_mac
 
     # Check for duplicate messages
     packet_id = xvalue.hex()
     try:
-        prev_packet = self.lpacket_ids[miscale_mac]
+        prev_packet = self.lpacket_ids[mac]
     except KeyError:
         # start with empty first packet
         prev_packet = None
@@ -100,7 +99,7 @@ def parse_miscale(self, data, source_mac):
         # only process new messages
         if self.filter_duplicates is True:
             return None
-    self.lpacket_ids[miscale_mac] = packet_id
+    self.lpacket_ids[mac] = packet_id
     if prev_packet is None:
         if self.filter_duplicates is True:
             # ignore first message after a restart
@@ -109,7 +108,7 @@ def parse_miscale(self, data, source_mac):
     result.update({
         "type": device_type,
         "firmware": firmware,
-        "mac": to_unformatted_mac(miscale_mac),
+        "mac": to_unformatted_mac(mac),
         "packet": packet_id,
         "data": True,
     })

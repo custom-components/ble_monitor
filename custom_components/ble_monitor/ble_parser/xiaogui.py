@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_xiaogui(self, data, source_mac):
+def parse_xiaogui(self, data, mac):
     """Xiaogui Scales parser"""
     msg_length = len(data)
 
@@ -15,7 +15,7 @@ def parse_xiaogui(self, data, source_mac):
         firmware = "Xiaogui"
         xiaogui_mac = data[11:]
 
-        if xiaogui_mac != source_mac:
+        if xiaogui_mac != mac:
             _LOGGER.error("Xiaogui MAC address doesn't match data MAC address. Data: %s", data.hex())
             return None
 
@@ -69,7 +69,7 @@ def parse_xiaogui(self, data, source_mac):
         if self.report_unknown == "Xiaogui":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Xiaogui DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
@@ -78,13 +78,13 @@ def parse_xiaogui(self, data, source_mac):
 
     # Check for duplicate messages
     try:
-        prev_packet = self.lpacket_ids[xiaogui_mac]
+        prev_packet = self.lpacket_ids[mac]
     except KeyError:
         # start with empty first packet
         prev_packet = None
     if prev_packet == packet_id:
         # only process new messages
         return None
-    self.lpacket_ids[xiaogui_mac] = packet_id
+    self.lpacket_ids[mac] = packet_id
 
     return result

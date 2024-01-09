@@ -7,11 +7,10 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_moat(self, data, source_mac):
+def parse_moat(self, data, mac):
     """Parser for Moat sensors"""
     msg_length = len(data)
     firmware = "Moat"
-    moat_mac = source_mac
     device_id = (data[3] << 8) | data[2]
     result = {"firmware": firmware}
     if msg_length == 22 and device_id == 0x1000:
@@ -43,13 +42,13 @@ def parse_moat(self, data, source_mac):
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Moat DEVICE: MAC: %s, ADV: %s",
 
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     result.update({
-        "mac": to_unformatted_mac(moat_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

@@ -21,12 +21,11 @@ KEGTRON_SIZE_DICT = {
 }
 
 
-def parse_kegtron(self, data, source_mac):
+def parse_kegtron(self, data, mac):
     """Parser for Kegtron sensors"""
     msg_length = len(data)
     if msg_length == 31:
         firmware = "Kegtron"
-        kegtron_mac = source_mac
         (device_id,) = unpack(">B", data[10:11])
         if device_id & (1 << 6):
             device_type = "Kegtron KT-200"
@@ -78,7 +77,7 @@ def parse_kegtron(self, data, source_mac):
         result.update({
             "type": device_type,
             "firmware": firmware,
-            "mac": to_unformatted_mac(kegtron_mac),
+            "mac": to_unformatted_mac(mac),
             "packet": "no packet id",
             "data": True,
         })
@@ -87,7 +86,7 @@ def parse_kegtron(self, data, source_mac):
         if self.report_unknown == "Kegtron":
             _LOGGER.debug(
                 "UNKNOWN dataobject from Kegtron DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None

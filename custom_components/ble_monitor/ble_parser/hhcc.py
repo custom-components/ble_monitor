@@ -10,11 +10,10 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_hhcc(self, data: str, source_mac: bytes):
+def parse_hhcc(self, data: str, mac: bytes):
     """HHCC parser"""
     if len(data) == 13:
         device_type = "HHCCJCY10"
-        hhcc_mac = source_mac
         xvalue_1 = data[4:7]
         xvalue_2 = data[7:10]
         xvalue_3 = data[10:13]
@@ -32,13 +31,13 @@ def parse_hhcc(self, data: str, source_mac: bytes):
             CONF_ILLUMINANCE: illu,
             CONF_CONDUCTIVITY: cond,
             CONF_BATTERY: batt,
-            CONF_MAC: to_unformatted_mac(hhcc_mac),
+            CONF_MAC: to_unformatted_mac(mac),
         }
     else:
         if self.report_unknown == "HHCC":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN HHCC DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
@@ -47,7 +46,7 @@ def parse_hhcc(self, data: str, source_mac: bytes):
     if packet_id:
         print("packet_id is", packet_id)
         try:
-            prev_packet = self.lpacket_ids[hhcc_mac]
+            prev_packet = self.lpacket_ids[mac]
         except KeyError:
             # start with empty first packet
             prev_packet = None
@@ -55,7 +54,7 @@ def parse_hhcc(self, data: str, source_mac: bytes):
             # only process new messages
             if self.filter_duplicates is True:
                 return None
-        self.lpacket_ids[hhcc_mac] = packet_id
+        self.lpacket_ids[mac] = packet_id
     else:
         packet_id = "no packet id"
 

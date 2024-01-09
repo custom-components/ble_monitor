@@ -16,13 +16,12 @@ def convert_temperature(temp):
     return temperature
 
 
-def parse_inkbird(self, data, complete_local_name, source_mac):
+def parse_inkbird(self, data, complete_local_name, mac):
     """Inkbird parser"""
     msg_length = len(data)
     firmware = "Inkbird"
     result = {"firmware": firmware}
     if msg_length == 11 and complete_local_name in ["sps", "tps"]:
-        inkbird_mac = source_mac
         xvalue = data[2:10]
         (temp, hum, probe, modbus, bat) = unpack("<hHBHB", xvalue[0:8])
 
@@ -54,7 +53,7 @@ def parse_inkbird(self, data, complete_local_name, source_mac):
         device_type = "iBBQ-1"
         inkbird_mac = data[6:12]
         xvalue = data[12:14]
-        if source_mac not in [inkbird_mac, inkbird_mac[::-1]]:
+        if mac not in [inkbird_mac, inkbird_mac[::-1]]:
             _LOGGER.debug(
                 "Inkbird MAC address doesn't match data MAC address. Data: %s",
                 data.hex()
@@ -70,7 +69,7 @@ def parse_inkbird(self, data, complete_local_name, source_mac):
         device_type = "iBBQ-2"
         inkbird_mac = data[6:12]
         xvalue = data[12:16]
-        if source_mac not in [inkbird_mac, inkbird_mac[::-1]]:
+        if mac not in [inkbird_mac, inkbird_mac[::-1]]:
             _LOGGER.debug(
                 "Inkbird MAC address doesn't match data MAC address. Data: %s",
                 data.hex()
@@ -86,7 +85,7 @@ def parse_inkbird(self, data, complete_local_name, source_mac):
     elif msg_length == 20:
         inkbird_mac = data[6:12]
         xvalue = data[12:20]
-        if source_mac not in [inkbird_mac, inkbird_mac[::-1]]:
+        if mac not in [inkbird_mac, inkbird_mac[::-1]]:
             _LOGGER.debug(
                 "Inkbird MAC address doesn't match data MAC address. Data: %s",
                 data.hex()
@@ -105,7 +104,7 @@ def parse_inkbird(self, data, complete_local_name, source_mac):
     elif msg_length == 24:
         inkbird_mac = data[6:12]
         xvalue = data[12:24]
-        if source_mac not in [inkbird_mac, inkbird_mac[::-1]]:
+        if mac not in [inkbird_mac, inkbird_mac[::-1]]:
             _LOGGER.debug("Inkbird MAC address doesn't match data MAC address. Data: %s", data.hex())
             return None
         device_type = "iBBQ-6"
@@ -124,13 +123,13 @@ def parse_inkbird(self, data, complete_local_name, source_mac):
         if self.report_unknown == "Inkbird":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Inkbird DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     result.update({
-        "mac": to_unformatted_mac(source_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

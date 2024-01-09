@@ -9,12 +9,11 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_ruuvitag(self, data, source_mac):
+def parse_ruuvitag(self, data, mac):
     """Ruuvitag parser"""
-    ruuvitag_mac = source_mac
     device_type = "Ruuvitag"
     result = {
-        "mac": to_unformatted_mac(ruuvitag_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "data": False,
     }
@@ -103,7 +102,7 @@ def parse_ruuvitag(self, data, source_mac):
 
                 # Check for duplicate messages
                 try:
-                    prev_packet = self.lpacket_ids[ruuvitag_mac]
+                    prev_packet = self.lpacket_ids[mac]
                 except KeyError:
                     # start with empty first packet
                     prev_packet = None
@@ -111,14 +110,14 @@ def parse_ruuvitag(self, data, source_mac):
                     if self.filter_duplicates is True:
                         # only process new messages
                         return None
-                self.lpacket_ids[ruuvitag_mac] = packet_id
+                self.lpacket_ids[mac] = packet_id
                 if prev_packet is None:
                     if self.filter_duplicates is True:
                         # ignore first message after a restart
                         return None
                 # Check for an increased movement counter
                 try:
-                    prev_movement = self.movements_list[ruuvitag_mac]
+                    prev_movement = self.movements_list[mac]
                 except KeyError:
                     # start with empty movement first
                     prev_movement = None
@@ -126,7 +125,7 @@ def parse_ruuvitag(self, data, source_mac):
                     motion = 0
                 else:
                     motion = 1
-                self.movements_list[ruuvitag_mac] = move_cnt
+                self.movements_list[mac] = move_cnt
 
                 result.update(
                     {
@@ -172,7 +171,7 @@ def parse_ruuvitag(self, data, source_mac):
         if self.report_unknown == "Ruuvitag":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Ruuvitag DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex(),
             )
         return None
@@ -196,6 +195,6 @@ def parse_ruuvitag(self, data, source_mac):
         _LOGGER.info(
             "Firmware version %i is outdated, consider updating your ruuvitag with MAC: %s to view all sensors",
             version,
-            to_mac(ruuvitag_mac),
+            to_mac(mac),
         )
     return result

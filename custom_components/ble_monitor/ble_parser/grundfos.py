@@ -21,11 +21,10 @@ PUMP_MODE_DICT = {
 }
 
 
-def parse_grundfos(self, data, source_mac):
+def parse_grundfos(self, data: str, mac: bytes):
     """Grundfos parser"""
     device_type = "MI401"
     firmware = "Grundfos"
-    grundfos_mac = source_mac
 
     xvalue = data[6:17]
     (packet, bat_status, pump_id, flow, press, pump_mode, temp) = unpack(
@@ -46,12 +45,12 @@ def parse_grundfos(self, data, source_mac):
     if self.report_unknown == "Grundfos":
         _LOGGER.info(
             "BLE ADV from UNKNOWN Grundfos DEVICE: MAC: %s, ADV: %s",
-            to_mac(grundfos_mac),
+            to_mac(mac),
             data.hex()
         )
 
     result.update({
-        "mac": to_unformatted_mac(grundfos_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "firmware": firmware,
         "data": True

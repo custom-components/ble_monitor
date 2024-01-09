@@ -14,14 +14,14 @@ _LOGGER = logging.getLogger(__name__)
 DEVICE_TYPE: Final = "iBeacon"
 
 
-def parse_ibeacon(self, data: str, source_mac: str):
+def parse_ibeacon(self, data: str, mac: str):
     """Parse iBeacon advertisements"""
     if data[5] == 0x15 and len(data) >= 27:
         uuid = data[6:22]
         (major, minor, power) = unpack(">HHb", data[22:27])
 
         tracker_data = {
-            CONF_MAC: to_unformatted_mac(source_mac),
+            CONF_MAC: to_unformatted_mac(mac),
             CONF_UUID: to_uuid(uuid).replace('-', ''),
             CONF_TRACKER_ID: uuid,
             CONF_MAJOR: major,
@@ -42,7 +42,7 @@ def parse_ibeacon(self, data: str, source_mac: str):
             _LOGGER.info(
                 "BLE ADV from UNKNOWN %s DEVICE: MAC: %s, ADV: %s",
                 DEVICE_TYPE,
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None, None

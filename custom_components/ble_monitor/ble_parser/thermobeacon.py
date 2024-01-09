@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_thermobeacon(self, data, source_mac):
+def parse_thermobeacon(self, data, mac):
     """Thermobeacon parser"""
     msg_length = len(data)
     device_id = data[2]
@@ -62,18 +62,18 @@ def parse_thermobeacon(self, data, source_mac):
         if self.report_unknown == "Thermobeacon":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Thermobeacon DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     # check for MAC presence in message and in service data
-    if thermobeacon_mac != source_mac:
+    if thermobeacon_mac != mac:
         _LOGGER.debug("Invalid MAC address for Thermobeacon device")
         return None
 
     result.update({
-        "mac": to_unformatted_mac(thermobeacon_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

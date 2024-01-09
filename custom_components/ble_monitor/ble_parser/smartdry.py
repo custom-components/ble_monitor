@@ -7,10 +7,9 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_smartdry(self, data, source_mac):
+def parse_smartdry(self, data, mac):
     """Parser for SmartDry cloth dryer"""
     msg_length = len(data)
-    smartdry_mac = source_mac
     if msg_length == 16:
         device_type = "SmartDry cloth dryer"
         firmware = "SmartDry"
@@ -57,13 +56,13 @@ def parse_smartdry(self, data, source_mac):
         if self.report_unknown == "SmartDry":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN SmartDry DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     result.update({
-        "mac": to_unformatted_mac(smartdry_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

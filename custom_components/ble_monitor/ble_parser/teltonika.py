@@ -7,10 +7,9 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_teltonika(self, data, complete_local_name, source_mac):
+def parse_teltonika(self, data, complete_local_name, mac):
     """Teltonika parser"""
     result = {"firmware": "Teltonika"}
-    teltonika_mac = source_mac
     device_id = (data[3] << 8) | data[2]
 
     if device_id == 0x089A:
@@ -115,14 +114,14 @@ def parse_teltonika(self, data, complete_local_name, source_mac):
         if self.report_unknown == "Teltonika":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Teltonika DEVICE: MAC: %s, DEVICE TYPE: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 device_type,
                 data.hex()
             )
         return None
 
     result.update({
-        "mac": to_unformatted_mac(teltonika_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "data": True

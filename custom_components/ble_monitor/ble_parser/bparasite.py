@@ -7,14 +7,13 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_bparasite(self, data, source_mac):
+def parse_bparasite(self, data, mac):
     """Check for adstruc length"""
     msg_length = len(data)
     if msg_length == 22:  # TODO: Use protocol bits?
-        bpara_mac = data[14:20]
         device_type = "b-parasite V1.1.0"
         firmware = "b-parasite V1.1.0 (with illuminance)"
-        (protocol, packet_id, batt, temp, humi, moist, mac, light) = unpack(">BBHhHH6sH", data[4:])
+        (protocol, packet_id, batt, temp, humi, moist, bpara_mac, light) = unpack(">BBHhHH6sH", data[4:])
         result = {
             "temperature": temp / (100 if (protocol >> 4) == 2 else 1000),
             "humidity": (humi / 65536) * 100,
@@ -24,10 +23,9 @@ def parse_bparasite(self, data, source_mac):
             "data": True
         }
     elif msg_length == 20:
-        bpara_mac = data[14:20]
         device_type = "b-parasite V1.0.0"
         firmware = "b-parasite V1.0.0 (without illuminance)"
-        (protocol, packet_id, batt, temp, humi, moist, mac) = unpack(">BBHhHH6s", data[4:])
+        (protocol, packet_id, batt, temp, humi, moist, bpara_mac) = unpack(">BBHhHH6s", data[4:])
         result = {
             "temperature": temp / (100 if (protocol >> 4) == 2 else 1000),
             "humidity": (humi / 65536) * 100,
@@ -39,14 +37,14 @@ def parse_bparasite(self, data, source_mac):
         if self.report_unknown == "b-parasite":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN b-parasite DEVICE: MAC: %s, AdStruct(%d): %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 msg_length,
                 data.hex()
             )
         return None
 
     try:
-        prev_packet = self.lpacket_ids[bpara_mac]
+        prev_packet = self.lpacket_ids[mac]
     except KeyError:
         # start with empty first packet
         prev_packet = None
@@ -56,10 +54,10 @@ def parse_bparasite(self, data, source_mac):
         if prev_packet == packet_id:
             return None
 
-    self.lpacket_ids[bpara_mac] = packet_id
+    self.lpacket_ids[mac] = packet_id
 
     result.update({
-        "mac": to_unformatted_mac(bpara_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,

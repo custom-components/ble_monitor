@@ -11,7 +11,7 @@ from .helpers import to_mac, to_unformatted_mac, to_uuid
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_tilt(self, data: str, source_mac: str, ):
+def parse_tilt(self, data: str, mac: str, ):
     """Tilt parser"""
     if data[5] == 0x15 and len(data) == 27:
         uuid = data[6:22]
@@ -20,7 +20,7 @@ def parse_tilt(self, data: str, source_mac: str, ):
         (major, minor, power) = unpack(">hhb", data[22:27])
 
         tracker_data = {
-            CONF_MAC: to_unformatted_mac(source_mac),
+            CONF_MAC: to_unformatted_mac(mac),
             CONF_UUID: to_uuid(uuid).replace('-', ''),
             CONF_TRACKER_ID: uuid,
             CONF_MAJOR: major,
@@ -40,7 +40,7 @@ def parse_tilt(self, data: str, source_mac: str, ):
         if self.report_unknown == "Tilt":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN TILT DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None, None

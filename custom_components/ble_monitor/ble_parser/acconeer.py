@@ -17,11 +17,10 @@ MEASUREMENTS = {
 }
 
 
-def parse_acconeer(self, data, source_mac):
+def parse_acconeer(self, data: bytes, mac: str):
     """Acconeer parser"""
     msg_length = len(data)
     firmware = "Acconeer"
-    acconeer_mac = source_mac
     device_id = data[4]
     xvalue = data[5:]
     result = {"firmware": firmware}
@@ -52,7 +51,7 @@ def parse_acconeer(self, data, source_mac):
         if self.report_unknown == "Acconeer":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Acconeer DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
@@ -60,7 +59,7 @@ def parse_acconeer(self, data, source_mac):
     # Check for duplicate messages
     packet_id = xvalue.hex()
     try:
-        prev_packet = self.lpacket_ids[acconeer_mac]
+        prev_packet = self.lpacket_ids[mac]
     except KeyError:
         # start with empty first packet
         prev_packet = None
@@ -68,10 +67,10 @@ def parse_acconeer(self, data, source_mac):
         # only process new messages
         if self.filter_duplicates is True:
             return None
-    self.lpacket_ids[acconeer_mac] = packet_id
+    self.lpacket_ids[mac] = packet_id
 
     result.update({
-        "mac": to_unformatted_mac(acconeer_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,

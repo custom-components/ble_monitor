@@ -13,7 +13,7 @@ def convert_8_8_to_float(val_1, val_2):
     return val_1 + (val_2 / 256)
 
 
-def parse_mikrotik(self, data, source_mac):
+def parse_mikrotik(self, data, mac):
     """Inkbird parser"""
     msg_length = len(data)
     firmware = "Mikrotik"
@@ -23,7 +23,7 @@ def parse_mikrotik(self, data, source_mac):
         (
             version,
             user_data,
-            salt,
+            _,
             acc_x_frac, acc_x,
             acc_y_frac, acc_y,
             acc_z_frac, acc_z,
@@ -39,7 +39,7 @@ def parse_mikrotik(self, data, source_mac):
             _LOGGER.info(
                 "Mikrotik device with MAC address %s uses encryption, which is not supported (yet)"
                 "Disable encryption if you want to use this device in Home Assistant",
-                to_mac(source_mac),
+                to_mac(mac),
             )
             return None
 
@@ -89,13 +89,13 @@ def parse_mikrotik(self, data, source_mac):
         if self.report_unknown == "Mikrotik":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Mikrotik DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     result.update({
-        "mac": to_unformatted_mac(source_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

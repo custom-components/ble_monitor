@@ -7,14 +7,13 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_relsib(self, data, source_mac):
+def parse_relsib(self, data, mac):
     """Relsib parser"""
     msg_length = len(data)
     uuid16 = (data[3] << 8) | data[2]
-    relsib_mac = source_mac
     result = {
         "packet": "no packet id",
-        "mac": to_unformatted_mac(relsib_mac),
+        "mac": to_unformatted_mac(mac),
         "firmware": "Relsib",
     }
     if uuid16 in [0xAA20, 0xAA21, 0xAA22] and msg_length == 26:
@@ -57,7 +56,7 @@ def parse_relsib(self, data, source_mac):
         if self.report_unknown == "Relsib":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Relsib DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None

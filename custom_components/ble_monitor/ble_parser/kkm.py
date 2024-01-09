@@ -8,12 +8,11 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_kkm(self, data, source_mac):
+def parse_kkm(self, data, mac):
     """Parser for KKM sensors."""
-    kkm_mac = source_mac
     device_type = "K6 Sensor Beacon"
     result = {
-        "mac": to_unformatted_mac(kkm_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "data": False,
     }
@@ -50,7 +49,7 @@ def parse_kkm(self, data, source_mac):
         if self.report_unknown == "KKM":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN KKM DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex(),
             )
         return None

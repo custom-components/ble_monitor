@@ -14,14 +14,14 @@ _LOGGER = logging.getLogger(__name__)
 DEVICE_TYPE: Final = "AltBeacon"
 
 
-def parse_altbeacon(self, data: str, comp_id: int, source_mac: str):
+def parse_altbeacon(self, data: str, comp_id: int, mac: str):
     """parser for Alt Beacon"""
     if len(data) >= 27:
         uuid = data[6:22]
         (major, minor, power) = unpack(">HHb", data[22:27])
 
         tracker_data = {
-            CONF_MAC: to_unformatted_mac(source_mac),
+            CONF_MAC: to_unformatted_mac(mac),
             CONF_UUID: to_uuid(uuid).replace('-', ''),
             CONF_TRACKER_ID: uuid,
             CONF_MAJOR: major,
@@ -43,7 +43,7 @@ def parse_altbeacon(self, data: str, comp_id: int, source_mac: str):
             _LOGGER.info(
                 "BLE ADV from UNKNOWN %s DEVICE: MAC: %s, ADV: %s",
                 DEVICE_TYPE,
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None, None

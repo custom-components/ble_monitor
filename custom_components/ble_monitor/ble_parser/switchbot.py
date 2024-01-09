@@ -7,10 +7,9 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_switchbot(self, data, source_mac):
+def parse_switchbot(self, data, mac):
     """Switchbot parser"""
     msg_length = len(data)
-    switchbot_mac = source_mac
     device_id = data[4]
 
     if msg_length == 10 and device_id in [0x54, 0x69]:
@@ -44,13 +43,13 @@ def parse_switchbot(self, data, source_mac):
         if self.report_unknown == "Switchbot":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Switchbot DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     result.update({
-        "mac": to_unformatted_mac(switchbot_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

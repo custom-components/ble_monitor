@@ -7,12 +7,12 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_bluemaestro(self, data, source_mac):
+def parse_bluemaestro(self, data, mac):
     """Parse BlueMaestro advertisement."""
     msg_length = len(data)
     firmware = "BlueMaestro"
     device_id = data[4]
-    bluemaestro_mac = source_mac
+    bluemaestro_mac = mac
     msg = data[5:]
     if msg_length == 18 and device_id in [0x16, 0x17]:
         # BlueMaestro Tempo Disc THD
@@ -53,7 +53,7 @@ def parse_bluemaestro(self, data, source_mac):
         if self.report_unknown == "BlueMaestro":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN BlueMaestro DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None

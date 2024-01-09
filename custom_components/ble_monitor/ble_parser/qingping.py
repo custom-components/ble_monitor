@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_qingping(self, data, source_mac):
+def parse_qingping(self, data, mac):
     """Qingping parser"""
     msg_length = len(data)
     if msg_length > 12:
@@ -31,7 +31,7 @@ def parse_qingping(self, data, source_mac):
             device_type = None
 
         if device_type == "CGDN1":
-            qingping_mac = source_mac
+            qingping_mac = mac
         else:
             qingping_mac_reversed = data[6:12]
             qingping_mac = qingping_mac_reversed[::-1]
@@ -90,18 +90,18 @@ def parse_qingping(self, data, source_mac):
         if self.report_unknown == "Qingping":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Qingping DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     # check for MAC presence in message and in service data
-    if qingping_mac != source_mac:
+    if qingping_mac != mac:
         _LOGGER.debug("Invalid MAC address for Qingping device")
         return None
 
     result.update({
-        "mac": to_unformatted_mac(qingping_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "firmware": firmware,
         "data": True

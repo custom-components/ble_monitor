@@ -50,7 +50,7 @@ def decode_pm25_from_4_bytes(packet_value: int) -> int:
     return int(packet_value % 1000)
 
 
-def parse_govee(self, data, service_class_uuid16, local_name, source_mac):
+def parse_govee(self, data: str, service_class_uuid16: int, local_name: str, mac: bytes):
     """Parser for Govee sensors"""
     # The parser needs to handle the bug in the Govee BLE advertisement
     # data as INTELLI_ROCKS sometimes ends up glued on to the end of the message
@@ -58,7 +58,6 @@ def parse_govee(self, data, service_class_uuid16, local_name, source_mac):
         data = data[:-25]
     msg_length = len(data)
     firmware = "Govee"
-    govee_mac = source_mac
     device_id = (data[3] << 8) | data[2]
     result = {"firmware": firmware}
     if msg_length == 10 and (
@@ -135,8 +134,8 @@ def parse_govee(self, data, service_class_uuid16, local_name, source_mac):
             device_type = "H5178"
         elif sensor_id == 1:
             device_type = "H5178-outdoor"
-            govee_mac_outdoor = int.from_bytes(govee_mac, 'big') + 1
-            govee_mac = bytearray(govee_mac_outdoor.to_bytes(len(govee_mac), 'big'))
+            mac_outdoor = int.from_bytes(mac, 'big') + 1
+            mac = bytearray(mac_outdoor.to_bytes(len(mac), 'big'))
         else:
             _LOGGER.debug(
                 "Unknown sensor id for Govee H5178, please report to the developers, data: %s",
@@ -236,13 +235,13 @@ def parse_govee(self, data, service_class_uuid16, local_name, source_mac):
         if self.report_unknown == "Govee":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Govee DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     result.update({
-        "mac": to_unformatted_mac(govee_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,
