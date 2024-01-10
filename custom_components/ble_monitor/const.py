@@ -189,7 +189,7 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         force_update=True,
     ),
     BLEMonitorBinarySensorEntityDescription(
-        key="gas_detected",
+        key="gas detected",
         sensor_class="BaseBinarySensor",
         update_behavior="Instantly",
         name="gas",
