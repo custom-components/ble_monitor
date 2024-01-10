@@ -1637,7 +1637,6 @@ MEASUREMENT_DICT = {
     'YM-K1501'                : [["rssi"], ["temperature"], ["switch"]],
     'YM-K1501EU'              : [["rssi"], ["temperature"], ["switch"]],
     'V-SK152'                 : [["rssi"], ["temperature"], ["switch"]],
-    'SJWS01LM'                : [["battery", "rssi"], ["button"], ["moisture detected"]],
     'MJYD02YL'                : [["battery", "rssi"], [], ["light", "motion"]],
     'MUE4094RT'               : [["rssi"], [], ["motion"]],
     'RTCGQ02LM'               : [["battery", "rssi"], ["button"], ["light", "motion"]],
@@ -1667,7 +1666,6 @@ MEASUREMENT_DICT = {
     'MHO-C401'                : [["temperature", "humidity", "battery", "voltage", "rssi"], [], []],
     'MHO-C303'                : [["temperature", "humidity", "battery", "rssi"], [], []],
     'JQJCY01YM'               : [["temperature", "humidity", "battery", "formaldehyde", "rssi"], [], []],
-    'JTYJGD03MI'              : [["rssi"], ["button", "battery"], ["smoke detector"]],
     'K9B-1BTN'                : [["rssi"], ["one btn switch"], []],
     'K9B-2BTN'                : [["rssi"], ["two btn switch left", "two btn switch right"], []],
     'K9B-3BTN'                : [["rssi"], ["three btn switch left", "three btn switch middle", "three btn switch right"], []],
@@ -1772,7 +1770,6 @@ MANUFACTURER_DICT = {
     'YM-K1501'                : 'Xiaomi',
     'YM-K1501EU'              : 'Xiaomi',
     'V-SK152'                 : 'Viomi',
-    'SJWS01LM'                : 'Xiaomi',
     'MJYD02YL'                : 'Xiaomi',
     'MUE4094RT'               : 'Xiaomi',
     'RTCGQ02LM'               : 'Xiaomi',
@@ -1801,7 +1798,6 @@ MANUFACTURER_DICT = {
     'MHO-C401'                : 'Miaomiaoce',
     'MHO-C303'                : 'Miaomiaoce',
     'JQJCY01YM'               : 'Honeywell',
-    'JTYJGD03MI'              : 'Honeywell',
     'YLAI003'                 : 'Yeelight',
     'YLYK01YL'                : 'Yeelight',
     'YLYK01YL-FANCL'          : 'Yeelight',
@@ -1927,6 +1923,7 @@ AUTO_MANUFACTURER_DICT = {
     'MI401'                   : 'Grundfos',
     'HHCCJCY10'               : 'HHCC',
     'HolyIOT BLE tracker'     : 'HolyIOT',
+    'JTYJGD03MI'              : 'Honeywell',
     'Supramatic E4 BS'        : 'Hörmann',
     'IBS-TH'                  : 'Inkbird',
     'IBS-TH2/P01B'            : 'Inkbird',
@@ -1952,6 +1949,7 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Yellow'             : 'Tilt',
     'Tilt Pink'               : 'Tilt',
     'MMC-W505'                : 'Xiaomi',
+    'SJWS01LM'                : 'Xiaomi',
 }
 
 

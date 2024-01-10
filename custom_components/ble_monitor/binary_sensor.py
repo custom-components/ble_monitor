@@ -88,12 +88,15 @@ class BLEupdaterBinary:
                     if key not in sensors_by_key:
                         sensors_by_key[key] = {}
                     if measurement not in sensors_by_key[key]:
-                        entity_description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
-                        sensors[measurement] = globals()[entity_description.sensor_class](
-                            self.config, key, device_model, firmware, entity_description, manufacturer
-                        )
-                        self.add_entities([sensors[measurement]])
-                        sensors_by_key[key].update(sensors)
+                        try:
+                            entity_description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
+                            sensors[measurement] = globals()[entity_description.sensor_class](
+                                self.config, key, device_model, firmware, entity_description, manufacturer
+                            )
+                            self.add_entities([sensors[measurement]])
+                            sensors_by_key[key].update(sensors)
+                        except IndexError:
+                            _LOGGER.error("Error adding measurement %s", measurement)
                     else:
                         sensors = sensors_by_key[key]
             else:
@@ -102,11 +105,14 @@ class BLEupdaterBinary:
                     sensors = {}
                     sensors_by_key[key] = {}
                     for measurement in device_sensors:
-                        entity_description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
-                        sensors[measurement] = globals()[entity_description.sensor_class](
-                            self.config, key, device_model, firmware, entity_description, manufacturer
-                        )
-                        self.add_entities([sensors[measurement]])
+                        try:
+                            entity_description = [item for item in BINARY_SENSOR_TYPES if item.key is measurement][0]
+                            sensors[measurement] = globals()[entity_description.sensor_class](
+                                self.config, key, device_model, firmware, entity_description, manufacturer
+                            )
+                            self.add_entities([sensors[measurement]])
+                        except IndexError:
+                            _LOGGER.error("Error adding measurement %s", measurement)
                     sensors_by_key[key] = sensors
                 else:
                     sensors = sensors_by_key[key]
