@@ -9,14 +9,12 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_ruuvitag(self, data, source_mac, rssi):
+def parse_ruuvitag(self, data: bytes, mac: str):
     """Ruuvitag parser"""
-    ruuvitag_mac = source_mac
     device_type = "Ruuvitag"
     result = {
-        "mac": to_unformatted_mac(ruuvitag_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
-        "rssi": rssi,
         "data": False,
     }
     adstuct_type = data[1]
@@ -104,7 +102,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
 
                 # Check for duplicate messages
                 try:
-                    prev_packet = self.lpacket_ids[ruuvitag_mac]
+                    prev_packet = self.lpacket_ids[mac]
                 except KeyError:
                     # start with empty first packet
                     prev_packet = None
@@ -112,14 +110,14 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                     if self.filter_duplicates is True:
                         # only process new messages
                         return None
-                self.lpacket_ids[ruuvitag_mac] = packet_id
+                self.lpacket_ids[mac] = packet_id
                 if prev_packet is None:
                     if self.filter_duplicates is True:
                         # ignore first message after a restart
                         return None
                 # Check for an increased movement counter
                 try:
-                    prev_movement = self.movements_list[ruuvitag_mac]
+                    prev_movement = self.movements_list[mac]
                 except KeyError:
                     # start with empty movement first
                     prev_movement = None
@@ -127,7 +125,7 @@ def parse_ruuvitag(self, data, source_mac, rssi):
                     motion = 0
                 else:
                     motion = 1
-                self.movements_list[ruuvitag_mac] = move_cnt
+                self.movements_list[mac] = move_cnt
 
                 result.update(
                     {
@@ -172,9 +170,8 @@ def parse_ruuvitag(self, data, source_mac, rssi):
     if result is None:
         if self.report_unknown == "Ruuvitag":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Ruuvitag DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Ruuvitag DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex(),
             )
         return None
@@ -193,14 +190,11 @@ def parse_ruuvitag(self, data, source_mac, rssi):
         else:
             batt = 0
         result["battery"] = round(batt, 1)
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and ruuvitag_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(ruuvitag_mac))
-        return None
+
     if version < 5:
         _LOGGER.info(
             "Firmware version %i is outdated, consider updating your ruuvitag with MAC: %s to view all sensors",
             version,
-            to_mac(ruuvitag_mac),
+            to_mac(mac),
         )
     return result

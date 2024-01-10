@@ -6,11 +6,10 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_oras(self, data, source_mac, rssi):
+def parse_oras(self, data: bytes, mac: str):
     """Parser for Oras toothbrush."""
     msg_length = len(data)
     firmware = "Oras"
-    oras_mac = source_mac
     result = {"firmware": firmware}
     if msg_length == 22:
         device_type = "Electra Washbasin Faucet"
@@ -19,21 +18,14 @@ def parse_oras(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "Oras":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Oras DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Oras DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and oras_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(oras_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(oras_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

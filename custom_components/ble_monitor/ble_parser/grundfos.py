@@ -21,11 +21,10 @@ PUMP_MODE_DICT = {
 }
 
 
-def parse_grundfos(self, data, source_mac, rssi):
+def parse_grundfos(self, data: str, mac: bytes):
     """Grundfos parser"""
     device_type = "MI401"
     firmware = "Grundfos"
-    grundfos_mac = source_mac
 
     xvalue = data[6:17]
     (packet, bat_status, pump_id, flow, press, pump_mode, temp) = unpack(
@@ -45,20 +44,13 @@ def parse_grundfos(self, data, source_mac, rssi):
 
     if self.report_unknown == "Grundfos":
         _LOGGER.info(
-            "BLE ADV from UNKNOWN Grundfos DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-            rssi,
-            to_mac(grundfos_mac),
+            "BLE ADV from UNKNOWN Grundfos DEVICE: MAC: %s, ADV: %s",
+            to_mac(mac),
             data.hex()
         )
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and grundfos_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(grundfos_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(grundfos_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "firmware": firmware,
         "data": True

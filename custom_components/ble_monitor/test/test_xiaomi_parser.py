@@ -316,6 +316,29 @@ class TestXiaomi:
 
     def test_Xiaomi_SJWS01LM(self):
         """Test Xiaomi parser for SJWS01LM."""
+        self.aeskeys = {}
+        data_string = "043e2902010000bc27e044ef541d020106191695fe5859630808bc27e044ef54f58fe704000000fc69d15ca8"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "255e6cabb39b2eddd0de992b9fee2bf2"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "SJWS01LM"
+        assert sensor_msg["mac"] == "54EF44E027BC"
+        assert sensor_msg["packet"] == 8
+        assert sensor_msg["data"]
+        assert sensor_msg["moisture detected"]
+        assert sensor_msg["rssi"] == -88
 
     def test_Xiaomi_MJYD02YL(self):
         """Test Xiaomi parser for MJYD02YL."""

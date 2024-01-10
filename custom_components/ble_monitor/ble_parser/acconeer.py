@@ -17,11 +17,10 @@ MEASUREMENTS = {
 }
 
 
-def parse_acconeer(self, data, source_mac, rssi):
+def parse_acconeer(self, data: bytes, mac: str):
     """Acconeer parser"""
     msg_length = len(data)
     firmware = "Acconeer"
-    acconeer_mac = source_mac
     device_id = data[4]
     xvalue = data[5:]
     result = {"firmware": firmware}
@@ -30,12 +29,7 @@ def parse_acconeer(self, data, source_mac, rssi):
         # Acconeer Sensors
         device_type = ACCONEER_SENSOR_IDS[device_id]
         measurements = MEASUREMENTS[device_id]
-        (
-            battery_level,
-            temperature,
-            presence,
-            reserved2
-        ) = unpack("<HhHQ", xvalue)
+        (battery_level, temperature, presence, _) = unpack("<HhHQ", xvalue)
 
         if "presence" in measurements:
             result.update({
@@ -56,9 +50,8 @@ def parse_acconeer(self, data, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "Acconeer":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Acconeer DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Acconeer DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
@@ -66,7 +59,7 @@ def parse_acconeer(self, data, source_mac, rssi):
     # Check for duplicate messages
     packet_id = xvalue.hex()
     try:
-        prev_packet = self.lpacket_ids[acconeer_mac]
+        prev_packet = self.lpacket_ids[mac]
     except KeyError:
         # start with empty first packet
         prev_packet = None
@@ -74,16 +67,10 @@ def parse_acconeer(self, data, source_mac, rssi):
         # only process new messages
         if self.filter_duplicates is True:
             return None
-    self.lpacket_ids[acconeer_mac] = packet_id
-
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and acconeer_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(acconeer_mac))
-        return None
+    self.lpacket_ids[mac] = packet_id
 
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(acconeer_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,

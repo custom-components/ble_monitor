@@ -6,10 +6,9 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_hormann(self, data, source_mac, rssi):
+def parse_hormann(self, data: str, mac: bytes):
     """Hörmann parser"""
     result = {"firmware": "Hörmann"}
-    hormann_mac = source_mac
 
     # Hörmann adv contain two 0xFF manufacturer specific data packets
     packet_start = 0
@@ -48,22 +47,15 @@ def parse_hormann(self, data, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "Hormann":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Hormann DEVICE: RSSI: %s, MAC: %s, DEVICE TYPE: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Hormann DEVICE: MAC: %s, DEVICE TYPE: %s, ADV: %s",
+                to_mac(mac),
                 device_type,
                 data.hex()
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and hormann_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(hormann_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(hormann_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "data": True

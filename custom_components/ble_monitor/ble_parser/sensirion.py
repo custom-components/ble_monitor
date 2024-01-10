@@ -13,27 +13,19 @@ SENSIRION_DEVICES = [
 ]
 
 
-def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
+def parse_sensirion(self, data: bytes, complete_local_name: str, mac: str):
     """Sensirion parser"""
     result = {"firmware": "Sensirion"}
-    sensirion_mac = source_mac
     device_type = complete_local_name
 
     if device_type not in SENSIRION_DEVICES:
         if self.report_unknown == "Sensirion":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Sensirion DEVICE: %s RSSI: %s, MAC: %s, ADV: %s",
+                "BLE ADV from UNKNOWN Sensirion DEVICE: %s, MAC: %s, ADV: %s",
                 device_type,
-                rssi,
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
-        return None
-
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and source_mac not in self.sensor_whitelist:
-        _LOGGER.debug(
-            "Discovery is disabled. MAC: %s is not whitelisted!", to_mac(source_mac))
         return None
 
     # not all of the following values are used yet, but this explains the full protocol
@@ -52,8 +44,7 @@ def parse_sensirion(self, data, complete_local_name, source_mac, rssi):
         else:
             result.update(samples)
             result.update({
-                "rssi": rssi,
-                "mac": to_unformatted_mac(sensirion_mac),
+                "mac": to_unformatted_mac(mac),
                 "type": device_type,
                 "packet": "no packet id",
                 "data": True

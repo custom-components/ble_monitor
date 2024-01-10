@@ -67,10 +67,9 @@ def decode_values(mfg_data: bytes, device_type_id: int) -> dict:
     return values
 
 
-def parse_sensorpush(self, data, source_mac, rssi):
+def parse_sensorpush(self, data: bytes, mac: str):
     """Sensorpush parser"""
     result = {"firmware": "SensorPush"}
-    sensorpush_mac = source_mac
     device_type = None
 
     page_id = data[2] & 0x03
@@ -82,21 +81,14 @@ def parse_sensorpush(self, data, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "SensorPush":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN SensorPush DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN SensorPush DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and sensorpush_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(sensorpush_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(sensorpush_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "data": True

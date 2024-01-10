@@ -7,11 +7,10 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_almendo(self, data, source_mac, rssi):
+def parse_almendo(self, data: bytes, mac: str):
     """Almendo parser"""
     result = {
-        "mac": to_unformatted_mac(source_mac),
-        "rssi": rssi,
+        "mac": to_unformatted_mac(mac),
         "data": False,
         "packet": "no packet id"
     }
@@ -48,25 +47,18 @@ def parse_almendo(self, data, source_mac, rssi):
     if result is None:
         if self.report_unknown == "Almendo":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Almendo DEVICE: RSSI: %s, "
+                "BLE ADV from UNKNOWN Almendo DEVICE: "
                 "MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex(),
             )
         return None
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and source_mac not in self.sensor_whitelist:
-        _LOGGER.debug(
-            "Discovery is disabled. MAC: %s is not whitelisted!",
-            to_mac(source_mac),
-        )
-        return None
+
     if version != 1:
         _LOGGER.info(
             "Protocol version %i on device %s not yet known "
             "by the Almendo parser",
             version,
-            to_mac(source_mac),
+            to_mac(mac),
         )
     return result

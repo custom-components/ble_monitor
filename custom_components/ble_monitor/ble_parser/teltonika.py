@@ -7,10 +7,9 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
+def parse_teltonika(self, data: bytes, complete_local_name: str, mac: str):
     """Teltonika parser"""
     result = {"firmware": "Teltonika"}
-    teltonika_mac = source_mac
     device_id = (data[3] << 8) | data[2]
 
     if device_id == 0x089A:
@@ -114,22 +113,15 @@ def parse_teltonika(self, data, complete_local_name, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "Teltonika":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Teltonika DEVICE: RSSI: %s, MAC: %s, DEVICE TYPE: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Teltonika DEVICE: MAC: %s, DEVICE TYPE: %s, ADV: %s",
+                to_mac(mac),
                 device_type,
                 data.hex()
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and teltonika_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(teltonika_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(teltonika_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "data": True

@@ -7,7 +7,6 @@ CONF_PACKET: Final = "packet"
 CONF_FIRMWARE: Final = "firmware"
 CONF_DATA: Final = "data"
 CONF_MANUFACTURER: Final = "manufacturer"
-CONF_RSSI: Final = "rssi"
 
 CONF_BATTERY: Final = "battery"
 CONF_CONDUCTIVITY: Final = "conductivity"

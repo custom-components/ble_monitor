@@ -7,11 +7,10 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_chefiq(self, data, source_mac, rssi):
+def parse_chefiq(self, data: str, mac: bytes):
     """Parse Chef iQ advertisement."""
     msg_length = len(data)
     firmware = "Chef iQ"
-    chefiq_mac = source_mac
     msg = data[6:]
     if msg_length == 22:
         # Chef iQ CQ60
@@ -32,24 +31,14 @@ def parse_chefiq(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "Chef iQ":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Chef iQ DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Chef iQ DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and chefiq_mac not in self.sensor_whitelist:
-        _LOGGER.debug(
-            "Discovery is disabled. MAC: %s is not whitelisted!",
-            to_mac(chefiq_mac)
-        )
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(chefiq_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": log_cnt,
         "firmware": firmware,

@@ -104,10 +104,9 @@ def parse_2s(msg_type, xvalue):
         return None
 
 
-def parse_airmentor(self, data: bytes, source_mac: str, rssi):
+def parse_airmentor(self, data: bytes, mac: str):
     """Parser for Air Mentor"""
     data_length = len(data)
-    airmentor_mac = source_mac
 
     device_type = None
     result = None
@@ -127,21 +126,14 @@ def parse_airmentor(self, data: bytes, source_mac: str, rssi):
     if device_type is None or result is None:
         if self.report_unknown == "Air Mentor":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Air Mentor DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Air Mentor DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and airmentor_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(airmentor_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(airmentor_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

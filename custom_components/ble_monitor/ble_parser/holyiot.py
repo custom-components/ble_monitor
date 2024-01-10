@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_holyiot(self, data, source_mac, rssi):
+def parse_holyiot(self, data: str, mac: bytes):
     """HolyIOT parser"""
     msg_length = len(data)
     firmware = "HolyIOT"
@@ -16,11 +16,11 @@ def parse_holyiot(self, data, source_mac, rssi):
     if msg_length == 17:
         device_type = "HolyIOT BLE tracker"
         holyiot_mac = data[6:12]
-        if holyiot_mac != source_mac:
+        if holyiot_mac != mac:
             _LOGGER.debug(
                 "HolyIOT MAC address doesn't match data MAC address. Data: %s with source mac: %s and HolyIOT mac: %s",
                 data.hex(),
-                source_mac,
+                mac,
                 holyiot_mac,
             )
             return None
@@ -66,21 +66,14 @@ def parse_holyiot(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "HolyIOT":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN HolyIOT DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN HolyIOT DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and holyiot_mac.lower() not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(holyiot_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(holyiot_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

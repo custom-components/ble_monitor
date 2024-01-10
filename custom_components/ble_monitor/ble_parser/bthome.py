@@ -87,11 +87,10 @@ dispatch = {
 }
 
 
-def parse_bthome(self, data, uuid16, source_mac, rssi):
+def parse_bthome(self, data: str, uuid16: int, mac: bytes):
     """BTHome BLE parser"""
     self.uuid16 = uuid16
-    self.bthome_mac = source_mac
-    self.rssi = rssi
+    self.mac = mac
 
     if self.uuid16 == 0xFCD2:
         # BTHome V2 format
@@ -319,9 +318,8 @@ def parse_payload(self, payload, sw_version):
     if not result:
         if self.report_unknown == "BTHome":
             _LOGGER.info(
-                "BLE ADV from BTHome DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                self.rssi,
-                to_mac(self.bthome_mac),
+                "BLE ADV from BTHome DEVICE: MAC: %s, ADV: %s",
+                to_mac(self.mac),
                 payload.hex()
             )
         return None
@@ -333,7 +331,7 @@ def parse_payload(self, payload, sw_version):
     # Check for duplicate messages
     if self.packet_id:
         try:
-            prev_packet = self.lpacket_ids[self.bthome_mac]
+            prev_packet = self.lpacket_ids[self.mac]
         except KeyError:
             # start with empty first packet
             prev_packet = None
@@ -341,18 +339,12 @@ def parse_payload(self, payload, sw_version):
             # only process new messages
             if self.filter_duplicates is True:
                 return None
-        self.lpacket_ids[self.bthome_mac] = self.packet_id
+        self.lpacket_ids[self.mac] = self.packet_id
     else:
         self.packet_id = "no packet id"
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and self.bthome_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(self.bthome_mac))
-        return None
-
     result.update({
-        "rssi": self.rssi,
-        "mac": to_unformatted_mac(self.bthome_mac),
+        "mac": to_unformatted_mac(self.mac),
         "packet": self.packet_id,
         "type": self.device_type,
         "firmware": self.firmware,
@@ -368,15 +360,15 @@ def decrypt_data(self, data: bytes, sw_version: int):
         _LOGGER.debug("Invalid data length (for decryption), adv: %s", data.hex())
     # try to find encryption key for current device
     try:
-        key = self.aeskeys[self.bthome_mac]
+        key = self.aeskeys[self.mac]
         if len(key) != 16:
             _LOGGER.error("Encryption key should be 16 bytes (32 characters) long")
             return None, None
     except KeyError:
         # no encryption key found
-        if self.bthome_mac not in self.no_key_message:
-            _LOGGER.error("No encryption key found for device with MAC %s", to_mac(self.bthome_mac))
-            self.no_key_message.append(self.bthome_mac)
+        if self.mac not in self.no_key_message:
+            _LOGGER.error("No encryption key found for device with MAC %s", to_mac(self.mac))
+            self.no_key_message.append(self.mac)
         return None, None
 
     # prepare the data for decryption
@@ -389,7 +381,7 @@ def decrypt_data(self, data: bytes, sw_version: int):
     mic = data[-4:]
 
     # nonce: mac [6], uuid16 [2 (v1) or 3 (v2)], count_id [4]
-    nonce = b"".join([self.bthome_mac, uuid, count_id])
+    nonce = b"".join([self.mac, uuid, count_id])
     cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
     if sw_version == 1:
         cipher.update(b"\x11")
@@ -405,7 +397,7 @@ def decrypt_data(self, data: bytes, sw_version: int):
     if decrypted_payload is None:
         _LOGGER.error(
             "Decryption failed for %s, decrypted payload is None",
-            to_mac(self.bthome_mac),
+            to_mac(self.mac),
         )
         return None, None
     return decrypted_payload, count_id
