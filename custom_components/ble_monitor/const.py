@@ -1950,6 +1950,7 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Pink'               : 'Tilt',
     'MMC-W505'                : 'Xiaomi',
     'SJWS01LM'                : 'Xiaomi',
+    'RS1BB'                   : 'Linptech',
 }
 
 
