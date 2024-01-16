@@ -1,13 +1,11 @@
 ---
-manufacturer: Xiaomi
-name: Smart Water Leak Sensor
-model: SJWS01LM
-image: SJWS01LM.png
+manufacturer: Linptech
+name: Water Immersion and Rainwater sensor
+model: RS1BB
+image: RS1BB.png
 physical_description:
 broadcasted_properties:
   - moisture detected
-  - button
-  - battery
   - rssi
 broadcasted_property_notes:
 broadcast_rate:

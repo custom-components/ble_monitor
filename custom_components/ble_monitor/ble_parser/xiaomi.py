@@ -74,6 +74,7 @@ XIAOMI_TYPE_DICT = {
     0x20DB: "MJZNZ018H",
     0x18E3: "ZX1",
     0x11C2: "SV40",
+    0x3F0F: "RS1BB",
 }
 
 # Structured objects for data conversions
@@ -721,6 +722,12 @@ def obj4805(xobj):
     return {"illuminance": illu}
 
 
+def obj4806(xobj):
+    """Moisture detected (wet/dry)"""
+    wet = xobj[0]
+    return {"moisture detected": wet}
+
+
 def obj4810(xobj):
     """Sleep State"""
     sleep_state = xobj[0]
@@ -1052,6 +1059,7 @@ xiaomi_dataobject_dict = {
     0x4803: obj4803,
     0x4804: obj4804,
     0x4805: obj4805,
+    0x4806: obj4806,
     0x4810: obj4810,
     0x4811: obj4811,
     0x4818: obj4818,
