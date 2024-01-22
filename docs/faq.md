@@ -262,8 +262,8 @@ There are several ways to increase coverage:
 
 ## Encryption keys
 
-There are two types of encryption, Yeelight Remotes (YLYK01YL) and dimmers (YLKG07YL and YLKG08YL) use a legacy MiBeacon (V2/V3) encryption, all other devices (with encryption) use the later MiBeacon V4/V5 encryption. 
-Note that newer YLKG07YL/YLKG08YL dimmers can also be shipped with MiBeacon V5 encryption. If you can't find a MiBeacon V5 encryption key, try the method to get the MiBeacon V2/V3 and add `FFFFFFFF` at the end of the encryption key. 
+There are two types of encryption, Yeelight Remotes (YLYK01YL) and dimmers (YLKG07YL and YLKG08YL) use a legacy MiBeacon (V2/V3) encryption, all other devices (with encryption) use the later MiBeacon V4/V5 encryption.
+Note that newer YLKG07YL/YLKG08YL dimmers can also be shipped with MiBeacon V5 encryption. If you can't find a MiBeacon V5 encryption key, try the method to get the MiBeacon V2/V3 and add `FFFFFFFF` at the end of the encryption key.
 
 ### How to get the MiBeacon V4/V5 encryption key
 
