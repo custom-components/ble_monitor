@@ -41,7 +41,7 @@ MEAS_TYPES: dict[int, MeasTypes] = {
     ),
     0x05: MeasTypes(
         meas_format="illuminance",
-        unit_of_measurement="lux",
+        unit_of_measurement="lx",
         data_length=3,
         factor=0.01,
     ),
