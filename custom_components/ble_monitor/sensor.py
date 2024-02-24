@@ -649,7 +649,8 @@ class MeasuringSensor(BaseSensor):
             self._extra_state_attributes["median"] = state_median
             self._extra_state_attributes["mean"] = state_mean
             if self.entity_description.key != "rssi":
-                self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+                if self.rssi_values:
+                    self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
             if self._period_cnt >= 1:
                 self._measurements.clear()
                 self.rssi_values.clear()
@@ -814,7 +815,8 @@ class BatterySensor(MeasuringSensor):
 
     async def async_update(self):
         """Update sensor state and attributes."""
-        self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        if self.rssi_values:
+            self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self.rssi_values.clear()
         self.pending_update = False
 
@@ -849,7 +851,8 @@ class InstantUpdateSensor(BaseSensor):
 
     async def async_update(self):
         """Update sensor state and attributes."""
-        self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        if self.rssi_values:
+            self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         self.rssi_values.clear()
         self.pending_update = False
 
@@ -1037,7 +1040,8 @@ class ButtonSensor(InstantUpdateSensor):
 
     async def async_update(self):
         """Update."""
-        self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        if self.rssi_values:
+            self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         if self._reset_timer > 0:
             _LOGGER.debug("Reset timer is set to: %i seconds", self._reset_timer)
             async_call_later(self.hass, self._reset_timer, self.reset_state)
@@ -1078,7 +1082,8 @@ class DimmerSensor(InstantUpdateSensor):
 
     async def async_update(self):
         """Update."""
-        self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        if self.rssi_values:
+            self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         if self._reset_timer > 0:
             _LOGGER.debug("Reset timer is set to: %i seconds", self._reset_timer)
             async_call_later(self.hass, self._reset_timer, self.reset_state)
@@ -1122,7 +1127,8 @@ class SwitchSensor(InstantUpdateSensor):
 
     async def async_update(self):
         """Update."""
-        self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        if self.rssi_values:
+            self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         if self._reset_timer > 0:
             _LOGGER.debug("Reset timer is set to: %i seconds", self._reset_timer)
             async_call_later(self.hass, self._reset_timer, self.reset_state)
@@ -1163,7 +1169,8 @@ class BaseRemoteSensor(InstantUpdateSensor):
 
     async def async_update(self):
         """Update."""
-        self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
+        if self.rssi_values:
+            self._extra_state_attributes["rssi"] = round(sts.mean(self.rssi_values))
         if self._reset_timer > 0:
             _LOGGER.debug("Reset timer is set to: %i seconds", self._reset_timer)
             async_call_later(self.hass, self._reset_timer, self.reset_state)
