@@ -26,7 +26,7 @@ def parse_jaalee(self, data: bytes, mac: str):
                 "battery": batt
             }
         )
-    elif msg_length == 15:
+    elif msg_length in [15, 16]:
         device_type = "JHT"
         batt = data[4]
         jaalee_mac_reversed = data[5:11]
@@ -40,7 +40,7 @@ def parse_jaalee(self, data: bytes, mac: str):
                 jaalee_mac,
             )
             return None
-        (temp, humi) = unpack(">HH", data[11:])
+        (temp, humi) = unpack(">HH", data[-4:])
         # data follows the iBeacon temperature and humidity definition
         temp = round(175 * temp / 65535 - 45, 2)
         humi = round(100 * humi / 65535, 2)

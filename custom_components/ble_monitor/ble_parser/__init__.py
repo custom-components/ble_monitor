@@ -226,7 +226,7 @@ class BleParser:
                         # UUID16 = Relsib
                         sensor_data = parse_relsib(self, service_data, mac)
                         break
-                    elif uuid16 == 0xF525:
+                    elif uuid16 in [0xF51C, 0xF525]:
                         # UUID16 = Jaalee
                         sensor_data = parse_jaalee(self, service_data, mac)
                         break
