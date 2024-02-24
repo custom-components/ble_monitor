@@ -990,7 +990,7 @@ class PowerSensor(InstantUpdateSensor):
             return
         self._state = data[self.entity_description.key]
         self._extra_state_attributes["sensor_type"] = data["type"]
-        self._extra_state_attributes["last_packet id"] = data["packet"]
+        self._extra_state_attributes["last_packet_id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
         self._extra_state_attributes['mac_address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
@@ -1105,7 +1105,7 @@ class SwitchSensor(InstantUpdateSensor):
         else:
             self.pending_update = False
             return
-        self._extra_state_attributes["last_packet id"] = data["packet"]
+        self._extra_state_attributes["last_packet_id"] = data["packet"]
         self._extra_state_attributes["firmware"] = data["firmware"]
         self._extra_state_attributes['mac_address' if self.is_beacon else 'uuid'] = dict_get_or_normalize(
             data, CONF_MAC, CONF_UUID
