@@ -75,6 +75,7 @@ XIAOMI_TYPE_DICT = {
     0x18E3: "ZX1",
     0x11C2: "SV40",
     0x3F0F: "RS1BB",
+    0x38BB: "PTX",
 }
 
 # Structured objects for data conversions
@@ -769,6 +770,30 @@ def obj4a08(xobj):
     return {"motion": 1, "motion timer": 1, "illuminance": illu}
 
 
+def obj4a0c(xobj):
+    """Single click PTX"""
+    return {
+        "one btn switch": "toggle",
+        "button switch": "single press",
+    }
+
+
+def obj4a0d(xobj):
+    """Double click PTX"""
+    return {
+        "one btn switch": "toggle",
+        "button switch": "double press",
+    }
+
+
+def obj4a0e(xobj):
+    """Long click PTX"""
+    return {
+        "one btn switch": "toggle",
+        "button switch": "long press",
+    }
+
+
 def obj4a0f(xobj):
     """Door/window broken open"""
     dev_forced = xobj[0]
@@ -850,6 +875,12 @@ def obj4c14(xobj):
     """Mode"""
     mode = xobj[0]
     return {"mode": mode}
+
+
+def obj4e01(xobj):
+    """Low Battery"""
+    low_batt = xobj[0]
+    return {"low battery": low_batt}
 
 
 def obj4e0c(xobj, device_type):
@@ -1065,6 +1096,9 @@ xiaomi_dataobject_dict = {
     0x4818: obj4818,
     0x4a01: obj4a01,
     0x4a08: obj4a08,
+    0x4a0c: obj4a0c,
+    0x4a0d: obj4a0d,
+    0x4a0e: obj4a0e,
     0x4a0f: obj4a0f,
     0x4a12: obj4a12,
     0x4a13: obj4a13,
@@ -1074,6 +1108,7 @@ xiaomi_dataobject_dict = {
     0x4c03: obj4c03,
     0x4c08: obj4c08,
     0x4c14: obj4c14,
+    0x4e01: obj4e01,
     0x4e0c: obj4e0c,
     0x4e0d: obj4e0d,
     0x4e0e: obj4e0e,
@@ -1267,7 +1302,9 @@ def parse_xiaomi(self, data: bytes, mac: str):
                 _LOGGER.debug("Invalid payload data length, payload: %s", payload.hex())
                 break
             dobject = payload[payload_start + 3:next_start]
-            if dobject and obj_length != 0 or hex(obj_typecode) in ["0x4e0c", "0x4e0d", "0x4e0e"]:
+            if dobject and obj_length != 0 or hex(obj_typecode) in [
+                "0x4a0c", "0x4a0d", "0x4a0e", "0x4e0c", "0x4e0d", "0x4e0e"
+            ]:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
                     if hex(obj_typecode) in ["0x8", "0x100e", "0x1001", "0xf", "0xb", "0x4e0c", "0x4e0d", "0x4e0e"]:
