@@ -1922,7 +1922,7 @@ AUTO_MANUFACTURER_DICT = {
     'Blustream'               : 'Blustream',
     'BTHome'                  : 'BTHome',
     'CQ60'                    : 'Chef iQ',
-    'Garnet 709BT'            : 'Garnet',
+    'SeeLevel II 709-BTP3'    : 'Garnet Instruments Ltd',
     'MI401'                   : 'Grundfos',
     'HHCCJCY10'               : 'HHCC',
     'HolyIOT BLE tracker'     : 'HolyIOT',
