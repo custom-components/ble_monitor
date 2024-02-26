@@ -337,6 +337,7 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |**flow
     # |  |**gas
     # |  |**water
+    # |  |**fresh/grey/black tank
     # |--InstantUpdateSensor (Class)
     # |  |**consumable
     # |  |**heart rate
