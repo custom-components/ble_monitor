@@ -33,7 +33,15 @@ def parse_oras(self, data: bytes, mac: str):
         device_type = "SeeLevel II 709-BTP3"
 
         sensor_id = data[7]
-        sensor_data = data[8:11].decode("ASCII")
+        try:
+            sensor_type = SENSOR_TYPE[sensor_id]
+        except ValueError:
+            return None
+
+        sensor_data = int(data[8:11].decode("ASCII"))
+        if sensor_id == 13:
+            sensor_data /= 10
+
         sensor_volume = data[11:14].decode("ASCII")
         sensor_total = data[14:17].decode("ASCII")
         sensor_alarm = chr(data[17])
@@ -41,6 +49,7 @@ def parse_oras(self, data: bytes, mac: str):
         # remove later
         result.update({
             "sensor_id": sensor_id,
+            "sensor_type": sensor_type,
             "sensor_data": sensor_data,
             "sensor_volume": sensor_volume,
             "sensor_total": sensor_total,
@@ -51,10 +60,9 @@ def parse_oras(self, data: bytes, mac: str):
             device_type,
             result
         )
-        if sensor_id <= 12:
-            result.update({SENSOR_TYPE[sensor_id]: int(sensor_data)})
-        elif sensor_id == 13:
-            result.update({"voltage": int(sensor_data) / 10})
+
+        result.update({sensor_type: sensor_data})
+
     elif msg_length == 22:
         firmware = "Oras"
         device_type = "Electra Washbasin Faucet"
