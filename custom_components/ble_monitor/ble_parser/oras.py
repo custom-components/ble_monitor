@@ -38,7 +38,17 @@ def parse_oras(self, data: bytes, mac: str):
         except ValueError:
             return None
 
-        sensor_data = int(data[8:11].decode("ASCII"))
+        try:
+            sensor_data = int(data[8:11].decode("ASCII"))
+        except ValueError:
+            error_code = data[8:11].decode("ASCII")
+            _LOGGER.error(
+                "Garnet SeeLevel II 709-BTP3 is reporting error %s for sensor %s",
+                error_code,
+                sensor_type
+            )
+            return None
+
         if sensor_id == 13:
             sensor_data /= 10
 
