@@ -56,6 +56,7 @@ def parse_smartdry(self, data: bytes, mac: str):
             })
     else:
         device_type = None
+        firmware = None
     if device_type is None:
         if self.report_unknown == "SmartDry":
             _LOGGER.info(
