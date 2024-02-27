@@ -35,17 +35,21 @@ def parse_smartdry(self, data: bytes, mac: str):
         else:
             volt = None
 
-        if volt >= 3.00:
-            batt = 100
-        elif volt >= 2.60:
-            batt = 60 + (volt - 2.60) * 100
-        elif volt >= 2.50:
-            batt = 40 + (volt - 2.50) * 200
-        elif volt >= 2.45:
-            batt = 20 + (volt - 2.45) * 400
-        else:
-            batt = 0
-        if volt:
+        batt = None
+
+        if volt is not None:
+            if volt >= 3.00:
+                batt = 100
+            elif volt >= 2.60:
+                batt = 60 + (volt - 2.60) * 100
+            elif volt >= 2.50:
+                batt = 40 + (volt - 2.50) * 200
+            elif volt >= 2.45:
+                batt = 20 + (volt - 2.45) * 400
+            else:
+                batt = 0
+
+        if volt is not None:
             result.update({
                 "voltage": volt,
                 "battery": batt
