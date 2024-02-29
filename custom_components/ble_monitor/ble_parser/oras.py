@@ -9,14 +9,14 @@ SENSOR_TYPE = {
     0: "fresh tank",
     1: "black tank",
     2: "grey tank",
-    3: "LPG tank",
-    4: "LPG tank 2",
+    3: "lpg tank",
+    4: "lpg tank 2",
     5: "galley tank",
     6: "galley tank 2",
     7: "temperature",
-    8: "temperature 2",
-    9: "temperature 3",
-    10: "temperature 4",
+    8: "temperature probe 2",
+    9: "temperature probe 3",
+    10: "temperature probe 4",
     11: "chemical tank",
     12: "chemical tank 2",
     13: "voltage",
@@ -54,25 +54,19 @@ def parse_oras(self, data: bytes, mac: str):
 
         sensor_volume = data[11:14].decode("ASCII")
         sensor_total = data[14:17].decode("ASCII")
-        sensor_alarm = chr(data[17])
+        sensor_alarm = data[17]
 
-        # remove later
         result.update({
-            "sensor_id": sensor_id,
-            "sensor_type": sensor_type,
-            "sensor_data": sensor_data,
-            "sensor_volume": sensor_volume,
-            "sensor_total": sensor_total,
-            "sensor_alarm": sensor_alarm,
+            sensor_type: sensor_data,
+            "problem": sensor_alarm,
         })
-        _LOGGER.info(
-            "BLE ADV from Oras DEVICE: %s, result: %s",
+        _LOGGER.debug(
+            "BLE ADV from Garnet DEVICE: %s, result: %s, not implemented volume %s, total %s",
             device_type,
-            result
+            result,
+            sensor_volume,
+            sensor_total
         )
-
-        result.update({sensor_type: sensor_data})
-
     elif msg_length == 22:
         firmware = "Oras"
         device_type = "Electra Washbasin Faucet"

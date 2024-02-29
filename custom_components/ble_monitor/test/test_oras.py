@@ -34,6 +34,7 @@ class TestOras:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["voltage"] == 13.2
+        assert sensor_msg["problem"] == 0
         assert sensor_msg["rssi"] == -52
 
     def test_garnet_black_tank(self):
@@ -50,4 +51,5 @@ class TestOras:
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["data"]
         assert sensor_msg["black tank"] == 71
+        assert sensor_msg["problem"] == 0
         assert sensor_msg["rssi"] == -52
