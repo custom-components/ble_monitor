@@ -54,7 +54,7 @@ def parse_oras(self, data: bytes, mac: str):
 
         sensor_volume = data[11:14].decode("ASCII")
         sensor_total = data[14:17].decode("ASCII")
-        sensor_alarm = data[17]
+        sensor_alarm = int(chr(data[17]))
 
         result.update({
             sensor_type: sensor_data,
