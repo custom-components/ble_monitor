@@ -22,11 +22,8 @@ def parse_kkm(self, data: bytes, mac: str):
             ">BBBHbBBBhhh", data[4:19]
         )
         if frame_type == 0x21 and version == 1:
-            if temp < 0:
-                temperature = -(temp + 128 + temp_frac / 100)
-            else:
-                temperature = temp + temp_frac / 100
-            humidity = humi + humi_frac / 100
+            temperature = temp + temp_frac / 256
+            humidity = humi + humi_frac / 256
             result.update(
                 {
                     "temperature": temperature,
