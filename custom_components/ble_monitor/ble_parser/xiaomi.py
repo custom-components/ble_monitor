@@ -76,6 +76,7 @@ XIAOMI_TYPE_DICT = {
     0x11C2: "SV40",
     0x3F0F: "RS1BB",
     0x38BB: "PTX",
+    0x3531: "XMPIRO2SXS",
 }
 
 # Structured objects for data conversions
