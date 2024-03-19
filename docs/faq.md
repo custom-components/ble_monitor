@@ -359,7 +359,11 @@ python3 get_beacon_key.py AB:CD:EF:12:34:56 950
 
 This will return the beaconkey from your device.
 
-**6. miiocli tool**
+**6. Python Yeelight YLKG07YL/YLKG08YL dimmer handler**
+
+Another script to get the encryption key is developed as [Python Yeelight YLKG07YL//YLKG08YL dimmer handler](https://github.com/psylity/yeelight-dimmer-python). Explanation on how to retrieve the token is given on the linked repository.
+
+**7. miiocli tool**
 
 You can get the encryption key with the [miiocli tool (python-miio)](https://github.com/rytilahti/python-miio).
 
@@ -380,7 +384,7 @@ Running command raw_command
 
 Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key you will need. `'pid'` corresponds to the PRODUCT_ID as mentioned in method 5. **The mac is reversed per two**, so in the example above, the MAC of the remote is E4:24:43:C5:48:3B.
 
-**7. MiHome mod (Android only)**
+**8. MiHome mod (Android only)**
 
 If you don't have a device (ceiling light) to pair your remote/dimmer with, you can get the key with the customized [MiHome mod](https://mi.vevs.me/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) with the following steps.
 
