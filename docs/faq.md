@@ -359,6 +359,10 @@ python3 get_beacon_key.py AB:CD:EF:12:34:56 950
 
 This will return the beaconkey from your device.
 
+**6. Python Yeelight YLKG07YL/YLKG08YL dimmer handler**
+
+Another script to get the encryption key is developed as [Python Yeelight YLKG07YL//YLKG08YL dimmer handler](https://github.com/psylity/yeelight-dimmer-python). Explanation on how to retreive the token is given on the linked repository.
+
 **6. miiocli tool**
 
 You can get the encryption key with the [miiocli tool (python-miio)](https://github.com/rytilahti/python-miio).
