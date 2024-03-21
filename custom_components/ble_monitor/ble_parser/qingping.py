@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_qingping(self, data, source_mac, rssi):
+def parse_qingping(self, data: bytes, mac: str):
     """Qingping parser"""
     msg_length = len(data)
     if msg_length > 12:
@@ -31,13 +31,12 @@ def parse_qingping(self, data, source_mac, rssi):
             device_type = None
 
         if device_type == "CGDN1":
-            qingping_mac = source_mac
+            qingping_mac = mac
         else:
             qingping_mac_reversed = data[6:12]
             qingping_mac = qingping_mac_reversed[::-1]
 
         result = {
-            "rssi": rssi,
             "packet": "no packet id",
         }
         xdata_point = 14
@@ -90,26 +89,19 @@ def parse_qingping(self, data, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "Qingping":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Qingping DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Qingping DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
 
     # check for MAC presence in message and in service data
-    if qingping_mac != source_mac:
+    if qingping_mac != mac:
         _LOGGER.debug("Invalid MAC address for Qingping device")
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and qingping_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(qingping_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(qingping_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "firmware": firmware,
         "data": True

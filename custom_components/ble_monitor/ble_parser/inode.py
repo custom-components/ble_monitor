@@ -41,11 +41,10 @@ def adj_acc(acc):
     return acc
 
 
-def parse_inode(self, data, source_mac, rssi):
+def parse_inode(self, data: bytes, mac: str):
     """iNode parser"""
     msg_length = len(data)
     firmware = "iNode"
-    inode_mac = source_mac
     device_id = data[3]
     xvalue = data[4:]
     result = {"firmware": firmware}
@@ -198,9 +197,8 @@ def parse_inode(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "iNode":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN iNode DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN iNode DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
@@ -209,7 +207,7 @@ def parse_inode(self, data, source_mac, rssi):
     # Check for duplicate messages
     packet_id = xvalue.hex()
     try:
-        prev_packet = self.lpacket_ids[inode_mac]
+        prev_packet = self.lpacket_ids[mac]
     except KeyError:
         # start with empty first packet
         prev_packet = None
@@ -217,16 +215,10 @@ def parse_inode(self, data, source_mac, rssi):
         # only process new messages
         if self.filter_duplicates is True:
             return None
-    self.lpacket_ids[inode_mac] = packet_id
-
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and inode_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(inode_mac))
-        return None
+    self.lpacket_ids[mac] = packet_id
 
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(inode_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,

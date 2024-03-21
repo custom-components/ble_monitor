@@ -4,17 +4,16 @@ from struct import unpack
 
 from .const import (CONF_BATTERY, CONF_CONDUCTIVITY, CONF_DATA, CONF_FIRMWARE,
                     CONF_ILLUMINANCE, CONF_MAC, CONF_MOISTURE, CONF_PACKET,
-                    CONF_RSSI, CONF_TEMPERATURE, CONF_TYPE)
+                    CONF_TEMPERATURE, CONF_TYPE)
 from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_hhcc(self, data: str, source_mac: bytes, rssi: float):
+def parse_hhcc(self, data: str, mac: bytes):
     """HHCC parser"""
     if len(data) == 13:
         device_type = "HHCCJCY10"
-        hhcc_mac = source_mac
         xvalue_1 = data[4:7]
         xvalue_2 = data[7:10]
         xvalue_3 = data[10:13]
@@ -32,15 +31,13 @@ def parse_hhcc(self, data: str, source_mac: bytes, rssi: float):
             CONF_ILLUMINANCE: illu,
             CONF_CONDUCTIVITY: cond,
             CONF_BATTERY: batt,
-            CONF_RSSI: rssi,
-            CONF_MAC: to_unformatted_mac(hhcc_mac),
+            CONF_MAC: to_unformatted_mac(mac),
         }
     else:
         if self.report_unknown == "HHCC":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN HHCC DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN HHCC DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
@@ -49,7 +46,7 @@ def parse_hhcc(self, data: str, source_mac: bytes, rssi: float):
     if packet_id:
         print("packet_id is", packet_id)
         try:
-            prev_packet = self.lpacket_ids[hhcc_mac]
+            prev_packet = self.lpacket_ids[mac]
         except KeyError:
             # start with empty first packet
             prev_packet = None
@@ -57,13 +54,8 @@ def parse_hhcc(self, data: str, source_mac: bytes, rssi: float):
             # only process new messages
             if self.filter_duplicates is True:
                 return None
-        self.lpacket_ids[hhcc_mac] = packet_id
+        self.lpacket_ids[mac] = packet_id
     else:
         packet_id = "no packet id"
-
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and hhcc_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(hhcc_mac))
-        return None
 
     return sensor_data

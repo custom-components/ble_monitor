@@ -32,6 +32,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Blustream (Taylor TaylorSense, D'Addario Humiditrak)
 - BTHome
 - b-parasite
+- Chef iQ
 - Ela
 - Govee
 - Grundfos

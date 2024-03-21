@@ -6,7 +6,7 @@ import voluptuous as vol
 from homeassistant import config_entries, data_entry_flow
 from homeassistant.const import (CONF_DEVICES, CONF_DISCOVERY, CONF_MAC,
                                  CONF_NAME, CONF_TEMPERATURE_UNIT,
-                                 TEMP_CELSIUS, TEMP_FAHRENHEIT)
+                                 UnitOfTemperature)
 from homeassistant.core import callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry
@@ -46,8 +46,8 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_MAC, default=DEFAULT_DEVICE_MAC): cv.string,
         vol.Optional(CONF_UUID, default=DEFAULT_DEVICE_UUID): cv.string,
         vol.Optional(CONF_DEVICE_ENCRYPTION_KEY, default=DEFAULT_DEVICE_ENCRYPTION_KEY): cv.string,
-        vol.Optional(CONF_TEMPERATURE_UNIT, default=TEMP_CELSIUS): vol.In(
-            [TEMP_CELSIUS, TEMP_FAHRENHEIT]
+        vol.Optional(CONF_TEMPERATURE_UNIT, default=UnitOfTemperature.CELSIUS): vol.In(
+            [UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT]
         ),
         vol.Optional(CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN): vol.In(
             [DEFAULT_DEVICE_USE_MEDIAN, True, False]
@@ -196,7 +196,7 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                         vol.Optional(
                             CONF_TEMPERATURE_UNIT,
                             default=user_input[CONF_TEMPERATURE_UNIT],
-                        ): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
+                        ): vol.In([UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT]),
                         vol.Optional(
                             CONF_DEVICE_USE_MEDIAN,
                             default=user_input[CONF_DEVICE_USE_MEDIAN],
@@ -274,9 +274,9 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 vol.Optional(
                     CONF_TEMPERATURE_UNIT,
                     default=self._sel_device.get(
-                        CONF_TEMPERATURE_UNIT, TEMP_CELSIUS
+                        CONF_TEMPERATURE_UNIT, UnitOfTemperature.CELSIUS
                     ),
-                ): vol.In([TEMP_CELSIUS, TEMP_FAHRENHEIT]),
+                ): vol.In([UnitOfTemperature.CELSIUS, UnitOfTemperature.FAHRENHEIT]),
                 vol.Optional(
                     CONF_DEVICE_USE_MEDIAN,
                     default=self._sel_device.get(

@@ -7,11 +7,11 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_blustream(self, data, source_mac, rssi):
+def parse_blustream(self, data: bytes, mac: str):
     """Parse Blustream advertisement."""
     msg_length = len(data)
     firmware = "Blustream"
-    blustream_mac = source_mac
+    blustream_mac = mac
     msg = data[8:]
 
     if msg_length == 13:
@@ -26,20 +26,13 @@ def parse_blustream(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "Blustream":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Blustream DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Blustream DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and blustream_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(blustream_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
         "mac": to_unformatted_mac(blustream_mac),
         "type": device_type,
         "packet": "no packet id",

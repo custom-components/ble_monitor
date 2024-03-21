@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_miscale(self, data, source_mac, rssi):
+def parse_miscale(self, data: bytes, mac: str):
     """Parser for Xiaomi Mi Scales."""
     msg_length = len(data)
     uuid16 = (data[3] << 8) | data[2]
@@ -62,7 +62,7 @@ def parse_miscale(self, data, source_mac, rssi):
         if self.report_unknown == "Mi Scale":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Mi Scale DEVICE: MAC: %s, ADV: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 data.hex()
             )
         return None
@@ -87,12 +87,11 @@ def parse_miscale(self, data, source_mac, rssi):
         pass
 
     firmware = device_type
-    miscale_mac = source_mac
 
     # Check for duplicate messages
     packet_id = xvalue.hex()
     try:
-        prev_packet = self.lpacket_ids[miscale_mac]
+        prev_packet = self.lpacket_ids[mac]
     except KeyError:
         # start with empty first packet
         prev_packet = None
@@ -100,23 +99,17 @@ def parse_miscale(self, data, source_mac, rssi):
         # only process new messages
         if self.filter_duplicates is True:
             return None
-    self.lpacket_ids[miscale_mac] = packet_id
+    self.lpacket_ids[mac] = packet_id
     if prev_packet is None:
         if self.filter_duplicates is True:
             # ignore first message after a restart
             return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and miscale_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(miscale_mac))
-        return None
-
     result.update({
         "type": device_type,
         "firmware": firmware,
-        "mac": to_unformatted_mac(miscale_mac),
+        "mac": to_unformatted_mac(mac),
         "packet": packet_id,
-        "rssi": rssi,
         "data": True,
     })
     return result

@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_amazfit(self, service_data, man_spec_data, source_mac, rssi):
+def parse_amazfit(self, service_data: str, man_spec_data: str, mac: str):
     """parser for Amazfit scale and Miband 4 and 5"""
     if service_data:
         service_data_length = len(service_data)
@@ -65,23 +65,17 @@ def parse_amazfit(self, service_data, man_spec_data, source_mac, rssi):
         if self.report_unknown == "Amazfit":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Amazfit Scale DEVICE: MAC: %s, service data: %s, manufacturer data: %s",
-                to_mac(source_mac),
+                to_mac(mac),
                 service_data,
                 man_spec_data
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and source_mac.lower() not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(source_mac))
-        return None
-
     result.update({
         "type": device_type,
         "firmware": firmware,
-        "mac": to_unformatted_mac(source_mac),
+        "mac": to_unformatted_mac(mac),
         "packet": 'no packet id',
-        "rssi": rssi,
         "data": True,
     })
     return result

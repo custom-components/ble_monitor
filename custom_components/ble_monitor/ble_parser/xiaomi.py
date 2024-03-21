@@ -74,6 +74,9 @@ XIAOMI_TYPE_DICT = {
     0x20DB: "MJZNZ018H",
     0x18E3: "ZX1",
     0x11C2: "SV40",
+    0x3F0F: "RS1BB",
+    0x38BB: "PTX",
+    0x3531: "XMPIRO2SXS",
 }
 
 # Structured objects for data conversions
@@ -721,6 +724,12 @@ def obj4805(xobj):
     return {"illuminance": illu}
 
 
+def obj4806(xobj):
+    """Moisture detected (wet/dry)"""
+    wet = xobj[0]
+    return {"moisture detected": wet}
+
+
 def obj4810(xobj):
     """Sleep State"""
     sleep_state = xobj[0]
@@ -760,6 +769,30 @@ def obj4a08(xobj):
     """Motion detected with Illuminance in lux"""
     (illu,) = struct.unpack("f", xobj)
     return {"motion": 1, "motion timer": 1, "illuminance": illu}
+
+
+def obj4a0c(xobj):
+    """Single click PTX"""
+    return {
+        "one btn switch": "toggle",
+        "button switch": "single press",
+    }
+
+
+def obj4a0d(xobj):
+    """Double click PTX"""
+    return {
+        "one btn switch": "toggle",
+        "button switch": "double press",
+    }
+
+
+def obj4a0e(xobj):
+    """Long click PTX"""
+    return {
+        "one btn switch": "toggle",
+        "button switch": "long press",
+    }
 
 
 def obj4a0f(xobj):
@@ -843,6 +876,12 @@ def obj4c14(xobj):
     """Mode"""
     mode = xobj[0]
     return {"mode": mode}
+
+
+def obj4e01(xobj):
+    """Low Battery"""
+    low_batt = xobj[0]
+    return {"low battery": low_batt}
 
 
 def obj4e0c(xobj, device_type):
@@ -1052,11 +1091,15 @@ xiaomi_dataobject_dict = {
     0x4803: obj4803,
     0x4804: obj4804,
     0x4805: obj4805,
+    0x4806: obj4806,
     0x4810: obj4810,
     0x4811: obj4811,
     0x4818: obj4818,
     0x4a01: obj4a01,
     0x4a08: obj4a08,
+    0x4a0c: obj4a0c,
+    0x4a0d: obj4a0d,
+    0x4a0e: obj4a0e,
     0x4a0f: obj4a0f,
     0x4a12: obj4a12,
     0x4a13: obj4a13,
@@ -1066,6 +1109,7 @@ xiaomi_dataobject_dict = {
     0x4c03: obj4c03,
     0x4c08: obj4c08,
     0x4c14: obj4c14,
+    0x4e01: obj4e01,
     0x4e0c: obj4e0c,
     0x4e0d: obj4e0d,
     0x4e0e: obj4e0e,
@@ -1080,7 +1124,7 @@ xiaomi_dataobject_dict = {
 }
 
 
-def parse_xiaomi(self, data, source_mac, rssi):
+def parse_xiaomi(self, data: bytes, mac: str):
     """Parser for Xiaomi sensors"""
     # check for adstruc length
     i = 9  # till Frame Counter
@@ -1120,11 +1164,9 @@ def parse_xiaomi(self, data, source_mac, rssi):
             return None
         xiaomi_mac_reversed = data[9:15]
         xiaomi_mac = xiaomi_mac_reversed[::-1]
-        if xiaomi_mac != source_mac:
+        if xiaomi_mac != mac:
             _LOGGER.debug("Xiaomi MAC address doesn't match data MAC address. Data: %s", data.hex())
             return None
-    else:
-        xiaomi_mac = source_mac
 
     # determine the device type
     device_id = data[6] + (data[7] << 8)
@@ -1133,9 +1175,8 @@ def parse_xiaomi(self, data, source_mac, rssi):
     except KeyError:
         if self.report_unknown == "Xiaomi":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Xiaomi device: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Xiaomi device: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         _LOGGER.debug("Unknown Xiaomi device found. Data: %s", data.hex())
@@ -1161,14 +1202,9 @@ def parse_xiaomi(self, data, source_mac, rssi):
     elif frctrl_auth_mode == 2:
         sinfo += ', Standard certification'
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and xiaomi_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(xiaomi_mac))
-        return None
-
     # check for unique packet_id and advertisement priority
     try:
-        prev_packet = self.lpacket_ids[xiaomi_mac]
+        prev_packet = self.lpacket_ids[mac]
     except KeyError:
         # start with empty first packet
         prev_packet = None
@@ -1177,13 +1213,13 @@ def parse_xiaomi(self, data, source_mac, rssi):
         # Check for adv priority and packet_id for devices that can also send in ATC format
         adv_priority = 19
         try:
-            prev_adv_priority = self.adv_priority[xiaomi_mac]
+            prev_adv_priority = self.adv_priority[mac]
         except KeyError:
             # start with initial adv priority
             prev_adv_priority = 0
         if adv_priority > prev_adv_priority:
             # always process advertisements with a higher priority
-            self.adv_priority[xiaomi_mac] = adv_priority
+            self.adv_priority[mac] = adv_priority
         elif adv_priority == prev_adv_priority:
             # only process messages with same priority that have a unique packet id
             if prev_packet == packet_id:
@@ -1196,14 +1232,14 @@ def parse_xiaomi(self, data, source_mac, rssi):
         else:
             # do not process advertisements with lower priority (ATC advertisements will be used instead)
             prev_adv_priority -= 1
-            self.adv_priority[xiaomi_mac] = prev_adv_priority
+            self.adv_priority[mac] = prev_adv_priority
             return None
     else:
         if prev_packet == packet_id:
             if self.filter_duplicates is True:
                 # only process messages with highest priority and messages with unique packet id
                 return None
-    self.lpacket_ids[xiaomi_mac] = packet_id
+    self.lpacket_ids[mac] = packet_id
 
     # check for capability byte present
     if frctrl_capability_include != 0:
@@ -1228,9 +1264,9 @@ def parse_xiaomi(self, data, source_mac, rssi):
             sinfo += ', Encryption'
             firmware = "Xiaomi (MiBeacon V" + str(frctrl_version) + " encrypted)"
             if frctrl_version <= 3:
-                payload = decrypt_mibeacon_legacy(self, data, i, xiaomi_mac)
+                payload = decrypt_mibeacon_legacy(self, data, i, mac)
             else:
-                payload = decrypt_mibeacon_v4_v5(self, data, i, xiaomi_mac)
+                payload = decrypt_mibeacon_v4_v5(self, data, i, mac)
         else:   # No encryption
             # check minimum advertisement length with data
             firmware = "Xiaomi (MiBeacon V" + str(frctrl_version) + ")"
@@ -1245,8 +1281,7 @@ def parse_xiaomi(self, data, source_mac, rssi):
         return None
 
     result = {
-        "rssi": rssi,
-        "mac": to_unformatted_mac(xiaomi_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": packet_id,
         "firmware": firmware,
@@ -1268,7 +1303,9 @@ def parse_xiaomi(self, data, source_mac, rssi):
                 _LOGGER.debug("Invalid payload data length, payload: %s", payload.hex())
                 break
             dobject = payload[payload_start + 3:next_start]
-            if dobject and obj_length != 0 or hex(obj_typecode) in ["0x4e0c", "0x4e0d", "0x4e0e"]:
+            if dobject and obj_length != 0 or hex(obj_typecode) in [
+                "0x4a0c", "0x4a0d", "0x4a0e", "0x4e0c", "0x4e0d", "0x4e0e"
+            ]:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
                     if hex(obj_typecode) in ["0x8", "0x100e", "0x1001", "0xf", "0xb", "0x4e0c", "0x4e0d", "0x4e0e"]:
@@ -1283,25 +1320,25 @@ def parse_xiaomi(self, data, source_mac, rssi):
     return result
 
 
-def decrypt_mibeacon_v4_v5(self, data, i, xiaomi_mac):
+def decrypt_mibeacon_v4_v5(self, data, i, mac):
     """decrypt MiBeacon v4/v5 encrypted advertisements"""
     # check for minimum length of encrypted advertisement
     if len(data) < i + 9:
         _LOGGER.debug("Invalid data length (for decryption), adv: %s", data.hex())
     # try to find encryption key for current device
     try:
-        key = self.aeskeys[xiaomi_mac]
+        key = self.aeskeys[mac]
         if len(key) != 16:
             _LOGGER.error("Encryption key should be 16 bytes (32 characters) long")
             return None
     except KeyError:
         # no encryption key found
-        if xiaomi_mac not in self.no_key_message:
-            _LOGGER.error("No encryption key found for device with MAC %s", to_mac(xiaomi_mac))
-            self.no_key_message.append(xiaomi_mac)
+        if mac not in self.no_key_message:
+            _LOGGER.error("No encryption key found for device with MAC %s", to_mac(mac))
+            self.no_key_message.append(mac)
         return None
 
-    nonce = b"".join([xiaomi_mac[::-1], data[6:9], data[-7:-4]])
+    nonce = b"".join([mac[::-1], data[6:9], data[-7:-4]])
     aad = b"\x11"
     token = data[-4:]
     cipherpayload = data[i:-7]
@@ -1319,30 +1356,30 @@ def decrypt_mibeacon_v4_v5(self, data, i, xiaomi_mac):
     if decrypted_payload is None:
         _LOGGER.error(
             "Decryption failed for %s, decrypted payload is None",
-            to_mac(xiaomi_mac),
+            to_mac(mac),
         )
         return None
     return decrypted_payload
 
 
-def decrypt_mibeacon_legacy(self, data, i, xiaomi_mac):
+def decrypt_mibeacon_legacy(self, data, i, mac):
     """decrypt MiBeacon v2/v3 encrypted advertisements"""
     # check for minimum length of encrypted advertisement
     if len(data) < i + 7:
         _LOGGER.debug("Invalid data length (for decryption), adv: %s", data.hex())
     # try to find encryption key for current device
     try:
-        aeskey = self.aeskeys[xiaomi_mac]
+        aeskey = self.aeskeys[mac]
         if len(aeskey) != 12:
             _LOGGER.error("Encryption key should be 12 bytes (24 characters) long")
             return None
         key = b"".join([aeskey[0:6], bytes.fromhex("8d3d3c97"), aeskey[6:]])
     except KeyError:
         # no encryption key found
-        _LOGGER.error("No encryption key found for device with MAC %s", to_mac(xiaomi_mac))
+        _LOGGER.error("No encryption key found for device with MAC %s", to_mac(mac))
         return None
 
-    nonce = b"".join([data[4:9], data[-4:-1], xiaomi_mac[::-1][:-1]])
+    nonce = b"".join([data[4:9], data[-4:-1], mac[::-1][:-1]])
     aad = b"\x11"
     cipherpayload = data[i:-4]
     cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
@@ -1358,7 +1395,7 @@ def decrypt_mibeacon_legacy(self, data, i, xiaomi_mac):
     if decrypted_payload is None:
         _LOGGER.warning(
             "Decryption failed for %s, decrypted payload is None",
-            to_mac(xiaomi_mac),
+            to_mac(mac),
         )
         return None
     return decrypted_payload

@@ -28,11 +28,10 @@ PRESSURE = {
 }
 
 
-def parse_oral_b(self, data, source_mac, rssi):
+def parse_oral_b(self, data: bytes, mac: str):
     """Parser for Oral-B toothbrush."""
     msg_length = len(data)
     firmware = "Oral-B"
-    oral_b_mac = source_mac
     result = {"firmware": firmware}
     if msg_length == 15:
         (state, pressure, counter, mode, sector, sector_timer, no_of_sectors) = unpack(
@@ -93,21 +92,14 @@ def parse_oral_b(self, data, source_mac, rssi):
     else:
         if self.report_unknown == "Oral-B":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Oral-B DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Oral-B DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
 
-    # check for MAC presence in whitelist, if needed
-    if self.discovery is False and oral_b_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(oral_b_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(oral_b_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

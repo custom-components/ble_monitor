@@ -7,15 +7,13 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_relsib(self, data, source_mac, rssi):
+def parse_relsib(self, data: bytes, mac: str):
     """Relsib parser"""
     msg_length = len(data)
     uuid16 = (data[3] << 8) | data[2]
-    relsib_mac = source_mac
     result = {
-        "rssi": rssi,
         "packet": "no packet id",
-        "mac": to_unformatted_mac(relsib_mac),
+        "mac": to_unformatted_mac(mac),
         "firmware": "Relsib",
     }
     if uuid16 in [0xAA20, 0xAA21, 0xAA22] and msg_length == 26:
@@ -57,16 +55,10 @@ def parse_relsib(self, data, source_mac, rssi):
     if device_type is None:
         if self.report_unknown == "Relsib":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Relsib DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Relsib DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
-        return None
-
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and relsib_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(relsib_mac))
         return None
 
     result.update({

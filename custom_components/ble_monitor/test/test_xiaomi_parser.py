@@ -316,6 +316,55 @@ class TestXiaomi:
 
     def test_Xiaomi_SJWS01LM(self):
         """Test Xiaomi parser for SJWS01LM."""
+        self.aeskeys = {}
+        data_string = "043e2902010000bc27e044ef541d020106191695fe5859630808bc27e044ef54f58fe704000000fc69d15ca8"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "255e6cabb39b2eddd0de992b9fee2bf2"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "SJWS01LM"
+        assert sensor_msg["mac"] == "54EF44E027BC"
+        assert sensor_msg["packet"] == 8
+        assert sensor_msg["data"]
+        assert sensor_msg["moisture detected"]
+        assert sensor_msg["rssi"] == -88
+
+    def test_Xiaomi_RS1BB(self):
+        """Test Xiaomi parser for LINP-RS1BB."""
+        self.aeskeys = {}
+        data_string = "043E2902010000674cb938c1a41d020106191695fe58590F3F4A674CB938C1A4D6E57B83040000D01E0B4BC0"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "33ede53321bc73c790a8daae4581f3d5"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "RS1BB"
+        assert sensor_msg["mac"] == "A4C138B94C67"
+        assert sensor_msg["packet"] == 74
+        assert sensor_msg["data"]
+        assert sensor_msg["moisture detected"] == 0
+        assert sensor_msg["rssi"] == -64
 
     def test_Xiaomi_MJYD02YL(self):
         """Test Xiaomi parser for MJYD02YL."""
@@ -988,3 +1037,58 @@ class TestXiaomi:
         assert sensor_msg["one btn switch"] == "toggle"
         assert sensor_msg["button switch"] == "long press"
         assert sensor_msg["rssi"] == -64
+
+    def test_Xiaomi_PTX(self):
+        """Test Xiaomi parser for PTX BLE wireless switch."""
+        self.aeskeys = {}
+        data_string = "043E2802010000adb9a538c1a41c020106181695fe5859bb3804adb9a538c1a4dc10b50400002c122fb6CC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "a74510b40386d35ae6227a7451efc76e"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "PTX"
+        assert sensor_msg["mac"] == "A4C138A5B9AD"
+        assert sensor_msg["packet"] == 4
+        assert sensor_msg["data"]
+        assert sensor_msg["one btn switch"] == "toggle"
+        assert sensor_msg["button switch"] == "single press"
+        assert sensor_msg["rssi"] == -52
+
+    def test_Xiaomi_XMPIRO2SXS(self):
+        """Test Xiaomi parser for XMPIRO2SXS."""
+        self.aeskeys = {}
+        data_string = "043E260201000043ea2d958edc1a020106161695fe485931350b64799117331ef4020000c5d2f6acCC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "685d647dc5e7bc9bcfcf5a1357bd2114"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "XMPIRO2SXS"
+        assert sensor_msg["mac"] == "DC8E952DEA43"
+        assert sensor_msg["packet"] == 11
+        assert sensor_msg["data"]
+        assert sensor_msg["motion"] == 1
+        assert sensor_msg["motion timer"] == 1
+        assert sensor_msg["illuminance"] == 51.0
+        assert sensor_msg["rssi"] == -52

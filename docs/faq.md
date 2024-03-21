@@ -263,6 +263,7 @@ There are several ways to increase coverage:
 ## Encryption keys
 
 There are two types of encryption, Yeelight Remotes (YLYK01YL) and dimmers (YLKG07YL and YLKG08YL) use a legacy MiBeacon (V2/V3) encryption, all other devices (with encryption) use the later MiBeacon V4/V5 encryption.
+Note that newer YLKG07YL/YLKG08YL dimmers can also be shipped with MiBeacon V5 encryption. If you can't find a MiBeacon V5 encryption key, try the method to get the MiBeacon V2/V3 and add `FFFFFFFF` at the end of the encryption key.
 
 ### How to get the MiBeacon V4/V5 encryption key
 
@@ -325,9 +326,9 @@ Unfortunately, Xiaomi has enabled additional encryption of API requests recently
 
 ### How to get the MiBeacon V2/V3 encryption key
 
-Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) use a legacy type of encryption [1]. This MiBeacon V2/V3 encryption key is shorter than the MiBeacon V4/V5 encryption key, as it is a 12 bytes (24 characters) long string. You won't be able to retrieve the encryption key with method 1 and 2 from above. There are different ways to get the key, the easiest is to use a python script to get the key (method 5). If your remote is connected to a ceiling light/fan, an alternative is to follow method 6 (miiocli tool). A third alternative is method 7, which also works when you don't have a ceiling light/fan connected (which is more or less similar to method 3 from above).
+Yeelight Remote (`YLYK01YL`) and dimmers (`YLKG07YL` and `YLKG08YL`) can use a legacy type of encryption [1]. This MiBeacon V2/V3 encryption key is shorter than the MiBeacon V4/V5 encryption key, as it is a 12 bytes (24 characters) long string. You won't be able to retrieve the encryption key with method 1 and 2 from above. There are different ways to get the key, the easiest is to use a python script to get the key (method 5). If your remote is connected to a ceiling light/fan, an alternative is to follow method 6 (miiocli tool). A third alternative is method 7, which also works when you don't have a ceiling light/fan connected (which is more or less similar to method 3 from above).
 
-[1] Note that the new `YLYKQ-0004` and `YLYKQ-0005` dimmers are recognized as `YLKG07YL` and `YLKG08YL` in BLE monitor, but `YLYKQ-0004` and `YLYKQ-0005` both use a MiBeacon V4/V5 encryption key, see method 1 till 4.
+[1] Note that the new `YLYKQ-0004` and `YLYKQ-0005` dimmers are recognized as `YLKG07YL` and `YLKG08YL` in BLE monitor, but `YLYKQ-0004` and `YLYKQ-0005` both use a MiBeacon V4/V5 encryption key. Some users have reported that they were able to use the 12 byte long v2/v3 encryption key as v4/v5 encryption key, by adding `FFFFFFFF` at the end of the key, other users were able to extract the key with method 1 till 4.
 
 **5. get_beacon_key python script**
 
@@ -358,7 +359,11 @@ python3 get_beacon_key.py AB:CD:EF:12:34:56 950
 
 This will return the beaconkey from your device.
 
-**6. miiocli tool**
+**6. Python Yeelight YLKG07YL/YLKG08YL dimmer handler**
+
+Another script to get the encryption key is developed as [Python Yeelight YLKG07YL//YLKG08YL dimmer handler](https://github.com/psylity/yeelight-dimmer-python). Explanation on how to retrieve the token is given on the linked repository.
+
+**7. miiocli tool**
 
 You can get the encryption key with the [miiocli tool (python-miio)](https://github.com/rytilahti/python-miio).
 
@@ -379,7 +384,7 @@ Running command raw_command
 
 Make a note of the `mac` and `beaconkey`. The beaconkey is the encryption key you will need. `'pid'` corresponds to the PRODUCT_ID as mentioned in method 5. **The mac is reversed per two**, so in the example above, the MAC of the remote is E4:24:43:C5:48:3B.
 
-**7. MiHome mod (Android only)**
+**8. MiHome mod (Android only)**
 
 If you don't have a device (ceiling light) to pair your remote/dimmer with, you can get the key with the customized [MiHome mod](https://mi.vevs.me/mihome/files/public/others/MiHome_6.5.700_63911_vevs_dimmer.apk) with the following steps.
 

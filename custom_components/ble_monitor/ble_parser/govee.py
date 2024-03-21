@@ -50,7 +50,7 @@ def decode_pm25_from_4_bytes(packet_value: int) -> int:
     return int(packet_value % 1000)
 
 
-def parse_govee(self, data, service_class_uuid16, local_name, source_mac, rssi):
+def parse_govee(self, data: str, service_class_uuid16: int, local_name: str, mac: bytes):
     """Parser for Govee sensors"""
     # The parser needs to handle the bug in the Govee BLE advertisement
     # data as INTELLI_ROCKS sometimes ends up glued on to the end of the message
@@ -58,7 +58,6 @@ def parse_govee(self, data, service_class_uuid16, local_name, source_mac, rssi):
         data = data[:-25]
     msg_length = len(data)
     firmware = "Govee"
-    govee_mac = source_mac
     device_id = (data[3] << 8) | data[2]
     result = {"firmware": firmware}
     if msg_length == 10 and (
@@ -135,8 +134,8 @@ def parse_govee(self, data, service_class_uuid16, local_name, source_mac, rssi):
             device_type = "H5178"
         elif sensor_id == 1:
             device_type = "H5178-outdoor"
-            govee_mac_outdoor = int.from_bytes(govee_mac, 'big') + 1
-            govee_mac = bytearray(govee_mac_outdoor.to_bytes(len(govee_mac), 'big'))
+            mac_outdoor = int.from_bytes(mac, 'big') + 1
+            mac = bytearray(mac_outdoor.to_bytes(len(mac), 'big'))
         else:
             _LOGGER.debug(
                 "Unknown sensor id for Govee H5178, please report to the developers, data: %s",
@@ -235,21 +234,14 @@ def parse_govee(self, data, service_class_uuid16, local_name, source_mac, rssi):
     else:
         if self.report_unknown == "Govee":
             _LOGGER.info(
-                "BLE ADV from UNKNOWN Govee DEVICE: RSSI: %s, MAC: %s, ADV: %s",
-                rssi,
-                to_mac(source_mac),
+                "BLE ADV from UNKNOWN Govee DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
                 data.hex()
             )
         return None
 
-    # check for MAC presence in sensor whitelist, if needed
-    if self.discovery is False and govee_mac not in self.sensor_whitelist:
-        _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(govee_mac))
-        return None
-
     result.update({
-        "rssi": rssi,
-        "mac": to_unformatted_mac(govee_mac),
+        "mac": to_unformatted_mac(mac),
         "type": device_type,
         "packet": "no packet id",
         "firmware": firmware,

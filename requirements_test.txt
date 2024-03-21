@@ -1,7 +1,7 @@
-pytest-homeassistant-custom-component==0.13.83
+pytest-homeassistant-custom-component==0.13.85
 
 # BLE montitor requirements
-pycryptodomex==3.19.0
+pycryptodomex==3.19.1
 janus==1.0.0
 aioblescan==0.2.14
 btsocket==0.2.0
