@@ -8,11 +8,13 @@ _LOGGER = logging.getLogger(__name__)
 
 ACCONEER_SENSOR_IDS = {
     0x80: "Acconeer XM122",
+    0x90: "Acconeer XM126 Distance",
     0x91: "Acconeer XM126",
 }
 
 MEASUREMENTS = {
     0x80: ["presence", "temperature"],
+    0x90: ["distance_mm", "temperature"],
     0x91: ["presence", "temperature"],
 }
 
@@ -28,22 +30,51 @@ def parse_acconeer(self, data: bytes, mac: str):
     if msg_length == 19 and device_id in ACCONEER_SENSOR_IDS:
         # Acconeer Sensors
         device_type = ACCONEER_SENSOR_IDS[device_id]
-        measurements = MEASUREMENTS[device_id]
-        (battery_level, temperature, presence, _) = unpack("<HhHQ", xvalue)
 
-        if "presence" in measurements:
+        if "Distance" in device_type:
+            measurements = MEASUREMENTS[device_id]
+            (
+                battery_level,
+                temperature,
+                distance_mm,
+                reserved2
+            ) = unpack("<HhHQ", xvalue)
+
+            if "distance_mm" in measurements:
+                result.update({
+                    "distance mm": distance_mm,
+                })
+
+            if "temperature" in measurements:
+                result.update({
+                    "temperature": temperature,
+                })
+
             result.update({
-                "motion": 0 if presence == 0 else 1,
+                "battery": battery_level,
             })
+        else:
+            measurements = MEASUREMENTS[device_id]
+            (
+                battery_level,
+                temperature,
+                presence,
+                reserved2
+            ) = unpack("<HhHQ", xvalue)
 
-        if "temperature" in measurements:
+            if "presence" in measurements:
+                result.update({
+                    "motion": 0 if presence == 0 else 1,
+                })
+
+            if "temperature" in measurements:
+                result.update({
+                    "temperature": temperature,
+                })
+
             result.update({
-                "temperature": temperature,
+                "battery": battery_level,
             })
-
-        result.update({
-            "battery": battery_level,
-        })
     else:
         device_type = None
 
