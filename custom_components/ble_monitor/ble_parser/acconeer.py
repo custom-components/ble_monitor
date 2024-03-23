@@ -8,14 +8,8 @@ _LOGGER = logging.getLogger(__name__)
 
 ACCONEER_SENSOR_IDS = {
     0x80: "Acconeer XM122",
-    0x90: "Acconeer XM126 Distance",
+    0x90: "Acconeer XM126",
     0x91: "Acconeer XM126",
-}
-
-MEASUREMENTS = {
-    0x80: ["presence", "temperature"],
-    0x90: ["distance_mm", "temperature"],
-    0x91: ["presence", "temperature"],
 }
 
 
@@ -31,48 +25,28 @@ def parse_acconeer(self, data: bytes, mac: str):
         # Acconeer Sensors
         device_type = ACCONEER_SENSOR_IDS[device_id]
 
-        if "Distance" in device_type:
-            measurements = MEASUREMENTS[device_id]
+        if device_id == 0x90:
             (
                 battery_level,
                 temperature,
                 distance_mm,
                 reserved2
             ) = unpack("<HhHQ", xvalue)
-
-            if "distance_mm" in measurements:
-                result.update({
-                    "distance mm": distance_mm,
-                })
-
-            if "temperature" in measurements:
-                result.update({
-                    "temperature": temperature,
-                })
-
             result.update({
+                "distance mm": distance_mm,
+                "temperature": temperature,
                 "battery": battery_level,
             })
         else:
-            measurements = MEASUREMENTS[device_id]
             (
                 battery_level,
                 temperature,
                 presence,
                 reserved2
             ) = unpack("<HhHQ", xvalue)
-
-            if "presence" in measurements:
-                result.update({
-                    "motion": 0 if presence == 0 else 1,
-                })
-
-            if "temperature" in measurements:
-                result.update({
-                    "temperature": temperature,
-                })
-
             result.update({
+                "motion": 0 if presence == 0 else 1,
+                "temperature": temperature,
                 "battery": battery_level,
             })
     else:
