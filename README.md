@@ -67,7 +67,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 
 ## Why isn't ESPHome Bluetooth Proxy not working with BLE monitor?
 
-Please not that ESPHome Bluetooth Proxies cannot forward data to BLE monitor. Check out [this page](https://custom-components.github.io/ble_monitor/parse_data) for alternative solutions.
+Please note that ESPHome Bluetooth Proxies cannot forward data to BLE monitor. Check out [this page](https://custom-components.github.io/ble_monitor/parse_data) for alternative solutions.
 
 ## Important announcement about the future of BLE monitor
 
