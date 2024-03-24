@@ -57,7 +57,7 @@ class TestAcconeer:
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
         assert sensor_msg["firmware"] == "Acconeer"
-        assert sensor_msg["type"] == "Acconeer XM126 Distance"
+        assert sensor_msg["type"] == "Acconeer XM126"
         assert sensor_msg["mac"] == "E00990B61234"
         assert sensor_msg["packet"] == "6400160058050000000000000000"
         assert sensor_msg["data"]

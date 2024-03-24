@@ -1856,9 +1856,6 @@ MEASUREMENT_DICT = {
     'Meter TH S1'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Meter TH plus'           : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Laica Smart Scale'       : [["weight", "impedance", "rssi"], [], []],
-    "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
-    "Acconeer XM126"          : [["temperature", "battery", "rssi"], [], ["motion"]],
-    "Acconeer XM126 Distance" : [["temperature", "battery", "rssi"], ["distance mm"], []],
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
@@ -1993,9 +1990,6 @@ MANUFACTURER_DICT = {
     'Meter TH S1'             : 'Switchbot',
     'Meter TH plus'           : 'Switchbot',
     'Laica Smart Scale'       : 'Laica',
-    'Acconeer XM122'          : 'Acconeer',
-    'Acconeer XM126'          : 'Acconeer',
-    'Acconeer XM126 Distance' : 'Acconeer',
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
 }
@@ -2030,6 +2024,8 @@ RENAMED_MANUFACTURER_DICT = {
 
 # Sensors that support automatic adding of sensors and binary sensors
 AUTO_MANUFACTURER_DICT = {
+    'Acconeer XM122'          : 'Acconeer',
+    'Acconeer XM126'          : 'Acconeer',
     'Amazfit Smart Scale'     : 'Amazfit',
     'Blustream'               : 'Blustream',
     'BTHome'                  : 'BTHome',
