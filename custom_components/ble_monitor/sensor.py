@@ -8,6 +8,7 @@ from homeassistant.components.sensor import RestoreSensor, SensorEntity
 from homeassistant.const import (ATTR_BATTERY_LEVEL, CONF_DEVICES, CONF_MAC,
                                  CONF_NAME, CONF_TEMPERATURE_UNIT,
                                  CONF_UNIQUE_ID, UnitOfMass, UnitOfTemperature)
+from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import dt
@@ -140,8 +141,8 @@ class BLEupdater:
 
         # setup sensors of configured devices on startup when device model is available in registry
         if self.config[CONF_DEVICES]:
-            dev_registry = hass.helpers.device_registry.async_get(hass)
-            ent_registry = hass.helpers.entity_registry.async_get(hass)
+            dev_registry = device_registry.async_get(hass)
+            ent_registry = entity_registry.async_get(hass)
             for device in self.config[CONF_DEVICES]:
                 # get device_model and firmware from device registry to setup sensor
                 key = dict_get_or(device)
@@ -158,7 +159,7 @@ class BLEupdater:
                     firmware = RENAMED_FIRMWARE_DICT.get(firmware, firmware)
                     manufacturer = RENAMED_MANUFACTURER_DICT.get(manufacturer, manufacturer)
                     # get all entities for this device
-                    entity_list = hass.helpers.entity_registry.async_entries_for_device(
+                    entity_list = entity_registry.async_entries_for_device(
                         registry=ent_registry, device_id=device_id, include_disabled_entities=False
                     )
                     # find the measurement key for each entity

@@ -14,7 +14,7 @@ from homeassistant.const import (CONF_DEVICES, CONF_DISCOVERY, CONF_MAC,
                                  CONF_UNIQUE_ID, EVENT_HOMEASSISTANT_STOP)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.entity_registry import async_entries_for_device
+from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.util import dt
 
 from .ble_parser import BleParser
@@ -400,20 +400,20 @@ async def async_cleanup_entries_service(hass: HomeAssistant, service_data):
     """Remove orphaned entries from device and entity registries."""
     _LOGGER.debug("async_cleanup_entries_service")
 
-    entity_registry = hass.helpers.entity_registry.async_get(hass)
-    device_registry = hass.helpers.device_registry.async_get(hass)
+    ent_registry = entity_registry.async_get(hass)
+    dev_registry = device_registry.async_get(hass)
     config_entry_id = hass.data[DOMAIN]["config_entry_id"]
 
     devices_to_be_removed = [
         entry.id
-        for entry in device_registry.devices.values()
+        for entry in dev_registry.devices.values()
         if config_entry_id in entry.config_entries
     ]
 
     # Remove devices that don't belong to any entity
     for device_id in devices_to_be_removed:
-        if len(async_entries_for_device(entity_registry, device_id)) == 0:
-            device_registry.async_remove_device(device_id)
+        if len(ent_registry.async_entries_for_device(ent_registry, device_id)) == 0:
+            dev_registry.async_remove_device(device_id)
             _LOGGER.debug("device %s will be deleted", device_id)
 
 

@@ -7,6 +7,7 @@ from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.const import (ATTR_BATTERY_LEVEL, CONF_DEVICES, CONF_MAC,
                                  CONF_NAME, CONF_UNIQUE_ID, STATE_OFF,
                                  STATE_ON)
+from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import dt
@@ -131,8 +132,8 @@ class BLEupdaterBinary:
 
         # Set up binary sensors of configured devices on startup when device model is available in device registry
         if self.config[CONF_DEVICES]:
-            dev_registry = hass.helpers.device_registry.async_get(hass)
-            ent_registry = hass.helpers.entity_registry.async_get(hass)
+            dev_registry = device_registry.async_get(hass)
+            ent_registry = entity_registry.async_get(hass)
             for device in self.config[CONF_DEVICES]:
                 # get device_model and firmware from device registry to setup binary sensor
                 key = dict_get_or(device)
@@ -149,7 +150,7 @@ class BLEupdaterBinary:
                     firmware = RENAMED_FIRMWARE_DICT.get(firmware, firmware)
                     manufacturer = RENAMED_MANUFACTURER_DICT.get(manufacturer, manufacturer)
                     # get all entities for this device
-                    entity_list = hass.helpers.entity_registry.async_entries_for_device(
+                    entity_list = entity_registry.async_entries_for_device(
                         registry=ent_registry, device_id=device_id, include_disabled_entities=False
                     )
                     # find the measurement key for each entity
