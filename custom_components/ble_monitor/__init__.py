@@ -10,10 +10,9 @@ import aioblescan as aiobs
 import janus
 import voluptuous as vol
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
-from homeassistant.const import (CONF_DEVICES, CONF_DISCOVERY, CONF_MAC,
-                                 CONF_NAME, CONF_TEMPERATURE_UNIT,
-                                 CONF_UNIQUE_ID, EVENT_HOMEASSISTANT_STOP,
-                                 ATTR_DEVICE_ID)
+from homeassistant.const import (ATTR_DEVICE_ID, CONF_DEVICES, CONF_DISCOVERY,
+                                 CONF_MAC, CONF_NAME, CONF_TEMPERATURE_UNIT,
+                                 CONF_UNIQUE_ID, EVENT_HOMEASSISTANT_STOP)
 from homeassistant.core import HomeAssistant, async_get_hass
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity_registry import async_entries_for_device
@@ -34,8 +33,8 @@ from .const import (AES128KEY24_REGEX, AES128KEY32_REGEX,
                     CONF_DEVICE_RESET_TIMER, CONF_DEVICE_RESTORE_STATE,
                     CONF_DEVICE_TRACK, CONF_DEVICE_TRACKER_CONSIDER_HOME,
                     CONF_DEVICE_TRACKER_SCAN_INTERVAL, CONF_DEVICE_USE_MEDIAN,
-                    CONF_GATEWAY_ID, CONF_PROXY, CONF_HCI_INTERFACE, CONF_LOG_SPIKES,
-                    CONF_PACKET, CONF_PERIOD, CONF_REPORT_UNKNOWN,
+                    CONF_GATEWAY_ID, CONF_HCI_INTERFACE, CONF_LOG_SPIKES,
+                    CONF_PACKET, CONF_PERIOD, CONF_PROXY, CONF_REPORT_UNKNOWN,
                     CONF_RESTORE_STATE, CONF_USE_MEDIAN, CONF_UUID,
                     CONFIG_IS_FLOW, DEFAULT_ACTIVE_SCAN, DEFAULT_BATT_ENTITIES,
                     DEFAULT_BT_AUTO_RESTART, DEFAULT_DEVICE_REPORT_UNKNOWN,
