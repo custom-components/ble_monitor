@@ -47,6 +47,7 @@ CONF_DEVICE_TRACKER_CONSIDER_HOME = "consider_home"
 CONF_DEVICE_DELETE_DEVICE = "delete device"
 CONF_PACKET = "packet"
 CONF_GATEWAY_ID = "gateway_id"
+CONF_PROXY = "proxy"
 CONF_UUID = "uuid"
 CONFIG_IS_FLOW = "is_flow"
 
