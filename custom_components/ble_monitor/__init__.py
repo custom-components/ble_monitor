@@ -1,10 +1,10 @@
 """Passive BLE monitor integration."""
 import asyncio
 import copy
+import importlib
 import json
 import logging
 import struct
-import importlib
 from threading import Thread
 
 import aioblescan as aiobs
