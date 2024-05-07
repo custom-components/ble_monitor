@@ -4,6 +4,7 @@ import copy
 import json
 import logging
 import struct
+import importlib
 from threading import Thread
 
 import aioblescan as aiobs
@@ -17,10 +18,6 @@ from homeassistant.core import HomeAssistant, async_get_hass
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.util import dt
-try:
-    from homeassistant.components import bluetooth
-except ImportError:
-    bluetooth = None
 
 from .ble_parser import BleParser
 from .bt_helpers import (BT_INTERFACES, BT_MULTI_SELECT, DEFAULT_BT_INTERFACE,
@@ -516,6 +513,10 @@ class HCIdump(Thread):
         self.report_unknown_whitelist = []
         self.last_bt_reset = dt.now()
         self.scanners = {}
+        try:
+            self.bluetooth = importlib.import_module("homeassistant.components.bluetooth")
+        except ImportError:
+            self.bluetooth = None
         if self.config[CONF_REPORT_UNKNOWN]:
             if self.config[CONF_REPORT_UNKNOWN] != "Off":
                 self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
@@ -588,8 +589,7 @@ class HCIdump(Thread):
             aeskeys=self.aeskeys,
         )
 
-    @staticmethod
-    def hci_packet_on_advertisement(scanner, packet):
+    def hci_packet_on_advertisement(self, scanner, packet):
         def _format_uuid(uuid: bytes) -> str:
             if len(uuid) == 2 or len(uuid) == 4:
                 return "{:08x}-0000-1000-8000-00805f9b34fb".format(
@@ -675,7 +675,7 @@ class HCIdump(Thread):
             manufacturer_data=manufacturer_data,
             tx_power=tx_power,
             details={"address_type": address_type},
-            advertisement_monotonic_time=bluetooth.MONOTONIC_TIME(),
+            advertisement_monotonic_time=self.bluetooth.MONOTONIC_TIME(),
         )
 
     def process_hci_events(self, data, device_id=None, gateway_id=DOMAIN, proxy=False):
@@ -683,7 +683,7 @@ class HCIdump(Thread):
         self.evt_cnt += 1
         if len(data) < 12:
             return
-        if bluetooth is not None and proxy:
+        if self.bluetooth is not None and proxy:
             try:
                 scanner_name = device_id or gateway_id
                 scanner = self.scanners.get(scanner_name)
@@ -694,8 +694,8 @@ class HCIdump(Thread):
                                    if entry.name.lower() == gateway_id.lower()), None)
                     source = next((connection[1] for connection in device.connections if
                                    connection[0] in ["mac", "bluetooth"]), gateway_id) if device else gateway_id
-                    scanner = bluetooth.BaseHaRemoteScanner(source, gateway_id, None, False)
-                    bluetooth.async_register_scanner(hass, scanner)
+                    scanner = self.bluetooth.BaseHaRemoteScanner(source, gateway_id, None, False)
+                    self.bluetooth.async_register_scanner(hass, scanner)
                     self.scanners[scanner_name] = scanner
                 self.hci_packet_on_advertisement(scanner, data)
             except Exception as e:
