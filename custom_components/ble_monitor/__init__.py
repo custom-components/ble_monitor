@@ -686,7 +686,7 @@ class HCIdump(Thread):
         if self.bluetooth is not None and proxy:
             try:
                 scanner_name = device_id or gateway_id
-                scanner = self.scanners.get(scanner_name)
+                scanner, _ = self.scanners.get(scanner_name, (None, None))
                 if not scanner:
                     hass = async_get_hass()
                     device = hass.data["device_registry"].devices.get(device_id) if device_id \
@@ -695,8 +695,9 @@ class HCIdump(Thread):
                     source = next((connection[1] for connection in device.connections if
                                    connection[0] in ["mac", "bluetooth"]), gateway_id) if device else gateway_id
                     scanner = self.bluetooth.BaseHaRemoteScanner(source, gateway_id, None, False)
-                    self.bluetooth.async_register_scanner(hass, scanner)
-                    self.scanners[scanner_name] = scanner
+                    self.scanners[scanner_name] = (scanner, [
+                        self.bluetooth.async_register_scanner(hass, scanner),
+                        scanner.async_setup()])
                 self.hci_packet_on_advertisement(scanner, data)
             except Exception as e:
                 _LOGGER.error("%s: %s: %s", gateway_id, e, data.hex().upper())
@@ -853,6 +854,9 @@ class HCIdump(Thread):
             _LOGGER.debug("%i HCI events processed for previous period", self.evt_cnt)
             self.evt_cnt = 0
         self._event_loop.close()
+        for _, unload_callbacks in self.scanners.values():
+            for callback in unload_callbacks:
+                callback()
         _LOGGER.debug("HCIdump thread: Run finished")
 
     def join(self, timeout=10):
