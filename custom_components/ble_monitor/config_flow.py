@@ -238,16 +238,16 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
                 )
             if self._sel_device:
                 # Remove device from device registry
-                device_registry = self.hass.helpers.device_registry.async_get(self.hass)
+                devreg = device_registry.async_get(self.hass)
 
                 conf_key = dict_get_key_or(self._sel_device)
                 key = dict_get_or(self._sel_device).upper()
-                device = device_registry.async_get_device({(DOMAIN, key)}, set())
+                device = devreg.async_get_device({(DOMAIN, key)}, set())
                 if device is None:
                     errors[conf_key] = "cannot_delete_device"
                 else:
                     _LOGGER.error("Removing BLE monitor device %s from device registry", key)
-                    device_registry.async_remove_device(device.id)
+                    devreg.async_remove_device(device.id)
                 _LOGGER.error(f"Removing BLE monitor device %s from configuration {device}", key)
                 del self._devices[key]
             return self._show_main_form(errors)
@@ -487,7 +487,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
             )
         for dev in self.config_entry.options.get(CONF_DEVICES):
             self._devices[dict_get_or(dev).upper()] = dev
-        devreg = self.hass.helpers.device_registry.async_get(self.hass)
+        devreg = device_registry.async_get(self.hass)
         for dev in device_registry.async_entries_for_config_entry(
             devreg, self.config_entry.entry_id
         ):

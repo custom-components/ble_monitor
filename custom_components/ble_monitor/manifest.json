@@ -1,18 +1,18 @@
 {
   "domain": "ble_monitor",
   "name": "Passive BLE monitor",
-  "codeowners": ["@Ernst79", "@Magalex2x14", "@Thrilleratplay"],
+  "codeowners": ["@Ernst79", "@myhomeiot"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/custom-components/ble_monitor",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/custom-components/ble_monitor/issues",
   "requirements": [
-    "pycryptodomex>=3.18.0",
+    "pycryptodomex>=3.19.1",
     "janus>=1.0.0",
     "aioblescan>=0.2.14",
     "btsocket>=0.2.0",
     "pyric>=0.1.6.3"
   ],
-  "version": "12.11.1"
+  "version": "12.11.2"
 }
