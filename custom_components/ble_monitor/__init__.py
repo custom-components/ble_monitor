@@ -412,7 +412,7 @@ async def async_cleanup_entries_service(hass: HomeAssistant, service_data):
 
     # Remove devices that don't belong to any entity
     for device_id in devices_to_be_removed:
-        if len(ent_registry.async_entries_for_device(ent_registry, device_id)) == 0:
+        if len(entity_registry.async_entries_for_device(ent_registry, device_id)) == 0:
             dev_registry.async_remove_device(device_id)
             _LOGGER.debug("device %s will be deleted", device_id)
 
