@@ -351,6 +351,10 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |**distance
     # |  |**distance mm
     # |  |**duration
+    # |  |**pressure present duration
+    # |  |**pressure not present duration
+    # |  |**pressure present time set
+    # |  |**pressure present not time set
     # |  |**current
     # |  |**speed
     # |  |**gyroscope
