@@ -523,6 +523,26 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         device_class=BinarySensorDeviceClass.POWER,
         force_update=True,
     ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="reset",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="reset",
+        unique_id="reset_",
+        icon="mdi:arrow-u-left-top",
+        device_class=None,
+        force_update=True,
+    ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="pressure state",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="pressure state",
+        unique_id="pressure_state_",
+        icon="mdi:car-brake-low-pressure",
+        device_class=None,
+        force_update=False,
+    ),
 )
 
 
@@ -1780,6 +1800,7 @@ MEASUREMENT_DICT = {
     'K9BB-1BTN'               : [["battery", "rssi"], ["one btn switch"], []],
     'MS1BB(MI)'               : [["battery", "rssi"], ["button"], ["opening"]],
     'HS1BB(MI)'               : [["illuminance", "battery", "rssi"], [], ["motion"]],
+    'PS1BB'                   : [["battery", "rssi"], [], ["reset", "pressure state"]],
     'XMPIRO2SXS'              : [["illuminance", "battery", "rssi"], [], ["motion"]],
     'XMWXKG01YL'              : [["rssi"], ["two btn switch left", "two btn switch right"], []],
     'XMWXKG01LM'              : [["battery", "rssi"], ["one btn switch"], []],
@@ -1790,7 +1811,6 @@ MEASUREMENT_DICT = {
     'YLYK01YL-VENFAN'         : [["rssi"], ["ventilator fan remote"], []],
     'YLYB01YL-BHFRC'          : [["rssi"], ["bathroom heater remote"], []],
     'YLKG07YL/YLKG08YL'       : [["rssi"], ["dimmer"], []],
-    'PS1BB'                   : [["battery", "rssi"], [], []],
     'SU001-T'                 : [["battery", "rssi"], [], ["motion", "switch"]],
     'ATC'                     : [["temperature", "humidity", "battery", "voltage", "rssi"], [], ["switch", "opening"]],
     'Mi Scale V1'             : [["rssi"], ["weight", "non-stabilized weight"], ["weight removed"]],
