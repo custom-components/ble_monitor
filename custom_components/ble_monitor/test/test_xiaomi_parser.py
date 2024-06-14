@@ -389,7 +389,7 @@ class TestXiaomi:
         assert sensor_msg["mac"] == "A4C1380FD69B"
         assert sensor_msg["packet"] == 33
         assert sensor_msg["data"]
-        assert sensor_msg["pressure present duration"] == 0
+        assert sensor_msg["pressure present duration"] == 7800
         assert sensor_msg["rssi"] == -52
 
     def test_Xiaomi_MJYD02YL(self):
