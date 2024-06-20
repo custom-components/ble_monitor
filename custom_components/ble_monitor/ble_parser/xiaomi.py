@@ -77,6 +77,7 @@ XIAOMI_TYPE_DICT = {
     0x3F0F: "RS1BB",
     0x38BB: "PTX",
     0x3531: "XMPIRO2SXS",
+    0x3F4C: "PS1BB",
 }
 
 # Structured objects for data conversions
@@ -759,6 +760,35 @@ def obj4818(xobj):
         return {}
 
 
+def obj483c(xobj):
+    """Pressure Present State"""
+    return {"pressure state": xobj[0]}
+
+
+def obj483d(xobj):
+    """Pressure Present Duration"""
+    (duration,) = struct.unpack("<I", xobj)
+    return {"pressure present duration": duration}
+
+
+def obj483e(xobj):
+    """Pressure Not Present Duration"""
+    (duration,) = struct.unpack("<I", xobj)
+    return {"pressure not present duration": duration}
+
+
+def obj483f(xobj):
+    """Pressure present time set"""
+    (duration,) = struct.unpack("<I", xobj)
+    return {"pressure present time set": duration}
+
+
+def obj4840(xobj):
+    """Pressure Not Present Time Set"""
+    (duration,) = struct.unpack("<I", xobj)
+    return {"pressure not present time set": duration}
+
+
 def obj4a01(xobj):
     """Low Battery"""
     low_batt = xobj[0]
@@ -837,6 +867,12 @@ def obj4a1a(xobj):
             "status": "door not closed"}
     else:
         return {}
+
+
+def obj4a1c(xobj):
+    """Device reset"""
+    reset = xobj[0]
+    return {"reset": reset}
 
 
 def obj4c01(xobj):
@@ -1095,6 +1131,11 @@ xiaomi_dataobject_dict = {
     0x4810: obj4810,
     0x4811: obj4811,
     0x4818: obj4818,
+    0x483c: obj483c,
+    0x483d: obj483d,
+    0x483e: obj483e,
+    0x483f: obj483f,
+    0x4840: obj4840,
     0x4a01: obj4a01,
     0x4a08: obj4a08,
     0x4a0c: obj4a0c,
@@ -1104,6 +1145,7 @@ xiaomi_dataobject_dict = {
     0x4a12: obj4a12,
     0x4a13: obj4a13,
     0x4a1a: obj4a1a,
+    0x4a1c: obj4a1c,
     0x4c01: obj4c01,
     0x4c02: obj4c02,
     0x4c03: obj4c03,

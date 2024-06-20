@@ -351,6 +351,10 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |**distance
     # |  |**distance mm
     # |  |**duration
+    # |  |**pressure present duration
+    # |  |**pressure not present duration
+    # |  |**pressure present time set
+    # |  |**pressure present not time set
     # |  |**current
     # |  |**speed
     # |  |**gyroscope
@@ -527,7 +531,10 @@ class BaseSensor(RestoreSensor, SensorEntity):
         if not self.is_beacon:
             return True
 
-        if self.entity_description.key in ['cypress temperature', 'cypress humidity', 'uuid']:
+        if self.entity_description.key in [
+            'cypress temperature', 'cypress humidity', 'uuid', 'pressure present duration',
+            'pressure not present duration', 'pressure present time set', 'pressure not present time set'
+        ]:
             return False
 
         return True

@@ -361,6 +361,8 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         """Return if the entity should be enabled when first added to the entity registry."""
         if self._device_type == "ATC":
             return False
+        elif self.entity_description.key == 'reset':
+            return False
         else:
             return True
 
