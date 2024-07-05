@@ -366,6 +366,32 @@ class TestXiaomi:
         assert sensor_msg["moisture detected"] == 0
         assert sensor_msg["rssi"] == -64
 
+    def test_Xiaomi_PS1BB(self):
+        """Test Xiaomi parser for Linptech PS1BB."""
+        self.aeskeys = {}
+        data_string = "043E26020100009bd60f38c1a41a020106161695fe48594c3f21f4957fb405c9cf040000d8252537CC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "9b4441bc2505db3c3484bae6b7631b34"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "PS1BB"
+        assert sensor_msg["mac"] == "A4C1380FD69B"
+        assert sensor_msg["packet"] == 33
+        assert sensor_msg["data"]
+        assert sensor_msg["pressure present duration"] == 7800
+        assert sensor_msg["rssi"] == -52
+
     def test_Xiaomi_MJYD02YL(self):
         """Test Xiaomi parser for MJYD02YL."""
 
