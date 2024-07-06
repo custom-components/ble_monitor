@@ -1477,7 +1477,19 @@ def parse_xiaomi(self, data: bytes, mac: str):
             ]:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
-                    if hex(obj_typecode) in ["0x8", "0x100e", "0x1001", "0xf", "0xb", "0x4e0c", "0x4e0d", "0x4e0e"]:
+                    if hex(obj_typecode) in [
+                        "0x8",
+                        "0x100e",
+                        "0x1001",
+                        "0xf",
+                        "0xb",
+                        "0x4e0c",
+                        "0x4e0d",
+                        "0x4e0e",
+                        "0x560c",
+                        "0x560d",
+                        "0x560e"
+                    ]:
                         result.update(resfunc(dobject, device_type))
                     else:
                         result.update(resfunc(dobject))
