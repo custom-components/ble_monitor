@@ -78,6 +78,8 @@ XIAOMI_TYPE_DICT = {
     0x38BB: "PTX",
     0x3531: "XMPIRO2SXS",
     0x3F4C: "PS1BB",
+    0x3A61: "KS1",
+    0x3E17: "KS1BP",
 }
 
 # Structured objects for data conversions
@@ -700,6 +702,13 @@ def obj3003(xobj):
 # The following data objects are device specific. For now only added for
 # LYWSD02MMC, XMWSDJ04MMC, MJWSD05MMC, XMWXKG01YL, LINPTECH MS1BB(MI), HS1BB(MI), K9BB
 # https://miot-spec.org/miot-spec-v2/instances?status=all
+
+def obj4801(xobj):
+    """Temperature"""
+    (temp,) = struct.unpack("f", xobj)
+    return {"temperature": temp}
+
+
 def obj4803(xobj):
     """Battery"""
     batt = xobj[0]
@@ -729,6 +738,12 @@ def obj4806(xobj):
     """Moisture detected (wet/dry)"""
     wet = xobj[0]
     return {"moisture detected": wet}
+
+
+def obj4808(xobj):
+    """Humidity"""
+    (humi,) = struct.unpack("f", xobj)
+    return {"humidity": humi}
 
 
 def obj4810(xobj):
@@ -1050,6 +1065,12 @@ def obj4e1c(xobj):
     return {"device reset": xobj[0]}
 
 
+def obj5003(xobj):
+    """Battery"""
+    batt = xobj[0]
+    return {"battery": batt}
+
+
 def obj5010(xobj):
     """Sleep State"""
     sleep_state = xobj[0]
@@ -1073,10 +1094,109 @@ def obj5403(xobj):
     return {"battery": xobj[0]}
 
 
+def obj5414(xobj):
+    """Mode"""
+    mode = xobj[0]
+    return {"mode": mode}
+
+
 def obj5601(xobj):
     """Low Battery"""
     low_batt = xobj[0]
     return {"low battery": low_batt}
+
+
+def obj560c(xobj, device_type):
+    """Click"""
+    if device_type in ["KS1", "KS1BP"]:
+        click = xobj[0]
+        if click == 1:
+            result = {
+                "four btn switch 1": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 2:
+            result = {
+                "four btn switch 2": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 3:
+            result = {
+                "four btn switch 3": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 4:
+            result = {
+                "four btn switch 4": "toggle",
+                "button switch": "single press",
+            }
+        else:
+            result = None
+        return result
+    else:
+        return None
+
+
+def obj560d(xobj, device_type):
+    """Click"""
+    if device_type in ["KS1", "KS1BP"]:
+        click = xobj[0]
+        if click == 1:
+            result = {
+                "four btn switch 1": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 2:
+            result = {
+                "four btn switch 2": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 3:
+            result = {
+                "four btn switch 3": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 4:
+            result = {
+                "four btn switch 4": "toggle",
+                "button switch": "double press",
+            }
+        else:
+            result = None
+        return result
+    else:
+        return None
+
+
+def obj560e(xobj, device_type):
+    """Click"""
+    if device_type in ["KS1", "KS1BP"]:
+        click = xobj[0]
+        if click == 1:
+            result = {
+                "four btn switch 1": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 2:
+            result = {
+                "four btn switch 2": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 3:
+            result = {
+                "four btn switch 3": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 4:
+            result = {
+                "four btn switch 4": "toggle",
+                "button switch": "long press",
+            }
+        else:
+            result = None
+        return result
+    else:
+        return None
 
 
 def obj5a16(xobj):
@@ -1124,10 +1244,12 @@ xiaomi_dataobject_dict = {
     0x100E: obj100e,
     0x2000: obj2000,
     0x3003: obj3003,
+    0x4801: obj4801,
     0x4803: obj4803,
     0x4804: obj4804,
     0x4805: obj4805,
     0x4806: obj4806,
+    0x4808: obj4808,
     0x4810: obj4810,
     0x4811: obj4811,
     0x4818: obj4818,
@@ -1158,10 +1280,15 @@ xiaomi_dataobject_dict = {
     0x4e16: obj4e16,
     0x4e17: obj4e17,
     0x4e1c: obj4e1c,
+    0x5003: obj5003,
     0x5010: obj5010,
     0x5011: obj5011,
     0x5403: obj5403,
+    0x5414: obj5414,
     0x5601: obj5601,
+    0x560c: obj560c,
+    0x560d: obj560d,
+    0x560e: obj560e,
     0x5a16: obj5a16,
 }
 
@@ -1350,7 +1477,19 @@ def parse_xiaomi(self, data: bytes, mac: str):
             ]:
                 resfunc = xiaomi_dataobject_dict.get(obj_typecode, None)
                 if resfunc:
-                    if hex(obj_typecode) in ["0x8", "0x100e", "0x1001", "0xf", "0xb", "0x4e0c", "0x4e0d", "0x4e0e"]:
+                    if hex(obj_typecode) in [
+                        "0x8",
+                        "0x100e",
+                        "0x1001",
+                        "0xf",
+                        "0xb",
+                        "0x4e0c",
+                        "0x4e0d",
+                        "0x4e0e",
+                        "0x560c",
+                        "0x560d",
+                        "0x560e"
+                    ]:
                         result.update(resfunc(dobject, device_type))
                     else:
                         result.update(resfunc(dobject))
