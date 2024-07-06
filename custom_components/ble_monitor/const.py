@@ -10,12 +10,13 @@ from homeassistant.components.sensor import (SensorDeviceClass,
                                              SensorStateClass)
 from homeassistant.const import (CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
                                  CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER,
-                                 CONCENTRATION_PARTS_PER_MILLION, CONDUCTIVITY,
-                                 LIGHT_LUX, PERCENTAGE,
+                                 CONCENTRATION_PARTS_PER_MILLION, LIGHT_LUX,
+                                 PERCENTAGE,
                                  SIGNAL_STRENGTH_DECIBELS_MILLIWATT, Platform,
-                                 UnitOfElectricPotential, UnitOfEnergy,
-                                 UnitOfMass, UnitOfPower, UnitOfPressure,
-                                 UnitOfTemperature, UnitOfVolume)
+                                 UnitOfConductivity, UnitOfElectricPotential,
+                                 UnitOfEnergy, UnitOfMass, UnitOfPower,
+                                 UnitOfPressure, UnitOfTemperature,
+                                 UnitOfVolume)
 from homeassistant.helpers.entity import EntityCategory
 
 DOMAIN = "ble_monitor"
@@ -829,7 +830,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         name="ble conductivity",
         unique_id="c_",
         icon="mdi:lightning-bolt-circle",
-        native_unit_of_measurement=CONDUCTIVITY,
+        native_unit_of_measurement=UnitOfConductivity.MICROSIEMENS,
         device_class=None,
         suggested_display_precision=0,
         state_class=SensorStateClass.MEASUREMENT,
