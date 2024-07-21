@@ -46,6 +46,7 @@ from .thermopro import parse_thermopro
 from .tilt import parse_tilt
 from .xiaogui import parse_xiaogui
 from .xiaomi import parse_xiaomi
+from .senssun import parse_senssun
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -421,6 +422,10 @@ class BleParser:
                     elif comp_id == 0xA0AC and data_len == 0x0F and man_spec_data[14] in [0x06, 0x0D]:
                         # Laica
                         sensor_data = parse_laica(self, man_spec_data, mac)
+                        break
+                    elif comp_id == 0x0100 and data_len == 0x14:
+                        # Senssun IF_B7
+                        sensor_data = parse_senssun(self, man_spec_data, mac)
                         break
 
                     # Filter on part of the UUID16

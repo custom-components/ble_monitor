@@ -1975,6 +1975,7 @@ MEASUREMENT_DICT = {
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
+    'Senssun Smart Scale'     : [["rssi"], ["weight", "impedance"], []],
 }
 
 # Sensor manufacturer dictionary
@@ -2111,6 +2112,7 @@ MANUFACTURER_DICT = {
     'Laica Smart Scale'       : 'Laica',
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
+    'Senssun Smart Scale'       : 'Senssun',
 }
 
 
