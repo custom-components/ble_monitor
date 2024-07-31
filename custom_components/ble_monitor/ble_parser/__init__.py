@@ -38,6 +38,7 @@ from .relsib import parse_relsib
 from .ruuvitag import parse_ruuvitag
 from .sensirion import parse_sensirion
 from .sensorpush import parse_sensorpush
+from .senssun import parse_senssun
 from .smartdry import parse_smartdry
 from .switchbot import parse_switchbot
 from .teltonika import parse_teltonika
@@ -46,7 +47,6 @@ from .thermopro import parse_thermopro
 from .tilt import parse_tilt
 from .xiaogui import parse_xiaogui
 from .xiaomi import parse_xiaomi
-from .senssun import parse_senssun
 
 _LOGGER = logging.getLogger(__name__)
 
