@@ -38,6 +38,7 @@ from .relsib import parse_relsib
 from .ruuvitag import parse_ruuvitag
 from .sensirion import parse_sensirion
 from .sensorpush import parse_sensorpush
+from .senssun import parse_senssun
 from .smartdry import parse_smartdry
 from .switchbot import parse_switchbot
 from .teltonika import parse_teltonika
@@ -421,6 +422,10 @@ class BleParser:
                     elif comp_id == 0xA0AC and data_len == 0x0F and man_spec_data[14] in [0x06, 0x0D]:
                         # Laica
                         sensor_data = parse_laica(self, man_spec_data, mac)
+                        break
+                    elif comp_id == 0x0100 and data_len == 0x14:
+                        # Senssun IF_B7
+                        sensor_data = parse_senssun(self, man_spec_data, mac)
                         break
 
                     # Filter on part of the UUID16
