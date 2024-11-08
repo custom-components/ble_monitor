@@ -13,7 +13,7 @@ def convert_8_8_to_float(val_1, val_2):
     return val_1 + (val_2 / 256)
 
 
-def parse_mikrotik(self, data: bytes, mac: str):
+def parse_mikrotik(self, data: bytes, mac: bytes):
     """Inkbird parser"""
     msg_length = len(data)
     firmware = "Mikrotik"

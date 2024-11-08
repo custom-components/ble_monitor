@@ -67,7 +67,7 @@ def decode_values(mfg_data: bytes, device_type_id: int) -> dict:
     return values
 
 
-def parse_sensorpush(self, data: bytes, mac: str):
+def parse_sensorpush(self, data: bytes, mac: bytes):
     """Sensorpush parser"""
     result = {"firmware": "SensorPush"}
     device_type = None

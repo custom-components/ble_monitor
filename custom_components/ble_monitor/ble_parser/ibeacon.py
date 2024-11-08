@@ -14,7 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 DEVICE_TYPE: Final = "iBeacon"
 
 
-def parse_ibeacon(self, data: str, mac: str):
+def parse_ibeacon(self, data: bytes, mac: bytes):
     """Parse iBeacon advertisements"""
     if data[5] == 0x15 and len(data) >= 27:
         uuid = data[6:22]

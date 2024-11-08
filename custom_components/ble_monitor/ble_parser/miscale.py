@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_miscale(self, data: bytes, mac: str):
+def parse_miscale(self, data: bytes, mac: bytes):
     """Parser for Xiaomi Mi Scales."""
     msg_length = len(data)
     uuid16 = (data[3] << 8) | data[2]

@@ -13,7 +13,7 @@ ACCONEER_SENSOR_IDS = {
 }
 
 
-def parse_acconeer(self, data: bytes, mac: str):
+def parse_acconeer(self, data: bytes, mac: bytes):
     """Acconeer parser"""
     msg_length = len(data)
     firmware = "Acconeer"

@@ -30,7 +30,7 @@ def read_impedance(data):
     return impedance
 
 
-def parse_laica(self, data: bytes, mac: str):
+def parse_laica(self, data: bytes, mac: bytes):
     """Parser for Laica sensors"""
     xvalue = data[4:]
 

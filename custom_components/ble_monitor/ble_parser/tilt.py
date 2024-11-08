@@ -11,7 +11,7 @@ from .helpers import to_mac, to_unformatted_mac, to_uuid
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_tilt(self, data: bytes, mac: str, ):
+def parse_tilt(self, data: bytes, mac: bytes):
     """Tilt parser"""
     if data[5] == 0x15 and len(data) == 27:
         uuid = data[6:22]

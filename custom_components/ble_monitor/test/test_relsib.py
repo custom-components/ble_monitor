@@ -105,3 +105,20 @@ class TestRelsib:
         assert sensor_msg["data"]
         assert sensor_msg["temperature"] == 23.5
         assert sensor_msg["rssi"] == -62
+
+    def test_relsib_WH52(self):
+        """Test Relsib parser for Relsib WH52."""
+        data_string = "043e200201030130ddf27cb6fa14051609184dea05161a18b14c0716a2aa30333531c2"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Relsib"
+        assert sensor_msg["type"] == "WH52"
+        assert sensor_msg["mac"] == "FAB67CF2DD30"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["temperature"] == 8.26
+        assert sensor_msg["humidity"] == 76.2
+        assert sensor_msg["rssi"] == -62

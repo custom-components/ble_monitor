@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_amazfit(self, service_data: str, man_spec_data: str, mac: str):
+def parse_amazfit(self, service_data: str | None, man_spec_data: str, mac: bytes):
     """parser for Amazfit scale and Miband 4 and 5"""
     if service_data:
         service_data_length = len(service_data)

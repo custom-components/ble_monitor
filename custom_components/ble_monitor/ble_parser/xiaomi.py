@@ -1293,7 +1293,7 @@ xiaomi_dataobject_dict = {
 }
 
 
-def parse_xiaomi(self, data: bytes, mac: str):
+def parse_xiaomi(self, data: bytes, mac: bytes):
     """Parser for Xiaomi sensors"""
     # check for adstruc length
     i = 9  # till Frame Counter

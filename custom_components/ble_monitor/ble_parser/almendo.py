@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_almendo(self, data: bytes, mac: str):
+def parse_almendo(self, data: bytes, mac: bytes):
     """Almendo parser"""
     result = {
         "mac": to_unformatted_mac(mac),

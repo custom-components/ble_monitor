@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_bparasite(self, data: bytes, mac: str):
+def parse_bparasite(self, data: bytes, mac: bytes):
     """Check for adstruc length"""
     msg_length = len(data)
     if msg_length == 22:  # TODO: Use protocol bits?

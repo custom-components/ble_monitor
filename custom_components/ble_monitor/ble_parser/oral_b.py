@@ -28,7 +28,7 @@ PRESSURE = {
 }
 
 
-def parse_oral_b(self, data: bytes, mac: str):
+def parse_oral_b(self, data: bytes, mac: bytes):
     """Parser for Oral-B toothbrush."""
     msg_length = len(data)
     firmware = "Oral-B"

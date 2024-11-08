@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_moat(self, data: bytes, mac: str):
+def parse_moat(self, data: bytes, mac: bytes):
     """Parser for Moat sensors"""
     msg_length = len(data)
     firmware = "Moat"
