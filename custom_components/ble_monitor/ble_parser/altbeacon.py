@@ -14,7 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 DEVICE_TYPE: Final = "AltBeacon"
 
 
-def parse_altbeacon(self, data: str, comp_id: int, mac: str):
+def parse_altbeacon(self, data: bytes, comp_id: int, mac: bytes):
     """parser for Alt Beacon"""
     if len(data) >= 27:
         uuid = data[6:22]

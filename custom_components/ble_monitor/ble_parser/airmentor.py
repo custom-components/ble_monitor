@@ -104,7 +104,7 @@ def parse_2s(msg_type, xvalue):
         return None
 
 
-def parse_airmentor(self, data: bytes, mac: str):
+def parse_airmentor(self, data: bytes, mac: bytes):
     """Parser for Air Mentor"""
     data_length = len(data)
 

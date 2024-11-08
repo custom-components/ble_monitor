@@ -23,7 +23,7 @@ SENSOR_TYPE = {
 }
 
 
-def parse_oras(self, data: bytes, mac: str):
+def parse_oras(self, data: bytes, mac: bytes):
     """Parser for Oras toothbrush or Garnet tank."""
     msg_length = len(data)
     result = {"mac": to_unformatted_mac(mac)}
