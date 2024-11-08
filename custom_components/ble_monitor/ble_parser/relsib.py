@@ -47,7 +47,7 @@ def parse_relsib(self, data: bytes, mac: bytes):
         device_type = "WH52"
         try:
             temp = round((int.from_bytes(data[4:6], byteorder='big') / 65535) * 175 - 45, 2)
-            humi = round((int.from_bytes(data[10:11], byteorder='big') / 65535) * 175 - 45, 2)
+            humi = round((int.from_bytes(data[10:12], byteorder='big') / 65535) * 175 - 45, 2)
             result.update({"temperature": temp, "humidity": humi})
         except ValueError:
             device_type = None

@@ -108,7 +108,7 @@ class TestRelsib:
 
     def test_relsib_WH52(self):
         """Test Relsib parser for Relsib WH52."""
-        data_string = "043b230201030130ddf27cb6fa14051609184dea05161a18b14c0716a2aa30333531c2"
+        data_string = "043e200201030130ddf27cb6fa14051609184dea05161a18b14c0716a2aa30333531c2"
         data = bytes(bytearray.fromhex(data_string))
         # pylint: disable=unused-variable
         ble_parser = BleParser()
