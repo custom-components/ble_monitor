@@ -43,7 +43,7 @@ def parse_relsib(self, data: bytes, mac: bytes):
                 result.update({"battery": 100})
             else:
                 result.update({"battery": battery & 0b01111111})
-    elif uuid16 in [0x1809] and msg_length == 22:
+    elif uuid16 in [0x1809] and msg_length == 20:
         device_type = "WH52"
         try:
             temp = round((int.from_bytes(data[4:6], byteorder='big') / 65535) * 175 - 45, 2)
