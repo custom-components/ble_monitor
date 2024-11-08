@@ -202,6 +202,10 @@ class BleParser:
                     uuid16 = (service_data[3] << 8) | service_data[2]
                     if uuid16 == 0x1809:
                         # UUID16 = Health Thermometer service (used by Relsib)
+                        if len(service_data_list) == 3:
+                            uuid16_2 = (service_data_list[1][3] << 8) | service_data_list[1][2]
+                            if uuid16_2 == 0x181A:
+                                service_data = b"".join(service_data_list)
                         sensor_data = parse_relsib(self, service_data, mac)
                         break
                     if uuid16 == 0x181A:

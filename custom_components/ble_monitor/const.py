@@ -2165,6 +2165,7 @@ AUTO_MANUFACTURER_DICT = {
     'CGP23W'                  : 'Qingping',
     'EClerk Eco'              : 'Relsib',
     'WT51'                    : 'Relsib',
+    'WH52'                    : 'Relsib',
     'Blue Puck T'             : 'Teltonika',
     'Blue Coin T'             : 'Teltonika',
     'Blue Puck RHT'           : 'Teltonika',
