@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_jaalee(self, data: bytes, mac: str):
+def parse_jaalee(self, data: bytes, mac: bytes):
     """Jaalee parser"""
     msg_length = len(data)
     firmware = "Jaalee"
