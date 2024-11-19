@@ -831,7 +831,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="c_",
         icon="mdi:lightning-bolt-circle",
         native_unit_of_measurement=UnitOfConductivity.MICROSIEMENS_PER_CM,
-        device_class=None,
+        device_class=SensorDeviceClass.CONDUCTIVITY,
         suggested_display_precision=0,
         state_class=SensorStateClass.MEASUREMENT,
     ),
