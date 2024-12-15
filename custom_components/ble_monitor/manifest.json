@@ -8,7 +8,7 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/custom-components/ble_monitor/issues",
   "requirements": [
-    "pycryptodomex>=3.19.1",
+    "pycryptodomex>=3.21.0",
     "janus>=1.0.0",
     "aioblescan>=0.2.14",
     "btsocket>=0.2.0",
