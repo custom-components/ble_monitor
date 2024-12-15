@@ -411,6 +411,10 @@ class BleParser:
                         # Thermobeacon
                         sensor_data = parse_thermobeacon(self, man_spec_data, mac)
                         break
+                    elif comp_id == 0xEA1C and data_len == 0x17:
+                        # Govee H50555
+                        sensor_data = parse_govee(self, man_spec_data, service_class_uuid16, local_name, mac)
+                        break
                     elif comp_id == 0xEC88 and data_len in [0x09, 0x0A, 0x0C, 0x22, 0x24, 0x25]:
                         # Govee H5051/H5071/H5072/H5075/H5074
                         sensor_data = parse_govee(self, man_spec_data, service_class_uuid16, local_name, mac)
