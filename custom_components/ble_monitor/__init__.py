@@ -648,7 +648,7 @@ class HCIdump(Thread):
                         try:
                             self._event_loop.run_until_complete(asyncio.wait_for(initialized_evt[hci].wait(), 5))
                         except asyncio.TimeoutError:
-                            _LOGGER.error(
+                            _LOGGER.warn(
                                 "HCIdump thread: Something wrong - interface hci%i not ready,"
                                 " and will be skipped for current scan period.",
                                 hci,
