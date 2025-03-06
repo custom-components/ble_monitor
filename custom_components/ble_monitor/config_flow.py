@@ -4,11 +4,11 @@ import logging
 
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
-from homeassistant.data_entry_flow import FlowHandler
 from homeassistant.const import (CONF_DEVICES, CONF_DISCOVERY, CONF_MAC,
                                  CONF_NAME, CONF_TEMPERATURE_UNIT,
                                  UnitOfTemperature)
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import FlowHandler
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry
 
