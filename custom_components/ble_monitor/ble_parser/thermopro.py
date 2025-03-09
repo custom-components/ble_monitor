@@ -11,15 +11,20 @@ def parse_thermopro(self, data: bytes, device_type, mac: bytes):
     """Thermopro parser"""
     if device_type in ["TP357", "TP359"]:
         firmware = "Thermopro"
-        xvalue = data[3:6]
-        (temp, humi) = unpack("<hB", xvalue)
+        xvalue = data[3:7]
+        (temp, humi, batt) = unpack("<hBB", xvalue)
+        if batt == 2:
+            # full battery
+            batt_low = 0
+        else:
+            # low battery
+            batt_low = 1
         result = {
             "temperature": temp / 10,
             "humidity": humi,
+            "battery low": batt_low
         }
     else:
-        device_type = None
-    if device_type is None:
         if self.report_unknown == "Thermopro":
             _LOGGER.info(
                 "BLE ADV from UNKNOWN Thermopro DEVICE: MAC: %s, ADV: %s",

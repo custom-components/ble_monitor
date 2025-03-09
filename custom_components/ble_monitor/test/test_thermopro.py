@@ -20,6 +20,7 @@ class TestThermoro:
         assert sensor_msg["data"]
         assert sensor_msg["temperature"] == 27.9
         assert sensor_msg["humidity"] == 39
+        assert sensor_msg["battery low"] == 0
         assert sensor_msg["rssi"] == -68
 
     def test_thermopro_tp359(self):
