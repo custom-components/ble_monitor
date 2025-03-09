@@ -3,12 +3,13 @@ import copy
 import logging
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
-from homeassistant.data_entry_flow import FlowHandler
+from homeassistant.config_entries import (CONN_CLASS_LOCAL_PUSH, ConfigEntry,
+                                          ConfigFlow, OptionsFlow)
 from homeassistant.const import (CONF_DEVICES, CONF_DISCOVERY, CONF_MAC,
                                  CONF_NAME, CONF_TEMPERATURE_UNIT,
                                  UnitOfTemperature)
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import FlowHandler
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry
 
@@ -338,7 +339,7 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, ConfigFlow, domain=DOMAIN):
     """BLEMonitor config flow."""
 
     VERSION = 5
-    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
+    CONNECTION_CLASS = CONN_CLASS_LOCAL_PUSH
 
     @staticmethod
     @callback
