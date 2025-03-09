@@ -3,11 +3,13 @@ import copy
 import logging
 
 import voluptuous as vol
-from homeassistant import config_entries, data_entry_flow
+from homeassistant.config_entries import (CONN_CLASS_LOCAL_PUSH, ConfigEntry,
+                                          ConfigFlow, OptionsFlow)
 from homeassistant.const import (CONF_DEVICES, CONF_DISCOVERY, CONF_MAC,
                                  CONF_NAME, CONF_TEMPERATURE_UNIT,
                                  UnitOfTemperature)
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import FlowHandler
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry
 
@@ -99,7 +101,7 @@ DOMAIN_SCHEMA = vol.Schema(
 )
 
 
-class BLEMonitorFlow(data_entry_flow.FlowHandler):
+class BLEMonitorFlow(FlowHandler):
     """BLEMonitor flow."""
 
     def __init__(self):
@@ -333,17 +335,17 @@ class BLEMonitorFlow(data_entry_flow.FlowHandler):
         )
 
 
-class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOMAIN):
+class BLEMonitorConfigFlow(BLEMonitorFlow, ConfigFlow, domain=DOMAIN):
     """BLEMonitor config flow."""
 
     VERSION = 5
-    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
+    CONNECTION_CLASS = CONN_CLASS_LOCAL_PUSH
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
+    def async_get_options_flow(config_entry: ConfigEntry):
         """Get the options flow for this handler."""
-        return BLEMonitorOptionsFlow(config_entry)
+        return BLEMonitorOptionsFlow()
 
     def _show_main_form(self, errors=None):
         return self._show_user_form("user", DOMAIN_SCHEMA, errors or {})
@@ -383,13 +385,16 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, config_entries.ConfigFlow, domain=DOM
         return await self.async_step_user(user_input)
 
 
-class BLEMonitorOptionsFlow(BLEMonitorFlow, config_entries.OptionsFlow):
+class BLEMonitorOptionsFlow(BLEMonitorFlow, OptionsFlow):
     """Handle BLE Monitor options."""
 
-    def __init__(self, config_entry):
+    def __init__(self):
         """Initialize options flow."""
         super().__init__()
-        self.config_entry = config_entry
+
+    @property
+    def config_entry(self):
+        return self.hass.config_entries.async_get_entry(self.handler)
 
     def _show_main_form(self, errors=None):
         options_schema = vol.Schema(
