@@ -10,11 +10,14 @@ _LOGGER = logging.getLogger(__name__)
 
 def convert_8_8_to_float(val_1, val_2):
     """8.8 to float converter"""
-    return val_1 + (val_2 / 256)
+    if val_1 == 0xFF and val_2 == 0xFF:
+        return 0.0
+    else:
+        return val_1 + (val_2 / 256)
 
 
 def parse_mikrotik(self, data: bytes, mac: bytes):
-    """Inkbird parser"""
+    """Mikrotik parser"""
     msg_length = len(data)
     firmware = "Mikrotik"
     result = {"firmware": firmware}
