@@ -2229,6 +2229,7 @@ AUTO_MANUFACTURER_DICT = {
     'MMC-W505'                : 'Xiaomi',
     'SJWS01LM'                : 'Xiaomi',
     'RS1BB'                   : 'Linptech',
+    'ES3'                     : 'Linptech',
 }
 
 
