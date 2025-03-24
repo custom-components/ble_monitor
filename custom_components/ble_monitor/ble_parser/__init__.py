@@ -38,6 +38,7 @@ from .relsib import parse_relsib
 from .ruuvitag import parse_ruuvitag
 from .sensirion import parse_sensirion
 from .sensorpush import parse_sensorpush
+from .senssun import parse_senssun
 from .smartdry import parse_smartdry
 from .switchbot import parse_switchbot
 from .teltonika import parse_teltonika
@@ -201,6 +202,10 @@ class BleParser:
                     uuid16 = (service_data[3] << 8) | service_data[2]
                     if uuid16 == 0x1809:
                         # UUID16 = Health Thermometer service (used by Relsib)
+                        if len(service_data_list) == 3:
+                            uuid16_2 = (service_data_list[1][3] << 8) | service_data_list[1][2]
+                            if uuid16_2 == 0x181A:
+                                service_data = b"".join(service_data_list)
                         sensor_data = parse_relsib(self, service_data, mac)
                         break
                     if uuid16 == 0x181A:
@@ -406,6 +411,10 @@ class BleParser:
                         # Thermobeacon
                         sensor_data = parse_thermobeacon(self, man_spec_data, mac)
                         break
+                    elif comp_id == 0xEA1C and data_len == 0x17:
+                        # Govee H50555
+                        sensor_data = parse_govee(self, man_spec_data, service_class_uuid16, local_name, mac)
+                        break
                     elif comp_id == 0xEC88 and data_len in [0x09, 0x0A, 0x0C, 0x22, 0x24, 0x25]:
                         # Govee H5051/H5071/H5072/H5075/H5074
                         sensor_data = parse_govee(self, man_spec_data, service_class_uuid16, local_name, mac)
@@ -421,6 +430,10 @@ class BleParser:
                     elif comp_id == 0xA0AC and data_len == 0x0F and man_spec_data[14] in [0x06, 0x0D]:
                         # Laica
                         sensor_data = parse_laica(self, man_spec_data, mac)
+                        break
+                    elif comp_id == 0x0100 and data_len == 0x14:
+                        # Senssun IF_B7
+                        sensor_data = parse_senssun(self, man_spec_data, mac)
                         break
 
                     # Filter on part of the UUID16

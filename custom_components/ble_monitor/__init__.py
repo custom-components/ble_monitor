@@ -354,10 +354,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     hass.data[DOMAIN]["blemonitor"] = blemonitor
     hass.data[DOMAIN]["config_entry_id"] = config_entry.entry_id
 
-    for component in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(config_entry, component)
-        )
+    await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
     return True
 
@@ -769,7 +766,7 @@ class HCIdump(Thread):
                         try:
                             self._event_loop.run_until_complete(asyncio.wait_for(initialized_evt[hci].wait(), 5))
                         except asyncio.TimeoutError:
-                            _LOGGER.error(
+                            _LOGGER.warn(
                                 "HCIdump thread: Something wrong - interface hci%i not ready,"
                                 " and will be skipped for current scan period.",
                                 hci,

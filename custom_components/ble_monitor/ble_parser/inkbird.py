@@ -16,7 +16,7 @@ def convert_temperature(temp):
     return temperature
 
 
-def parse_inkbird(self, data: bytes, complete_local_name: str, mac: str):
+def parse_inkbird(self, data: bytes, complete_local_name: str, mac: bytes):
     """Inkbird parser"""
     msg_length = len(data)
     firmware = "Inkbird"

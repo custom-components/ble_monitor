@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_smartdry(self, data: bytes, mac: str):
+def parse_smartdry(self, data: bytes, mac: bytes):
     """Parser for SmartDry cloth dryer"""
     msg_length = len(data)
     if msg_length == 16:

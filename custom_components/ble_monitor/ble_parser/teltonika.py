@@ -7,7 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_teltonika(self, data: bytes, complete_local_name: str, mac: str):
+def parse_teltonika(self, data: bytes, complete_local_name: str, mac: bytes):
     """Teltonika parser"""
     result = {"firmware": "Teltonika"}
     device_id = (data[3] << 8) | data[2]
