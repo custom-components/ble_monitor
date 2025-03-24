@@ -6,7 +6,8 @@ from datetime import timedelta
 from homeassistant.components.device_tracker import SourceType
 from homeassistant.components.device_tracker.config_entry import ScannerEntity
 from homeassistant.const import (CONF_DEVICES, CONF_MAC, CONF_NAME,
-                                 CONF_UNIQUE_ID, STATE_HOME, STATE_NOT_HOME)
+                                 CONF_UNIQUE_ID, MATCH_ALL, STATE_HOME,
+                                 STATE_NOT_HOME)
 from homeassistant.helpers import device_registry
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
@@ -155,6 +156,8 @@ class BLEupdaterTracker:
 
 class BleScannerEntity(ScannerEntity, RestoreEntity):
     """Represent a tracked device."""
+
+    _unrecorded_attributes = frozenset({MATCH_ALL})
 
     def __init__(self, config, key):
         """Set up BLE Tracker entity."""
