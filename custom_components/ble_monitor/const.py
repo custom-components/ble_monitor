@@ -2226,6 +2226,7 @@ AUTO_MANUFACTURER_DICT = {
     'Tilt Blue'               : 'Tilt',
     'Tilt Yellow'             : 'Tilt',
     'Tilt Pink'               : 'Tilt',
+    'MJWSD06MMC'              : 'Xiaomi',
     'MMC-W505'                : 'Xiaomi',
     'SJWS01LM'                : 'Xiaomi',
     'RS1BB'                   : 'Linptech',
