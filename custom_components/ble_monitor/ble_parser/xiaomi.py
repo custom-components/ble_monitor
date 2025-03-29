@@ -72,6 +72,7 @@ XIAOMI_TYPE_DICT = {
     0x0380: "DSL-C08",
     0x0DE7: "SU001-T",
     0x20DB: "MJZNZ018H",
+    0x55B5: "MJWSD06MMC",
     0x18E3: "ZX1",
     0x11C2: "SV40",
     0x3F0F: "RS1BB",
@@ -709,6 +710,15 @@ def obj4801(xobj):
     return {"temperature": temp}
 
 
+def obj4802(xobj):
+    """Humidity"""
+    if len(xobj) == 1:
+        humi = xobj[0]
+        return {"humidity": humi}
+    else:
+        return {}
+
+
 def obj4803(xobj):
     """Battery"""
     batt = xobj[0]
@@ -1245,6 +1255,7 @@ xiaomi_dataobject_dict = {
     0x2000: obj2000,
     0x3003: obj3003,
     0x4801: obj4801,
+    0x4802: obj4802,
     0x4803: obj4803,
     0x4804: obj4804,
     0x4805: obj4805,
