@@ -931,6 +931,59 @@ class TestXiaomi:
         assert sensor_msg["illuminance"] == 228.0
         assert sensor_msg["rssi"] == -58
 
+    def test_linptech_ES3_illuminance(self):
+        """Test Xiaomi parser for linptech ES3."""
+        self.aeskeys = {}
+        data_string = "043E260201000176c3c738c1a41a020106161695fe4859fb50d986d27e8f5313e900000030ad6da8C6"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "b26295a7a08fbac306c8706ade7f0fe4"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "ES3"
+        assert sensor_msg["mac"] == "A4C138C7C376"
+        assert sensor_msg["packet"] == 217
+        assert sensor_msg["data"]
+        assert sensor_msg["illuminance"] == 173.0
+        assert sensor_msg["rssi"] == -58
+
+    def test_linptech_ES3_motion(self):
+        """Test Xiaomi parser for linptech ES3."""
+        self.aeskeys = {}
+        data_string = "043E290201000176c3c738c1a41D020106191695fe5859fb50da76c3c738c1a4aabc4c16000000c60c1646C6"
+        data = bytes(bytearray.fromhex(data_string))
+
+        aeskey = "b26295a7a08fbac306c8706ade7f0fe4"
+
+        is_ext_packet = True if data[3] == 0x0D else False
+        mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
+        mac_address = mac.hex()
+        p_mac = bytes.fromhex(mac_address.replace(":", "").lower())
+        p_key = bytes.fromhex(aeskey.lower())
+        self.aeskeys[p_mac] = p_key
+        # pylint: disable=unused-variable
+        ble_parser = BleParser(aeskeys=self.aeskeys)
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+        assert sensor_msg["type"] == "ES3"
+        assert sensor_msg["mac"] == "A4C138C7C376"
+        assert sensor_msg["packet"] == 218
+        assert sensor_msg["data"]
+        assert sensor_msg["motion"] == 1
+        assert sensor_msg["motion timer"] == 1
+        assert sensor_msg["rssi"] == -58
+
     def test_MJZNZ018H_bed_occupancy(self):
         """Test Xiaomi parser for MJZNZ018H bed occupancy sensor."""
         self.aeskeys = {}
