@@ -360,7 +360,9 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |**gyroscope
     # |  |**MagneticFieldSensor
     # |  |**MagneticFieldDirectionSensor
-    # |  |**ImpedanceSensor
+    # |  |**impedance
+    # |  |**impedance low
+    # |  |**profile id
     # |  |--StateChangedSensor (Class)
     # |  |  |**mac
     # |  |  |**uuid
@@ -379,7 +381,6 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**weight
     # |  |  |**stabilized weight
     # |  |  |**non-stabilized weight
-    # |  |  |**impedance
     # |  |--EnergySensor (Class)
     # |  |  |**energy
     # |  |--PowerSensor (Class)
