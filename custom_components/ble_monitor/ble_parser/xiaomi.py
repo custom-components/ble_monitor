@@ -81,6 +81,7 @@ XIAOMI_TYPE_DICT = {
     0x3F4C: "PS1BB",
     0x3A61: "KS1",
     0x3E17: "KS1BP",
+    0x50FB: "ES3",
     0x5DB1: "MBS17"
 }
 
@@ -815,6 +816,34 @@ def obj4840(xobj):
     return {"pressure not present time set": duration}
 
 
+def obj484e(xobj):
+    """Occupancy Status"""
+    (occupancy,) = struct.unpack("<B", xobj)
+    if occupancy == 0:
+        # no motion is being taken care of by the timer in HA
+        return {}
+    else:
+        return {"motion": 1, "motion timer": 1}
+
+
+def obj484f(xobj):
+    """Time in minutes of no motion (not used, we use 484e)"""
+    if len(xobj) == 1:
+        (no_motion_time,) = struct.unpack("<B", xobj)
+        # minutes of no motion (not used, we use motion timer in obj4a08)
+        # 0 = motion detected
+        return {"motion": 1 if no_motion_time == 0 else 0, "no motion time": no_motion_time}
+    else:
+        return {}
+
+
+def obj4850(xobj):
+    """Time in minutes with motion (not used, we use 484e)"""
+    (motion_time,) = struct.unpack("<B", xobj)
+    # minutes with motion (not used, we use motion timer in obj484e)
+    return {"motion time": motion_time}
+
+
 def obj4a01(xobj):
     """Low Battery"""
     low_batt = xobj[0]
@@ -1270,6 +1299,9 @@ xiaomi_dataobject_dict = {
     0x483e: obj483e,
     0x483f: obj483f,
     0x4840: obj4840,
+    0x484e: obj484e,
+    0x484f: obj484f,
+    0x4850: obj4850,
     0x4a01: obj4a01,
     0x4a08: obj4a08,
     0x4a0c: obj4a0c,
