@@ -81,6 +81,7 @@ XIAOMI_TYPE_DICT = {
     0x3F4C: "PS1BB",
     0x3A61: "KS1",
     0x3E17: "KS1BP",
+    0x5DB1: "MBS17"
 }
 
 # Structured objects for data conversions
