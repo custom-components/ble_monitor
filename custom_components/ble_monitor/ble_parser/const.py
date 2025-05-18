@@ -563,6 +563,7 @@ MANUFACTURER_DICT: Final = {
     0x0217: "Tech4home, Lda",
     0x0218: "Hiotech AB",
     0x06D5: "Sensirion AG",
+    0xBBAA: "UNI-T",
 }
 
 
