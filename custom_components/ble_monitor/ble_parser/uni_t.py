@@ -1,53 +1,85 @@
-import logging
+"""Parser for UNI‑T UT363BT advertisements"""
 
-from custom_components.ble_monitor.ble_parser import BleParser, ParserManager
+from __future__ import annotations
+
+import logging
+from datetime import datetime                # only used for the packet counter
+from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
 
-# map the two‐digit ASCII unit codes to m/s conversion lambdas
-UNIT_CONVERSIONS = {
-    b"40": lambda x: x,             # m/s
-    b"50": lambda x: x / 3.6,       # km/h → m/s
-    b"60": lambda x: x * 0.00508,   # ft/min → m/s
-    b"70": lambda x: x * 0.514444,  # knots → m/s
-    b"80": lambda x: x * 0.44704,   # mph → m/s
-    b"90": lambda x: x * 0.3048,    # ft/s → m/s
+
+UNIT_MAP = {
+    40: "m/s",
+    50: "km/h",
+    60: "ft/min",
+    70: "knots",
+    80: "mph",
+    90: "ft/s",
 }
 
-@ParserManager.register_manufacturer(0xFF14)
-class UniTParser(BleParser):
-    """Parser for UNI-T UT363BT anemometer."""
+# --- core parser -----------------------------------------------------------
+def parse_uni_t(self, mfg_data: bytes, mac: bytes):
+    """
+    Parse manufacturer specific data from UNI‑T UT363BT anemometer.
 
-    def __init__(self):
-        super().__init__(
-            name="UT363BT",
-            manufacturer_id=0xFF14,
-            device_name="UT363BT",
-            ml=0x14,
-        )
+    Payload layout (all fixed‑width):
+        0‑1  : 0xBBAA      – company ID  (little‑endian)
+        2‑4  : 10 05 37    – header / rolling counter
+        5‑13 : ASCII "  1.52M/S60"
+        14‑15: little‑endian temperature   -> raw / 44.5  = °C   (needs 2nd sample)
+        16   : checksum    (simple sum & 0xFF)
+    """
 
-    def parse(self, data: bytearray):
-        # data == the full manufacturer_data payload (AA BB 10 05 37 20 20 31 2E ... 6C)
-        if len(data) < 16:
-            return None
+    device_type = "UNI‑T"
+    firmware    = "UT363BT"
+    packet_id   = mfg_data[3]               # rolling counter in the header
+    adv_prio    = 5                         # low – it’s a passive advert
 
-        try:
-            # bytes 5..15 contain ASCII "  1.52M/S60"
-            txt = data[5:16].decode("ascii", "ignore")
-            speed_val = float(txt.split("M/S")[0])
-            code = txt[-2:].encode("ascii")
+    # 1. Wind speed and unit
+    ascii_block = mfg_data[5:16].decode(errors="ignore")  # "  1.52M/S60"
+    speed_txt, unit_code_txt = ascii_block.split("M/S")
+    speed_val  = float(speed_txt)
+    unit_code  = int(unit_code_txt)
+    unit       = UNIT_MAP.get(unit_code, "m/s")
 
-            # convert to m/s
-            speed_ms = UNIT_CONVERSIONS.get(code, UNIT_CONVERSIONS[b"40"])(speed_val)
+    # Convert *everything* we expose to standard SI (m/s) so dashboards compare nicely
+    CONVERT = {
+        40: 1.0,
+        50: 1 / 3.6,
+        60: 0.00508,
+        70: 0.514444,
+        80: 0.44704,
+        90: 0.3048,
+    }
+    speed_ms = speed_val * CONVERT.get(unit_code, 1.0)
 
-            # temperature is the two bytes before the checksum, little-endian
-            t_raw = int.from_bytes(data[-3:-1], "little")
-            temp_c = t_raw / 44.5
-        except Exception as e:
-            _LOGGER.error("UT363BT parsing error: %s", e)
-            return None
+    # 2. Temperature
+    raw_temp = int.from_bytes(mfg_data[14:16], "little")
+    temp_c   = raw_temp / 44.5                                    # empirical factor
 
-        return {
-            "wind_speed": speed_ms,
-            "temperature": temp_c,
-        }
+    result = {
+        "mac":       to_unformatted_mac(mac),
+        "type":      device_type,
+        "firmware":  firmware,
+        "packet":    packet_id,
+        "wind_speed": speed_ms,
+        "temperature": round(temp_c, 1),
+        "data":      True,
+        "rssi":      self.rssi,
+        "timestamp": datetime.utcnow().isoformat(),
+    }
+
+    # --- de‑duplication bookkeeping (same pattern as ATC / Ruuvi parsers) ----
+    try:
+        prev_pkt = self.lpacket_ids[mac]
+    except KeyError:
+        prev_pkt = None
+
+    if self.filter_duplicates and prev_pkt == packet_id:
+        return None
+
+    self.lpacket_ids[mac]   = packet_id
+    self.adv_priority[mac]  = adv_prio
+
+    return result
