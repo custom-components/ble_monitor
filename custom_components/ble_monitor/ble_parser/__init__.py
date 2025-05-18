@@ -45,6 +45,7 @@ from .teltonika import parse_teltonika
 from .thermobeacon import parse_thermobeacon
 from .thermopro import parse_thermopro
 from .tilt import parse_tilt
+from .uni_t import parse_uni_t
 from .xiaogui import parse_xiaogui
 from .xiaomi import parse_xiaomi
 
