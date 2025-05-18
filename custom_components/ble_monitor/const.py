@@ -15,7 +15,7 @@ from homeassistant.const import (CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
                                  SIGNAL_STRENGTH_DECIBELS_MILLIWATT, Platform,
                                  UnitOfConductivity, UnitOfElectricPotential,
                                  UnitOfEnergy, UnitOfMass, UnitOfPower,
-                                 UnitOfPressure, UnitOfTemperature,
+                                 UnitOfPressure, UnitOfSpeed, UnitOfTemperature,
                                  UnitOfVolume)
 from homeassistant.helpers.entity import EntityCategory
 
@@ -1879,6 +1879,17 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         suggested_display_precision=3,
         state_class=SensorStateClass.MEASUREMENT,
     ),
+    BLEMonitorSensorEntityDescription(
+        key="wind_speed",
+        sensor_class="InstantUpdateSensor",  # Corrected class
+        update_behavior="Instant",
+        name="ble wind speed",
+        unique_id="wind_",
+        native_unit_of_measurement=UnitOfSpeed.METERS_PER_SECOND,
+        suggested_display_precision=2,
+        icon="mdi:weather-windy",
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
 )
 
 
@@ -1952,7 +1963,7 @@ MEASUREMENT_DICT = {
     'YLYB01YL-BHFRC'          : [["rssi"], ["bathroom heater remote"], []],
     'YLKG07YL/YLKG08YL'       : [["rssi"], ["dimmer"], []],
     'SU001-T'                 : [["battery", "rssi"], [], ["motion", "switch"]],
-    'ATC'                     : [["temperature", "humidity", "battery", "voltage", "rssi"], [], ["switch", "opening"]],
+    'ATC'                     : [["temperature", "humidity", "battery", "voltage", "rssi"], [], ["switch", "opening"]],  # Restored "voltage"
     'Mi Scale V1'             : [["rssi"], ["weight", "non-stabilized weight"], ["weight removed"]],
     'Mi Scale V2'             : [["rssi"], ["weight", "stabilized weight", "non-stabilized weight", "impedance"], ["weight removed"]],
     'Mi Band'                 : [["rssi", "heart rate", "steps"], [], []],
@@ -2022,7 +2033,8 @@ MEASUREMENT_DICT = {
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
     'Senssun Smart Scale'     : [["rssi"], ["weight", "impedance"], []],
-}
+}  # Corrected closing brace for MEASUREMENT_DICT
+
 
 # Sensor manufacturer dictionary
 MANUFACTURER_DICT = {
@@ -2342,6 +2354,7 @@ AUTO_SENSOR_LIST = [
     "water",
     "water pressure",
     "weight",
+    "wind_speed",
 ]
 
 

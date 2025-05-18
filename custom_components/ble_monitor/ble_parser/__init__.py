@@ -343,7 +343,7 @@ class BleParser:
                         break
                     elif comp_id == 0xBBAA and data_len == 0x14:
                         # UNI‑T UT‑series (e.g. UT363‑BT)
-                        sensor_data = parse_uni_t(self, man_spec, mac)
+                        sensor_data = parse_uni_t(self, man_spec_data, mac)
                         break
                     elif comp_id == 0x0757:
                         # Teltonika (Ela rebrand)
