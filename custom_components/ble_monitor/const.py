@@ -2033,6 +2033,7 @@ MEASUREMENT_DICT = {
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
     'Senssun Smart Scale'     : [["rssi"], ["weight", "impedance"], []],
+    'UT363BT'                 : [["temperature", "wind_speed", "rssi"], [], []],
 }  # Corrected closing brace for MEASUREMENT_DICT
 
 
@@ -2172,6 +2173,7 @@ MANUFACTURER_DICT = {
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
     'Senssun Smart Scale'     : 'Senssun',
+    'UT363BT'                 : 'UNI-T',
 }
 
 
