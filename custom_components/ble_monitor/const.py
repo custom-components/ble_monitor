@@ -2248,6 +2248,7 @@ AUTO_MANUFACTURER_DICT = {
     'TG-BT5-IN'               : 'Mikrotik',
     'TG-BT5-OUT'              : 'Mikrotik',
     'Electra Washbasin Faucet': 'Oras',
+    'CGP22C'                  : 'Qingping',
     'CGP23W'                  : 'Qingping',
     'EClerk Eco'              : 'Relsib',
     'WT51'                    : 'Relsib',
