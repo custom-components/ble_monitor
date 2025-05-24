@@ -81,6 +81,7 @@ XIAOMI_TYPE_DICT = {
     0x3F4C: "PS1BB",
     0x3A61: "KS1",
     0x3E17: "KS1BP",
+    0x3BD5: "MJTZC01YM",
     0x50FB: "ES3",
     0x5DB1: "MBS17"
 }
@@ -1252,6 +1253,31 @@ def obj5a16(xobj):
         return None
 
 
+def obj6e16(xobj):
+    """Body Composition Scale"""
+    (profile_id, data, _) = struct.unpack("<BII", xobj)
+    if not data:
+        return None
+
+    result = {}
+    mass = data & 0x7FF
+    heart_rate = (data >> 11) & 0x7F
+    impedance = data >> 18
+
+    if mass != 0:
+        result.update({"weight": mass / 10})
+    if 0 < heart_rate < 127:
+        result.update({"heart rate": heart_rate + 50})
+    if impedance != 0:
+        if mass != 0:
+            result.update({"impedance": impedance / 10})
+        else:
+            result.update({"impedance low": impedance / 10})
+
+    result.update({"profile id": profile_id})
+    return result
+
+
 # Dataobject dictionary
 # {dataObject_id: (converter}
 xiaomi_dataobject_dict = {
@@ -1334,6 +1360,7 @@ xiaomi_dataobject_dict = {
     0x560d: obj560d,
     0x560e: obj560e,
     0x5a16: obj5a16,
+    0x6E16: obj6e16,
 }
 
 
