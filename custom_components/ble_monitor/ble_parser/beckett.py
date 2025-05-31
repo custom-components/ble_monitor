@@ -201,7 +201,7 @@ def parse_mfg_data(raw_bytes: bytes) -> BeckettMfgData:
 
 
 def _cast_hass_output(mfg: BeckettMfgData) -> dict:
-    hass_device_type = f"{mfg.product_id.name}:{mfg.device_name_key.name}"
+    hass_device_type = mfg.product_id.name
     return {
         "firmware": "Beckett",
         "data": True,

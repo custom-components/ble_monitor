@@ -20,7 +20,7 @@ KNOWN_OUTPUT = {
     "firmware": "Beckett",
     "data": True,
     "packet": "no packet id",
-    "type": "Genisys7505:Genisys_7505_7575",
+    "type": "Genisys7505",
     "product_id": "Genisys7505",
     "device_name_key": "Genisys_7505_7575",
     "serial": 77100,
