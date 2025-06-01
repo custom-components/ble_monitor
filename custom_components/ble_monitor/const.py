@@ -1639,7 +1639,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     ),
     BLEMonitorSensorEntityDescription(
         key="burner_product",
-        sensor_class="StateChangedSensor",
+        sensor_class="OilBurnerStateSensor",
         update_behavior="Instantly",
         name="burner_product_id",
         unique_id="burner_product_id_",
@@ -1649,7 +1649,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     ),
     BLEMonitorSensorEntityDescription(
         key="burner_device",
-        sensor_class="StateChangedSensor",
+        sensor_class="OilBurnerStateSensor",
         update_behavior="Instantly",
         name="burner_device",
         unique_id="burner_device_",
@@ -1659,7 +1659,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     ),
     BLEMonitorSensorEntityDescription(
         key="burner_serial",
-        sensor_class="StateChangedSensor",
+        sensor_class="OilBurnerStateSensor",
         update_behavior="Instantly",
         name="burner_serial",
         unique_id="burner_serial_",
@@ -1669,7 +1669,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     ),
     BLEMonitorSensorEntityDescription(
         key="burner_state",
-        sensor_class="StateChangedSensor",
+        sensor_class="OilBurnerStateSensor",
         update_behavior="Instantly",
         name="burner_state",
         unique_id="burner_state_",
@@ -1679,7 +1679,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     ),
     BLEMonitorSensorEntityDescription(
         key="burner_last_end_cause",
-        sensor_class="StateChangedSensor",
+        sensor_class="OilBurnerStateSensor",
         update_behavior="Instantly",
         name="burner_last_end_cause",
         unique_id="burner_last_end_cause_",
@@ -1689,7 +1689,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
     ),
     BLEMonitorSensorEntityDescription(
         key="burner_cycle_count",
-        sensor_class="StateChangedSensor",
+        sensor_class="OilBurnerStateSensor",
         update_behavior="Instantly",
         name="burner_cycle_count",
         unique_id="burner_cycle_count_",

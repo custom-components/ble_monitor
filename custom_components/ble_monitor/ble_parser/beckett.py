@@ -236,8 +236,8 @@ def parse_beckett(self, data: str, mac: bytes):
         )
     except Exception:
         _LOGGER.warning("Error parsing Beckett manufacturer data:", exc_info=True)
-        raise
-        # return None
+        #raise
+        return None
 
     #### BOILERPLATE
     if self.report_unknown == "Beckett":

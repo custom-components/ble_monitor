@@ -891,12 +891,24 @@ class StateChangedSensor(InstantUpdateSensor):
             self._extra_state_attributes["pump_id"] = data["pump id"]
         if "battery status" in data:
             self._extra_state_attributes["battery_status"] = data["battery status"]
-        if "burner_productd" in data:
-            self._extra_state_attributes["product_id"] = data["product_id"]
-        if "burner_device" in data:
-            self._extra_state_attributes["device_name_key"] = data["device_name_key"]
-        if "burner_serial" in data:
-            self._extra_state_attributes["serial"] = data["serial"]
+        super().collect(data, period_cnt, batt_attr)
+
+class OilBurnerStateSensor(InstantUpdateSensor):
+    """Representation of a State changed sensor."""
+
+    def __init__(self, config, key, devtype, firmware, entity_description, manufacturer=None):
+        """Initialize the sensor."""
+        super().__init__(config, key, devtype, firmware, entity_description, manufacturer)
+
+    def collect(self, data, period_cnt, batt_attr=None):
+        """Measurements collector."""
+        state = self._state
+        if state and self.entity_description.key == CONF_UUID:
+            state = identifier_clean(state)
+
+        if self.enabled is False or state == data[self.entity_description.key]:
+            self.pending_update = False
+            return
         if "burner_state" in data:
             self._extra_state_attributes["state"] = data["state"]
         if "burner_last_end_cause" in data:
@@ -904,7 +916,6 @@ class StateChangedSensor(InstantUpdateSensor):
         if "burner_cycle_count" in data:
             self._extra_state_attributes["cycle_count"] = data["cycle_count"]
         super().collect(data, period_cnt, batt_attr)
-
 
 class AccelerationSensor(InstantUpdateSensor):
     """Representation of a Acceleration sensor."""
