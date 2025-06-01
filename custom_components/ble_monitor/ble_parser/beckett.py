@@ -207,17 +207,17 @@ def _cast_hass_output(mfg: BeckettMfgData) -> dict:
         "data": True,
         "packet": "no packet id",
         "type": hass_device_type,
-        "product_id": mfg.product_id.name,
-        "device_name_key": mfg.device_name_key.name,
-        "serial": mfg.serial,
-        "is_bootloader": mfg.is_bootloader,
-        "advertisement_version": mfg.advertisement_version,
-        "connectable": mfg.connectable,
-        "state": mfg.state.name if mfg.state is not None else None,
-        "last_end_cause": (
+        "burner_product": mfg.product_id.name,
+        "burner_device": mfg.device_name_key.name,
+        "burner_serial": mfg.serial,
+        "burner_is_bootloader": mfg.is_bootloader,
+        "burner_advertisement_version": mfg.advertisement_version,
+        "burner_connectable": mfg.connectable,
+        "burner_state": mfg.state.name if mfg.state is not None else None,
+        "burner_last_end_cause": (
             mfg.last_end_cause.name if mfg.last_end_cause is not None else None
         ),
-        "cycle_count": mfg.cycle_count,
+        "burner_cycle_count": mfg.cycle_count,
     }
 
 

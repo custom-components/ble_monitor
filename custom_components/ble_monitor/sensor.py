@@ -891,17 +891,17 @@ class StateChangedSensor(InstantUpdateSensor):
             self._extra_state_attributes["pump_id"] = data["pump id"]
         if "battery status" in data:
             self._extra_state_attributes["battery_status"] = data["battery status"]
-        if "product_id" in data:
+        if "burner_productd" in data:
             self._extra_state_attributes["product_id"] = data["product_id"]
-        if "device_name_key" in data:
+        if "burner_device" in data:
             self._extra_state_attributes["device_name_key"] = data["device_name_key"]
-        if "serial" in data:
+        if "burner_serial" in data:
             self._extra_state_attributes["serial"] = data["serial"]
-        if "state" in data:
+        if "burner_state" in data:
             self._extra_state_attributes["state"] = data["state"]
-        if "last_end_cause" in data:
+        if "burner_last_end_cause" in data:
             self._extra_state_attributes["last_end_cause"] = data["last_end_cause"]
-        if "cycle_count" in data:
+        if "burner_cycle_count" in data:
             self._extra_state_attributes["cycle_count"] = data["cycle_count"]
         super().collect(data, period_cnt, batt_attr)
 
