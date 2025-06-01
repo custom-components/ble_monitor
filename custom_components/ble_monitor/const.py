@@ -1675,7 +1675,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="burner_state_",
         native_unit_of_measurement=None,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
+        state_class=None,
     ),
     BLEMonitorSensorEntityDescription(
         key="burner_last_end_cause",
@@ -1685,7 +1685,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         unique_id="burner_last_end_cause_",
         native_unit_of_measurement=None,
         device_class=None,
-        state_class=SensorStateClass.MEASUREMENT,
+        state_class=None,
     ),
     BLEMonitorSensorEntityDescription(
         key="burner_cycle_count",
