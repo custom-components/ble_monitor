@@ -910,11 +910,11 @@ class OilBurnerStateSensor(InstantUpdateSensor):
             self.pending_update = False
             return
         if "burner_state" in data:
-            self._extra_state_attributes["state"] = data["state"]
+            self._extra_state_attributes["burner_state"] = data["burner_state"]
         if "burner_last_end_cause" in data:
-            self._extra_state_attributes["last_end_cause"] = data["last_end_cause"]
+            self._extra_state_attributes["burner_last_end_cause"] = data["burner_last_end_cause"]
         if "burner_cycle_count" in data:
-            self._extra_state_attributes["cycle_count"] = data["cycle_count"]
+            self._extra_state_attributes["burner_cycle_count"] = data["burner_cycle_count"]
         super().collect(data, period_cnt, batt_attr)
 
 class AccelerationSensor(InstantUpdateSensor):
