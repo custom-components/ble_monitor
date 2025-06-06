@@ -375,6 +375,10 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**text
     # |  |  |**pump mode
     # |  |  |**timestamp
+    # |  |--OilBurnerStateSensor (Class)
+    # |  |  |**burner_state
+    # |  |  |**burner_last_end_cause
+    # |  |  |**burner_cycle_count
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
     # |  |--WeightSensor (Class)
