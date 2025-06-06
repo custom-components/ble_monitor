@@ -132,9 +132,7 @@ def unwrap_mfg_data(mfg_data: bytes) -> Optional[BeckettMfgData]:
     # https://github.com/hbldh/bleak/blob/b8d89fb63e54e0bddba72df93bbc4af355e2d131/bleak/backends/corebluetooth/scanner.py#L120
     # `manufacturer_value = bytes(manufacturer_binary_data[2:])`
 
-    # HASS length is 28
-    # BLEAK length is 24 but needed padding of 2
-    # wrapped = mfg_data
+    # HASS length is 28; BLEAK length is 24 but needed padding of 2
     wrapped = mfg_data[2:]
 
     # Perform the XOR "unwrap" loop starting at offset 4
@@ -227,7 +225,6 @@ def parse_beckett(self, data: str, mac: bytes):
     try:
         mfg_data: BeckettMfgData = parse_mfg_data(data)
         _LOGGER.debug(f"Parsed Beckett Genisys ADV: {mfg_data}")
-        # NB: Includes boilerplate fields
         result = _cast_hass_output(mfg_data)
         result.update(
             {
