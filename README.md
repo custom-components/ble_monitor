@@ -28,6 +28,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Air Mentor
 - Amazfit
 - ATC (custom firmware for Xiaomi/Qingping sensors)
+- Beckett
 - BlueMaestro
 - Blustream (Taylor TaylorSense, D'Addario Humiditrak)
 - BTHome
