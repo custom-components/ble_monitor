@@ -15,7 +15,7 @@ broadcasted_properties:
   - burner_is_bootloader
   - burner_connectable
   - burner_advertisement_version
-  
+
 broadcasted_property_notes:
   - property: burner_state
     note: >

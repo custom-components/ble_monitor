@@ -1,11 +1,11 @@
 """Parser for Beckett BLE advertisements"""
 
 import logging
-from .helpers import to_mac, to_unformatted_mac
-
-from typing import Optional, List
-from enum import IntEnum, Enum
 from dataclasses import dataclass, field
+from enum import Enum, IntEnum
+from typing import List, Optional
+
+from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
 
