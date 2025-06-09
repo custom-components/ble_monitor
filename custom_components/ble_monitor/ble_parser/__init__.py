@@ -8,6 +8,7 @@ from .almendo import parse_almendo
 from .altbeacon import parse_altbeacon
 from .amazfit import parse_amazfit
 from .atc import parse_atc
+from .beckett import parse_beckett
 from .bluemaestro import parse_bluemaestro
 from .blustream import parse_blustream
 from .bparasite import parse_bparasite
@@ -435,7 +436,10 @@ class BleParser:
                         # Senssun IF_B7
                         sensor_data = parse_senssun(self, man_spec_data, mac)
                         break
-
+                    elif comp_id == 0x061A:
+                        # R.W. Beckett heating systems
+                        sensor_data = parse_beckett(self, man_spec_data, mac)
+                        break
                     # Filter on part of the UUID16
                     elif man_spec_data[2] == 0xC0 and data_len == 0x10:
                         # Xiaogui Scale
