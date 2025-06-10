@@ -32,6 +32,7 @@ from .laica import parse_laica
 from .mikrotik import parse_mikrotik
 from .miscale import parse_miscale
 from .moat import parse_moat
+from .mocreo import parse_mocreo
 from .oral_b import parse_oral_b
 from .oras import parse_oras
 from .qingping import parse_qingping
@@ -499,6 +500,10 @@ class BleParser:
                     elif local_name in ["sps", "tps"] and data_len == 0x0A:
                         # Inkbird IBS-TH
                         sensor_data = parse_inkbird(self, man_spec_data, local_name, mac)
+                        break
+                    elif local_name == "MOCREO" and data_len == 0x13:
+                        # MOCREO
+                        sensor_data = parse_mocreo(self, man_spec_data, local_name, mac)
                         break
                     elif local_name[0:5] in ["TP357", "TP359"] and data_len >= 0x07:
                         # Thermopro
