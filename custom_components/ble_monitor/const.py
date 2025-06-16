@@ -544,6 +544,16 @@ BINARY_SENSOR_TYPES: tuple[BLEMonitorBinarySensorEntityDescription, ...] = (
         device_class=None,
         force_update=False,
     ),
+    BLEMonitorBinarySensorEntityDescription(
+        key="water leak",
+        sensor_class="BaseBinarySensor",
+        update_behavior="Instantly",
+        name="water leak",
+        unique_id="water_leak_",
+        icon="mdi:water-alert",
+        device_class=BinarySensorDeviceClass.MOISTURE,
+        force_update=True,
+    ),
 )
 
 
@@ -2119,6 +2129,14 @@ MEASUREMENT_DICT = {
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
     'Senssun Smart Scale'     : [["rssi"], ["weight", "impedance"], []],
+    'ST5'                     : [["temperature", "battery", "rssi"], [], []],
+    'SW2'                     : [["battery", "rssi"], [], ["water leak"]],
+    'ST6'                     : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'ST8'                     : [["temperature", "battery", "rssi"], [], []],
+    'ST9'                     : [["temperature", "humidity", "battery", "rssi"], [], []],
+    'ST10'                    : [["temperature", "battery", "rssi"], [], []],
+    'MS1'                     : [["temperature", "battery", "rssi"], [], []],
+    'MS2'                     : [["temperature", "humidity", "battery", "rssi"], [], []],
 }
 
 # Sensor manufacturer dictionary
@@ -2258,6 +2276,14 @@ MANUFACTURER_DICT = {
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
     'Senssun Smart Scale'     : 'Senssun',
+    'ST5'                     : 'MOCREO',
+    'SW2'                     : 'MOCREO',
+    'ST6'                     : 'MOCREO',
+    'ST8'                     : 'MOCREO',
+    'ST9'                     : 'MOCREO',
+    'ST10'                    : 'MOCREO',
+    'MS1'                     : 'MOCREO',
+    'MS2'                     : 'MOCREO',
 }
 
 
@@ -2453,6 +2479,7 @@ AUTO_SENSOR_LIST = [
     "volume mL",
     "volume flow rate",
     "water",
+    "water leak",
     "water pressure",
     "weight",
 ]
@@ -2487,6 +2514,7 @@ REPORT_UNKNOWN_LIST = [
     "Mi Scale",
     "Mikrotik",
     "Moat",
+    "MOCREO",
     "Oras",
     "Oral-B",
     "Qingping",
