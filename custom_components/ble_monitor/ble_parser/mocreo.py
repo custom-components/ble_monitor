@@ -84,7 +84,6 @@ def _get_value(source, pos):
         res = pos[4](res)
 
     return res
-    
 
 def parse_mocreo(self, data: bytes, local_name: str, mac: bytes):
     """Parser for MOCREO sensors"""

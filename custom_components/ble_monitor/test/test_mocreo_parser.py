@@ -42,7 +42,7 @@ class TestMOCREO:
         assert sensor_msg["battery"] == 98
         assert sensor_msg["data"]
         assert sensor_msg["rssi"] == -64
-    
+
     def test_MOCREO_ST8(self):
         """Test MOCREO parser for ST8."""
         data_string = "043e2b02010001bbaa00a4ae301f02010607094d4f4352454f13ff1184e98264b05a0a00000000000a64000000e2"
