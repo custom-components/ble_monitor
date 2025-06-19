@@ -7,7 +7,8 @@ from datetime import timedelta
 from homeassistant.components.sensor import RestoreSensor, SensorEntity
 from homeassistant.const import (ATTR_BATTERY_LEVEL, CONF_DEVICES, CONF_MAC,
                                  CONF_NAME, CONF_TEMPERATURE_UNIT,
-                                 CONF_UNIQUE_ID, UnitOfMass, UnitOfTemperature)
+                                 CONF_UNIQUE_ID, MATCH_ALL, UnitOfMass,
+                                 UnitOfTemperature)
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.typing import StateType
@@ -415,6 +416,8 @@ class BaseSensor(RestoreSensor, SensorEntity):
 
     # ** is a entity_descripiton key
     # -- is a Class
+
+    _unrecorded_attributes = frozenset({MATCH_ALL})
 
     def __init__(
         self,
