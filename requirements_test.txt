@@ -1,7 +1,7 @@
 pytest-homeassistant-custom-component==0.13.193
 
 # BLE monitor requirements
-pycryptodomex==3.21.0
+pycryptodomex==3.23.0
 janus==2.0.0
 aioblescan==0.2.14
 btsocket==0.3.0
