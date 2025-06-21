@@ -5,8 +5,8 @@ from datetime import timedelta
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.const import (ATTR_BATTERY_LEVEL, CONF_DEVICES, CONF_MAC,
-                                 CONF_NAME, CONF_UNIQUE_ID, STATE_OFF,
-                                 STATE_ON)
+                                 CONF_NAME, CONF_UNIQUE_ID, MATCH_ALL,
+                                 STATE_OFF, STATE_ON)
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.restore_state import RestoreEntity
@@ -261,6 +261,8 @@ class BLEupdaterBinary:
 
 class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
     """Representation of a Sensor."""
+
+    _unrecorded_attributes = frozenset({MATCH_ALL})
 
     def __init__(
         self,

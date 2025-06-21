@@ -7,7 +7,8 @@ from datetime import timedelta
 from homeassistant.components.sensor import RestoreSensor, SensorEntity
 from homeassistant.const import (ATTR_BATTERY_LEVEL, CONF_DEVICES, CONF_MAC,
                                  CONF_NAME, CONF_TEMPERATURE_UNIT,
-                                 CONF_UNIQUE_ID, UnitOfMass, UnitOfTemperature)
+                                 CONF_UNIQUE_ID, MATCH_ALL, UnitOfMass,
+                                 UnitOfTemperature)
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.typing import StateType
@@ -360,7 +361,9 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |**gyroscope
     # |  |**MagneticFieldSensor
     # |  |**MagneticFieldDirectionSensor
-    # |  |**ImpedanceSensor
+    # |  |**impedance
+    # |  |**impedance low
+    # |  |**profile id
     # |  |--StateChangedSensor (Class)
     # |  |  |**mac
     # |  |  |**uuid
@@ -373,13 +376,16 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**text
     # |  |  |**pump mode
     # |  |  |**timestamp
+    # |  |--OilBurnerStateSensor (Class)
+    # |  |  |**burner_state
+    # |  |  |**burner_last_end_cause
+    # |  |  |**burner_cycle_count
     # |  |--AccelerationSensor (Class)
     # |  |  |**acceleration
     # |  |--WeightSensor (Class)
     # |  |  |**weight
     # |  |  |**stabilized weight
     # |  |  |**non-stabilized weight
-    # |  |  |**impedance
     # |  |--EnergySensor (Class)
     # |  |  |**energy
     # |  |--PowerSensor (Class)
@@ -410,6 +416,8 @@ class BaseSensor(RestoreSensor, SensorEntity):
 
     # ** is a entity_descripiton key
     # -- is a Class
+
+    _unrecorded_attributes = frozenset({MATCH_ALL})
 
     def __init__(
         self,
@@ -892,6 +900,29 @@ class StateChangedSensor(InstantUpdateSensor):
             self._extra_state_attributes["battery_status"] = data["battery status"]
         super().collect(data, period_cnt, batt_attr)
 
+class OilBurnerStateSensor(InstantUpdateSensor):
+    """Representation of a State changed sensor."""
+
+    def __init__(self, config, key, devtype, firmware, entity_description, manufacturer=None):
+        """Initialize the sensor."""
+        super().__init__(config, key, devtype, firmware, entity_description, manufacturer)
+
+    def collect(self, data, period_cnt, batt_attr=None):
+        """Measurements collector."""
+        state = self._state
+        if state and self.entity_description.key == CONF_UUID:
+            state = identifier_clean(state)
+
+        if self.enabled is False or state == data[self.entity_description.key]:
+            self.pending_update = False
+            return
+        if "burner_state" in data:
+            self._extra_state_attributes["burner_state"] = data["burner_state"]
+        if "burner_last_end_cause" in data:
+            self._extra_state_attributes["burner_last_end_cause"] = data["burner_last_end_cause"]
+        if "burner_cycle_count" in data:
+            self._extra_state_attributes["burner_cycle_count"] = data["burner_cycle_count"]
+        super().collect(data, period_cnt, batt_attr)
 
 class AccelerationSensor(InstantUpdateSensor):
     """Representation of a Acceleration sensor."""

@@ -17,6 +17,7 @@ from homeassistant.const import (ATTR_DEVICE_ID, CONF_DEVICES, CONF_DISCOVERY,
 from homeassistant.core import HomeAssistant, async_get_hass
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry, entity_registry
+from homeassistant.helpers.device_registry import DeviceEntry
 from homeassistant.util import dt
 
 from .ble_parser import BleParser
@@ -429,6 +430,20 @@ async def async_parse_data_service(hass: HomeAssistant, service_data):
             gateway_id=service_data[CONF_GATEWAY_ID],
             proxy=service_data[CONF_PROXY]
         )
+
+
+async def async_remove_config_entry_device(
+    hass: HomeAssistant, config_entry: ConfigEntry, device_entry: DeviceEntry
+) -> bool:
+    """Remove a config entry from a device."""
+    _LOGGER.debug(
+        "Removing BLE monitor device %s from device registry",
+        device_entry.id
+    )
+
+    # Return True to indicate that this integration is ready to have the device removed
+    # The device registry will take care of actual removal when appropriate
+    return True
 
 
 class BLEmonitor:

@@ -72,6 +72,7 @@ XIAOMI_TYPE_DICT = {
     0x0380: "DSL-C08",
     0x0DE7: "SU001-T",
     0x20DB: "MJZNZ018H",
+    0x55B5: "MJWSD06MMC",
     0x18E3: "ZX1",
     0x11C2: "SV40",
     0x3F0F: "RS1BB",
@@ -80,6 +81,9 @@ XIAOMI_TYPE_DICT = {
     0x3F4C: "PS1BB",
     0x3A61: "KS1",
     0x3E17: "KS1BP",
+    0x3BD5: "MJTZC01YM",
+    0x50FB: "ES3",
+    0x5DB1: "MBS17"
 }
 
 # Structured objects for data conversions
@@ -709,6 +713,15 @@ def obj4801(xobj):
     return {"temperature": temp}
 
 
+def obj4802(xobj):
+    """Humidity"""
+    if len(xobj) == 1:
+        humi = xobj[0]
+        return {"humidity": humi}
+    else:
+        return {}
+
+
 def obj4803(xobj):
     """Battery"""
     batt = xobj[0]
@@ -802,6 +815,34 @@ def obj4840(xobj):
     """Pressure Not Present Time Set"""
     (duration,) = struct.unpack("<I", xobj)
     return {"pressure not present time set": duration}
+
+
+def obj484e(xobj):
+    """Occupancy Status"""
+    (occupancy,) = struct.unpack("<B", xobj)
+    if occupancy == 0:
+        # no motion is being taken care of by the timer in HA
+        return {}
+    else:
+        return {"motion": 1, "motion timer": 1}
+
+
+def obj484f(xobj):
+    """Time in minutes of no motion (not used, we use 484e)"""
+    if len(xobj) == 1:
+        (no_motion_time,) = struct.unpack("<B", xobj)
+        # minutes of no motion (not used, we use motion timer in obj4a08)
+        # 0 = motion detected
+        return {"motion": 1 if no_motion_time == 0 else 0, "no motion time": no_motion_time}
+    else:
+        return {}
+
+
+def obj4850(xobj):
+    """Time in minutes with motion (not used, we use 484e)"""
+    (motion_time,) = struct.unpack("<B", xobj)
+    # minutes with motion (not used, we use motion timer in obj484e)
+    return {"motion time": motion_time}
 
 
 def obj4a01(xobj):
@@ -1212,6 +1253,31 @@ def obj5a16(xobj):
         return None
 
 
+def obj6e16(xobj):
+    """Body Composition Scale"""
+    (profile_id, data, _) = struct.unpack("<BII", xobj)
+    if not data:
+        return None
+
+    result = {}
+    mass = data & 0x7FF
+    heart_rate = (data >> 11) & 0x7F
+    impedance = data >> 18
+
+    if mass != 0:
+        result.update({"weight": mass / 10})
+    if 0 < heart_rate < 127:
+        result.update({"heart rate": heart_rate + 50})
+    if impedance != 0:
+        if mass != 0:
+            result.update({"impedance": impedance / 10})
+        else:
+            result.update({"impedance low": impedance / 10})
+
+    result.update({"profile id": profile_id})
+    return result
+
+
 # Dataobject dictionary
 # {dataObject_id: (converter}
 xiaomi_dataobject_dict = {
@@ -1245,6 +1311,7 @@ xiaomi_dataobject_dict = {
     0x2000: obj2000,
     0x3003: obj3003,
     0x4801: obj4801,
+    0x4802: obj4802,
     0x4803: obj4803,
     0x4804: obj4804,
     0x4805: obj4805,
@@ -1258,6 +1325,9 @@ xiaomi_dataobject_dict = {
     0x483e: obj483e,
     0x483f: obj483f,
     0x4840: obj4840,
+    0x484e: obj484e,
+    0x484f: obj484f,
+    0x4850: obj4850,
     0x4a01: obj4a01,
     0x4a08: obj4a08,
     0x4a0c: obj4a0c,
@@ -1290,6 +1360,7 @@ xiaomi_dataobject_dict = {
     0x560d: obj560d,
     0x560e: obj560e,
     0x5a16: obj5a16,
+    0x6E16: obj6e16,
 }
 
 
