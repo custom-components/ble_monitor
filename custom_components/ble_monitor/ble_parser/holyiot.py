@@ -54,7 +54,7 @@ def parse_holyiot(self, data: str, mac: bytes):
             if data[15] == 1:
                 meas_value = "toggle"
             else:
-                return None
+                meas_value = "no press"
         else:
             return None
         result.update(
