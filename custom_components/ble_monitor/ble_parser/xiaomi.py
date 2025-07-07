@@ -1569,6 +1569,13 @@ def parse_xiaomi(self, data: bytes, mac: bytes):
                         _LOGGER.info("%s, UNKNOWN dataobject in payload! Adv: %s", sinfo, data.hex())
             payload_start = next_start
 
+    # Handle ES3 data-only frames as implicit motion clear
+    if device_type == "ES3" and result.get("data") is True:
+        # Check if this is a data-only frame (no motion or illuminance data)
+        if "motion" not in result and "illuminance" not in result:
+            # Treat as motion clear event
+            result["motion"] = 0
+
     return result
 
 
