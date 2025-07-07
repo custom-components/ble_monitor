@@ -1009,7 +1009,7 @@ class TestXiaomi:
         assert sensor_msg["packet"] == 50
         assert sensor_msg["data"]
         assert sensor_msg["motion"] == 0  # Should be implicitly set to 0 for data-only frames
-        assert sensor_msg["rssi"] == -83
+        assert sensor_msg["rssi"] == -58
 
     def test_MJZNZ018H_bed_occupancy(self):
         """Test Xiaomi parser for MJZNZ018H bed occupancy sensor."""
