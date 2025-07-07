@@ -1538,7 +1538,6 @@ def parse_xiaomi(self, data: bytes, mac: bytes):
         # loop through parse_xiaomi payload
         payload_start = 0
         payload_length = len(payload)
-        
         # assume that the data may have several values of different types
         while payload_length >= payload_start + 3:
             obj_typecode = payload[payload_start] + (payload[payload_start + 1] << 8)
