@@ -817,12 +817,16 @@ def obj4840(xobj):
     return {"pressure not present time set": duration}
 
 
-def obj484e(xobj):
+def obj484e(xobj, device_type=None):
     """Occupancy Status"""
     (occupancy,) = struct.unpack("<B", xobj)
     if occupancy == 0:
-        # no motion is being taken care of by the timer in HA
-        return {}
+        # For ES3: if this is the only data object (no motion/illuminance), treat as motion clear
+        # For other devices: no motion is being taken care of by the timer in HA
+        if device_type == "ES3":
+            return {"motion": 0}
+        else:
+            return {}
     else:
         return {"motion": 1, "motion timer": 1}
 
@@ -1534,6 +1538,7 @@ def parse_xiaomi(self, data: bytes, mac: bytes):
         # loop through parse_xiaomi payload
         payload_start = 0
         payload_length = len(payload)
+        
         # assume that the data may have several values of different types
         while payload_length >= payload_start + 3:
             obj_typecode = payload[payload_start] + (payload[payload_start + 1] << 8)
@@ -1554,6 +1559,7 @@ def parse_xiaomi(self, data: bytes, mac: bytes):
                         "0x1001",
                         "0xf",
                         "0xb",
+                        "0x484e",
                         "0x4e0c",
                         "0x4e0d",
                         "0x4e0e",
@@ -1568,13 +1574,6 @@ def parse_xiaomi(self, data: bytes, mac: bytes):
                     if self.report_unknown == "Xiaomi":
                         _LOGGER.info("%s, UNKNOWN dataobject in payload! Adv: %s", sinfo, data.hex())
             payload_start = next_start
-
-    # Handle ES3 data-only frames as implicit motion clear
-    if device_type == "ES3" and result.get("data") is True:
-        # Check if this is a data-only frame (no motion or illuminance data)
-        if "motion" not in result and "illuminance" not in result:
-            # Treat as motion clear event
-            result["motion"] = 0
 
     return result
 
