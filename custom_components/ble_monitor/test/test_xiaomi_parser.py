@@ -987,11 +987,11 @@ class TestXiaomi:
     def test_linptech_ES3_data_only_motion_clear(self):
         """Test Xiaomi parser for linptech ES3 data-only frame (implicit motion clear)."""
         self.aeskeys = {}
-        # This is a simulated data-only frame for ES3 with no motion or illuminance data
-        data_string = "043E260201000176c3c738c1a41a020106161695fe4859fb50db86d27e8f53000000000000a3bc6da8C6"
+        # This is a real data-only frame for ES3 with MAC A4:C1:38:A4:88:8A
+        data_string = "043e29020100018a88a438c1a41d020106191695fe5859fb50328a88a438c1a4458a85b796000048fe13bac6"
         data = bytes(bytearray.fromhex(data_string))
 
-        aeskey = "b26295a7a08fbac306c8706ade7f0fe4"
+        aeskey = "fb352ea2139ab095877a9e2ae600c912"
 
         is_ext_packet = True if data[3] == 0x0D else False
         mac = (data[8 if is_ext_packet else 7:14 if is_ext_packet else 13])[::-1]
@@ -1005,8 +1005,8 @@ class TestXiaomi:
 
         assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
         assert sensor_msg["type"] == "ES3"
-        assert sensor_msg["mac"] == "A4C138C7C376"
-        assert sensor_msg["packet"] == 219
+        assert sensor_msg["mac"] == "A4C138A4888A"
+        assert sensor_msg["packet"] == 50
         assert sensor_msg["data"]
         assert sensor_msg["motion"] == 0  # Should be implicitly set to 0 for data-only frames
         assert sensor_msg["rssi"] == -58
