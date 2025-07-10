@@ -281,10 +281,10 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         self._key = key
         self._fkey = identifier_normalize(key)
         self._state = None
+        self._device_type = devtype
 
         self._device_settings = self.get_device_settings()
         self._device_name = self._device_settings["name"]
-        self._device_type = devtype
         self._device_firmware = firmware
         self._device_manufacturer = manufacturer \
             if manufacturer is not None \
@@ -380,7 +380,8 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         # initial setup of device settings equal to integration settings
         dev_name = self._key
         dev_restore_state = self._config[CONF_RESTORE_STATE]
-        dev_reset_timer = DEFAULT_DEVICE_RESET_TIMER
+        # ES3 devices should have reset_timer disabled by default since they handle motion clear themselves
+        dev_reset_timer = 0 if self._device_type == "ES3" else DEFAULT_DEVICE_RESET_TIMER
 
         # in UI mode device name is equal to mac (but can be overwritten in UI)
         # in YAML mode device name is taken from config
