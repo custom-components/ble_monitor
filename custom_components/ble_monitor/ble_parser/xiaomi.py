@@ -823,7 +823,10 @@ def obj484e(xobj, device_type=None):
     (occupancy,) = struct.unpack("<B", xobj)
     # For ES3 and XMOSB01XS: This sensor is being treated as an occupancy sensor
     if device_type in ["ES3", "XMOSB01XS"]:
-        return {"occupancy": occupancy}
+        if occupancy == 0:
+            return {"occupancy": 0}
+        else:
+            return {"occupancy": 1}
     else:
         # For other devices: This sensor is being treated as a motion sensor and will be using the timer in
         # of ble_monitor to set "no motion" state
