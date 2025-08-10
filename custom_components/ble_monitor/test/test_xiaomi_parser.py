@@ -957,7 +957,7 @@ class TestXiaomi:
         assert sensor_msg["illuminance"] == 173.0
         assert sensor_msg["rssi"] == -58
 
-    def test_linptech_ES3_motion(self):
+    def test_linptech_ES3_occupancy(self):
         """Test Xiaomi parser for linptech ES3."""
         self.aeskeys = {}
         data_string = "043E290201000176c3c738c1a41D020106191695fe5859fb50da76c3c738c1a4aabc4c16000000c60c1646C6"
@@ -980,12 +980,11 @@ class TestXiaomi:
         assert sensor_msg["mac"] == "A4C138C7C376"
         assert sensor_msg["packet"] == 218
         assert sensor_msg["data"]
-        assert sensor_msg["motion"] == 1
-        assert sensor_msg["motion timer"] == 1
+        assert sensor_msg["occupancy"] == 1
         assert sensor_msg["rssi"] == -58
 
     def test_linptech_ES3_data_only_motion_clear(self):
-        """Test Xiaomi parser for linptech ES3 data-only frame (implicit motion clear)."""
+        """Test Xiaomi parser for linptech ES3 data-only frame."""
         self.aeskeys = {}
         # This is a real data-only frame for ES3 with MAC A4:C1:38:A4:88:8A
         data_string = "043e29020100018a88a438c1a41d020106191695fe5859fb50328a88a438c1a4458a85b796000048fe13bac6"
@@ -1008,7 +1007,7 @@ class TestXiaomi:
         assert sensor_msg["mac"] == "A4C138A4888A"
         assert sensor_msg["packet"] == 50
         assert sensor_msg["data"]
-        assert sensor_msg["motion"] == 0  # Should be implicitly set to 0 for data-only frames
+        assert sensor_msg["occupancy"] == 0  # Should be implicitly set to 0 for data-only frames
         assert sensor_msg["rssi"] == -58
 
     def test_MJZNZ018H_bed_occupancy(self):
