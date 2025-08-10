@@ -53,6 +53,7 @@ XIAOMI_TYPE_DICT = {
     0x045C: "V-SK152",
     0x040A: "WX08ZM",
     0x04E1: "XMMF01JQD",
+    0x4683: "XMOSB01XS",
     0x1203: "XMWSDJ04MMC",
     0x1949: "XMWXKG01YL",
     0x2387: "XMWXKG01LM",
@@ -820,15 +821,16 @@ def obj4840(xobj):
 def obj484e(xobj, device_type=None):
     """Occupancy Status"""
     (occupancy,) = struct.unpack("<B", xobj)
-    if occupancy == 0:
-        # For ES3: if this is the only data object (no motion/illuminance), treat as motion clear
-        # For other devices: no motion is being taken care of by the timer in HA
-        if device_type == "ES3":
-            return {"motion": 0}
-        else:
-            return {}
+    # For ES3 and XMOSB01XS: This sensor is being treated as an occupancy sensor
+    if device_type in ["ES3", "XMOSB01XS"]:
+        return {"occupancy": occupancy}
     else:
-        return {"motion": 1, "motion timer": 1}
+        # For other devices: This sensor is being treated as a motion sensor and will be using the timer in
+        # of ble_monitor to set "no motion" state
+        if occupancy == 0:
+            return {}
+        else:
+            return {"motion": 1, "motion timer": 1}
 
 
 def obj484f(xobj):

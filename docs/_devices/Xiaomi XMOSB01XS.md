@@ -1,8 +1,8 @@
 ---
-manufacturer: Linptech
-name: Linptech Human Presence Sensor
-model: ES3
-image: Linptech_ES3.png
+manufacturer: Xiaomi
+name: Xiaomi Mijia Human Body Occupancy Sensor
+model: XMOSB01XS
+image: Xiaomi_XMOSB01XS.png
 physical_description:
 broadcasted_properties:
   - illuminance
