@@ -854,6 +854,18 @@ def obj4850(xobj):
     return {"motion time": motion_time}
 
 
+def obj4851(xobj):
+    """From miot-spec: has-someone-duration: uint8: 2 - 2 minutes, 5 - 5 minutes (not used)"""
+    (duration,) = struct.unpack("<I", xobj)
+    return {"duration occupancy detected": duration}
+
+
+def obj4852(xobj):
+    """From miot-spec: no-one-duration: uint8: 2/5/10/30 - 2/5/10/30 minutes (not used)"""
+    (duration,) = struct.unpack("<I", xobj)
+    return {"duration no occupancy detected": duration}
+
+
 def obj4a01(xobj):
     """Low Battery"""
     low_batt = xobj[0]
@@ -1337,6 +1349,8 @@ xiaomi_dataobject_dict = {
     0x484e: obj484e,
     0x484f: obj484f,
     0x4850: obj4850,
+    0x4851: obj4851,
+    0x4852: obj4852,
     0x4a01: obj4a01,
     0x4a08: obj4a08,
     0x4a0c: obj4a0c,
