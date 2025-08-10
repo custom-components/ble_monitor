@@ -16,5 +16,5 @@ broadcast_rate: See Notes
 active_scan:
 encryption_key: Yes
 custom_firmware:
-notes: 
+notes:
 ---
