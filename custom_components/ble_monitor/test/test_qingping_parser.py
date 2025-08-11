@@ -158,7 +158,7 @@ class TestQingping:
 
         assert sensor_msg is None
 
-    def test_qingping_CGDN1(self):
+    def test_qingping_CGDN1_1(self):
         """Test Qingping parser for CGDN1."""
         data_string = "043E2B02010000A5808FE648541F0201061B16CDFD080EA3808FE64854010422014C011204710072001302ED03CC"
         data = bytes(bytearray.fromhex(data_string))
@@ -178,7 +178,7 @@ class TestQingping:
         assert sensor_msg["pm10"] == 114
         assert sensor_msg["rssi"] == -52
 
-    def test_qingping_CGDN1(self):
+    def test_qingping_CGDN1_2(self):
         """Test Qingping parser for CGDN1."""
         data_string = "043e2b02010201da060f38c1a41f0201061b16cdfd0824b6ebc994c27c0104d100ba0112040a000a0013026f02cc"
         data = bytes(bytearray.fromhex(data_string))
