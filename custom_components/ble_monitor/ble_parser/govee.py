@@ -149,7 +149,7 @@ def parse_govee(self, data: str, service_class_uuid16: int, local_name: str, mac
                 data.hex()
             )
     elif msg_length == 13 and (
-        service_class_uuid16 == 0x5178
+        service_class_uuid16 == 0x5179
         or device_id == 0x8801
     ):
         device_type = "H5179"
