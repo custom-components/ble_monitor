@@ -42,6 +42,7 @@ from .sensirion import parse_sensirion
 from .sensorpush import parse_sensorpush
 from .senssun import parse_senssun
 from .smartdry import parse_smartdry
+from .sonoff import parse_sonoff
 from .switchbot import parse_switchbot
 from .teltonika import parse_teltonika
 from .thermobeacon import parse_thermobeacon
@@ -136,6 +137,11 @@ class BleParser:
                 elif adstuct_type == 0x03:
                     # AD type 'Complete List of 16-bit Service Class UUIDs'
                     service_class_uuid16 = (adstruct[2] << 8) | adstruct[3]
+                elif adstuct_type == 0x05:
+                    # AD type 'Complete List of 32-bit Service Class UUIDs'
+                    if mac == b"\x66\x55\x44\x33\x22\x11":
+                        # Sonoff specific data
+                        man_spec_data_list.append(adstruct)
                 elif adstuct_type == 0x06:
                     # AD type '128-bit Service Class UUIDs'
                     service_class_uuid128 = adstruct[2:]
@@ -428,6 +434,10 @@ class BleParser:
                     elif comp_id == 0xF214 and data_len == 0x16:
                         # Grundfos
                         sensor_data = parse_grundfos(self, man_spec_data, mac)
+                        break
+                    elif comp_id == 0xFFFF and man_spec_data[4:6] == b"\xee\x1b" and mac == b"\x66\x55\x44\x33\x22\x11":
+                        # Sonoff
+                        sensor_data = parse_sonoff(self, man_spec_data, mac)
                         break
                     elif comp_id == 0xFFFF and data_len == 0x1E:
                         # Kegtron
