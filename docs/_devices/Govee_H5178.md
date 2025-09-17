@@ -15,5 +15,5 @@ active_scan: true
 encryption_key:
 custom_firmware:
 notes:
-  - actve scan needs to be enabled in the BLE Monitor settings for this sensor to work. Note that two devices will be created in Home Assistant for this sensor, one with the actual MAC address, which is the indoor sensor, and one with the MAC address increased by 1, which is the outdoor sensor. You can also distinguish between the indoor and outdoor sensor by looking at the device type.
+  - active scan needs to be enabled in the BLE Monitor settings for this sensor to work. Note that two devices will be created in Home Assistant for this sensor, one with the actual MAC address, which is the indoor sensor, and one with the MAC address increased by 1, which is the outdoor sensor. You can also distinguish between the indoor and outdoor sensor by looking at the device type.
 ---
