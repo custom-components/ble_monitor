@@ -1,10 +1,15 @@
+actve
 adres
 adresse
 als
 alle
+alternativ
+appareil
+caracteres
 conexant
 deine
 hass
+inicial
 intervall
 ist
 oder
@@ -16,3 +21,6 @@ ser
 sur
 te
 tht
+thuis
+Lockin
+Pares
