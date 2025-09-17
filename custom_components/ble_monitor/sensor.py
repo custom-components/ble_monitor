@@ -405,6 +405,12 @@ class BaseSensor(RestoreSensor, SensorEntity):
     # |  |  |**four btn switch 2
     # |  |  |**four btn switch 3
     # |  |  |**four btn switch 4
+    # |  |  |**six btn switch top left
+    # |  |  |**six btn switch top middle
+    # |  |  |**six btn switch top right
+    # |  |  |**six btn switch bottom left
+    # |  |  |**six btn switch bottom middle
+    # |  |  |**six btn switch bottom right
     # |  |--BaseRemoteSensor (Class)
     # |  |  |**remote
     # |  |  |**fan remote
