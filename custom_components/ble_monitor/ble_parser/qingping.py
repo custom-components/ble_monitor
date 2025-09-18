@@ -27,7 +27,7 @@ def parse_qingping(self, data: bytes, mac: bytes):
             device_type = "CGD1"
         elif device_id in [0x0E, 0x24]:
             device_type = "CGDN1"
-        elif device_id == 0x5D:
+        elif device_id in [0x5D, 0x33]:
             device_type = "CGP22C"
         else:
             device_type = None
