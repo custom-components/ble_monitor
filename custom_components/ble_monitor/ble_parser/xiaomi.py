@@ -18,6 +18,8 @@ XIAOMI_TYPE_DICT = {
     0x066F: "CGDK2",
     0x0347: "CGG1",
     0x0B48: "CGG1-ENCRYPTED",
+    0x5808: "CGG3",
+    0x4F59: "CGDK3",
     0x03D6: "CGH1",
     0x0A83: "CGPR1",
     0x03BC: "GCLS002",
