@@ -2206,6 +2206,7 @@ MEASUREMENT_DICT = {
     'MS2'                     : [["temperature", "humidity", "battery", "rssi"], [], []],
     'S-MATE'                  : [["rssi"], ["three btn switch left", "three btn switch middle", "three btn switch right"], []],
     'R5'                      : [["rssi"], ["six btn switch top left", "six btn switch top middle", "six btn switch top right", "six btn switch bottom left", "six btn switch bottom middle", "six btn switch bottom right"], []],
+    'Propane Tank Monitor'    : [["tank level", "temperature", "battery", "rssi"], [], []],
 }
 
 # Sensor manufacturer dictionary
@@ -2356,6 +2357,7 @@ MANUFACTURER_DICT = {
     'MS2'                     : 'MOCREO',
     'S-MATE'                  : 'Sonoff',
     'R5'                      : 'Sonoff',
+    'Propane Tank Monitor'    : 'Otodata',
 }
 
 
