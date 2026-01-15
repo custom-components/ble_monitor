@@ -1,11 +1,13 @@
 """Parser for Otodata propane tank monitor BLE advertisements"""
 import logging
-import struct
 from struct import unpack
 
 from .helpers import to_mac, to_unformatted_mac
 
 _LOGGER = logging.getLogger(__name__)
+
+# Cache device attributes from OTO3281 packets to use in OTOTELE packets
+_device_cache = {}
 
 
 def parse_otodata(self, data: bytes, mac: bytes):
@@ -16,14 +18,18 @@ def parse_otodata(self, data: bytes, mac: bytes):
     - OTOSTAT: Status packet  
     - OTOTELE: Telemetry packet (contains sensor data like tank level)
     
-    Packet structure (variable length):
-    - Bytes 0-1: Company ID (0x03B1 in little-endian)
-    - Bytes 2-9: Packet type identifier (e.g., "OTOTELE")
-    - Bytes 9+: Sensor data (format varies by packet type)
+    Packet structure (man_spec_data format):
+    - Byte 0: Data length
+    - Byte 1: Type flag (0xFF)
+    - Bytes 2-3: Company ID (0x03B1 little-endian: \xb1\x03)
+    - Bytes 4-10: Packet type identifier (7 chars, e.g., "OTOTELE")
+    - Bytes 11+: Sensor data (format varies by packet type)
     """
     msg_length = len(data)
     firmware = "Otodata"
     result = {"firmware": firmware}
+    
+    _LOGGER.debug("Otodata parse_otodata called - length=%d", msg_length)
     
     # Minimum packet size validation
     if msg_length < 18:
@@ -35,89 +41,106 @@ def parse_otodata(self, data: bytes, mac: bytes):
             )
         return None
     
-    # Parse packet type from bytes 2-9
+    # Parse packet type from man_spec_data
+    # Byte 0: length, Byte 1: type flag, Bytes 2-3: company ID
+    # Bytes 4-10 contain the 7-character packet type (OTO3281, OTOSTAT, OTOTELE)
+    # Bytes 11+: Sensor data
     try:
-        packet_type = data[2:9].decode('ascii', errors='ignore').strip()
+        packet_type = data[4:11].decode('ascii', errors='ignore').strip()
+        _LOGGER.debug("Otodata packet_type: %s", packet_type)
         if packet_type.startswith('OTO'):
             device_type = f"Propane Tank Monitor"
         else:
             device_type = "Propane Tank Monitor"
         
-        _LOGGER.info("Otodata packet type: %s, length: %d bytes", packet_type, msg_length)
+        _LOGGER.debug("Otodata packet type: '%s', length: %d bytes", packet_type, msg_length)
     except Exception:
         device_type = "Propane Tank Monitor"
         packet_type = "UNKNOWN"
     
     try:
-        # Parse sensor values based on packet type
-        # Tank is at 71% - searching for this value
+        # Parse different packet types
+        # Three packet types observed:
+        # - OTO3281 or OTO32##: Device identifier/info
+        # - OTOSTAT: Status information  
+        # - OTOTELE: Telemetry data (primary sensor readings)
         
-        _LOGGER.info("=== Otodata Packet Analysis ===")
-        _LOGGER.info("Packet Type: %s", packet_type)
-        _LOGGER.info("Full hex: %s", data.hex())
-        _LOGGER.info("MAC: %s", to_mac(mac))
+        _LOGGER.debug("Processing %s packet (length: %d)", packet_type, msg_length)
         
-        # Log all bytes after the packet type identifier (starting at byte 9)
-        start_byte = 9
-        _LOGGER.info("Data bytes (starting at position %d):", start_byte)
-        for i in range(start_byte, msg_length):
-            _LOGGER.info("  Byte %d: 0x%02X = %d", i, data[i], data[i])
-        
-        # Search for tank level = 71% in various encodings
-        _LOGGER.info("Searching for tank level ~71%%...")
-        candidates = []
-        
-        for i in range(start_byte, msg_length):
-            val = data[i]
-            # Direct match (69-73)
-            if 69 <= val <= 73:
-                candidates.append((i, val, "direct"))
-                _LOGGER.info("  *** CANDIDATE at byte %d: %d (direct) ***", i, val)
-            # Inverted (100 - value)
-            inverted = 100 - val
-            if 69 <= inverted <= 73:
-                candidates.append((i, inverted, "inverted"))
-                _LOGGER.info("  *** CANDIDATE at byte %d: 100-%d = %d (inverted/empty%%) ***", i, val, inverted)
-        
-        # Try 16-bit values (little-endian)
-        if msg_length >= start_byte + 2:
-            _LOGGER.info("16-bit values (little-endian):")
-            for i in range(start_byte, min(msg_length - 1, start_byte + 16)):
-                val_le = unpack("<H", data[i:i+2])[0]
-                _LOGGER.info("  Bytes [%d-%d]: %d", i, i+1, val_le)
-                if 69 <= val_le <= 73:
-                    candidates.append((i, val_le, "16-bit LE"))
-                    _LOGGER.info("    *** CANDIDATE: %d (16-bit LE) ***", val_le)
-        
-        # Determine which value to use based on packet type
-        tank_level = None
-        
+        # Parse based on packet type
         if packet_type == "OTOTELE":
-            # Telemetry packet - most likely contains tank level
-            # Based on analysis, byte 12 (0x1c=28) inverted gives 72% (close to 71%)
-            if msg_length > 12:
-                empty_percent = data[12]
-                tank_level = 100 - empty_percent
-                _LOGGER.info("OTOTELE: Using byte 12 (inverted): 100-%d = %d%%", empty_percent, tank_level)
-        
-        # If we found candidates but haven't set tank_level yet
-        if tank_level is None and candidates:
-            # Use the first candidate found
-            byte_pos, value, method = candidates[0]
-            tank_level = value
-            _LOGGER.info("Using first candidate: byte %d = %d (%s)", byte_pos, value, method)
-        elif tank_level is None:
-            # Default fallback
-            tank_level = data[15] if msg_length > 15 else 0
-            _LOGGER.info("No candidates found, using byte 15: %d", tank_level)
-        
-        result.update({
-            "tank level": tank_level,
-        })
-        
-        _LOGGER.info("Final result: tank_level=%d%% (expected ~71%%)", tank_level)
-        _LOGGER.info("=== End Analysis ===")
-        
+            # Telemetry packet - contains tank level
+            # Packet type ends at byte 10, data starts at byte 11
+            # Byte 14: Empty percentage (100 - value = tank level)
+            # Example from logs: byte 14 = 0x1c (28) → 100 - 28 = 72% full
+            
+            if msg_length < 15:
+                _LOGGER.warning("OTOTELE packet too short: %d bytes", msg_length)
+                return None
+            
+            empty_percent = data[14]
+            tank_level = 100 - empty_percent
+            
+            _LOGGER.debug("OTOTELE: tank_level=%d%%", tank_level)
+            
+            # NOTE: Battery data location not yet identified in OTOTELE packets
+            # Byte 13 varies inconsistently and doesn't reliably represent battery level
+            # Battery percentage may be in OTO3281 or OTOSTAT packets, or require GATT connection
+            
+            result.update({
+                "tank level": tank_level,
+            })
+            
+            # Add cached device attributes if available
+            mac_str = to_unformatted_mac(mac)
+            if mac_str in _device_cache:
+                result.update(_device_cache[mac_str])
+            
+        elif packet_type == "OTOSTAT":
+            # Status packet - contains unknown device status values
+            # Byte 12: Incrementing value (purpose unknown)
+            # Byte 13: Constant 0x06 (purpose unknown)
+            # Until we identify what these represent, we skip this packet type
+            
+            _LOGGER.debug("OTOSTAT packet received - skipping (unknown data format)")
+            
+            # Skip OTOSTAT - unknown data format
+            return None
+            
+        elif packet_type.startswith("OTO3") or packet_type.startswith("OTO32"):
+            # Device info packet - contains product info and serial number
+            # Example: 1affb1034f544f333238319060bc011018210384060304b0130205
+            # Bytes 4-10: "OTO3281" - packet type identifier
+            # Bytes 20-21: Model number (e.g., 0x13B0 = 5040 for TM5040)
+            
+            if msg_length < 22:
+                _LOGGER.warning("OTO3xxx packet too short: %d bytes", msg_length)
+                return None
+            
+            # Extract model number from bytes 20-21 (little-endian)
+            # Full model format: MT4AD-TM5040 (5040 from bytes 20-21)
+            if msg_length >= 22:
+                model_number = unpack("<H", data[20:22])[0]
+                product_name = f"MT4AD-TM{model_number}"
+            else:
+                product_name = packet_type[3:] if len(packet_type) > 3 else "Unknown"
+            
+            # Cache device attributes to add to future OTOTELE packets
+            mac_str = to_unformatted_mac(mac)
+            _device_cache[mac_str] = {
+                "product": f"Otodata {product_name}",
+                "model": product_name,
+            }
+            
+            _LOGGER.info("Otodata device detected - Model: %s, MAC: %s", 
+                        product_name, to_mac(mac))
+            
+            # Don't create sensor entities for device info packets
+            return None
+            
+        else:
+            _LOGGER.warning("Unknown Otodata packet type: %s", packet_type)
+            return None
         
     except (IndexError, struct.error) as e:
         _LOGGER.debug("Failed to parse Otodata data: %s", e)

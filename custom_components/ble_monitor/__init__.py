@@ -131,7 +131,7 @@ SERVICE_CLEANUP_ENTRIES_SCHEMA = vol.Schema({})
 SERVICE_PARSE_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_PACKET): cv.string,
-        vol.Optional(CONF_GATEWAY_ID): cv.string
+        vol.Optional(CONF_GATEWAY_ID): cv.string,
     }
 )
 
