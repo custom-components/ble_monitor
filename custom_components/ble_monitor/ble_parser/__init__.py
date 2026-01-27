@@ -50,7 +50,7 @@ from .thermopro import parse_thermopro
 from .tilt import parse_tilt
 from .xiaogui import parse_xiaogui
 from .xiaomi import parse_xiaomi
-from .michelin_tms import parse_michelin_tms
+from .michelin import parse_michelin_tms
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -300,7 +300,6 @@ class BleParser:
                     # Filter on Company Identifier
                     if comp_id == 0x0828:
                         # Michelin TMS
-                        _LOGGER.debug("TMS DATA")
                         sensor_data = parse_michelin_tms(self, man_spec_data, mac)
                         break
                     if comp_id == 0x0001 and data_len in [0x09, 0x0C, 0x22, 0x25]:

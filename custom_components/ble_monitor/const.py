@@ -2204,7 +2204,7 @@ MEASUREMENT_DICT = {
     'ST10'                    : [["temperature", "battery", "rssi"], [], []],
     'MS1'                     : [["temperature", "battery", "rssi"], [], []],
     'MS2'                     : [["temperature", "humidity", "battery", "rssi"], [], []],
-	'TMS AL'                  : [["temperature", "voltage", "pressure", "count", "text", "rssi"], [], []],
+	'TMS'                     : [["temperature", "voltage", "pressure", "count", "steps", "text", "rssi"], [], []],
     'S-MATE'                  : [["rssi"], ["three btn switch left", "three btn switch middle", "three btn switch right"], []],
     'R5'                      : [["rssi"], ["six btn switch top left", "six btn switch top middle", "six btn switch top right", "six btn switch bottom left", "six btn switch bottom middle", "six btn switch bottom right"], []],
 }
@@ -2355,7 +2355,7 @@ MANUFACTURER_DICT = {
     'ST10'                    : 'MOCREO',
     'MS1'                     : 'MOCREO',
     'MS2'                     : 'MOCREO',
-	'TMS AL'                  : 'MICHELIN TMS',
+	'TMS'                     : 'MICHELIN',
     'S-MATE'                  : 'Sonoff',
     'R5'                      : 'Sonoff',
 }
@@ -2441,7 +2441,7 @@ AUTO_MANUFACTURER_DICT = {
     'XMOSB01XS'               : 'Xiaomi',
     'RS1BB'                   : 'Linptech',
     'ES3'                     : 'Linptech',
-	'TMS AL'                  : 'MICHELIN TMS',
+	'TMS'                     : 'MICHELIN',
 }
 
 
