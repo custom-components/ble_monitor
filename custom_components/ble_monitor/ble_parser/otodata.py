@@ -69,28 +69,19 @@ def parse_otodata(self, data: bytes, mac: bytes):
         
         # Parse based on packet type
         if packet_type == "OTOTELE":
-            # Telemetry packet - contains tank level
-            # Packet type ends at byte 10, data starts at byte 11
-            # Byte 14: Empty percentage (100 - value = tank level)
-            # Example from logs: byte 14 = 0x1c (28) → 100 - 28 = 72% full
-            
+            # Telemetry packet - tank level is a 2-byte little-endian value at bytes 9-10 (percentage * 100)
             if msg_length < 15:
                 _LOGGER.warning("OTOTELE packet too short: %d bytes", msg_length)
                 return None
-            
-            empty_percent = data[14]
-            tank_level = 100 - empty_percent
-            
-            _LOGGER.debug("OTOTELE: tank_level=%d%%", tank_level)
-            
-            # NOTE: Battery data location not yet identified in OTOTELE packets
-            # Byte 13 varies inconsistently and doesn't reliably represent battery level
-            # Battery percentage may be in OTO3281 or OTOSTAT packets, or require GATT connection
-            
+
+            tank_level_raw = int.from_bytes(data[9:11], byteorder="little")
+            tank_level = tank_level_raw / 100.0
+            _LOGGER.debug("OTOTELE: tank_level_raw=%d, tank_level=%.2f%%", tank_level_raw, tank_level)
+
             result.update({
                 "tank level": tank_level,
             })
-            
+
             # Add cached device attributes if available
             mac_str = to_unformatted_mac(mac)
             if mac_str in _device_cache:
