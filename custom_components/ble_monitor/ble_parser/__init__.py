@@ -515,7 +515,7 @@ class BleParser:
                         # Inkbird IBS-TH
                         sensor_data = parse_inkbird(self, man_spec_data, local_name, mac)
                         break
-                    elif local_name == "MOCREO" and data_len == 0x13:
+                    elif (local_name == "MOCREO" and data_len == 0x13) or (local_name == "ST7" and data_len == 0x11):
                         # MOCREO
                         sensor_data = parse_mocreo(self, man_spec_data, local_name, mac)
                         break
