@@ -1,18 +1,20 @@
 """Passive BLE monitor integration."""
 import asyncio
 import copy
+import importlib
 import json
 import logging
+import struct
 from threading import Thread
 
 import aioblescan as aiobs
 import janus
 import voluptuous as vol
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
-from homeassistant.const import (CONF_DEVICES, CONF_DISCOVERY, CONF_MAC,
-                                 CONF_NAME, CONF_TEMPERATURE_UNIT,
+from homeassistant.const import (ATTR_DEVICE_ID, CONF_DEVICES, CONF_DISCOVERY,
+                                 CONF_MAC, CONF_NAME, CONF_TEMPERATURE_UNIT,
                                  CONF_UNIQUE_ID, EVENT_HOMEASSISTANT_STOP)
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, async_get_hass
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.device_registry import DeviceEntry
@@ -30,7 +32,7 @@ from .const import (AES128KEY24_REGEX, AES128KEY32_REGEX,
                     CONF_DEVICE_TRACK, CONF_DEVICE_TRACKER_CONSIDER_HOME,
                     CONF_DEVICE_TRACKER_SCAN_INTERVAL, CONF_DEVICE_USE_MEDIAN,
                     CONF_GATEWAY_ID, CONF_HCI_INTERFACE, CONF_LOG_SPIKES,
-                    CONF_PACKET, CONF_PERIOD, CONF_REPORT_UNKNOWN,
+                    CONF_PACKET, CONF_PERIOD, CONF_PROXY, CONF_REPORT_UNKNOWN,
                     CONF_RESTORE_STATE, CONF_USE_MEDIAN, CONF_UUID,
                     CONFIG_IS_FLOW, DEFAULT_ACTIVE_SCAN, DEFAULT_BATT_ENTITIES,
                     DEFAULT_BT_AUTO_RESTART, DEFAULT_DEVICE_REPORT_UNKNOWN,
@@ -131,7 +133,9 @@ SERVICE_CLEANUP_ENTRIES_SCHEMA = vol.Schema({})
 SERVICE_PARSE_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_PACKET): cv.string,
-        vol.Optional(CONF_GATEWAY_ID): cv.string
+        vol.Optional(ATTR_DEVICE_ID, default=None): cv.string,
+        vol.Optional(CONF_GATEWAY_ID, default=DOMAIN): cv.string,
+        vol.Optional(CONF_PROXY, default=False): cv.boolean
     }
 )
 
@@ -421,8 +425,10 @@ async def async_parse_data_service(hass: HomeAssistant, service_data):
     blemonitor: BLEmonitor = hass.data[DOMAIN]["blemonitor"]
     if blemonitor:
         blemonitor.dumpthread.process_hci_events(
-            bytes.fromhex(service_data["packet"]),
-            service_data[CONF_GATEWAY_ID] if CONF_GATEWAY_ID in service_data else DOMAIN
+            data=bytes.fromhex(service_data["packet"]),
+            device_id=service_data[ATTR_DEVICE_ID],
+            gateway_id=service_data[CONF_GATEWAY_ID],
+            proxy=service_data[CONF_PROXY]
         )
 
 
@@ -518,6 +524,11 @@ class HCIdump(Thread):
         self.report_unknown = False
         self.report_unknown_whitelist = []
         self.last_bt_reset = dt.now()
+        self.scanners = {}
+        try:
+            self.bluetooth = importlib.import_module("homeassistant.components.bluetooth")
+        except ImportError:
+            self.bluetooth = None
         if self.config[CONF_REPORT_UNKNOWN]:
             if self.config[CONF_REPORT_UNKNOWN] != "Off":
                 self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
@@ -590,11 +601,118 @@ class HCIdump(Thread):
             aeskeys=self.aeskeys,
         )
 
-    def process_hci_events(self, data, gateway_id=DOMAIN):
+    def hci_packet_on_advertisement(self, scanner, packet):
+        def _format_uuid(uuid: bytes) -> str:
+            if len(uuid) == 2 or len(uuid) == 4:
+                return "{:08x}-0000-1000-8000-00805f9b34fb".format(
+                    struct.unpack('<H' if len(uuid) == 2 else '<I', bytes(uuid))[0]
+                )
+            elif len(uuid) == 16:
+                reversed_uuid = uuid[::-1]
+                return '-'.join([
+                    ''.join(format(x, '02x') for x in reversed_uuid[:4]),
+                    ''.join(format(x, '02x') for x in reversed_uuid[4:6]),
+                    ''.join(format(x, '02x') for x in reversed_uuid[6:8]),
+                    ''.join(format(x, '02x') for x in reversed_uuid[8:10]),
+                    ''.join(format(x, '02x') for x in reversed_uuid[10:])
+                ])
+            else:
+                raise Exception(f"Wrong UUID size {len(uuid)}")
+
+        packet_size = packet[2] + 3
+        is_ext_packet = packet[3] == 0x0D
+        if packet_size != len(packet):
+            raise Exception(f"Wrong packet size {packet_size}, expected {len(packet)}")
+        payload_start = 29 if is_ext_packet else 14
+        if payload_start > packet_size:
+            raise Exception(f"Wrong payload start index {payload_start}")
+        payload_size = packet[payload_start - 1]
+        payload_packet_size = payload_start + payload_size + (0 if is_ext_packet else 1)
+        if packet_size != payload_packet_size:
+            raise Exception(f"Wrong packet size {packet_size}, expected {payload_packet_size}")
+
+        tx_power = None
+        rssi = packet[18 if is_ext_packet else packet_size - 1]
+        if rssi < 128:
+            raise Exception(f"Positive RSSI {rssi}")
+        rssi -= 256
+
+        address_index = 8 if is_ext_packet else 7
+        address_type = packet[address_index - 1]
+        address = ':'.join(f'{i:02X}' for i in packet[address_index:address_index + 6][::-1])
+        local_name = None
+        service_uuids = []
+        service_data = {}
+        manufacturer_data = {}
+
+        while payload_size > 1:
+            record_size = packet[payload_start] + 1
+            if 1 < record_size <= payload_size:
+                record = packet[payload_start:payload_start + record_size]
+                if record[0] != record_size - 1:
+                    raise Exception(f"Wrong record size {record[0]}, expected {record_size - 1}")
+                record_type = record[1]
+                record = record[2:]
+                # Incomplete/Complete List of 16/32/128-bit Service Class UUIDs
+                if record_type in [0x02, 0x03, 0x04, 0x05, 0x06, 0x07]:
+                    service_uuids.append(_format_uuid(record))
+                # Shortened/Complete local name
+                elif record_type in [0x08, 0x09]:
+                    name = record.decode("utf-8", errors="replace")
+                    if local_name is None or len(name) > len(local_name):
+                        local_name = name
+                # TX Power
+                elif record_type == 0x0A:
+                    tx_power = record[0]
+                # Service Data of 16/32/128-bit UUID
+                elif record_type in [0x16, 0x20, 0x21]:
+                    record_type_sizes = {0x16: 2, 0x20: 4, 0x21: 16}
+                    uuid_size = record_type_sizes[record_type]
+                    if len(record) < uuid_size:
+                        raise Exception("Wrong service data 0x{:02X} size {}, expected {}".format(
+                            record_type, len(record), record_type_sizes[record_type]))
+                    service_data[_format_uuid(record[:uuid_size])] = record[uuid_size:]
+                # Manufacturer Specific Data
+                elif record_type == 0xFF:
+                    manufacturer_data[(record[1] << 8) | record[0]] = record[2:]
+            payload_size -= record_size
+            payload_start += record_size
+
+        scanner._async_on_advertisement(
+            address=address,
+            rssi=rssi,
+            local_name=local_name,
+            service_uuids=service_uuids,
+            service_data=service_data,
+            manufacturer_data=manufacturer_data,
+            tx_power=tx_power,
+            details={"address_type": address_type},
+            advertisement_monotonic_time=self.bluetooth.MONOTONIC_TIME(),
+        )
+
+    def process_hci_events(self, data, device_id=None, gateway_id=DOMAIN, proxy=False):
         """Parse HCI events."""
         self.evt_cnt += 1
         if len(data) < 12:
             return
+        if self.bluetooth is not None and proxy:
+            try:
+                scanner_name = device_id or gateway_id
+                scanner, _ = self.scanners.get(scanner_name, (None, None))
+                if not scanner:
+                    hass = async_get_hass()
+                    device = hass.data["device_registry"].devices.get(device_id) if device_id \
+                        else next((entry for entry in hass.data["device_registry"].devices.data.values()
+                                   if entry.name.lower() == gateway_id.lower()), None)
+                    source = next((connection[1] for connection in device.connections if
+                                   connection[0] in ["mac", "bluetooth"]), gateway_id) if device else gateway_id
+                    scanner = self.bluetooth.BaseHaRemoteScanner(source, gateway_id, None, False)
+                    self.scanners[scanner_name] = (scanner, [
+                        self.bluetooth.async_register_scanner(hass, scanner),
+                        scanner.async_setup()])
+                self.hci_packet_on_advertisement(scanner, data)
+            except Exception as e:
+                _LOGGER.error("%s: %s: %s", gateway_id, e, data.hex().upper())
         sensor_msg, tracker_msg = self.ble_parser.parse_raw_data(data)
         if sensor_msg:
             measurements = list(sensor_msg.keys())
@@ -748,6 +866,9 @@ class HCIdump(Thread):
             _LOGGER.debug("%i HCI events processed for previous period", self.evt_cnt)
             self.evt_cnt = 0
         self._event_loop.close()
+        for _, unload_callbacks in self.scanners.values():
+            for callback in unload_callbacks:
+                callback()
         _LOGGER.debug("HCIdump thread: Run finished")
 
     def join(self, timeout=10):
