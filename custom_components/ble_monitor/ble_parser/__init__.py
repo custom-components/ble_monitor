@@ -35,6 +35,7 @@ from .moat import parse_moat
 from .mocreo import parse_mocreo
 from .oral_b import parse_oral_b
 from .oras import parse_oras
+from .otodata import parse_otodata
 from .qingping import parse_qingping
 from .relsib import parse_relsib
 from .ruuvitag import parse_ruuvitag
@@ -335,6 +336,10 @@ class BleParser:
                     elif comp_id == 0x0131:
                         # Oras
                         sensor_data = parse_oras(self, man_spec_data, mac)
+                        break
+                    elif comp_id == 0x03B1 and data_len >= 0x18:
+                        # Otodata Propane Tank Monitor (Company ID: 0x03B1 = 945)
+                        sensor_data = parse_otodata(self, man_spec_data, mac)
                         break
                     elif comp_id == 0x0157 and data_len == 0x1B:
                         # Miband

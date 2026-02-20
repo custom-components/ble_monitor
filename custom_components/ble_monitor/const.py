@@ -961,6 +961,16 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     BLEMonitorSensorEntityDescription(
+        key="tank level",
+        sensor_class="MeasuringSensor",
+        update_behavior="Averaging",
+        name="ble tank level",
+        unique_id="tank_",
+        native_unit_of_measurement=PERCENTAGE,
+        suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="voltage",
         sensor_class="MeasuringSensor",
         update_behavior="Averaging",
@@ -2209,6 +2219,7 @@ MEASUREMENT_DICT = {
     'MS2'                     : [["temperature", "humidity", "battery", "rssi"], [], []],
     'S-MATE'                  : [["rssi"], ["three btn switch left", "three btn switch middle", "three btn switch right"], []],
     'R5'                      : [["rssi"], ["six btn switch top left", "six btn switch top middle", "six btn switch top right", "six btn switch bottom left", "six btn switch bottom middle", "six btn switch bottom right"], []],
+    'Propane Tank Monitor'    : [["tank level", "temperature", "battery", "rssi"], [], []],
 }
 
 # Sensor manufacturer dictionary
@@ -2362,6 +2373,7 @@ MANUFACTURER_DICT = {
     'MS2'                     : 'MOCREO',
     'S-MATE'                  : 'Sonoff',
     'R5'                      : 'Sonoff',
+    'Propane Tank Monitor'    : 'Otodata',
 }
 
 
@@ -2420,6 +2432,7 @@ AUTO_MANUFACTURER_DICT = {
     'TG-BT5-IN'               : 'Mikrotik',
     'TG-BT5-OUT'              : 'Mikrotik',
     'Electra Washbasin Faucet': 'Oras',
+    'Propane Tank Monitor'    : 'Otodata',
     'CGP22C'                  : 'Qingping',
     'CGP23W'                  : 'Qingping',
     'EClerk Eco'              : 'Relsib',
@@ -2541,6 +2554,7 @@ AUTO_SENSOR_LIST = [
     "speed",
     "steps",
     "rssi",
+    "tank level",
     "temperature",
     "temperature probe 1",
     "temperature probe 2",
