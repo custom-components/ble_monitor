@@ -1,6 +1,7 @@
 """The tests for the Michelin TMS ble_parser."""
 from ble_monitor.ble_parser import BleParser
 
+
 class TestMichelin:
     """Tests for the Michelin TMS parser"""
     def test_parse_michelin_tms(self):
