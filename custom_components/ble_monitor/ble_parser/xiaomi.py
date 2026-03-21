@@ -740,10 +740,6 @@ def obj6012(xobj):
     """Humidity"""
     return obj4802(xobj)
 
-def obj6003(xobj):
-    """Battery"""
-    return obj4803(xobj)
-
 def obj4804(xobj):
     """Opening status"""
     opening_state = xobj[0]
@@ -1406,7 +1402,6 @@ xiaomi_dataobject_dict = {
     0x5a16: obj5a16,
     0x605d: obj605d,
     0x6012: obj6012,
-    0x6003: obj6003,
     0x6E16: obj6e16
 }
 
