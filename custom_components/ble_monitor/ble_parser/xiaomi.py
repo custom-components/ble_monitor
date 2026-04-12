@@ -867,12 +867,18 @@ def obj4850(xobj):
 
 def obj4851(xobj):
     """From miot-spec: has-someone-duration: uint8: 2 - 2 minutes, 5 - 5 minutes (not used)"""
+    if len(xobj) != 4:
+        return {}
+
     (duration,) = struct.unpack("<I", xobj)
     return {"duration occupancy detected": duration}
 
 
 def obj4852(xobj):
     """From miot-spec: no-one-duration: uint8: 2/5/10/30 - 2/5/10/30 minutes (not used)"""
+    if len(xobj) != 4:
+        return {}
+
     (duration,) = struct.unpack("<I", xobj)
     return {"duration no occupancy detected": duration}
 
