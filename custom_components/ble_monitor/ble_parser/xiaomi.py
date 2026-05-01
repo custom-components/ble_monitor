@@ -1648,7 +1648,8 @@ def decrypt_mibeacon_v4_v5(self, data, i, mac):
         if mac not in self.no_key_message:
             _LOGGER.error("No encryption key found for device with MAC %s", to_mac(mac))
             self.no_key_message.append(mac)
-        _LOGGER.debug("Key error for device with MAC %s, cannot decrypt data. Data: %s", to_mac(mac), data.hex())
+        if _LOGGER.isEnabledFor(logging.DEBUG):
+            _LOGGER.debug("Key error for device with MAC %s, cannot decrypt data. Data: %s", to_mac(mac), data.hex())
         return None
 
     nonce = b"".join([mac[::-1], data[6:9], data[-7:-4]])
