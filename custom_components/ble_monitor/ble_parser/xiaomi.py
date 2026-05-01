@@ -731,10 +731,15 @@ def obj4803(xobj):
     batt = xobj[0]
     return {"battery": batt}
 
+
 def obj605d(xobj):
     """Temperature"""
-    temp = xobj[0]
-    return {"temperature": temp}
+    if len(xobj) == 1:
+        temp = xobj[0]
+        return {"temperature": temp}
+    else:
+        return {}
+
 
 def obj6012(xobj):
     """Humidity"""
@@ -1512,7 +1517,8 @@ def parse_xiaomi(self, data: bytes, mac: bytes):
             # only process messages with same priority that have a unique packet id
             if prev_packet == packet_id:
                 if self.filter_duplicates is True:
-                    _LOGGER.debug("Duplicate packet received, not processing. Data: %s", data.hex())
+                    if _LOGGER.isEnabledFor(logging.DEBUG):
+                        _LOGGER.debug("Duplicate packet received, not processing. Data: %s", data.hex())
                     return None
                 else:
                     pass
@@ -1522,13 +1528,15 @@ def parse_xiaomi(self, data: bytes, mac: bytes):
             # do not process advertisements with lower priority (ATC advertisements will be used instead)
             prev_adv_priority -= 1
             self.adv_priority[mac] = prev_adv_priority
-            _LOGGER.debug("Lower priority advertisement received, not processing. Data: %s", data.hex())
+            if _LOGGER.isEnabledFor(logging.DEBUG):
+                _LOGGER.debug("Lower priority advertisement received, not processing. Data: %s", data.hex())
             return None
     else:
         if prev_packet == packet_id:
             if self.filter_duplicates is True:
                 # only process messages with highest priority and messages with unique packet id
-                _LOGGER.debug("Duplicate packet received, not processing. Data: %s", data.hex())
+                if _LOGGER.isEnabledFor(logging.DEBUG):
+                    _LOGGER.debug("Duplicate packet received, not processing. Data: %s", data.hex())
                 return None
     self.lpacket_ids[mac] = packet_id
 

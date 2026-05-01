@@ -14,13 +14,13 @@ broadcasted_properties:
   - rssi
 broadcasted_property_notes:
   - property: four btn switch 1
-    note: returns 'short press', 'double press' or 'long press'
+    note: always "toggle"; actual press type ('short press', 'double press', 'long press') is reported via the 'button switch' property
   - property: four btn switch 2
-    note: returns 'short press', 'double press' or 'long press'
+    note: always "toggle"; actual press type ('short press', 'double press', 'long press') is reported via the 'button switch' property
   - property: four btn switch 3
-    note: returns 'short press', 'double press' or 'long press'
+    note: always "toggle"; actual press type ('short press', 'double press', 'long press') is reported via the 'button switch' property
   - property: four btn switch 4
-    note: returns 'short press', 'double press' or 'long press'
+    note: always "toggle"; actual press type ('short press', 'double press', 'long press') is reported via the 'button switch' property
 broadcast_rate:
 active_scan:
 encryption_key: true

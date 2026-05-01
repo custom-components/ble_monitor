@@ -17,9 +17,18 @@ class AdStructure:
 
 
 def _parse_ad_structures(raw: bytes) -> tuple[list[AdStructure], int, int, bool]:
+    if len(raw) < 4:
+        raise ValueError("Raw BLE HCI event is too short to determine advertisement packet type")
     is_ext_packet = raw[3] == 0x0D
     adpayload_start = 29 if is_ext_packet else 14
+    if len(raw) < adpayload_start:
+        packet_type = "extended" if is_ext_packet else "legacy"
+        raise ValueError(f"Raw {packet_type} BLE HCI event is too short; expected at least {adpayload_start} bytes")
     adpayload_size = raw[adpayload_start - 1]
+    if len(raw) < adpayload_start + adpayload_size:
+        raise ValueError(
+            f"Raw BLE HCI event is shorter than the advertised payload length ({adpayload_size} bytes)"
+        )
     structures: list[AdStructure] = []
     cursor = adpayload_start
     remaining = adpayload_size
@@ -35,29 +44,43 @@ def _parse_ad_structures(raw: bytes) -> tuple[list[AdStructure], int, int, bool]
 
 
 def _extract_mac(raw: bytes, is_ext_packet: bool) -> bytes:
+    min_length = 14 if is_ext_packet else 13
+    if len(raw) < min_length:
+        packet_type = "extended" if is_ext_packet else "legacy"
+        raise ValueError(f"Raw {packet_type} BLE HCI event is too short to contain a MAC address")
     return (raw[8:14] if is_ext_packet else raw[7:13])[::-1]
 
 
 def _calc_payload_start(service_data: bytes, mac: bytes) -> int:
+    if len(service_data) < 9:
+        raise ValueError("Xiaomi FE95 service data is too short; expected at least 9 bytes")
     i = 9
     frame_control = service_data[4] + (service_data[5] << 8)
     mac_include = (frame_control >> 4) & 1
     capability_include = (frame_control >> 5) & 1
     if mac_include:
         i += 6
+        if len(service_data) < i:
+            raise ValueError("Xiaomi FE95 service data is too short to contain the embedded MAC address")
         embedded_mac = service_data[9:15][::-1]
         if embedded_mac != mac:
             raise ValueError("MAC in Xiaomi payload does not match advertisement MAC")
     if capability_include:
         i += 1
+        if len(service_data) < i:
+            raise ValueError("Xiaomi FE95 service data is too short to contain the capability byte")
         capability_types = service_data[i - 1]
         if capability_types & 0x20:
             i += 1
+            if len(service_data) < i:
+                raise ValueError("Xiaomi FE95 service data is too short to contain the capability IO byte")
     return i
 
 
 def _decrypt_payload(service_data: bytes, mac: bytes, key: bytes) -> tuple[bytes, int]:
     payload_start = _calc_payload_start(service_data, mac)
+    if len(service_data) < payload_start + 7:
+        raise ValueError("Xiaomi FE95 service data is too short to contain an encrypted payload and authentication tag")
     nonce = b"".join([mac[::-1], service_data[6:9], service_data[-7:-4]])
     cipher = AES.new(key, AES.MODE_CCM, nonce=nonce, mac_len=4)
     cipher.update(b"\x11")
