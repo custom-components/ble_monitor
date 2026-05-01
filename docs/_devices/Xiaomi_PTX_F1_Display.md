@@ -11,6 +11,7 @@ broadcasted_properties:
   - four btn switch 2
   - four btn switch 3
   - four btn switch 4
+  - button switch
   - rssi
 broadcasted_property_notes:
   - property: four btn switch 1
