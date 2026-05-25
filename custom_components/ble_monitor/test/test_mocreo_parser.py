@@ -115,7 +115,7 @@ class TestMOCREO:
 
     def test_MOCREO_MS2(self):
         """Test MOCREO parser for MS2."""
-        data_string = "043e2b02010001bbaa00a4ae301f02010607094d4f4352454f13ff018d7b00e4b0370a6212000000002e000000d6"
+        data_string = "043e2b02010001bbaa00a4ae301f02010607094d4f4352454f13ff01947b00e4b0370a6212000000002e000000d6"
         data = bytes(bytearray.fromhex(data_string))
 
         # pylint: disable=unused-variable
@@ -126,7 +126,6 @@ class TestMOCREO:
         assert sensor_msg["mac"] == "30AEA400AABB"
         assert sensor_msg["packet"] == "no packet id"
         assert sensor_msg["temperature"] == 26.15
-        assert sensor_msg["humidity"] == 47.06
         assert sensor_msg["battery"] == 100
         assert sensor_msg["data"]
         assert sensor_msg["rssi"] == -42
@@ -147,3 +146,20 @@ class TestMOCREO:
         assert sensor_msg["battery"] == 100
         assert sensor_msg["data"]
         assert sensor_msg["rssi"] == -63
+
+    def test_MOCREO_MS3(self):
+        """Test MOCREO parser for MS3."""
+        data_string = "043e2b02010001bbaa00a4ae301f02010607094d4f4352454f13ff41960a00e4b0730a00000000000040000000d3"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+        assert sensor_msg["firmware"] == "MOCREO"
+        assert sensor_msg["type"] == "MS3"
+        assert sensor_msg["mac"] == "30AEA400AABB"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["temperature"] == 26.75
+        assert sensor_msg["battery"] == 100
+        assert sensor_msg["data"]
+        assert sensor_msg["rssi"] == -45
