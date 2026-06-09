@@ -732,19 +732,6 @@ def obj4803(xobj):
     return {"battery": batt}
 
 
-def obj605d(xobj):
-    """Temperature"""
-    if len(xobj) == 1:
-        temp = xobj[0]
-        return {"temperature": temp}
-    else:
-        return {}
-
-
-def obj6012(xobj):
-    """Humidity"""
-    return obj4802(xobj)
-
 def obj4804(xobj):
     """Opening status"""
     opening_state = xobj[0]
@@ -1062,7 +1049,29 @@ def obj4e0c(xobj, device_type):
             "button switch": "single press",
         }
     elif device_type == "PTX-F1-Display":
-        return obj560c(xobj, "KS1BP")
+        click = xobj[0]
+        if click == 1:
+            result = {
+                "four btn switch 1": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 2:
+            result = {
+                "four btn switch 2": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 3:
+            result = {
+                "four btn switch 3": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 4:
+            result = {
+                "four btn switch 4": "toggle",
+                "button switch": "single press",
+            }
+        else:
+            result = None
     else:
         result = {}
     return result
@@ -1094,7 +1103,29 @@ def obj4e0d(xobj, device_type):
             "button switch": "double press",
         }
     elif device_type == "PTX-F1-Display":
-        return obj560d(xobj, "KS1BP")
+        click = xobj[0]
+        if click == 1:
+            result = {
+                "four btn switch 1": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 2:
+            result = {
+                "four btn switch 2": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 3:
+            result = {
+                "four btn switch 3": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 4:
+            result = {
+                "four btn switch 4": "toggle",
+                "button switch": "double press",
+            }
+        else:
+            result = None
     else:
         result = {}
     return result
@@ -1126,7 +1157,29 @@ def obj4e0e(xobj, device_type):
             "button switch": "long press",
         }
     elif device_type == "PTX-F1-Display":
-        return obj560e(xobj, "KS1BP")
+        click = xobj[0]
+        if click == 1:
+            result = {
+                "four btn switch 1": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 2:
+            result = {
+                "four btn switch 2": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 3:
+            result = {
+                "four btn switch 3": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 4:
+            result = {
+                "four btn switch 4": "toggle",
+                "button switch": "long press",
+            }
+        else:
+            result = None
     else:
         result = {}
     return result
@@ -1302,6 +1355,20 @@ def obj5a16(xobj):
         return None
 
 
+def obj6012(xobj):
+    """Humidity"""
+    return obj4802(xobj)
+
+
+def obj605d(xobj):
+    """Temperature"""
+    if len(xobj) == 1:
+        temp = xobj[0]
+        return {"temperature": temp}
+    else:
+        return {}
+
+
 def obj6e16(xobj):
     """Body Composition Scale"""
     (profile_id, data, _) = struct.unpack("<BII", xobj)
@@ -1411,9 +1478,9 @@ xiaomi_dataobject_dict = {
     0x560d: obj560d,
     0x560e: obj560e,
     0x5a16: obj5a16,
-    0x605d: obj605d,
     0x6012: obj6012,
-    0x6E16: obj6e16
+    0x605d: obj605d,
+    0x6e16: obj6e16
 }
 
 
