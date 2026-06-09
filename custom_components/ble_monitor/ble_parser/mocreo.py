@@ -15,7 +15,8 @@ MOCREO_TYPE_DICT = {
     0x86: "ST9",
     0x87: "ST10",
     0x8B: "MS1",
-    0x8D: "MS2",
+    0x94: "MS2",
+    0x96: "MS3",
 }
 
 COMMON_DATA_PARSING_FORMAT = {
@@ -53,9 +54,11 @@ MOCREO_TYPE_DATA_PARSING_FORMAT = {
     0x8B: {
         "temperature": (6, 0, -16, True, lambda x: x / 100),
     },
-    0x8D: {
+    0x94: {
         "temperature": (6, 0, -16, True, lambda x: x / 100),
-        "humidity": (8, 0, -16, True, lambda x: x / 100),
+    },
+    0x96: {
+        "temperature": (6, 0, -16, True, lambda x: x / 100),
     },
 }
 
