@@ -86,7 +86,8 @@ XIAOMI_TYPE_DICT = {
     0x3E17: "KS1BP",
     0x3BD5: "MJTZC01YM",
     0x50FB: "ES3",
-    0x5DB1: "MBS17"
+    0x5DB1: "MBS17",
+    0x64C5: "PTX-F1-Display"
 }
 
 # Structured objects for data conversions
@@ -1047,6 +1048,30 @@ def obj4e0c(xobj, device_type):
             "one btn switch": "toggle",
             "button switch": "single press",
         }
+    elif device_type == "PTX-F1-Display":
+        click = xobj[0]
+        if click == 1:
+            result = {
+                "four btn switch 1": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 2:
+            result = {
+                "four btn switch 2": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 3:
+            result = {
+                "four btn switch 3": "toggle",
+                "button switch": "single press",
+            }
+        elif click == 4:
+            result = {
+                "four btn switch 4": "toggle",
+                "button switch": "single press",
+            }
+        else:
+            result = None
     else:
         result = {}
     return result
@@ -1077,6 +1102,30 @@ def obj4e0d(xobj, device_type):
             "one btn switch": "toggle",
             "button switch": "double press",
         }
+    elif device_type == "PTX-F1-Display":
+        click = xobj[0]
+        if click == 1:
+            result = {
+                "four btn switch 1": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 2:
+            result = {
+                "four btn switch 2": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 3:
+            result = {
+                "four btn switch 3": "toggle",
+                "button switch": "double press",
+            }
+        elif click == 4:
+            result = {
+                "four btn switch 4": "toggle",
+                "button switch": "double press",
+            }
+        else:
+            result = None
     else:
         result = {}
     return result
@@ -1107,6 +1156,30 @@ def obj4e0e(xobj, device_type):
             "one btn switch": "toggle",
             "button switch": "long press",
         }
+    elif device_type == "PTX-F1-Display":
+        click = xobj[0]
+        if click == 1:
+            result = {
+                "four btn switch 1": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 2:
+            result = {
+                "four btn switch 2": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 3:
+            result = {
+                "four btn switch 3": "toggle",
+                "button switch": "long press",
+            }
+        elif click == 4:
+            result = {
+                "four btn switch 4": "toggle",
+                "button switch": "long press",
+            }
+        else:
+            result = None
     else:
         result = {}
     return result
@@ -1282,6 +1355,20 @@ def obj5a16(xobj):
         return None
 
 
+def obj6012(xobj):
+    """Humidity"""
+    return obj4802(xobj)
+
+
+def obj605d(xobj):
+    """Temperature"""
+    if len(xobj) == 1:
+        temp = xobj[0]
+        return {"temperature": temp}
+    else:
+        return {}
+
+
 def obj6e16(xobj):
     """Body Composition Scale"""
     (profile_id, data, _) = struct.unpack("<BII", xobj)
@@ -1391,7 +1478,9 @@ xiaomi_dataobject_dict = {
     0x560d: obj560d,
     0x560e: obj560e,
     0x5a16: obj5a16,
-    0x6E16: obj6e16,
+    0x6012: obj6012,
+    0x605d: obj605d,
+    0x6e16: obj6e16
 }
 
 
@@ -1495,6 +1584,8 @@ def parse_xiaomi(self, data: bytes, mac: bytes):
             # only process messages with same priority that have a unique packet id
             if prev_packet == packet_id:
                 if self.filter_duplicates is True:
+                    if _LOGGER.isEnabledFor(logging.DEBUG):
+                        _LOGGER.debug("Duplicate packet received, not processing. Data: %s", data.hex())
                     return None
                 else:
                     pass
@@ -1504,11 +1595,15 @@ def parse_xiaomi(self, data: bytes, mac: bytes):
             # do not process advertisements with lower priority (ATC advertisements will be used instead)
             prev_adv_priority -= 1
             self.adv_priority[mac] = prev_adv_priority
+            if _LOGGER.isEnabledFor(logging.DEBUG):
+                _LOGGER.debug("Lower priority advertisement received, not processing. Data: %s", data.hex())
             return None
     else:
         if prev_packet == packet_id:
             if self.filter_duplicates is True:
                 # only process messages with highest priority and messages with unique packet id
+                if _LOGGER.isEnabledFor(logging.DEBUG):
+                    _LOGGER.debug("Duplicate packet received, not processing. Data: %s", data.hex())
                 return None
     self.lpacket_ids[mac] = packet_id
 
@@ -1591,7 +1686,7 @@ def parse_xiaomi(self, data: bytes, mac: bytes):
                         "0x4e0e",
                         "0x560c",
                         "0x560d",
-                        "0x560e"
+                        "0x560e",
                     ]:
                         result.update(resfunc(dobject, device_type))
                     else:
@@ -1620,6 +1715,8 @@ def decrypt_mibeacon_v4_v5(self, data, i, mac):
         if mac not in self.no_key_message:
             _LOGGER.error("No encryption key found for device with MAC %s", to_mac(mac))
             self.no_key_message.append(mac)
+        if _LOGGER.isEnabledFor(logging.DEBUG):
+            _LOGGER.debug("Key error for device with MAC %s, cannot decrypt data. Data: %s", to_mac(mac), data.hex())
         return None
 
     nonce = b"".join([mac[::-1], data[6:9], data[-7:-4]])
