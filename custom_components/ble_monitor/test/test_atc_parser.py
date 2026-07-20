@@ -62,6 +62,26 @@ class TestATC:
         assert sensor_msg["battery"] == 88
         assert sensor_msg["rssi"] == -34
 
+    def test_atc_custom_duplicate_packet_filter(self):
+        """Suppress retransmissions while accepting the next packet ID."""
+        first = bytes.fromhex(
+            "043e1f02010000f4830238c1a41312161a18f4830238c1a4a9066911b60b58f70dde"
+        )
+        second = bytes.fromhex(
+            "043e1f02010000f4830238c1a41312161a18f4830238c1a4aa066911b60b58f80dde"
+        )
+        ble_parser = BleParser(filter_duplicates=True)
+
+        first_msg, _ = ble_parser.parse_raw_data(first)
+        duplicate_msg, _ = ble_parser.parse_raw_data(first)
+        second_msg, _ = ble_parser.parse_raw_data(second)
+
+        assert first_msg["packet"] == 247
+        assert duplicate_msg is None
+        assert second_msg["packet"] == 248
+        assert first_msg["temperature"] == 17.05
+        assert second_msg["temperature"] == 17.06
+
     def test_atc_custom_v2_9(self):
         """Test ATC parser for ATC custom format (firmware version 2.9 and above)."""
         data_string = "043E2202010000B2188D38C1A41602010612161A18B2188D38C1A42B089011F70A43200FC2"

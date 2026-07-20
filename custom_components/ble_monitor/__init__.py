@@ -26,24 +26,28 @@ from .const import (AES128KEY24_REGEX, AES128KEY32_REGEX,
                     AUTO_BINARY_SENSOR_LIST, AUTO_MANUFACTURER_DICT,
                     AUTO_SENSOR_LIST, CONF_ACTIVE_SCAN, CONF_BATT_ENTITIES,
                     CONF_BT_AUTO_RESTART, CONF_BT_INTERFACE,
-                    CONF_DEVICE_ENCRYPTION_KEY, CONF_DEVICE_REPORT_UNKNOWN,
-                    CONF_DEVICE_RESET_TIMER, CONF_DEVICE_RESTORE_STATE,
-                    CONF_DEVICE_TRACK, CONF_DEVICE_TRACKER_CONSIDER_HOME,
+                    CONF_DEVICE_ENCRYPTION_KEY, CONF_DEVICE_MEASUREMENT_UPDATE,
+                    CONF_DEVICE_REPORT_UNKNOWN, CONF_DEVICE_RESET_TIMER,
+                    CONF_DEVICE_RESTORE_STATE, CONF_DEVICE_TRACK,
+                    CONF_DEVICE_TRACKER_CONSIDER_HOME,
                     CONF_DEVICE_TRACKER_SCAN_INTERVAL, CONF_DEVICE_USE_MEDIAN,
                     CONF_GATEWAY_ID, CONF_HCI_INACTIVITY_TIMEOUT,
-                    CONF_HCI_INTERFACE, CONF_LOG_SPIKES, CONF_PACKET,
-                    CONF_PERIOD, CONF_REPORT_UNKNOWN, CONF_RESTORE_STATE,
-                    CONF_USE_MEDIAN, CONF_UUID, CONFIG_IS_FLOW,
-                    DEFAULT_ACTIVE_SCAN, DEFAULT_BATT_ENTITIES,
-                    DEFAULT_BT_AUTO_RESTART, DEFAULT_DEVICE_REPORT_UNKNOWN,
-                    DEFAULT_DEVICE_RESET_TIMER, DEFAULT_DEVICE_RESTORE_STATE,
-                    DEFAULT_DEVICE_TRACK, DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
+                    CONF_HCI_INTERFACE, CONF_LOG_SPIKES,
+                    CONF_MEASUREMENT_UPDATE, CONF_PACKET, CONF_PERIOD,
+                    CONF_REPORT_UNKNOWN, CONF_RESTORE_STATE, CONF_USE_MEDIAN,
+                    CONF_UUID, CONFIG_IS_FLOW, DEFAULT_ACTIVE_SCAN,
+                    DEFAULT_BATT_ENTITIES, DEFAULT_BT_AUTO_RESTART,
+                    DEFAULT_DEVICE_MEASUREMENT_UPDATE,
+                    DEFAULT_DEVICE_REPORT_UNKNOWN, DEFAULT_DEVICE_RESET_TIMER,
+                    DEFAULT_DEVICE_RESTORE_STATE, DEFAULT_DEVICE_TRACK,
+                    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
                     DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
                     DEFAULT_DEVICE_USE_MEDIAN, DEFAULT_DISCOVERY,
                     DEFAULT_HCI_INACTIVITY_TIMEOUT, DEFAULT_LOG_SPIKES,
-                    DEFAULT_PERIOD, DEFAULT_REPORT_UNKNOWN,
-                    DEFAULT_RESTORE_STATE, DEFAULT_USE_MEDIAN, DOMAIN,
-                    MAC_REGEX, MANUFACTURER_DICT, MEASUREMENT_DICT, PLATFORMS,
+                    DEFAULT_MEASUREMENT_UPDATE, DEFAULT_PERIOD,
+                    DEFAULT_REPORT_UNKNOWN, DEFAULT_RESTORE_STATE,
+                    DEFAULT_USE_MEDIAN, DOMAIN, MAC_REGEX, MANUFACTURER_DICT,
+                    MEASUREMENT_DICT, MEASUREMENT_UPDATE_LIST, PLATFORMS,
                     REPORT_UNKNOWN_LIST, SERVICE_CLEANUP_ENTRIES,
                     SERVICE_PARSE_DATA)
 from .helper import (config_validation_uuid, dict_get_or, dict_get_or_clean,
@@ -66,6 +70,10 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN): vol.In(
             [DEFAULT_DEVICE_USE_MEDIAN, True, False]
         ),
+        vol.Optional(
+            CONF_DEVICE_MEASUREMENT_UPDATE,
+            default=DEFAULT_DEVICE_MEASUREMENT_UPDATE,
+        ): vol.In([DEFAULT_DEVICE_MEASUREMENT_UPDATE] + MEASUREMENT_UPDATE_LIST),
         vol.Optional(
             CONF_DEVICE_RESTORE_STATE, default=DEFAULT_DEVICE_RESTORE_STATE
         ): vol.In([DEFAULT_DEVICE_RESTORE_STATE, True, False]),
@@ -111,6 +119,9 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(
                         CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN
                     ): cv.boolean,
+                    vol.Optional(
+                        CONF_MEASUREMENT_UPDATE, default=DEFAULT_MEASUREMENT_UPDATE
+                    ): vol.In(MEASUREMENT_UPDATE_LIST),
                     vol.Optional(
                         CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN
                     ): cv.boolean,
@@ -234,6 +245,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     config.setdefault(
         CONF_HCI_INACTIVITY_TIMEOUT, DEFAULT_HCI_INACTIVITY_TIMEOUT
     )
+    config.setdefault(CONF_MEASUREMENT_UPDATE, DEFAULT_MEASUREMENT_UPDATE)
 
     if config[CONFIG_IS_FLOW]:
         # Configuration in UI

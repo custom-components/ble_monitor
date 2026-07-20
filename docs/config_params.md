@@ -120,6 +120,20 @@ Data from sensors with other addresses will be ignored. Default value: True
 
    *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
 
+### measurement_update
+
+   **Measurement update policy**
+   (`periodic` or `instant`)(Optional) With `periodic`, measuring sensor values
+   are aggregated over `period`. With `instant`, every parser-accepted packet
+   is published immediately using its decoded value and current RSSI without
+   mean or median filtering. Parser-rejected duplicate RF retransmissions stay
+   suppressed. Default value: `periodic`.
+
+```yaml
+ble_monitor:
+  measurement_update: instant
+```
+
 ### log_spikes
 
    **Log spikes**
