@@ -627,7 +627,11 @@ class HCIdump(Thread):
             self.evt_cnt[hci] = self.evt_cnt.get(hci, 0) + 1
         if len(data) < 12:
             return
-        sensor_msg, tracker_msg = self.ble_parser.parse_raw_data(data)
+        for sensor_msg, tracker_msg in self.ble_parser.parse_raw_data_reports(data):
+            self._enqueue_parsed_messages(sensor_msg, tracker_msg, gateway_id)
+
+    def _enqueue_parsed_messages(self, sensor_msg, tracker_msg, gateway_id):
+        """Enqueue one parsed sensor/tracker advertisement report."""
         if sensor_msg:
             measurements = list(sensor_msg.keys())
             device_type = sensor_msg["type"]
