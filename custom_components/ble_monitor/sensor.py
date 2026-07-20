@@ -280,8 +280,6 @@ class BLEupdater:
                 continue
             ts_last_update = ts_now
             period_cnt += 1
-            # restarting scanner
-            self.monitor.restart()
             # updating the state for every updated measuring device
             for key, edict in sensors_by_key.items():
                 for entity in edict.values():

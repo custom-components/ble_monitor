@@ -20,9 +20,9 @@ from .const import (CONF_ACTIVE_SCAN, CONF_BT_AUTO_RESTART, CONF_BT_INTERFACE,
                     CONF_DEVICE_RESTORE_STATE, CONF_DEVICE_TRACK,
                     CONF_DEVICE_TRACKER_CONSIDER_HOME,
                     CONF_DEVICE_TRACKER_SCAN_INTERVAL, CONF_DEVICE_USE_MEDIAN,
-                    CONF_LOG_SPIKES, CONF_PERIOD, CONF_REPORT_UNKNOWN,
-                    CONF_RESTORE_STATE, CONF_USE_MEDIAN, CONF_UUID,
-                    CONFIG_IS_FLOW, DEFAULT_ACTIVE_SCAN,
+                    CONF_HCI_INACTIVITY_TIMEOUT, CONF_LOG_SPIKES, CONF_PERIOD,
+                    CONF_REPORT_UNKNOWN, CONF_RESTORE_STATE, CONF_USE_MEDIAN,
+                    CONF_UUID, CONFIG_IS_FLOW, DEFAULT_ACTIVE_SCAN,
                     DEFAULT_BT_AUTO_RESTART, DEFAULT_DEVICE_DELETE_DEVICE,
                     DEFAULT_DEVICE_ENCRYPTION_KEY, DEFAULT_DEVICE_MAC,
                     DEFAULT_DEVICE_REPORT_UNKNOWN, DEFAULT_DEVICE_RESET_TIMER,
@@ -30,9 +30,10 @@ from .const import (CONF_ACTIVE_SCAN, CONF_BT_AUTO_RESTART, CONF_BT_INTERFACE,
                     DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
                     DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
                     DEFAULT_DEVICE_USE_MEDIAN, DEFAULT_DEVICE_UUID,
-                    DEFAULT_DISCOVERY, DEFAULT_LOG_SPIKES, DEFAULT_PERIOD,
-                    DEFAULT_REPORT_UNKNOWN, DEFAULT_RESTORE_STATE,
-                    DEFAULT_USE_MEDIAN, DOMAIN, REPORT_UNKNOWN_LIST)
+                    DEFAULT_DISCOVERY, DEFAULT_HCI_INACTIVITY_TIMEOUT,
+                    DEFAULT_LOG_SPIKES, DEFAULT_PERIOD, DEFAULT_REPORT_UNKNOWN,
+                    DEFAULT_RESTORE_STATE, DEFAULT_USE_MEDIAN, DOMAIN,
+                    REPORT_UNKNOWN_LIST)
 from .helper import (detect_conf_type, dict_get_key_or, dict_get_or,
                      validate_key, validate_mac, validate_uuid)
 
@@ -85,6 +86,9 @@ DOMAIN_SCHEMA = vol.Schema(
             CONF_BT_INTERFACE, default=[DEFAULT_BT_INTERFACE]
         ): cv.multi_select(BT_MULTI_SELECT),
         vol.Optional(CONF_BT_AUTO_RESTART, default=DEFAULT_BT_AUTO_RESTART): cv.boolean,
+        vol.Optional(
+            CONF_HCI_INACTIVITY_TIMEOUT, default=DEFAULT_HCI_INACTIVITY_TIMEOUT
+        ): cv.positive_int,
         vol.Optional(CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN): cv.boolean,
         vol.Optional(CONF_DISCOVERY, default=DEFAULT_DISCOVERY): cv.boolean,
         vol.Optional(CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN): cv.boolean,
@@ -411,6 +415,13 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, OptionsFlow):
                         CONF_BT_AUTO_RESTART, DEFAULT_BT_AUTO_RESTART
                     ),
                 ): cv.boolean,
+                vol.Optional(
+                    CONF_HCI_INACTIVITY_TIMEOUT,
+                    default=self.config_entry.options.get(
+                        CONF_HCI_INACTIVITY_TIMEOUT,
+                        DEFAULT_HCI_INACTIVITY_TIMEOUT,
+                    ),
+                ): cv.positive_int,
                 vol.Optional(
                     CONF_ACTIVE_SCAN,
                     default=self.config_entry.options.get(

@@ -14,7 +14,8 @@
           "active_scan": "Use active scan instead of passive scan (affects battery)",
           "restore_state": "Restore state after a restart",
           "report_unknown": "Report unknown BLE advertisements to the HA log",
-          "bt_auto_restart": "Automatically restart Bluetooth adapter on failure"
+          "bt_auto_restart": "Automatically restart Bluetooth adapter on failure",
+          "hci_inactivity_timeout": "Raw HCI inactivity timeout (seconds, 0 = off)"
         }
       },
       "add_remove_device": {
@@ -63,6 +64,7 @@
           "active_scan": "Use active scan in stead of passive scan (affects battery)",
           "report_unknown": "Report unknown BLE advertisements to the HA log",
           "bt_auto_restart": "Automatically restart Bluetooth adapter on failure",
+          "hci_inactivity_timeout": "Raw HCI inactivity timeout (seconds, 0 = off)",
           "restore_state": "Restore state after a restart",
           "not_in_use": "YAML is used, change options in YAML"
         }

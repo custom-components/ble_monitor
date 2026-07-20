@@ -28,6 +28,7 @@ PLATFORMS = [
 
 # Configuration options
 CONF_BT_AUTO_RESTART = "bt_auto_restart"
+CONF_HCI_INACTIVITY_TIMEOUT = "hci_inactivity_timeout"
 CONF_PERIOD = "period"
 CONF_LOG_SPIKES = "log_spikes"
 CONF_USE_MEDIAN = "use_median"
@@ -56,6 +57,7 @@ SERVICE_PARSE_DATA = "parse_data"
 
 # Default values for configuration options
 DEFAULT_BT_AUTO_RESTART = False
+DEFAULT_HCI_INACTIVITY_TIMEOUT = 60
 DEFAULT_PERIOD = 60
 DEFAULT_LOG_SPIKES = False
 DEFAULT_USE_MEDIAN = False

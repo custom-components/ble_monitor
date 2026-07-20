@@ -76,6 +76,20 @@ ble_monitor:
   active_scan: True
 ```
 
+### hci_inactivity_timeout
+
+   **Raw HCI inactivity timeout**
+   (positive integer)(Optional) Restarts the scanner and reopens its HCI socket
+   when an adapter produces no raw HCI advertising events for this many seconds.
+   The timer starts after scanning is established and is reset by every raw event,
+   including advertisements from unsupported devices. Set this option to `0` to
+   disable the watchdog. Default value: 60.
+
+```yaml
+ble_monitor:
+  hci_inactivity_timeout: 60
+```
+
 ### discovery
 
    **Discover devices and sensors automatically**
