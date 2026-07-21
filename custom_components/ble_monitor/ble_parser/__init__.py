@@ -94,6 +94,48 @@ class BleParser:
 
     def parse_raw_data(self, data):
         """Parse the raw data."""
+        reports = self.parse_raw_data_reports(data)
+        if not reports:
+            return None, None
+        return reports[0]
+
+    def parse_raw_data_reports(self, data):
+        """Parse every advertisement report in one HCI LE meta-event."""
+        reports = []
+        for report in self._split_hci_reports(data):
+            sensor_data, tracker_data = self._parse_single_report(report)
+            if sensor_data or tracker_data:
+                reports.append((sensor_data, tracker_data))
+        return reports
+
+    @staticmethod
+    def _split_hci_reports(data):
+        """Yield synthetic single-report events from legacy or extended events."""
+        if len(data) < 5 or data[3] not in (0x02, 0x0D):
+            return []
+        subevent = data[3]
+        fixed_size = 9 if subevent == 0x02 else 24
+        data_length_offset = 8 if subevent == 0x02 else 23
+        event_end = min(len(data), data[2] + 3)
+        offset = 5
+        split_reports = []
+        for _ in range(data[4]):
+            if offset + fixed_size > event_end:
+                break
+            payload_size = data[offset + data_length_offset]
+            report_size = fixed_size + payload_size + (1 if subevent == 0x02 else 0)
+            report_end = offset + report_size
+            if report_end > event_end:
+                break
+            report = data[offset:report_end]
+            split_reports.append(
+                bytes((data[0], data[1], len(report) + 2, subevent, 1)) + report
+            )
+            offset = report_end
+        return split_reports
+
+    def _parse_single_report(self, data):
+        """Parse one legacy or extended advertisement report."""
         # check if packet is Extended scan result
         is_ext_packet = True if data[3] == 0x0D else False
         # check for no BR/EDR + LE General discoverable mode flags
