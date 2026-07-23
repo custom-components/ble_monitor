@@ -16,6 +16,7 @@ MOCREO_TYPE_DICT = {
     0x87: "ST10",
     0x8B: "MS1",
     0x94: "MS2",
+    0x95: "SD1",
     0x96: "MS3",
 }
 
@@ -56,6 +57,11 @@ MOCREO_TYPE_DATA_PARSING_FORMAT = {
     },
     0x94: {
         "temperature": (6, 0, -16, True, lambda x: x / 100),
+    },
+    0x95: {
+        "temperature": (6, 0, -16, True, lambda x: x / 100),
+        "temperature probe 2": (8, 0, -16, True, lambda x: x / 100),
+        "door": (10, 5, 1, False, None),
     },
     0x96: {
         "temperature": (6, 0, -16, True, lambda x: x / 100),
@@ -110,6 +116,8 @@ def parse_mocreo(self, data: bytes, local_name: str, mac: bytes):
         data_parsing_format = MOCREO_TYPE_DATA_PARSING_FORMAT[device_type]
         for key, value in data_parsing_format.items():
             result[key] = _get_value(common_data, value)
+        if device_type == 0x95:
+            result["humidity"] = (((common_data[10] >> 4) << 8) | common_data[11]) / 10
         result.update({
             "battery": battery,
             "data": True
