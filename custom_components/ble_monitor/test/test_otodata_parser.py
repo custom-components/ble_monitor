@@ -61,17 +61,3 @@ class TestOtodata(TestCase):
         # Parser should handle invalid data gracefully
         # Either return None or handle the error
         # Adjust assertion based on your implementation
-        
-    def test_otodata_different_packet_formats(self):
-        """Test different packet formats if Otodata uses multiple formats."""
-        # Some devices send different packet formats (e.g., short vs. long packets)
-        # Add tests for each format your device uses
-        pass
-
-
-# NOTE: To run these tests:
-# 1. Place this file in: custom_components/ble_monitor/test/
-# 2. Install test requirements: pip install -r requirements_test.txt
-# 3. Run tests: python -m pytest custom_components/ble_monitor/test/test_otodata_parser.py
-#
-# REMEMBER: You MUST replace the example data with actual BLE advertisements from your device!
