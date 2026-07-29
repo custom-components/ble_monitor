@@ -7,6 +7,7 @@ from .helpers import to_mac, to_unformatted_mac
 _LOGGER = logging.getLogger(__name__)
 
 MOCREO_TYPE_DICT = {
+    0x10: "ST7",
     0x81: "ST5",
     0x82: "SW2",
     0x83: "ST6",
@@ -14,7 +15,8 @@ MOCREO_TYPE_DICT = {
     0x86: "ST9",
     0x87: "ST10",
     0x8B: "MS1",
-    0x8D: "MS2",
+    0x94: "MS2",
+    0x96: "MS3",
 }
 
 COMMON_DATA_PARSING_FORMAT = {
@@ -26,6 +28,9 @@ COMMON_DATA_PARSING_FORMAT = {
 }
 
 MOCREO_TYPE_DATA_PARSING_FORMAT = {
+    0x10: {
+        "temperature": (5, 0, -16, True, lambda x: x / 100),
+    },
     0x81: {
         "temperature": (6, 0, -16, True, lambda x: x / 100),
     },
@@ -49,9 +54,11 @@ MOCREO_TYPE_DATA_PARSING_FORMAT = {
     0x8B: {
         "temperature": (6, 0, -16, True, lambda x: x / 100),
     },
-    0x8D: {
+    0x94: {
         "temperature": (6, 0, -16, True, lambda x: x / 100),
-        "humidity": (8, 0, -16, True, lambda x: x / 100),
+    },
+    0x96: {
+        "temperature": (6, 0, -16, True, lambda x: x / 100),
     },
 }
 
@@ -87,7 +94,10 @@ def _get_value(source, pos):
 
 def parse_mocreo(self, data: bytes, local_name: str, mac: bytes):
     """Parser for MOCREO sensors"""
-    common_data = data[2:]
+    if data[0] == 0x11 and data[1] == 0xff and data[2] == 0x4a:
+        common_data = data[9:]  #Mocreo's oddball ST7 format
+    else:
+        common_data = data[2:] #Mocreo's "normal" format
     firmware = "MOCREO"
     result = {"firmware": firmware}
 
