@@ -2,7 +2,7 @@
 import logging
 from unittest import TestCase
 
-from custom_components.ble_monitor.ble_parser import BleParser
+from ble_monitor.ble_parser import BleParser
 
 _LOGGER = logging.getLogger(__name__)
 
