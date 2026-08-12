@@ -47,6 +47,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - Kegtron
 - KKM
 - Mikrotik
+- Minew (E9)
 - Moat
 - Oras
 - Oral-B

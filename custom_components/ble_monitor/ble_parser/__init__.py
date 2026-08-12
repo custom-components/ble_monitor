@@ -31,6 +31,7 @@ from .kkm import parse_kkm
 from .laica import parse_laica
 from .michelin import parse_michelin_tms
 from .mikrotik import parse_mikrotik
+from .minew import parse_minew
 from .miscale import parse_miscale
 from .moat import parse_moat
 from .mocreo import parse_mocreo
@@ -327,6 +328,10 @@ class BleParser:
                             # UUID16 = Google (used by Ruuvitag V2/V4)
                             sensor_data = parse_ruuvitag(self, service_data, mac)
                             break
+                    elif uuid16 == 0xFFE1:
+                        # UUID16 = Minew
+                        sensor_data = parse_minew(self, service_data, mac)
+                        break
                     elif uuid16 == 0xFEE0:
                         # UUID16 = Anhui Huami Information Technology Co., Ltd. (Amazfit)
                         if man_spec_data_list:
