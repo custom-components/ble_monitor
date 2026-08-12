@@ -15,6 +15,7 @@ from .bparasite import parse_bparasite
 from .bthome import parse_bthome
 from .chefiq import parse_chefiq
 from .const import JAALEE_TYPES, TILT_TYPES
+from .eddystone_tlm import parse_eddystone_tlm
 from .govee import parse_govee
 from .grundfos import parse_grundfos
 from .helpers import to_mac, to_unformatted_mac, to_uuid
@@ -319,7 +320,11 @@ class BleParser:
                         sensor_data = parse_xiaomi(self, service_data, mac)
                         break
                     elif uuid16 == 0xFEAA:
-                        if len(service_data) == 19:
+                        if len(service_data) == 18 and service_data[4] == 0x20:
+                            # UUID16 = Google (Eddystone-TLM)
+                            sensor_data = parse_eddystone_tlm(self, service_data, mac)
+                            break
+                        elif len(service_data) == 19:
                             # UUID16 = Google (used by KKM)
                             sensor_data = parse_kkm(self, service_data, mac)
                             break
