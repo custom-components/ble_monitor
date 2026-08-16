@@ -76,6 +76,20 @@ ble_monitor:
   active_scan: True
 ```
 
+### hci_inactivity_timeout
+
+   **Raw HCI inactivity timeout**
+   (positive integer)(Optional) Restarts the scanner and reopens its HCI socket
+   when an adapter produces no raw HCI advertising events for this many seconds.
+   The timer starts after scanning is established and is reset by every raw event,
+   including advertisements from unsupported devices. Set this option to `0` to
+   disable the watchdog. Default value: 60.
+
+```yaml
+ble_monitor:
+  hci_inactivity_timeout: 60
+```
+
 ### discovery
 
    **Discover devices and sensors automatically**
@@ -105,6 +119,20 @@ Data from sensors with other addresses will be ignored. Default value: True
    (boolean)(Optional) Use median as sensor output instead of mean (helps with "spiky" sensors). Please note that both the median and the mean values in any case are present as the sensor state attributes. This setting can be overruled with for specific devices with settings [at device level](#configuration-parameters-at-device-level). Default value: False
 
    *The difference between the mean and the median is that the median is **selected** from the sensor readings, and not calculated as the average. That is, the median resolution is equal to the resolution of the sensor (one tenth of a degree or percent), while the mean allows you to slightly increase the resolution (the longer the measurement period, the larger the number of values will be averaged, and the higher the resolution can be achieved, if necessary with disabled rounding).*
+
+### measurement_update
+
+   **Measurement update policy**
+   (`periodic` or `instant`)(Optional) With `periodic`, measuring sensor values
+   are aggregated over `period`. With `instant`, every parser-accepted packet
+   is published immediately using its decoded value and current RSSI without
+   mean or median filtering. Parser-rejected duplicate RF retransmissions stay
+   suppressed. Default value: `periodic`.
+
+```yaml
+ble_monitor:
+  measurement_update: instant
+```
 
 ### log_spikes
 

@@ -16,12 +16,14 @@ from homeassistant.util import dt
 from homeassistant.util.unit_conversion import TemperatureConverter
 
 from .const import (AUTO_MANUFACTURER_DICT, AUTO_SENSOR_LIST,
-                    CONF_DEVICE_RESET_TIMER, CONF_DEVICE_RESTORE_STATE,
-                    CONF_DEVICE_USE_MEDIAN, CONF_HMAX, CONF_HMIN,
-                    CONF_LOG_SPIKES, CONF_PERIOD, CONF_RESTORE_STATE,
+                    CONF_DEVICE_MEASUREMENT_UPDATE, CONF_DEVICE_RESET_TIMER,
+                    CONF_DEVICE_RESTORE_STATE, CONF_DEVICE_USE_MEDIAN,
+                    CONF_HMAX, CONF_HMIN, CONF_LOG_SPIKES,
+                    CONF_MEASUREMENT_UPDATE, CONF_PERIOD, CONF_RESTORE_STATE,
                     CONF_TMAX, CONF_TMAX_KETTLES, CONF_TMAX_PROBES, CONF_TMIN,
                     CONF_TMIN_KETTLES, CONF_TMIN_PROBES, CONF_USE_MEDIAN,
-                    CONF_UUID, DEFAULT_DEVICE_RESET_TIMER, DOMAIN, KETTLES,
+                    CONF_UUID, DEFAULT_DEVICE_RESET_TIMER,
+                    DEFAULT_MEASUREMENT_UPDATE, DOMAIN, KETTLES,
                     MANUFACTURER_DICT, MEASUREMENT_DICT, PROBES,
                     RENAMED_FIRMWARE_DICT, RENAMED_MANUFACTURER_DICT,
                     RENAMED_MODEL_DICT, SENSOR_TYPES,
@@ -87,6 +89,16 @@ class BLEupdater:
         self.period = self.config[CONF_PERIOD]
         self.add_entities = add_entities
         _LOGGER.debug("BLE sensors updater initialized")
+
+    @staticmethod
+    async def async_publish_instant(entity, rssi):
+        """Publish an instant value only after Home Assistant attaches the entity."""
+        if entity.ready_for_update is not True:
+            return False
+        entity.rssi_values = [int(rssi)]
+        await entity.async_update()
+        entity.async_write_ha_state()
+        return True
 
     async def async_run(self, hass):
         """Entities updater loop."""
@@ -265,6 +277,12 @@ class BLEupdater:
                             instant_sensors = MEASUREMENT_DICT[device_model][1]
                         entity.collect(data, period_cnt, batt_attr)
                         if (
+                            isinstance(entity, MeasuringSensor)
+                            and entity.instant_update
+                            and entity.pending_update is True
+                        ):
+                            await self.async_publish_instant(entity, data["rssi"])
+                        elif (
                             measurement in instant_sensors
                             or ts_now - ts_restart < timedelta(seconds=self.period)
                         ):
@@ -280,8 +298,6 @@ class BLEupdater:
                 continue
             ts_last_update = ts_now
             period_cnt += 1
-            # restarting scanner
-            self.monitor.restart()
             # updating the state for every updated measuring device
             for key, edict in sensors_by_key.items():
                 for entity in edict.values():
@@ -575,6 +591,9 @@ class BaseSensor(RestoreSensor, SensorEntity):
         dev_name = self._key
         dev_temperature_unit = UnitOfTemperature.CELSIUS
         dev_use_median = self._config[CONF_USE_MEDIAN]
+        dev_measurement_update = self._config.get(
+            CONF_MEASUREMENT_UPDATE, DEFAULT_MEASUREMENT_UPDATE
+        )
         dev_restore_state = self._config[CONF_RESTORE_STATE]
         dev_reset_timer = DEFAULT_DEVICE_RESET_TIMER
 
@@ -604,12 +623,18 @@ class BaseSensor(RestoreSensor, SensorEntity):
                             dev_restore_state = device[CONF_DEVICE_RESTORE_STATE]
                         else:
                             dev_restore_state = self._config[CONF_RESTORE_STATE]
+                    if CONF_DEVICE_MEASUREMENT_UPDATE in device:
+                        if device[CONF_DEVICE_MEASUREMENT_UPDATE] != "default":
+                            dev_measurement_update = device[
+                                CONF_DEVICE_MEASUREMENT_UPDATE
+                            ]
                     if CONF_DEVICE_RESET_TIMER in device:
                         dev_reset_timer = device[CONF_DEVICE_RESET_TIMER]
         device_settings = {
             "name": dev_name,
             "temperature unit": dev_temperature_unit,
             "use median": dev_use_median,
+            "measurement update": dev_measurement_update,
             "restore_state": dev_restore_state,
             "reset_timer": dev_reset_timer,
         }
@@ -639,7 +664,13 @@ class MeasuringSensor(BaseSensor):
         super().__init__(config, key, devtype, firmware, entity_description, manufacturer)
         self._jagged = False
         self._use_median = self._device_settings["use median"]
+        self._measurement_update = self._device_settings["measurement update"]
         self._period_cnt = 0
+
+    @property
+    def instant_update(self):
+        """Return whether this entity publishes every accepted packet."""
+        return self._measurement_update == "instant"
 
     def collect(self, data, period_cnt, batt_attr=None):
         """Measurements collector."""
@@ -647,6 +678,8 @@ class MeasuringSensor(BaseSensor):
             self.pending_update = False
             return
         self._period_cnt = period_cnt
+        if self._measurement_update == "instant":
+            self._measurements.clear()
         self._measurements.append(data[self.entity_description.key])
         self._extra_state_attributes["sensor_type"] = data["type"]
         self._extra_state_attributes["last_packet_id"] = data["packet"]
@@ -664,6 +697,21 @@ class MeasuringSensor(BaseSensor):
         textattr = ""
         try:
             measurements = self._measurements
+            if self._measurement_update == "instant":
+                self._state = measurements[-1]
+                if self.entity_description.key != "rssi" and self.rssi_values:
+                    self._extra_state_attributes["rssi"] = self.rssi_values[-1]
+                for attribute in (
+                    "median",
+                    "mean",
+                    "last_median_of",
+                    "last_mean_of",
+                ):
+                    self._extra_state_attributes.pop(attribute, None)
+                self._measurements.clear()
+                self.rssi_values.clear()
+                self.pending_update = False
+                return
             state_median = sts.median(measurements)
             state_mean = sts.mean(measurements)
             if self._use_median:
@@ -758,6 +806,8 @@ class TemperatureSensor(MeasuringSensor):
                 )
             self.pending_update = False
             return
+        if self._measurement_update == "instant":
+            self._measurements.clear()
         self._measurements.append(data[self.entity_description.key])
         self._extra_state_attributes["sensor_type"] = data["type"]
         self._extra_state_attributes["last_packet_id"] = data["packet"]
@@ -804,8 +854,12 @@ class HumiditySensor(MeasuringSensor):
             self.pending_update = False
             return
         if self._jagged is True:
+            if self._measurement_update == "instant":
+                self._measurements.clear()
             self._measurements.append(int(data[self.entity_description.key]))
         else:
+            if self._measurement_update == "instant":
+                self._measurements.clear()
             self._measurements.append(data[self.entity_description.key])
         self._extra_state_attributes["sensor_type"] = data["type"]
         self._extra_state_attributes["last_packet_id"] = data["packet"]
