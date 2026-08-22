@@ -3,6 +3,8 @@ import asyncio
 import copy
 import json
 import logging
+import time
+from functools import partial
 from threading import Thread
 
 import aioblescan as aiobs
@@ -16,7 +18,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.device_registry import DeviceEntry
-from homeassistant.util import dt
 
 from .ble_parser import BleParser
 from .bt_helpers import (BT_INTERFACES, BT_MULTI_SELECT, DEFAULT_BT_INTERFACE,
@@ -25,22 +26,28 @@ from .const import (AES128KEY24_REGEX, AES128KEY32_REGEX,
                     AUTO_BINARY_SENSOR_LIST, AUTO_MANUFACTURER_DICT,
                     AUTO_SENSOR_LIST, CONF_ACTIVE_SCAN, CONF_BATT_ENTITIES,
                     CONF_BT_AUTO_RESTART, CONF_BT_INTERFACE,
-                    CONF_DEVICE_ENCRYPTION_KEY, CONF_DEVICE_REPORT_UNKNOWN,
-                    CONF_DEVICE_RESET_TIMER, CONF_DEVICE_RESTORE_STATE,
-                    CONF_DEVICE_TRACK, CONF_DEVICE_TRACKER_CONSIDER_HOME,
+                    CONF_DEVICE_ENCRYPTION_KEY, CONF_DEVICE_MEASUREMENT_UPDATE,
+                    CONF_DEVICE_REPORT_UNKNOWN, CONF_DEVICE_RESET_TIMER,
+                    CONF_DEVICE_RESTORE_STATE, CONF_DEVICE_TRACK,
+                    CONF_DEVICE_TRACKER_CONSIDER_HOME,
                     CONF_DEVICE_TRACKER_SCAN_INTERVAL, CONF_DEVICE_USE_MEDIAN,
-                    CONF_GATEWAY_ID, CONF_HCI_INTERFACE, CONF_LOG_SPIKES,
-                    CONF_PACKET, CONF_PERIOD, CONF_REPORT_UNKNOWN,
-                    CONF_RESTORE_STATE, CONF_USE_MEDIAN, CONF_UUID,
-                    CONFIG_IS_FLOW, DEFAULT_ACTIVE_SCAN, DEFAULT_BATT_ENTITIES,
-                    DEFAULT_BT_AUTO_RESTART, DEFAULT_DEVICE_REPORT_UNKNOWN,
-                    DEFAULT_DEVICE_RESET_TIMER, DEFAULT_DEVICE_RESTORE_STATE,
-                    DEFAULT_DEVICE_TRACK, DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
+                    CONF_GATEWAY_ID, CONF_HCI_INACTIVITY_TIMEOUT,
+                    CONF_HCI_INTERFACE, CONF_LOG_SPIKES,
+                    CONF_MEASUREMENT_UPDATE, CONF_PACKET, CONF_PERIOD,
+                    CONF_REPORT_UNKNOWN, CONF_RESTORE_STATE, CONF_USE_MEDIAN,
+                    CONF_UUID, CONFIG_IS_FLOW, DEFAULT_ACTIVE_SCAN,
+                    DEFAULT_BATT_ENTITIES, DEFAULT_BT_AUTO_RESTART,
+                    DEFAULT_DEVICE_MEASUREMENT_UPDATE,
+                    DEFAULT_DEVICE_REPORT_UNKNOWN, DEFAULT_DEVICE_RESET_TIMER,
+                    DEFAULT_DEVICE_RESTORE_STATE, DEFAULT_DEVICE_TRACK,
+                    DEFAULT_DEVICE_TRACKER_CONSIDER_HOME,
                     DEFAULT_DEVICE_TRACKER_SCAN_INTERVAL,
                     DEFAULT_DEVICE_USE_MEDIAN, DEFAULT_DISCOVERY,
-                    DEFAULT_LOG_SPIKES, DEFAULT_PERIOD, DEFAULT_REPORT_UNKNOWN,
-                    DEFAULT_RESTORE_STATE, DEFAULT_USE_MEDIAN, DOMAIN,
-                    MAC_REGEX, MANUFACTURER_DICT, MEASUREMENT_DICT, PLATFORMS,
+                    DEFAULT_HCI_INACTIVITY_TIMEOUT, DEFAULT_LOG_SPIKES,
+                    DEFAULT_MEASUREMENT_UPDATE, DEFAULT_PERIOD,
+                    DEFAULT_REPORT_UNKNOWN, DEFAULT_RESTORE_STATE,
+                    DEFAULT_USE_MEDIAN, DOMAIN, MAC_REGEX, MANUFACTURER_DICT,
+                    MEASUREMENT_DICT, MEASUREMENT_UPDATE_LIST, PLATFORMS,
                     REPORT_UNKNOWN_LIST, SERVICE_CLEANUP_ENTRIES,
                     SERVICE_PARSE_DATA)
 from .helper import (config_validation_uuid, dict_get_or, dict_get_or_clean,
@@ -63,6 +70,10 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Optional(CONF_DEVICE_USE_MEDIAN, default=DEFAULT_DEVICE_USE_MEDIAN): vol.In(
             [DEFAULT_DEVICE_USE_MEDIAN, True, False]
         ),
+        vol.Optional(
+            CONF_DEVICE_MEASUREMENT_UPDATE,
+            default=DEFAULT_DEVICE_MEASUREMENT_UPDATE,
+        ): vol.In([DEFAULT_DEVICE_MEASUREMENT_UPDATE] + MEASUREMENT_UPDATE_LIST),
         vol.Optional(
             CONF_DEVICE_RESTORE_STATE, default=DEFAULT_DEVICE_RESTORE_STATE
         ): vol.In([DEFAULT_DEVICE_RESTORE_STATE, True, False]),
@@ -97,6 +108,10 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(
                         CONF_BT_AUTO_RESTART, default=DEFAULT_BT_AUTO_RESTART
                     ): cv.boolean,
+                    vol.Optional(
+                        CONF_HCI_INACTIVITY_TIMEOUT,
+                        default=DEFAULT_HCI_INACTIVITY_TIMEOUT,
+                    ): cv.positive_int,
                     vol.Optional(CONF_PERIOD, default=DEFAULT_PERIOD): cv.positive_int,
                     vol.Optional(
                         CONF_LOG_SPIKES, default=DEFAULT_LOG_SPIKES
@@ -104,6 +119,9 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.Optional(
                         CONF_USE_MEDIAN, default=DEFAULT_USE_MEDIAN
                     ): cv.boolean,
+                    vol.Optional(
+                        CONF_MEASUREMENT_UPDATE, default=DEFAULT_MEASUREMENT_UPDATE
+                    ): vol.In(MEASUREMENT_UPDATE_LIST),
                     vol.Optional(
                         CONF_ACTIVE_SCAN, default=DEFAULT_ACTIVE_SCAN
                     ): cv.boolean,
@@ -224,6 +242,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
     if CONF_DEVICES not in config:
         config[CONF_DEVICES] = []
+    config.setdefault(
+        CONF_HCI_INACTIVITY_TIMEOUT, DEFAULT_HCI_INACTIVITY_TIMEOUT
+    )
+    config.setdefault(CONF_MEASUREMENT_UPDATE, DEFAULT_MEASUREMENT_UPDATE)
 
     if config[CONFIG_IS_FLOW]:
         # Configuration in UI
@@ -497,6 +519,9 @@ class BLEmonitor:
 class HCIdump(Thread):
     """Mimic deprecated hcidump tool."""
 
+    SCAN_RETRY_INTERVAL = 60
+    WATCHDOG_CHECK_INTERVAL = 1
+
     def __init__(self, config, dataqueue):
         """Initiate HCIdump thread."""
         Thread.__init__(self)
@@ -506,10 +531,15 @@ class HCIdump(Thread):
         self.dataqueue_tracker = dataqueue["tracker"]
         self._event_loop = None
         self._joining = False
-        self.evt_cnt = 0
+        self.evt_cnt = {}
         self.config = config
         self._interfaces = list(set(config[CONF_HCI_INTERFACE]))
         self._active = int(config[CONF_ACTIVE_SCAN] is True)
+        self._inactivity_timeout = config.get(
+            CONF_HCI_INACTIVITY_TIMEOUT, DEFAULT_HCI_INACTIVITY_TIMEOUT
+        )
+        self._last_hci_activity = {}
+        self._watchdog_handle = None
         self.discovery = True
         self.filter_duplicates = True
         self.aeskeys = {}
@@ -517,7 +547,7 @@ class HCIdump(Thread):
         self.tracker_whitelist = []
         self.report_unknown = False
         self.report_unknown_whitelist = []
-        self.last_bt_reset = dt.now()
+        self.last_bt_reset = time.monotonic()
         if self.config[CONF_REPORT_UNKNOWN]:
             if self.config[CONF_REPORT_UNKNOWN] != "Off":
                 self.report_unknown = self.config[CONF_REPORT_UNKNOWN]
@@ -590,12 +620,18 @@ class HCIdump(Thread):
             aeskeys=self.aeskeys,
         )
 
-    def process_hci_events(self, data, gateway_id=DOMAIN):
+    def process_hci_events(self, data, gateway_id=DOMAIN, hci=None):
         """Parse HCI events."""
-        self.evt_cnt += 1
+        if hci is not None:
+            self._record_hci_activity(hci)
+            self.evt_cnt[hci] = self.evt_cnt.get(hci, 0) + 1
         if len(data) < 12:
             return
-        sensor_msg, tracker_msg = self.ble_parser.parse_raw_data(data)
+        for sensor_msg, tracker_msg in self.ble_parser.parse_raw_data_reports(data):
+            self._enqueue_parsed_messages(sensor_msg, tracker_msg, gateway_id)
+
+    def _enqueue_parsed_messages(self, sensor_msg, tracker_msg, gateway_id):
+        """Enqueue one parsed sensor/tracker advertisement report."""
         if sensor_msg:
             measurements = list(sensor_msg.keys())
             device_type = sensor_msg["type"]
@@ -624,6 +660,51 @@ class HCIdump(Thread):
             tracker_msg[CONF_GATEWAY_ID] = gateway_id
             self.dataqueue_tracker.sync_q.put_nowait(tracker_msg)
 
+    def _record_hci_activity(self, hci, now=None):
+        """Record receipt of any raw HCI event for an adapter."""
+        self._last_hci_activity[hci] = time.monotonic() if now is None else now
+
+    def _inactive_interfaces(self, now=None):
+        """Return adapters that have exceeded the raw-HCI inactivity timeout."""
+        if self._inactivity_timeout == 0:
+            return []
+        now = time.monotonic() if now is None else now
+        return [
+            hci
+            for hci, last_activity in self._last_hci_activity.items()
+            if now - last_activity >= self._inactivity_timeout
+        ]
+
+    def _check_inactivity(self):
+        """Restart the scanner event loop after raw-HCI inactivity."""
+        if self._joining:
+            return
+        inactive = self._inactive_interfaces()
+        if inactive:
+            _LOGGER.warning(
+                "HCIdump thread: No raw HCI events received for %s seconds on %s; "
+                "restarting scanner",
+                self._inactivity_timeout,
+                ", ".join(f"hci{hci}" for hci in inactive),
+            )
+            self._event_loop.stop()
+            return
+        self._schedule_watchdog()
+
+    def _schedule_watchdog(self):
+        """Schedule the next inactivity check when the watchdog is enabled."""
+        if self._inactivity_timeout > 0 and not self._joining:
+            self._watchdog_handle = self._event_loop.call_later(
+                min(self.WATCHDOG_CHECK_INTERVAL, self._inactivity_timeout),
+                self._check_inactivity,
+            )
+
+    def _schedule_scan_retry(self):
+        """Schedule a rate-limited retry after scan setup fails."""
+        return self._event_loop.call_later(
+            self.SCAN_RETRY_INTERVAL, self._event_loop.stop
+        )
+
     def run(self):
         """Run HCIdump thread."""
         while True:
@@ -635,6 +716,7 @@ class HCIdump(Thread):
             interface_is_ok = {}
             interfaces_to_reset = []
             initialized_evt = {}
+            retry_handle = None
             if self._event_loop is None:
                 self._event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self._event_loop)
@@ -672,7 +754,9 @@ class HCIdump(Thread):
                             fac[hci].close()
                             mysocket[hci].close()
                         else:
-                            btctrl[hci].process = self.process_hci_events
+                            btctrl[hci].process = partial(
+                                self.process_hci_events, hci=hci
+                            )
                             _LOGGER.debug("HCIdump thread: connected to hci%i", hci)
                             try:
                                 self._event_loop.run_until_complete(
@@ -689,17 +773,20 @@ class HCIdump(Thread):
                                 mysocket[hci].close()
                             else:
                                 interface_is_ok[hci] = True
+                                self._record_hci_activity(hci)
                                 _LOGGER.debug(
                                     "HCIdump thread: BLEScanRequester._initialized is %s for hci%i, "
                                     " connection established, send_scan_request succeeded.",
                                     initialized_evt[hci].is_set(),
                                     hci,
                                 )
+                    if interface_is_ok[hci] is False:
+                        self._last_hci_activity.pop(hci, None)
                     if (interface_is_ok[hci] is False) and (self.config[CONF_BT_AUTO_RESTART] is True):
                         interfaces_to_reset.append(hci)
                 if interfaces_to_reset:
-                    ts_now = dt.now()
-                    if (ts_now - self.last_bt_reset).seconds > 60:
+                    ts_now = time.monotonic()
+                    if ts_now - self.last_bt_reset > 60:
                         for iface in interfaces_to_reset:
                             _LOGGER.error(
                                 "HCIdump thread: Trying to power cycle Bluetooth adapter hci%i %s,"
@@ -709,11 +796,19 @@ class HCIdump(Thread):
                             )
                             reset_bluetooth(iface)
                         self.last_bt_reset = ts_now
+                if not all(interface_is_ok.values()):
+                    retry_handle = self._schedule_scan_retry()
+            self._schedule_watchdog()
             _LOGGER.debug("HCIdump thread: start main event_loop")
             try:
                 self._event_loop.run_forever()
             finally:
                 _LOGGER.debug("HCIdump thread: main event_loop stopped, finishing.")
+                if self._watchdog_handle is not None:
+                    self._watchdog_handle.cancel()
+                    self._watchdog_handle = None
+                if retry_handle is not None:
+                    retry_handle.cancel()
                 if "disable" not in self.config[CONF_BT_INTERFACE]:
                     for hci in self._interfaces:
                         if interface_is_ok[hci] is True:
@@ -741,12 +836,15 @@ class HCIdump(Thread):
                                 "HCIdump thread: Key error while closing connection on hci%i",
                                 hci,
                             )
+                        self._last_hci_activity.pop(hci, None)
                 self._event_loop.run_until_complete(asyncio.sleep(0))
             if self._joining is True:
                 break
             _LOGGER.debug("HCIdump thread: Scanning will be restarted")
-            _LOGGER.debug("%i HCI events processed for previous period", self.evt_cnt)
-            self.evt_cnt = 0
+            _LOGGER.debug(
+                "HCI events processed for previous scan: %s", self.evt_cnt
+            )
+            self.evt_cnt = {}
         self._event_loop.close()
         _LOGGER.debug("HCIdump thread: Run finished")
 
