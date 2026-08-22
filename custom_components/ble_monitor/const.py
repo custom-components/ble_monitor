@@ -851,7 +851,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         name="ble moisture",
         unique_id="m_",
         native_unit_of_measurement=PERCENTAGE,
-        device_class=SensorDeviceClass.HUMIDITY,
+        device_class=SensorDeviceClass.MOISTURE,
         suggested_display_precision=1,
         state_class=SensorStateClass.MEASUREMENT,
     ),
