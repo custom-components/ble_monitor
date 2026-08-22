@@ -25,9 +25,11 @@ PLATFORMS = [
 
 # Configuration options
 CONF_BT_AUTO_RESTART = "bt_auto_restart"
+CONF_HCI_INACTIVITY_TIMEOUT = "hci_inactivity_timeout"
 CONF_PERIOD = "period"
 CONF_LOG_SPIKES = "log_spikes"
 CONF_USE_MEDIAN = "use_median"
+CONF_MEASUREMENT_UPDATE = "measurement_update"
 CONF_ACTIVE_SCAN = "active_scan"
 CONF_HCI_INTERFACE = "hci_interface"
 CONF_BT_INTERFACE = "bt_interface"
@@ -36,6 +38,7 @@ CONF_REPORT_UNKNOWN = "report_unknown"
 CONF_RESTORE_STATE = "restore_state"
 CONF_DEVICE_ENCRYPTION_KEY = "encryption_key"
 CONF_DEVICE_USE_MEDIAN = "use_median"
+CONF_DEVICE_MEASUREMENT_UPDATE = "measurement_update"
 CONF_DEVICE_REPORT_UNKNOWN = "report_unknown"
 CONF_DEVICE_RESTORE_STATE = "restore_state"
 CONF_DEVICE_RESET_TIMER = "reset_timer"
@@ -53,9 +56,13 @@ SERVICE_PARSE_DATA = "parse_data"
 
 # Default values for configuration options
 DEFAULT_BT_AUTO_RESTART = False
+DEFAULT_HCI_INACTIVITY_TIMEOUT = 60
 DEFAULT_PERIOD = 60
 DEFAULT_LOG_SPIKES = False
 DEFAULT_USE_MEDIAN = False
+DEFAULT_MEASUREMENT_UPDATE = "periodic"
+DEFAULT_DEVICE_MEASUREMENT_UPDATE = "default"
+MEASUREMENT_UPDATE_LIST = ["periodic", "instant"]
 DEFAULT_ACTIVE_SCAN = False
 DEFAULT_BATT_ENTITIES = True
 DEFAULT_REPORT_UNKNOWN = "Off"
@@ -848,7 +855,7 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         name="ble moisture",
         unique_id="m_",
         native_unit_of_measurement=PERCENTAGE,
-        device_class=SensorDeviceClass.HUMIDITY,
+        device_class=SensorDeviceClass.MOISTURE,
         suggested_display_precision=1,
         state_class=SensorStateClass.MEASUREMENT,
     ),

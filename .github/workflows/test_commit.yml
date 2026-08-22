@@ -30,7 +30,7 @@ jobs:
       - name: Setup Python
         uses: "actions/setup-python@v7"
         with:
-          python-version: "3.12"
+          python-version: "3.14"
       - name: Install requirements
         run: python3 -m pip install -r requirements_test.txt
       - name: Run pytest
