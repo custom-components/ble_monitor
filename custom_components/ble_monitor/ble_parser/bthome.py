@@ -43,9 +43,13 @@ def parse_float(data_obj: bytes, factor: float = 1.0):
     return round(val * factor, decimal_places)
 
 
-def parse_string(data_obj: bytes) -> str:
+def parse_string(data_obj: bytes) -> str | None:
     """Convert bytes to string."""
-    return data_obj.decode("UTF-8")
+    try:
+        return data_obj.decode("UTF-8")
+    except UnicodeDecodeError:
+        _LOGGER.debug("Invalid UTF-8 string in BTHome BLE payload: %s", data_obj.hex())
+        return None
 
 
 def parse_timestamp(data_obj: bytes) -> datetime:
