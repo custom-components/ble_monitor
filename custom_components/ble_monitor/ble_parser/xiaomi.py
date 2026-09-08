@@ -1033,6 +1033,8 @@ def obj4e0c(xobj, device_type):
                 "two btn switch right": "toggle",
                 "button switch": "single press",
             }
+        else:
+            result = {}
     elif device_type == "K9BB-1BTN":
         if not xobj:
             return {}
@@ -1052,6 +1054,8 @@ def obj4e0c(xobj, device_type):
                 "one btn switch": "toggle",
                 "button switch": "double press",
             }
+        else:
+            result = {}
     elif device_type == "XMWXKG01LM":
         result = {
             "one btn switch": "toggle",
@@ -1110,6 +1114,8 @@ def obj4e0d(xobj, device_type):
                 "two btn switch right": "toggle",
                 "button switch": "double press",
             }
+        else:
+            result = {}
     elif device_type == "XMWXKG01LM":
         result = {
             "one btn switch": "toggle",
@@ -1168,6 +1174,8 @@ def obj4e0e(xobj, device_type):
                 "two btn switch right": "toggle",
                 "button switch": "long press",
             }
+        else:
+            result = {}
     elif device_type == "XMWXKG01LM":
         result = {
             "one btn switch": "toggle",

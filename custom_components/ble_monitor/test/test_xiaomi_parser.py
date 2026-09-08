@@ -36,6 +36,32 @@ class TestXiaomi:
             "one btn switch": "toggle",
             "button switch": "long press",
         }
+
+    def test_obj4e0c_unrecognized_click(self):
+        """obj4e0c: unrecognized click is {} instead of UnboundLocalError; known clicks unchanged."""
+        assert obj4e0c(bytes([0]), "XMWXKG01YL") == {}
+        assert obj4e0c(bytes([0]), "K9BB-1BTN") == {}
+        assert obj4e0c(bytes([1]), "XMWXKG01YL") == {
+            "two btn switch left": "toggle", "button switch": "single press"
+        }
+        assert obj4e0c(bytes([1]), "K9BB-1BTN") == {
+            "one btn switch": "toggle", "button switch": "single press"
+        }
+
+    def test_obj4e0d_unrecognized_click(self):
+        """obj4e0d: unrecognized click is {} instead of UnboundLocalError; known click unchanged."""
+        assert obj4e0d(bytes([0]), "XMWXKG01YL") == {}
+        assert obj4e0d(bytes([1]), "XMWXKG01YL") == {
+            "two btn switch left": "toggle", "button switch": "double press"
+        }
+
+    def test_obj4e0e_unrecognized_click(self):
+        """obj4e0e: unrecognized click is {} instead of UnboundLocalError; known click unchanged."""
+        assert obj4e0e(bytes([0]), "XMWXKG01YL") == {}
+        assert obj4e0e(bytes([1]), "XMWXKG01YL") == {
+            "two btn switch left": "toggle", "button switch": "long press"
+        }
+
     def test_obj4850_valid_motion_time(self):
         """Test obj4850 parser with a valid 1-byte payload."""
         assert obj4850(bytes.fromhex("05")) == {"motion time": 5}
