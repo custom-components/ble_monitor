@@ -9,6 +9,35 @@ from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj3003,
 class TestXiaomi:
     """Tests for the Xiaomi parser"""
 
+    def test_obj4e0c_ptx_f1_display_click(self):
+        """obj4e0c PTX-F1-Display: unrecognized click is {}; recognized clicks are unchanged."""
+        assert obj4e0c(bytes([0]), "PTX-F1-Display") == {}
+        assert obj4e0c(bytes([1]), "PTX-F1-Display") == {
+            "four btn switch 1": "toggle", "button switch": "single press"
+        }
+        assert obj4e0c(bytes([4]), "PTX-F1-Display") == {
+            "four btn switch 4": "toggle", "button switch": "single press"
+        }
+
+    def test_obj4e0d_ptx_f1_display_click(self):
+        """obj4e0d PTX-F1-Display: unrecognized click is {}; recognized clicks are unchanged."""
+        assert obj4e0d(bytes([0]), "PTX-F1-Display") == {}
+        assert obj4e0d(bytes([1]), "PTX-F1-Display") == {
+            "four btn switch 1": "toggle", "button switch": "double press"
+        }
+        assert obj4e0d(bytes([4]), "PTX-F1-Display") == {
+            "four btn switch 4": "toggle", "button switch": "double press"
+        }
+
+    def test_obj4e0e_ptx_f1_display_click(self):
+        """obj4e0e PTX-F1-Display: unrecognized click is {}; recognized clicks are unchanged."""
+        assert obj4e0e(bytes([0]), "PTX-F1-Display") == {}
+        assert obj4e0e(bytes([1]), "PTX-F1-Display") == {
+            "four btn switch 1": "toggle", "button switch": "long press"
+        }
+        assert obj4e0e(bytes([4]), "PTX-F1-Display") == {
+            "four btn switch 4": "toggle", "button switch": "long press"
+        }
     def test_obj4e0c_empty_payload(self):
         """obj4e0c: empty payload is {} for every vulnerable device_type; XMWXKG01LM is unaffected."""
         assert obj4e0c(b"", "XMWXKG01YL") == {}
