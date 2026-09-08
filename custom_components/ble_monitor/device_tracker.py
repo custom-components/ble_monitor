@@ -195,8 +195,7 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
                 old_state.attributes["last_seen"]
             )
 
-        restore_attr = RESTORE_ATTRIBUTES
-        restore_attr.append('mac_address' if self.is_beacon else 'uuid')
+        restore_attr = RESTORE_ATTRIBUTES + ['mac_address' if self.is_beacon else 'uuid']
 
         for attr in restore_attr:
             if attr in old_state.attributes:
@@ -344,8 +343,7 @@ class BleScannerEntity(ScannerEntity, RestoreEntity):
                 return
         self._last_seen = now
         self._extra_state_attributes["last_seen"] = self._last_seen
-        restore_attr = RESTORE_ATTRIBUTES
-        restore_attr.append('mac_address' if self.is_beacon else 'uuid')
+        restore_attr = RESTORE_ATTRIBUTES + ['mac_address' if self.is_beacon else 'uuid']
 
         for attr in restore_attr:
             key = CONF_MAC if attr == 'mac_address' else attr
