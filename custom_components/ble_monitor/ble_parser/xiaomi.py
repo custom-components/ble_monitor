@@ -775,7 +775,7 @@ def obj4810(xobj):
     elif sleep_state == 2:
         return {"button switch": "double press"}
     else:
-        return None
+        return {}
 
 
 def obj4811(xobj):
@@ -1251,7 +1251,7 @@ def obj5010(xobj):
     elif sleep_state == 2:
         return {"button": "double press"}
     else:
-        return None
+        return {}
 
 
 def obj5011(xobj):
