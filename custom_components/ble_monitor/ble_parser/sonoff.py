@@ -52,7 +52,7 @@ def decrypt_sonoff(encrypted_data: bytes, seed: int) -> bytes:
 
 def parse_sonoff(self, data: bytes, mac: bytes) -> dict[str, Any] | None:
     # Verify MAC address and data length
-    if mac != b"\x66\x55\x44\x33\x22\x11" or len(data) < 10:
+    if mac != b"\x66\x55\x44\x33\x22\x11" or len(data) < 21:
         return None
 
     firmware = "Sonoff"
@@ -99,7 +99,7 @@ def parse_sonoff(self, data: bytes, mac: bytes) -> dict[str, Any] | None:
                 to_mac(mac),
                 data.hex()
             )
-            return None
+        return None
 
     try:
         result = {
