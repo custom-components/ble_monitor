@@ -3,10 +3,11 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 
-from ble_monitor.const import (CONF_DEVICE_MEASUREMENT_UPDATE,
+from ble_monitor.const import (CONF_DEVICE_MEASUREMENT_UPDATE, CONF_HMAX,
                                CONF_MEASUREMENT_UPDATE,
                                DEFAULT_MEASUREMENT_UPDATE, DOMAIN)
-from ble_monitor.sensor import BaseSensor, BLEupdater, MeasuringSensor
+from ble_monitor.sensor import (BaseSensor, BLEupdater, HumiditySensor,
+                                MeasuringSensor)
 from homeassistant.const import CONF_DEVICES
 
 from ble_monitor import CONFIG_SCHEMA
@@ -26,6 +27,40 @@ def make_sensor(policy, measurements, rssi_values):
     sensor.pending_update = True
     sensor.entity_description = SimpleNamespace(key="temperature", name="Temperature")
     return sensor
+
+
+def make_humidity_sensor():
+    """Create a minimal humidity entity for spike-filter boundary tests."""
+    sensor = HumiditySensor.__new__(HumiditySensor)
+    sensor._type = "mac"
+    sensor._log_spikes = False
+    sensor._jagged = False
+    sensor._measurement_update = "instant"
+    sensor._measurements = []
+    sensor._extra_state_attributes = {}
+    sensor._period_cnt = 1
+    sensor.pending_update = False
+    sensor.entity_description = SimpleNamespace(key="humidity", name="Humidity")
+    return sensor
+
+
+def test_humidity_sensor_accepts_100_percent():
+    """100.0% RH (CONF_HMAX) is a valid reading, not a spike."""
+    assert CONF_HMAX == 100.0
+    sensor = make_humidity_sensor()
+    data = {"humidity": 100.0, "type": "LYWSD03MMC", "packet": 1, "firmware": "Xiaomi"}
+    sensor.collect(data, period_cnt=1)
+    assert sensor.pending_update is True
+    assert sensor._measurements == [100.0]
+
+
+def test_humidity_sensor_rejects_above_100_percent():
+    """Values above 100.0% RH are still filtered out as spikes."""
+    sensor = make_humidity_sensor()
+    data = {"humidity": 100.1, "type": "LYWSD03MMC", "packet": 1, "firmware": "Xiaomi"}
+    sensor.collect(data, period_cnt=1)
+    assert sensor.pending_update is False
+    assert sensor._measurements == []
 
 
 def test_configuration_default_and_values():

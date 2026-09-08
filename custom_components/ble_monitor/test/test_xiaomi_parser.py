@@ -2,7 +2,8 @@
 import datetime
 
 from ble_monitor.ble_parser import BleParser
-from ble_monitor.ble_parser.xiaomi import obj3003, obj4851, obj4852, obj4e0c, obj4e0d, obj4e0e
+from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj3003,
+                                           obj4850, obj4851, obj4852)
 
 
 class TestXiaomi:
@@ -37,6 +38,41 @@ class TestXiaomi:
         assert obj4e0e(bytes([4]), "PTX-F1-Display") == {
             "four btn switch 4": "toggle", "button switch": "long press"
         }
+    def test_obj4e0c_empty_payload(self):
+        """obj4e0c: empty payload is {} for every vulnerable device_type; XMWXKG01LM is unaffected."""
+        assert obj4e0c(b"", "XMWXKG01YL") == {}
+        assert obj4e0c(b"", "K9BB-1BTN") == {}
+        assert obj4e0c(b"", "PTX-F1-Display") == {}
+        assert obj4e0c(b"", "XMWXKG01LM") == {
+            "one btn switch": "toggle",
+            "button switch": "single press",
+        }
+
+    def test_obj4e0d_empty_payload(self):
+        """obj4e0d: empty payload is {} for every vulnerable device_type; XMWXKG01LM is unaffected."""
+        assert obj4e0d(b"", "XMWXKG01YL") == {}
+        assert obj4e0d(b"", "PTX-F1-Display") == {}
+        assert obj4e0d(b"", "XMWXKG01LM") == {
+            "one btn switch": "toggle",
+            "button switch": "double press",
+        }
+
+    def test_obj4e0e_empty_payload(self):
+        """obj4e0e: empty payload is {} for every vulnerable device_type; XMWXKG01LM is unaffected."""
+        assert obj4e0e(b"", "XMWXKG01YL") == {}
+        assert obj4e0e(b"", "PTX-F1-Display") == {}
+        assert obj4e0e(b"", "XMWXKG01LM") == {
+            "one btn switch": "toggle",
+            "button switch": "long press",
+        }
+    def test_obj4850_valid_motion_time(self):
+        """Test obj4850 parser with a valid 1-byte payload."""
+        assert obj4850(bytes.fromhex("05")) == {"motion time": 5}
+
+    def test_obj4850_invalid_motion_time_length(self):
+        """Test obj4850 parser with malformed payload lengths."""
+        assert obj4850(bytes.fromhex("")) == {}
+        assert obj4850(bytes.fromhex("0500")) == {}
 
     def test_obj4851_valid_duration(self):
         """Test obj4851 parser with a valid 4-byte payload."""

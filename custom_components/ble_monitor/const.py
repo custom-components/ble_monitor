@@ -97,7 +97,7 @@ CONF_TMAX_KETTLES = 120.0
 CONF_TMIN_PROBES = 0.0
 CONF_TMAX_PROBES = 300.0
 CONF_HMIN = 0.0
-CONF_HMAX = 99.9
+CONF_HMAX = 100.0
 
 
 # Sensors with deviating temperature range
