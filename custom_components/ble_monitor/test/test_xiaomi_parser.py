@@ -2,9 +2,8 @@
 import datetime
 
 from ble_monitor.ble_parser import BleParser
-from ble_monitor.ble_parser.xiaomi import (
-  obj3003, obj4850, obj4851, obj4852, obj4e0c, obj4e0d, obj4e0e
-)
+from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj3003,
+                                           obj4850, obj4851, obj4852)
 
 
 class TestXiaomi:
