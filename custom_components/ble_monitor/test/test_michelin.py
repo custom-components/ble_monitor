@@ -24,3 +24,14 @@ class TestMichelin:
         assert sensor_msg["steps"] == 1
         assert sensor_msg["text"] == "PVC"
         assert sensor_msg["rssi"] == -68
+
+    def test_parse_michelin_tms_too_short_returns_cleanly(self):
+        """A Michelin TMS advertisement shorter than the required payload must not raise."""
+        data_string = "043e1402010300e07c03a703bc0802010604ff280801bc"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg is None
