@@ -2,11 +2,20 @@
 import datetime
 
 from ble_monitor.ble_parser import BleParser
-from ble_monitor.ble_parser.xiaomi import obj4851, obj4852
+from ble_monitor.ble_parser.xiaomi import obj4850, obj4851, obj4852
 
 
 class TestXiaomi:
     """Tests for the Xiaomi parser"""
+
+    def test_obj4850_valid_motion_time(self):
+        """Test obj4850 parser with a valid 1-byte payload."""
+        assert obj4850(bytes.fromhex("05")) == {"motion time": 5}
+
+    def test_obj4850_invalid_motion_time_length(self):
+        """Test obj4850 parser with malformed payload lengths."""
+        assert obj4850(bytes.fromhex("")) == {}
+        assert obj4850(bytes.fromhex("0500")) == {}
 
     def test_obj4851_valid_duration(self):
         """Test obj4851 parser with a valid 4-byte payload."""

@@ -853,6 +853,9 @@ def obj484f(xobj):
 
 def obj4850(xobj):
     """Time in minutes with motion (not used, we use 484e)"""
+    if len(xobj) != 1:
+        return {}
+
     (motion_time,) = struct.unpack("<B", xobj)
     # minutes with motion (not used, we use motion timer in obj484e)
     return {"motion time": motion_time}
