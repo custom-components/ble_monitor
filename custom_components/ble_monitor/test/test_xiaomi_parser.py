@@ -2,9 +2,10 @@
 import datetime
 
 from ble_monitor.ble_parser import BleParser
-from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj560c,
-                                           obj560d, obj560e, obj1001, obj3003,
-                                           obj4850, obj4851, obj4852)
+from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
+                                           obj4e17, obj5a16, obj1001, obj3003,
+                                           obj4810, obj4850, obj4851, obj4852,
+                                           obj5010, obj560c, obj560d, obj560e)
 
 
 class TestXiaomi:
@@ -137,6 +138,33 @@ class TestXiaomi:
             "button": "single press",
             "remote single press": 1,
         }
+
+    def test_obj4e16_unrecognized_event(self):
+        """obj4e16: unrecognized event is {}; recognized event is unchanged."""
+        assert obj4e16(bytes.fromhex("02")) == {}
+        assert obj4e16(bytes.fromhex("01")) == {"bed occupancy": 1}
+
+    def test_obj4e17_unrecognized_event(self):
+        """obj4e17: unrecognized event is {}; recognized event is unchanged."""
+        assert obj4e17(bytes.fromhex("02")) == {}
+        assert obj4e17(bytes.fromhex("01")) == {"bed occupancy": 0}
+
+    def test_obj4810_unrecognized_sleep_state(self):
+        """obj4810: unrecognized sleep_state is {}; recognized values are unchanged."""
+        assert obj4810(bytes.fromhex("03")) == {}
+        assert obj4810(bytes.fromhex("ff")) == {}
+        assert obj4810(bytes.fromhex("01")) == {"sleeping": 1}
+
+    def test_obj5010_unrecognized_sleep_state(self):
+        """obj5010: unrecognized sleep_state is {}; recognized values are unchanged."""
+        assert obj5010(bytes.fromhex("03")) == {}
+        assert obj5010(bytes.fromhex("ff")) == {}
+        assert obj5010(bytes.fromhex("01")) == {"sleeping": 1}
+
+    def test_obj5a16_unrecognized_event(self):
+        """obj5a16: unrecognized event is {}; recognized event is unchanged."""
+        assert obj5a16(bytes.fromhex("04")) == {}
+        assert obj5a16(bytes.fromhex("03")) == {"button": "double press"}
 
     def test_obj560c_obj560d_obj560e_invalid_input(self):
         """obj560c/obj560d/obj560e: unknown click and unsupported device_type return {};

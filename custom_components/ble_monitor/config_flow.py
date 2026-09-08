@@ -43,6 +43,23 @@ from .helper import (detect_conf_type, dict_get_key_or, dict_get_or,
 _LOGGER = logging.getLogger(__name__)
 
 
+def _redact_for_log(data):
+    """Return a shallow copy of data with any encryption key masked, for logging only."""
+    if not isinstance(data, dict):
+        return data
+    redacted = dict(data)
+    if CONF_DEVICE_ENCRYPTION_KEY in redacted:
+        redacted[CONF_DEVICE_ENCRYPTION_KEY] = "***"
+    if isinstance(redacted.get(CONF_DEVICES), list):
+        redacted[CONF_DEVICES] = [
+            {**dev, CONF_DEVICE_ENCRYPTION_KEY: "***"}
+            if isinstance(dev, dict) and CONF_DEVICE_ENCRYPTION_KEY in dev
+            else dev
+            for dev in redacted[CONF_DEVICES]
+        ]
+    return redacted
+
+
 OPTION_LIST_DEVICE = "--Devices--"
 OPTION_ADD_DEVICE = "Add device..."
 DOMAIN_TITLE = "Bluetooth Low Energy Monitor"
@@ -174,7 +191,7 @@ class BLEMonitorFlow(FlowHandler):
         """Add/remove device step."""
         errors = {}
         if user_input is not None:
-            _LOGGER.debug("async_step_add_remove_device: %s", user_input)
+            _LOGGER.debug("async_step_add_remove_device: %s", _redact_for_log(user_input))
             if (user_input[CONF_MAC] or user_input[CONF_UUID]) and not user_input[CONF_DEVICE_DELETE_DEVICE]:
                 key = dict_get_key_or(user_input)
 
@@ -409,7 +426,7 @@ class BLEMonitorConfigFlow(BLEMonitorFlow, ConfigFlow, domain=DOMAIN):
 
     async def async_step_import(self, user_input=None):
         """Handle import."""
-        _LOGGER.debug("async_step_import: %s", user_input)
+        _LOGGER.debug("async_step_import: %s", _redact_for_log(user_input))
 
         user_input[CONF_DEVICES] = OPTION_LIST_DEVICE
         return await self.async_step_user(user_input)
@@ -523,7 +540,7 @@ class BLEMonitorOptionsFlow(BLEMonitorFlow, OptionsFlow):
             if "disable" in user_input[CONF_BT_INTERFACE] and not len(user_input[CONF_BT_INTERFACE]) == 1:
                 errors[CONF_BT_INTERFACE] = "cannot_disable_bt_interface"
             return self._create_entry(user_input)
-        _LOGGER.debug("async_step_init (before): %s", self.config_entry.options)
+        _LOGGER.debug("async_step_init (before): %s", _redact_for_log(self.config_entry.options))
 
         if (
             CONFIG_IS_FLOW in self.config_entry.options

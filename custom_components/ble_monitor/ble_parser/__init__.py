@@ -103,7 +103,15 @@ class BleParser:
         """Parse every advertisement report in one HCI LE meta-event."""
         reports = []
         for report in self._split_hci_reports(data):
-            sensor_data, tracker_data = self._parse_single_report(report)
+            try:
+                sensor_data, tracker_data = self._parse_single_report(report)
+            except Exception as error:  # noqa: BLE001 - isolate one malformed report
+                _LOGGER.debug(
+                    "Failed to parse BLE advertisement report, skipping it: %s, report: %s",
+                    error,
+                    report.hex(),
+                )
+                continue
             if sensor_data or tracker_data:
                 reports.append((sensor_data, tracker_data))
         return reports
