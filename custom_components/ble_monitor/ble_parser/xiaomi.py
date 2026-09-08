@@ -1010,6 +1010,8 @@ def obj4e01(xobj):
 def obj4e0c(xobj, device_type):
     """Click"""
     if device_type == "XMWXKG01YL":
+        if not xobj:
+            return {}
         click = xobj[0]
         if click == 1:
             result = {
@@ -1028,6 +1030,8 @@ def obj4e0c(xobj, device_type):
                 "button switch": "single press",
             }
     elif device_type == "K9BB-1BTN":
+        if not xobj:
+            return {}
         click = xobj[0]
         if click == 1:
             result = {
@@ -1050,6 +1054,8 @@ def obj4e0c(xobj, device_type):
             "button switch": "single press",
         }
     elif device_type == "PTX-F1-Display":
+        if not xobj:
+            return {}
         click = xobj[0]
         if click == 1:
             result = {
@@ -1081,6 +1087,8 @@ def obj4e0c(xobj, device_type):
 def obj4e0d(xobj, device_type):
     """Double Click"""
     if device_type == "XMWXKG01YL":
+        if not xobj:
+            return {}
         click = xobj[0]
         if click == 1:
             result = {
@@ -1104,6 +1112,8 @@ def obj4e0d(xobj, device_type):
             "button switch": "double press",
         }
     elif device_type == "PTX-F1-Display":
+        if not xobj:
+            return {}
         click = xobj[0]
         if click == 1:
             result = {
@@ -1135,6 +1145,8 @@ def obj4e0d(xobj, device_type):
 def obj4e0e(xobj, device_type):
     """Long Press"""
     if device_type == "XMWXKG01YL":
+        if not xobj:
+            return {}
         click = xobj[0]
         if click == 1:
             result = {
@@ -1158,6 +1170,8 @@ def obj4e0e(xobj, device_type):
             "button switch": "long press",
         }
     elif device_type == "PTX-F1-Display":
+        if not xobj:
+            return {}
         click = xobj[0]
         if click == 1:
             result = {

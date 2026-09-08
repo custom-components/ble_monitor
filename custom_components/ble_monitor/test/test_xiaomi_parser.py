@@ -2,11 +2,39 @@
 import datetime
 
 from ble_monitor.ble_parser import BleParser
-from ble_monitor.ble_parser.xiaomi import obj4851, obj4852
+from ble_monitor.ble_parser.xiaomi import obj4851, obj4852, obj4e0c, obj4e0d, obj4e0e
 
 
 class TestXiaomi:
     """Tests for the Xiaomi parser"""
+
+    def test_obj4e0c_empty_payload(self):
+        """obj4e0c: empty payload is {} for every vulnerable device_type; XMWXKG01LM is unaffected."""
+        assert obj4e0c(b"", "XMWXKG01YL") == {}
+        assert obj4e0c(b"", "K9BB-1BTN") == {}
+        assert obj4e0c(b"", "PTX-F1-Display") == {}
+        assert obj4e0c(b"", "XMWXKG01LM") == {
+            "one btn switch": "toggle",
+            "button switch": "single press",
+        }
+
+    def test_obj4e0d_empty_payload(self):
+        """obj4e0d: empty payload is {} for every vulnerable device_type; XMWXKG01LM is unaffected."""
+        assert obj4e0d(b"", "XMWXKG01YL") == {}
+        assert obj4e0d(b"", "PTX-F1-Display") == {}
+        assert obj4e0d(b"", "XMWXKG01LM") == {
+            "one btn switch": "toggle",
+            "button switch": "double press",
+        }
+
+    def test_obj4e0e_empty_payload(self):
+        """obj4e0e: empty payload is {} for every vulnerable device_type; XMWXKG01LM is unaffected."""
+        assert obj4e0e(b"", "XMWXKG01YL") == {}
+        assert obj4e0e(b"", "PTX-F1-Display") == {}
+        assert obj4e0e(b"", "XMWXKG01LM") == {
+            "one btn switch": "toggle",
+            "button switch": "long press",
+        }
 
     def test_obj4851_valid_duration(self):
         """Test obj4851 parser with a valid 4-byte payload."""
