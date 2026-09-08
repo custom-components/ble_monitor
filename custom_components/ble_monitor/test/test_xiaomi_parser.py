@@ -3,9 +3,9 @@ import datetime
 
 from ble_monitor.ble_parser import BleParser
 from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
-                                           obj4e17, obj5a16, obj1001, obj3003,
-                                           obj4810, obj4850, obj4851, obj4852,
-                                           obj5010)
+                                           obj4e17, obj5a16, obj560c, obj560d,
+                                           obj560e, obj1001, obj3003, obj4810,
+                                           obj4850, obj4851, obj4852, obj5010)
 
 
 class TestXiaomi:
@@ -149,10 +149,6 @@ class TestXiaomi:
         assert obj4e17(bytes.fromhex("02")) == {}
         assert obj4e17(bytes.fromhex("01")) == {"bed occupancy": 0}
 
-    def test_obj5a16_unrecognized_event(self):
-        """obj5a16: unrecognized event is {}; recognized event is unchanged."""
-        assert obj5a16(bytes.fromhex("04")) == {}
-        assert obj5a16(bytes.fromhex("03")) == {"button": "double press"}
     def test_obj4810_unrecognized_sleep_state(self):
         """obj4810: unrecognized sleep_state is {}; recognized values are unchanged."""
         assert obj4810(bytes.fromhex("03")) == {}
@@ -164,6 +160,24 @@ class TestXiaomi:
         assert obj5010(bytes.fromhex("03")) == {}
         assert obj5010(bytes.fromhex("ff")) == {}
         assert obj5010(bytes.fromhex("01")) == {"sleeping": 1}
+
+    def test_obj5a16_unrecognized_event(self):
+        """obj5a16: unrecognized event is {}; recognized event is unchanged."""
+        assert obj5a16(bytes.fromhex("04")) == {}
+        assert obj5a16(bytes.fromhex("03")) == {"button": "double press"}
+
+    def test_obj560c_obj560d_obj560e_invalid_input(self):
+        """obj560c/obj560d/obj560e: unknown click and unsupported device_type return {};
+        a recognized click for KS1/KS1BP is unchanged."""
+        for fn, press in ((obj560c, "single press"), (obj560d, "double press"), (obj560e, "long press")):
+            assert fn(bytes.fromhex("00"), "KS1") == {}
+            assert fn(bytes.fromhex("01"), "SOME-UNKNOWN-DEVICE") == {}
+            assert fn(bytes.fromhex("01"), "KS1") == {
+                "four btn switch 1": "toggle", "button switch": press
+            }
+            assert fn(bytes.fromhex("01"), "KS1BP") == {
+                "four btn switch 1": "toggle", "button switch": press
+            }
 
     def test_Xiaomi_LYWSDCGQ(self):
         """Test Xiaomi parser for LYWSDCGQ."""
