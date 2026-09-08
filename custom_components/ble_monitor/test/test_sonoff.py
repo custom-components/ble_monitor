@@ -39,3 +39,25 @@ class TestSonoff:
         assert sensor_msg["six btn switch top left"] == "toggle"
         assert sensor_msg["button switch"] == "single press"
         assert sensor_msg["rssi"] == -82
+
+    def test_sonoff_too_short_returns_cleanly(self):
+        """A Sonoff advertisement shorter than the required payload must not raise."""
+        data_string = "043e2302010301112233445566170201021305ffffee1bc878f64a4690dd5ad9e71f4e4177ba"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg is None
+
+    def test_sonoff_unknown_device_type_returns_cleanly(self):
+        """An unrecognized Sonoff device type byte must not raise."""
+        data_string = "043e2b020103011122334455661f0201021b05ffffee1bc878f64a9990dd5ad9e71f4e4177f011694babb7fe68ba"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg is None
