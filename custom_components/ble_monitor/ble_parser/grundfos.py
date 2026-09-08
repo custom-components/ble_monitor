@@ -30,7 +30,7 @@ def parse_grundfos(self, data: str, mac: bytes):
     (packet, bat_status, pump_id, flow, press, pump_mode, temp) = unpack(
         "<BBHHhxBB", xvalue
     )
-    pump_mode = PUMP_MODE_DICT[pump_mode]
+    pump_mode = PUMP_MODE_DICT.get(pump_mode, f"Unknown ({pump_mode})")
 
     result = {
         "packet": packet,
