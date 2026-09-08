@@ -10,6 +10,8 @@ _LOGGER = logging.getLogger(__name__)
 def parse_michelin_tms(self, data: bytes, mac: bytes):
     """Parser for Michelin TMS."""
     msg_length = len(data)
+    if msg_length < 6:
+        return None
     device_type = "TMS"
     firmware = "TMS"
     result = {"firmware": firmware}
