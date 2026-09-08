@@ -113,7 +113,7 @@ def parse_govee(self, data: str, service_class_uuid16: int, local_name: str, mac
     ):
         if service_class_uuid16 == 0x5052:
             device_type = "H5052"
-        elif service_class_uuid16 == 5071:
+        elif service_class_uuid16 == 0x5071:
             device_type = "H5071"
         else:
             device_type = "H5051"
