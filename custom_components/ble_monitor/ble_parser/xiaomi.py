@@ -1218,7 +1218,7 @@ def obj4e16(xobj):
     if event == 1:
         return {"bed occupancy": 1}
     else:
-        return None
+        return {}
 
 
 def obj4e17(xobj):
@@ -1227,7 +1227,7 @@ def obj4e17(xobj):
     if event == 1:
         return {"bed occupancy": 0}
     else:
-        return None
+        return {}
 
 
 def obj4e1c(xobj):
@@ -1379,7 +1379,7 @@ def obj5a16(xobj):
     elif event == 3:
         return {"button": "double press"}
     else:
-        return None
+        return {}
 
 
 def obj6012(xobj):
