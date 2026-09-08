@@ -513,11 +513,11 @@ def obj1001(xobj, device_type):
             if three_btn_switch_right:
                 result["three btn switch right"] = three_btn_switch_right
         else:
-            return None
+            return {}
         return result
 
     else:
-        return None
+        return {}
 
 
 def obj1004(xobj):

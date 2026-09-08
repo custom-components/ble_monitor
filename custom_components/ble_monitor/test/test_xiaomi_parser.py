@@ -2,8 +2,8 @@
 import datetime
 
 from ble_monitor.ble_parser import BleParser
-from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj3003,
-                                           obj4850, obj4851, obj4852)
+from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj1001,
+                                           obj3003, obj4850, obj4851, obj4852)
 
 
 class TestXiaomi:
@@ -67,6 +67,20 @@ class TestXiaomi:
         """Test obj3003 parser does not crash on a truncated brushing payload."""
         assert obj3003(bytes.fromhex("00")) == {}
         assert obj3003(bytes.fromhex("0102030405")[:4]) == {}
+
+    def test_obj1001_invalid_input(self):
+        """obj1001: invalid length and unrecognized device_type return {} instead of None."""
+        assert obj1001(bytes.fromhex("0001"), "YLYK01YL") == {}
+        assert obj1001(bytes.fromhex("000102030405"), "YLYK01YL") == {}
+        assert obj1001(bytes.fromhex("000000"), "SOME-UNKNOWN-DEVICE") == {}
+
+    def test_obj1001_valid_payload(self):
+        """obj1001: a known valid payload still returns the existing result."""
+        assert obj1001(bytes.fromhex("000100"), "YLYK01YL") == {
+            "remote": "on",
+            "button": "single press",
+            "remote single press": 1,
+        }
 
     def test_Xiaomi_LYWSDCGQ(self):
         """Test Xiaomi parser for LYWSDCGQ."""
