@@ -3,7 +3,8 @@ import datetime
 
 from ble_monitor.ble_parser import BleParser
 from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj1001,
-                                           obj3003, obj4850, obj4851, obj4852)
+                                           obj3003, obj4850, obj4851, obj4852,
+                                           obj4e16, obj4e17, obj5a16)
 
 
 class TestXiaomi:
@@ -136,6 +137,21 @@ class TestXiaomi:
             "button": "single press",
             "remote single press": 1,
         }
+
+    def test_obj4e16_unrecognized_event(self):
+        """obj4e16: unrecognized event is {}; recognized event is unchanged."""
+        assert obj4e16(bytes.fromhex("02")) == {}
+        assert obj4e16(bytes.fromhex("01")) == {"bed occupancy": 1}
+
+    def test_obj4e17_unrecognized_event(self):
+        """obj4e17: unrecognized event is {}; recognized event is unchanged."""
+        assert obj4e17(bytes.fromhex("02")) == {}
+        assert obj4e17(bytes.fromhex("01")) == {"bed occupancy": 0}
+
+    def test_obj5a16_unrecognized_event(self):
+        """obj5a16: unrecognized event is {}; recognized event is unchanged."""
+        assert obj5a16(bytes.fromhex("04")) == {}
+        assert obj5a16(bytes.fromhex("03")) == {"button": "double press"}
 
     def test_Xiaomi_LYWSDCGQ(self):
         """Test Xiaomi parser for LYWSDCGQ."""
