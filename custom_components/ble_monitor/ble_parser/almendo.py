@@ -18,10 +18,14 @@ def parse_almendo(self, data: bytes, mac: bytes):
     if adstruct_type == 0xFF:
         comp_id = (data[3] << 8) | data[2]
         if comp_id == 0x06E8:
-            # version, device_type, device_model, hw_revistion,
-            # status_bits, sstatus_code
-            version, _, dmodel, _, _, _ = data[4:10]
-            if version == 1 and dmodel == 0x0A:
+            if len(data) < 10:
+                result = None
+            elif data[4] == 1 and data[6] == 0x0A and len(data) < 20:
+                result = None
+            elif data[4] == 1 and data[6] == 0x0A:
+                # version, device_type, device_model, hw_revistion,
+                # status_bits, sstatus_code
+                version, _, dmodel, _, _, _ = data[4:10]
                 # Almendo bluSensor V1 format (BSP02AIQ)
                 # sensor_state, temp, humi, co2e, tvoc, aiq
                 (_, temp, humi, co2e, tvoc, aqi) = unpack(

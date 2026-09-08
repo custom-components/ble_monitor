@@ -58,8 +58,13 @@ def parse_ruuvitag(self, data: bytes, mac: bytes):
         # version 3 and 5
         comp_id = (data[3] << 8) | data[2]
         if comp_id == 0x0499:
-            version = data[4]
-            if version == 3:
+            if len(data) < 5:
+                result = None
+            elif data[4] == 3 and len(data) < 18:
+                result = None
+            elif data[4] == 5 and len(data) < 22:
+                result = None
+            elif data[4] == 3:
                 # Ruuvitag V3 format
                 (version, humi, temp, frac, press, accx, accy, accz, volt) = struct.unpack(
                     ">BBbBHhhhH", data[4:18]
@@ -94,7 +99,7 @@ def parse_ruuvitag(self, data: bytes, mac: bytes):
                         "data": True,
                     }
                 )
-            elif version == 5:
+            elif data[4] == 5:
                 # Ruuvitag V5 format
                 (version, temp, humi, press, accx, accy, accz, power, move_cnt, packet_id) = struct.unpack(
                     ">BhHHhhhHBH", data[4:22]

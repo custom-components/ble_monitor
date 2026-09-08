@@ -23,3 +23,13 @@ class TestAlmendo:
         assert sensor_msg["aqi"] == 3
         assert sensor_msg["co2"] == 934
         assert sensor_msg["rssi"] == -52
+
+    def test_almendo_too_short_returns_cleanly(self):
+        """An Almendo advertisement shorter than the required payload must not raise."""
+        data_string = "043e21020103010eba64c4f5fc150201060effe806010a0a08011800fb09e511cc"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg is None

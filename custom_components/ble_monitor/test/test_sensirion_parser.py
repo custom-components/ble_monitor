@@ -38,3 +38,13 @@ class TestSensirion:
         assert sensor_msg["temperature"] == 27.47
         assert sensor_msg["humidity"] == 43.37
         assert sensor_msg["rssi"] == -71
+
+    def test_Sensirion_too_short_returns_cleanly(self):
+        """A Sensirion advertisement shorter than the required payload must not raise."""
+        data_string = "043e2b0d0113000135673cdceaf80100ff7fb00000000000000000001102010606ffd50600086706094d79434f32"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg is None
