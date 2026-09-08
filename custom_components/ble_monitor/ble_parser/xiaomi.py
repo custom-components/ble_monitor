@@ -1301,10 +1301,10 @@ def obj560c(xobj, device_type):
                 "button switch": "single press",
             }
         else:
-            result = None
+            result = {}
         return result
     else:
-        return None
+        return {}
 
 
 def obj560d(xobj, device_type):
@@ -1332,10 +1332,10 @@ def obj560d(xobj, device_type):
                 "button switch": "double press",
             }
         else:
-            result = None
+            result = {}
         return result
     else:
-        return None
+        return {}
 
 
 def obj560e(xobj, device_type):
@@ -1363,10 +1363,10 @@ def obj560e(xobj, device_type):
                 "button switch": "long press",
             }
         else:
-            result = None
+            result = {}
         return result
     else:
-        return None
+        return {}
 
 
 def obj5a16(xobj):

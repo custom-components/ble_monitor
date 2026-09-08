@@ -3,7 +3,8 @@ import datetime
 
 from ble_monitor.ble_parser import BleParser
 from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj1001,
-                                           obj3003, obj4850, obj4851, obj4852)
+                                           obj3003, obj4850, obj4851, obj4852,
+                                           obj560c, obj560d, obj560e)
 
 
 class TestXiaomi:
@@ -136,6 +137,19 @@ class TestXiaomi:
             "button": "single press",
             "remote single press": 1,
         }
+
+    def test_obj560c_obj560d_obj560e_invalid_input(self):
+        """obj560c/obj560d/obj560e: unknown click and unsupported device_type return {};
+        a recognized click for KS1/KS1BP is unchanged."""
+        for fn, press in ((obj560c, "single press"), (obj560d, "double press"), (obj560e, "long press")):
+            assert fn(bytes.fromhex("00"), "KS1") == {}
+            assert fn(bytes.fromhex("01"), "SOME-UNKNOWN-DEVICE") == {}
+            assert fn(bytes.fromhex("01"), "KS1") == {
+                "four btn switch 1": "toggle", "button switch": press
+            }
+            assert fn(bytes.fromhex("01"), "KS1BP") == {
+                "four btn switch 1": "toggle", "button switch": press
+            }
 
     def test_Xiaomi_LYWSDCGQ(self):
         """Test Xiaomi parser for LYWSDCGQ."""
