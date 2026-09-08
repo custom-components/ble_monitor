@@ -1190,6 +1190,21 @@ class TestBTHome:
         assert sensor_msg["text"] == "Hello World!"
         assert sensor_msg["rssi"] == -52
 
+    def test_bthome_v2_invalid_utf8_text(self):
+        """Test BTHome parser does not crash on a malformed (non-UTF-8) text measurement."""
+        # Same as test_bthome_v2_text, but the 12-byte "Hello World!" payload is
+        # replaced with 12 invalid UTF-8 bytes (0x80 is never a valid lead byte).
+        data_string = "043E2202010000A5808FE64854160201061216D2FC40530C808080808080808080808080CC"
+        data = bytes(bytearray.fromhex(data_string))
+
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        # No exception raised, and no bogus "text" measurement is produced: this
+        # advertisement only contains the malformed text object, so the result is None.
+        assert sensor_msg is None
+
     def test_bthome_v2_double_temperature(self):
         """Test BTHome parser for double temperature measurement, which isn't supported (yet)"""
         data_string = "043E1A02010000A5808FE648540E0201060A16D2FC40450101450301CC"

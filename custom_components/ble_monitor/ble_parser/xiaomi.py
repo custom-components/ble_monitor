@@ -690,7 +690,8 @@ def obj2000(xobj):
 def obj3003(xobj):
     """Brushing"""
     result = {}
-    print("brush %s", xobj.hex())
+    if len(xobj) < 5:
+        return result
     start_obj = xobj[0]
     if start_obj == 0:
         # Start of brushing
@@ -853,6 +854,9 @@ def obj484f(xobj):
 
 def obj4850(xobj):
     """Time in minutes with motion (not used, we use 484e)"""
+    if len(xobj) != 1:
+        return {}
+
     (motion_time,) = struct.unpack("<B", xobj)
     # minutes with motion (not used, we use motion timer in obj484e)
     return {"motion time": motion_time}

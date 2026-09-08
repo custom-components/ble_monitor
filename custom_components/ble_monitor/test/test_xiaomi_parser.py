@@ -2,7 +2,9 @@
 import datetime
 
 from ble_monitor.ble_parser import BleParser
-from ble_monitor.ble_parser.xiaomi import obj4851, obj4852, obj4e0c, obj4e0d, obj4e0e
+from ble_monitor.ble_parser.xiaomi import (
+  obj3003, obj4850, obj4851, obj4852, obj4e0c, obj4e0d, obj4e0e
+)
 
 
 class TestXiaomi:
@@ -35,6 +37,14 @@ class TestXiaomi:
             "one btn switch": "toggle",
             "button switch": "long press",
         }
+    def test_obj4850_valid_motion_time(self):
+        """Test obj4850 parser with a valid 1-byte payload."""
+        assert obj4850(bytes.fromhex("05")) == {"motion time": 5}
+
+    def test_obj4850_invalid_motion_time_length(self):
+        """Test obj4850 parser with malformed payload lengths."""
+        assert obj4850(bytes.fromhex("")) == {}
+        assert obj4850(bytes.fromhex("0500")) == {}
 
     def test_obj4851_valid_duration(self):
         """Test obj4851 parser with a valid 4-byte payload."""
@@ -53,6 +63,11 @@ class TestXiaomi:
         """Test obj4852 parser with malformed payload lengths."""
         assert obj4852(bytes.fromhex("0a0000")) == {}
         assert obj4852(bytes.fromhex("0a00000001")) == {}
+
+    def test_obj3003_truncated_payload(self):
+        """Test obj3003 parser does not crash on a truncated brushing payload."""
+        assert obj3003(bytes.fromhex("00")) == {}
+        assert obj3003(bytes.fromhex("0102030405")[:4]) == {}
 
     def test_Xiaomi_LYWSDCGQ(self):
         """Test Xiaomi parser for LYWSDCGQ."""
