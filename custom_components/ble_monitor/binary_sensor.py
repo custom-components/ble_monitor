@@ -336,8 +336,7 @@ class BaseBinarySensor(RestoreEntity, BinarySensorEntity):
         elif old_state.state == STATE_OFF:
             self._state = False
 
-        restore_attr = RESTORE_ATTRIBUTES
-        restore_attr.append('mac_address' if self.is_beacon else 'uuid')
+        restore_attr = RESTORE_ATTRIBUTES + ['mac_address' if self.is_beacon else 'uuid']
 
         for attr in restore_attr:
             if attr in old_state.attributes:

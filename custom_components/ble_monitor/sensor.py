@@ -541,8 +541,7 @@ class BaseSensor(RestoreSensor, SensorEntity):
 
         # Restore the old attributes
         last_state = await self.async_get_last_state()
-        restore_attr = RESTORE_ATTRIBUTES
-        restore_attr.append('mac_address' if self.is_beacon else 'uuid')
+        restore_attr = RESTORE_ATTRIBUTES + ['mac_address' if self.is_beacon else 'uuid']
 
         for attr in restore_attr:
             if attr in last_state.attributes:
