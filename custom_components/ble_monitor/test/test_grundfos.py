@@ -24,3 +24,13 @@ class TestGrundfos:
         assert sensor_msg["pump id"] == 38917
         assert sensor_msg["battery status"] == 3
         assert sensor_msg["rssi"] == -64
+
+    def test_grundfos_MI401_unknown_pump_mode(self):
+        """Test Grundfos parser does not crash on an undocumented pump mode byte."""
+        data_string = "043E2A020103009565F1164DAC1E06084D4934303116FF14F230017A03059884103E0F19FF0D0114FFFFFFFFC0"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["pump mode"] == "Unknown (255)"

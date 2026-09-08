@@ -690,7 +690,8 @@ def obj2000(xobj):
 def obj3003(xobj):
     """Brushing"""
     result = {}
-    print("brush %s", xobj.hex())
+    if len(xobj) < 5:
+        return result
     start_obj = xobj[0]
     if start_obj == 0:
         # Start of brushing

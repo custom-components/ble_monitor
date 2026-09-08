@@ -2,7 +2,7 @@
 import datetime
 
 from ble_monitor.ble_parser import BleParser
-from ble_monitor.ble_parser.xiaomi import obj4850, obj4851, obj4852
+from ble_monitor.ble_parser.xiaomi import obj3003, obj4850, obj4851, obj4852
 
 
 class TestXiaomi:
@@ -34,6 +34,11 @@ class TestXiaomi:
         """Test obj4852 parser with malformed payload lengths."""
         assert obj4852(bytes.fromhex("0a0000")) == {}
         assert obj4852(bytes.fromhex("0a00000001")) == {}
+
+    def test_obj3003_truncated_payload(self):
+        """Test obj3003 parser does not crash on a truncated brushing payload."""
+        assert obj3003(bytes.fromhex("00")) == {}
+        assert obj3003(bytes.fromhex("0102030405")[:4]) == {}
 
     def test_Xiaomi_LYWSDCGQ(self):
         """Test Xiaomi parser for LYWSDCGQ."""
