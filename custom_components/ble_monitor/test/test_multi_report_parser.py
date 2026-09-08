@@ -87,3 +87,59 @@ def test_hcidump_enqueues_all_reports_but_counts_one_raw_event():
 
     assert hcidump.evt_cnt == {0: 1}
     assert hcidump.dataqueue_meas.sync_q.put_nowait.call_count == 2
+
+
+def test_parser_exception_is_contained_and_sibling_report_still_parsed(monkeypatch):
+    """A raised exception in one report's parsing does not escape parse_raw_data_reports
+    and does not prevent a sibling report in the same batch from being parsed."""
+    parser = BleParser()
+    original_parse_single_report = parser._parse_single_report
+    calls = []
+
+    def flaky_parse_single_report(data):
+        calls.append(data)
+        if len(calls) == 1:
+            raise ValueError("simulated malformed advertisement crash")
+        return original_parse_single_report(data)
+
+    monkeypatch.setattr(parser, "_parse_single_report", flaky_parse_single_report)
+
+    # No exception propagates out of parse_raw_data_reports.
+    parsed = parser.parse_raw_data_reports(batch_reports(EXTENDED_ATC, EXTENDED_CUSTOM))
+
+    assert len(calls) == 2  # both reports in the batch were attempted
+    assert len(parsed) == 1  # only the surviving report is returned
+    assert parsed[0][0]["mac"] == "A4C13863378B"
+
+
+def test_hci_events_processing_survives_parser_exception(monkeypatch):
+    """process_hci_events (the aioblescan callback entry point) does not propagate a
+    parser exception, and the batch's other report is still enqueued."""
+    hcidump = HCIdump.__new__(HCIdump)
+    hcidump.ble_parser = BleParser()
+    hcidump._last_hci_activity = {}
+    hcidump.evt_cnt = {}
+    hcidump.dataqueue_bin = SimpleNamespace(sync_q=Mock())
+    hcidump.dataqueue_meas = SimpleNamespace(sync_q=Mock())
+    hcidump.dataqueue_tracker = SimpleNamespace(sync_q=Mock())
+
+    original_parse_single_report = hcidump.ble_parser._parse_single_report
+    calls = []
+
+    def flaky_parse_single_report(data):
+        calls.append(data)
+        if len(calls) == 1:
+            raise ValueError("simulated malformed advertisement crash")
+        return original_parse_single_report(data)
+
+    monkeypatch.setattr(
+        hcidump.ble_parser, "_parse_single_report", flaky_parse_single_report
+    )
+
+    # This call must not raise - it is what aioblescan's data_received invokes.
+    hcidump.process_hci_events(
+        batch_reports(EXTENDED_ATC, EXTENDED_CUSTOM), hci=0
+    )
+
+    assert len(calls) == 2
+    assert hcidump.dataqueue_meas.sync_q.put_nowait.call_count == 1
