@@ -1073,7 +1073,7 @@ def obj4e0c(xobj, device_type):
                 "button switch": "single press",
             }
         else:
-            result = None
+            result = {}
     else:
         result = {}
     return result
@@ -1127,7 +1127,7 @@ def obj4e0d(xobj, device_type):
                 "button switch": "double press",
             }
         else:
-            result = None
+            result = {}
     else:
         result = {}
     return result
@@ -1181,7 +1181,7 @@ def obj4e0e(xobj, device_type):
                 "button switch": "long press",
             }
         else:
-            result = None
+            result = {}
     else:
         result = {}
     return result
