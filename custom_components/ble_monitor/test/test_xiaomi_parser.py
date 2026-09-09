@@ -6,6 +6,9 @@ from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
                                            obj4e17, obj5a16, obj560c, obj560d,
                                            obj560e, obj1001, obj3003, obj4810,
                                            obj4850, obj4851, obj4852, obj5010)
+from ble_monitor.binary_sensor import BaseBinarySensor
+from ble_monitor.const import BINARY_SENSOR_TYPES, MEASUREMENT_DICT, SENSOR_TYPES
+from ble_monitor.sensor import StateChangedSensor
 
 
 class TestXiaomi:
@@ -691,6 +694,58 @@ class TestXiaomi:
         assert sensor_msg["toothbrush"] == 1
         assert sensor_msg["counter"] == 3
         assert sensor_msg["rssi"] == -36
+
+        # A subsequent real start advertisement from issue #319 increments the counter.
+        data_string = "043e2402010001115b174371e618020106141695fe7130890439115b174371e6091000020004cd"
+        data = bytes(bytearray.fromhex(data_string))
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["packet"] == 57
+        assert sensor_msg["toothbrush"] == 1
+        assert sensor_msg["counter"] == 4
+        assert sensor_msg["rssi"] == -51
+
+    def test_Xiaomi_M1S_T500_counter_entity(self):
+        """Test M1S-T500 standalone counter and legacy toothbrush attribute."""
+        assert "counter" in MEASUREMENT_DICT["M1S-T500"][1]
+
+        counter_description = next(
+            item for item in SENSOR_TYPES if item.key == "counter"
+        )
+        assert counter_description.sensor_class == "StateChangedSensor"
+        assert counter_description.native_unit_of_measurement is None
+
+        counter_sensor = StateChangedSensor.__new__(StateChangedSensor)
+        counter_sensor.entity_description = counter_description
+        counter_sensor._extra_state_attributes = {}
+        counter_sensor._state = None
+        counter_sensor._type = "mac"
+        counter_sensor.pending_update = False
+
+        toothbrush = BaseBinarySensor.__new__(BaseBinarySensor)
+        toothbrush.entity_description = next(
+            item for item in BINARY_SENSOR_TYPES if item.key == "toothbrush"
+        )
+        toothbrush._device_type = "M1S-T500"
+        toothbrush._extra_state_attributes = {}
+        toothbrush._newstate = None
+        toothbrush._type = "mac"
+
+        for packet, counter in ((55, 3), (57, 4)):
+            sensor_msg = {
+                "toothbrush": 1,
+                "counter": counter,
+                "packet": packet,
+                "rssi": -36,
+                "firmware": "Xiaomi (MiBeacon V3)",
+                "mac": "E67143175B11",
+                "type": "M1S-T500",
+            }
+            counter_sensor.collect(sensor_msg, period_cnt=0)
+            toothbrush.collect(sensor_msg)
+            assert counter_sensor._state == counter
+            assert counter_sensor.pending_update is True
+            assert toothbrush._extra_state_attributes["counter"] == counter
 
     def test_Xiaomi_T700(self):
         """Test Xiaomi parser for T700."""
