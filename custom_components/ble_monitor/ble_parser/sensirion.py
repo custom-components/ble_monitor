@@ -28,6 +28,9 @@ def parse_sensirion(self, data: bytes, complete_local_name: str, mac: bytes):
             )
         return None
 
+    if len(data) < 8:
+        return None
+
     # not all of the following values are used yet, but this explains the full protocol
     # bytes 1+2 (length and type) are part of the header
     advertisementLength = data[0]  # redundant
