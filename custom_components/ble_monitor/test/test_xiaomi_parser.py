@@ -6,6 +6,7 @@ from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
                                            obj4e17, obj5a16, obj560c, obj560d,
                                            obj560e, obj1001, obj3003, obj4810,
                                            obj4850, obj4851, obj4852, obj5010)
+from ble_monitor.const import MEASUREMENT_DICT, SENSOR_TYPES
 
 
 class TestXiaomi:
@@ -691,6 +692,26 @@ class TestXiaomi:
         assert sensor_msg["toothbrush"] == 1
         assert sensor_msg["counter"] == 3
         assert sensor_msg["rssi"] == -36
+
+    def test_Xiaomi_M1S_T500_consumable(self):
+        """Test a synthetic M1S-T500 consumable advertisement."""
+        # Synthetic MiBeacon V3 object 0x1013, length 1, value 90.
+        data_string = "043e2302010001115b174371e617020106131695fe713089043a115b174371e6091310015adc"
+        data = bytes(bytearray.fromhex(data_string))
+
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert "consumable" in MEASUREMENT_DICT["M1S-T500"][0]
+        assert any(sensor.key == "consumable" for sensor in SENSOR_TYPES)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
+        assert sensor_msg["type"] == "M1S-T500"
+        assert sensor_msg["mac"] == "E67143175B11"
+        assert sensor_msg["packet"] == 58
+        assert sensor_msg["data"]
+        assert sensor_msg["consumable"] == 90
+        assert sensor_msg["rssi"] == -36
+        assert tracker_msg is None
 
     def test_Xiaomi_T700(self):
         """Test Xiaomi parser for T700."""

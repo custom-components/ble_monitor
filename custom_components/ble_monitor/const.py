@@ -2083,7 +2083,7 @@ MEASUREMENT_DICT = {
     'MUE4094RT'               : [["rssi"], [], ["motion"]],
     'RTCGQ02LM'               : [["battery", "rssi"], ["button"], ["light", "motion"]],
     'MMC-T201-1'              : [["temperature", "battery", "rssi"], [], []],
-    'M1S-T500'                : [["score", "battery", "rssi"], [], ["toothbrush"]],
+    'M1S-T500'                : [["consumable", "score", "battery", "rssi"], [], ["toothbrush"]],
     'T700'                    : [["consumable", "score", "battery", "rssi"], [], ["toothbrush"]],
     'T700i'                   : [["consumable", "score", "battery", "rssi"], [], ["toothbrush"]],
     'ZNMS16LM'                : [["battery", "rssi"], [], ["lock", "door", "fingerprint", "armed away"]],
