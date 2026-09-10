@@ -4,9 +4,12 @@ import datetime
 from ble_monitor.ble_parser import BleParser
 from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
                                            obj4e17, obj5a16, obj560c, obj560d,
-                                           obj560e, obj1001, obj3003, obj4810,
-                                           obj4850, obj4851, obj4852, obj5010)
+                                           obj560e, obj1001, obj1017, obj3003,
+                                           obj4810, obj4850, obj4851, obj4852,
+                                           obj5010)
 from ble_monitor.const import MEASUREMENT_DICT, SENSOR_TYPES
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+from homeassistant.const import UnitOfTime
 
 
 class TestXiaomi:
@@ -567,6 +570,24 @@ class TestXiaomi:
 
     def test_Xiaomi_MJYD02YL(self):
         """Test Xiaomi parser for MJYD02YL."""
+        assert obj1017(bytes.fromhex("00000000")) == {
+            "motion": 1,
+            "no motion time": 0,
+        }
+        assert obj1017(bytes.fromhex("78000000")) == {
+            "motion": 0,
+            "no motion time": 120,
+        }
+
+        assert "no motion time" in MEASUREMENT_DICT["MJYD02YL"][1]
+        assert MEASUREMENT_DICT["MJYD02YL"][2] == ["light", "motion"]
+
+        sensor_description = next(
+            sensor for sensor in SENSOR_TYPES if sensor.key == "no motion time"
+        )
+        assert sensor_description.native_unit_of_measurement == UnitOfTime.SECONDS
+        assert sensor_description.device_class == SensorDeviceClass.DURATION
+        assert sensor_description.state_class == SensorStateClass.MEASUREMENT
 
     def test_Xiaomi_MJWSD06MMC(self):
         """Test Xiaomi parser for MJWSD06MMC with encryption."""
