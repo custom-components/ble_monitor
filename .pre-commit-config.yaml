@@ -15,16 +15,16 @@ repos:
       - id: trailing-whitespace
       - id: debug-statements
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
 -   repo: https://github.com/PyCQA/isort
-    rev: 6.0.1
+    rev: 9.0.1
     hooks:
       - id: isort
 -   repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: v2.4.3
     hooks:
       - id: codespell
         args: [--ignore-words=.ignore_words.txt]
