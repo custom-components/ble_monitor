@@ -2,6 +2,22 @@
 from ble_monitor.ble_parser import BleParser
 
 
+# Real Mi Scale V2 advertisements from
+# https://github.com/custom-components/ble_monitor/issues/1094
+ISSUE_1094_NON_STABILIZED = bytes.fromhex(
+    "043E3502010001C81555E346F12902010603021B1810161B180204B2070103131A130000AC49"
+    "06094D4942435309FF5701F146E35515C8B0"
+)
+ISSUE_1094_STABILIZED = bytes.fromhex(
+    "043E3502010001C81555E346F12902010603021B1810161B180226B2070103131A15E601604A"
+    "06094D4942435309FF5701F146E35515C8B6"
+)
+ISSUE_1094_WEIGHT_REMOVED = bytes.fromhex(
+    "043E3502010001C81555E346F12902010603021B1810161B1802A6B2070103131A15E601604A"
+    "06094D4942435309FF5701F146E35515C8B9"
+)
+
+
 class TestMiscale:
     """Tests for the MiScale parser"""
     def test_miscale_v1(self):
@@ -105,3 +121,50 @@ class TestMiscale:
         assert sensor_msg["stabilized"] == 1
         assert sensor_msg["impedance"] == 428
         assert sensor_msg["rssi"] == -66
+
+    def test_miscale_v2_first_stabilized_packet_and_duplicate(self):
+        """Test that the first stable packet is accepted and its repeat is ignored."""
+        ble_parser = BleParser(filter_duplicates=True)
+
+        sensor_msg, _ = ble_parser.parse_raw_data(ISSUE_1094_STABILIZED)
+        assert sensor_msg["weight"] == 95.2
+        assert sensor_msg["impedance"] == 486
+
+        sensor_msg, _ = ble_parser.parse_raw_data(ISSUE_1094_STABILIZED)
+        assert sensor_msg is None
+
+    def test_miscale_v2_duplicate_sequence(self):
+        """Test duplicate filtering with the real sequence from issue 1094."""
+        ble_parser = BleParser(filter_duplicates=True)
+
+        sensor_msg, _ = ble_parser.parse_raw_data(ISSUE_1094_NON_STABILIZED)
+        assert sensor_msg["non-stabilized weight"] == 94.3
+        assert "weight" not in sensor_msg
+
+        sensor_msg, _ = ble_parser.parse_raw_data(ISSUE_1094_STABILIZED)
+        assert sensor_msg["weight"] == 95.2
+        assert sensor_msg["impedance"] == 486
+
+        sensor_msg, _ = ble_parser.parse_raw_data(ISSUE_1094_STABILIZED)
+        assert sensor_msg is None
+
+        sensor_msg, _ = ble_parser.parse_raw_data(ISSUE_1094_WEIGHT_REMOVED)
+        assert sensor_msg["weight removed"] == 1
+        assert "weight" not in sensor_msg
+
+    def test_miscale_v2_same_measurement_different_timestamp(self):
+        """Test that timestamps distinguish otherwise identical measurements."""
+        # Create a protocol-valid synthetic variant of the real stable packet by
+        # changing only the timestamp's seconds byte.
+        second_timestamp = bytearray(ISSUE_1094_STABILIZED)
+        service_payload = bytes.fromhex("0226B2070103131A15E601604A")
+        payload_start = ISSUE_1094_STABILIZED.index(service_payload)
+        second_timestamp[payload_start + 8] = 0x16
+
+        ble_parser = BleParser(filter_duplicates=True)
+        first_msg, _ = ble_parser.parse_raw_data(ISSUE_1094_STABILIZED)
+        second_msg, _ = ble_parser.parse_raw_data(bytes(second_timestamp))
+
+        assert first_msg["weight"] == second_msg["weight"] == 95.2
+        assert first_msg["impedance"] == second_msg["impedance"] == 486
+        assert first_msg["packet"] != second_msg["packet"]
