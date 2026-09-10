@@ -1,7 +1,6 @@
 """The tests for the Mi Scale ble_parser."""
 from ble_monitor.ble_parser import BleParser
 
-
 # Real Mi Scale V1 advertisements from
 # https://github.com/custom-components/ble_monitor/issues/366
 ISSUE_366_STALE_WEIGHT_REMOVED = bytes.fromhex(
