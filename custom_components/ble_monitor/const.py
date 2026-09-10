@@ -13,7 +13,8 @@ from homeassistant.const import (LIGHT_LUX, PERCENTAGE,
                                  UnitOfConductivity, UnitOfDensity,
                                  UnitOfElectricPotential, UnitOfEnergy,
                                  UnitOfMass, UnitOfPower, UnitOfPressure,
-                                 UnitOfRatio, UnitOfTemperature, UnitOfVolume)
+                                 UnitOfRatio, UnitOfTemperature, UnitOfTime,
+                                 UnitOfVolume)
 from homeassistant.helpers.entity import EntityCategory
 
 DOMAIN = "ble_monitor"
@@ -1358,6 +1359,18 @@ SENSOR_TYPES: tuple[BLEMonitorSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     BLEMonitorSensorEntityDescription(
+        key="no motion time",
+        sensor_class="InstantUpdateSensor",
+        update_behavior="Instantly",
+        name="no motion time",
+        unique_id="no_motion_time_",
+        icon="mdi:motion-sensor-off",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
+        suggested_display_precision=0,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    BLEMonitorSensorEntityDescription(
         key="pressure present duration",
         sensor_class="InstantUpdateSensor",
         update_behavior="Instantly",
@@ -2079,7 +2092,7 @@ MEASUREMENT_DICT = {
     'YM-K1501'                : [["rssi"], ["temperature"], ["switch"]],
     'YM-K1501EU'              : [["rssi"], ["temperature"], ["switch"]],
     'V-SK152'                 : [["rssi"], ["temperature"], ["switch"]],
-    'MJYD02YL'                : [["battery", "rssi"], [], ["light", "motion"]],
+    'MJYD02YL'                : [["battery", "rssi"], ["no motion time"], ["light", "motion"]],
     'MUE4094RT'               : [["rssi"], [], ["motion"]],
     'RTCGQ02LM'               : [["battery", "rssi"], ["button"], ["light", "motion"]],
     'MMC-T201-1'              : [["temperature", "battery", "rssi"], [], []],
