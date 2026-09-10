@@ -2,6 +2,17 @@
 from ble_monitor.ble_parser import BleParser
 
 
+# Real Mi Scale V1 advertisements from
+# https://github.com/custom-components/ble_monitor/issues/366
+ISSUE_366_STALE_WEIGHT_REMOVED = bytes.fromhex(
+    "043E2B020100008995C08C47C81F02010603021D1809FF5701C8478CC095890D161D18A29844"
+    "E507051B162135C6"
+)
+ISSUE_366_LIVE_NON_STABILIZED = bytes.fromhex(
+    "043E2B020100008995C08C47C81F02010603021D1809FF5701C8478CC095890D161D18024844"
+    "E507051C110C09CC"
+)
+
 # Real Mi Scale V2 advertisements from
 # https://github.com/custom-components/ble_monitor/issues/1094
 ISSUE_1094_NON_STABILIZED = bytes.fromhex(
@@ -121,6 +132,22 @@ class TestMiscale:
         assert sensor_msg["stabilized"] == 1
         assert sensor_msg["impedance"] == 428
         assert sensor_msg["rssi"] == -66
+
+    def test_miscale_v1_stale_first_packet(self):
+        """Test that the stale first packet from issue 366 remains suppressed."""
+        ble_parser = BleParser(filter_duplicates=True)
+
+        sensor_msg, _ = ble_parser.parse_raw_data(ISSUE_366_STALE_WEIGHT_REMOVED)
+        assert sensor_msg is None
+
+        sensor_msg, _ = ble_parser.parse_raw_data(ISSUE_366_STALE_WEIGHT_REMOVED)
+        assert sensor_msg is None
+
+        sensor_msg, _ = ble_parser.parse_raw_data(ISSUE_366_LIVE_NON_STABILIZED)
+        assert sensor_msg["non-stabilized weight"] == 87.4
+        assert sensor_msg["stabilized"] == 0
+        assert sensor_msg["weight removed"] == 0
+        assert "weight" not in sensor_msg
 
     def test_miscale_v2_first_stabilized_packet_and_duplicate(self):
         """Test that the first stable packet is accepted and its repeat is ignored."""
