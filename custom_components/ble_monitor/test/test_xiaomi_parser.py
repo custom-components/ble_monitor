@@ -1,5 +1,7 @@
 """The tests for the Xiaomi ble_parser."""
 import datetime
+import os
+import time
 
 from ble_monitor.ble_parser import BleParser
 from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
@@ -128,6 +130,33 @@ class TestXiaomi:
         """Test obj3003 parser does not crash on a truncated brushing payload."""
         assert obj3003(bytes.fromhex("00")) == {}
         assert obj3003(bytes.fromhex("0102030405")[:4]) == {}
+
+    def test_obj3003_timestamps_are_utc(self):
+        """Test obj3003 timestamps are stable across host timezones."""
+        original_tz = os.environ.get("TZ")
+        expected_time = datetime.datetime(2023, 6, 29, 10, 50, 43)
+
+        try:
+            for timezone_name in ("UTC", "Europe/Brussels"):
+                os.environ["TZ"] = timezone_name
+                time.tzset()
+
+                assert obj3003(bytes.fromhex("0003629d6453")) == {
+                    "toothbrush": 1,
+                    "start time": expected_time,
+                    "score": 83,
+                }
+                assert obj3003(bytes.fromhex("0103629d6453")) == {
+                    "toothbrush": 0,
+                    "end time": expected_time,
+                    "score": 83,
+                }
+        finally:
+            if original_tz is None:
+                os.environ.pop("TZ", None)
+            else:
+                os.environ["TZ"] = original_tz
+            time.tzset()
 
     def test_obj1001_invalid_input(self):
         """obj1001: invalid length and unrecognized device_type return {} instead of None."""

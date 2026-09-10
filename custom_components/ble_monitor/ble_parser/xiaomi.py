@@ -2,6 +2,7 @@
 import logging
 import math
 import struct
+from datetime import timezone
 
 from Cryptodome.Cipher import AES
 from homeassistant.util import datetime
@@ -697,12 +698,16 @@ def obj3003(xobj):
         # Start of brushing
         result["toothbrush"] = 1
         start_time = struct.unpack('<L', xobj[1:5])[0]
-        result["start time"] = datetime.fromtimestamp(start_time)
+        result["start time"] = datetime.fromtimestamp(
+            start_time, tz=timezone.utc
+        ).replace(tzinfo=None)
     elif start_obj == 1:
         # End of brushing
         result["toothbrush"] = 0
         end_time = struct.unpack('<L', xobj[1:5])[0]
-        result["end time"] = datetime.fromtimestamp(end_time)
+        result["end time"] = datetime.fromtimestamp(
+            end_time, tz=timezone.utc
+        ).replace(tzinfo=None)
 
     if len(xobj) == 6:
         result["score"] = xobj[5]
