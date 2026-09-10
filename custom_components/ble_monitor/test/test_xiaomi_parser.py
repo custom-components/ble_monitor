@@ -4,8 +4,9 @@ import datetime
 from ble_monitor.ble_parser import BleParser
 from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
                                            obj4e17, obj5a16, obj560c, obj560d,
-                                           obj560e, obj1001, obj3003, obj4810,
-                                           obj4850, obj4851, obj4852, obj5010)
+                                           obj560e, obj1001, obj1019, obj3003,
+                                           obj4810, obj4850, obj4851, obj4852,
+                                           obj5010)
 from ble_monitor.const import MEASUREMENT_DICT, SENSOR_TYPES
 
 
@@ -477,6 +478,18 @@ class TestXiaomi:
 
     def test_Xiaomi_MCCGQ02HL(self):
         """Test Xiaomi parser for MCCGQ02HL."""
+        assert obj1019(bytes([0])) == {"opening": 1, "status": "opened"}
+        assert obj1019(bytes([1])) == {"opening": 0, "status": "closed"}
+        assert obj1019(bytes([2])) == {
+            "opening": 1,
+            "status": "closing timeout",
+        }
+        assert obj1019(bytes([3])) == {
+            "opening": 1,
+            "status": "device reset",
+        }
+        assert obj1019(bytes([4])) == {}
+        assert obj1019(bytes([255])) == {}
 
     def test_Xiaomi_CGH1(self):
         """Test Xiaomi parser for CGH1."""
