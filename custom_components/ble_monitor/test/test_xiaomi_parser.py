@@ -1,13 +1,14 @@
 """The tests for the Xiaomi ble_parser."""
 import datetime
 
+from ble_monitor.binary_sensor import BaseBinarySensor
 from ble_monitor.ble_parser import BleParser
 from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
                                            obj4e17, obj5a16, obj560c, obj560d,
                                            obj560e, obj1001, obj3003, obj4810,
                                            obj4850, obj4851, obj4852, obj5010)
-from ble_monitor.binary_sensor import BaseBinarySensor
-from ble_monitor.const import BINARY_SENSOR_TYPES, MEASUREMENT_DICT, SENSOR_TYPES
+from ble_monitor.const import (BINARY_SENSOR_TYPES, MEASUREMENT_DICT,
+                               SENSOR_TYPES)
 from ble_monitor.sensor import StateChangedSensor
 
 
