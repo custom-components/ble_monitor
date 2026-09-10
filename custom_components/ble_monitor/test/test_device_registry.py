@@ -2,9 +2,8 @@
 
 from unittest.mock import Mock
 
-from homeassistant.helpers import device_registry as dr
-
 from ble_monitor.const import DOMAIN
+from homeassistant.helpers import device_registry as dr
 
 
 def test_identifier_lookup_is_scoped_to_config_entry():
