@@ -630,8 +630,7 @@ def obj1019(xobj):
         opening = 1
         status = "device reset"
     else:
-        opening = 0
-        status = None
+        return {}
     return {"opening": opening, "status": status}
 
 
