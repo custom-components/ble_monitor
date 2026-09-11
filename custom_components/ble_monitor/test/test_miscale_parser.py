@@ -1,5 +1,10 @@
 """The tests for the Mi Scale ble_parser."""
+from types import SimpleNamespace
+
+from ble_monitor.binary_sensor import BaseBinarySensor
 from ble_monitor.ble_parser import BleParser
+from ble_monitor.const import BINARY_SENSOR_TYPES, MEASUREMENT_DICT
+from ble_monitor.sensor import WeightSensor
 
 # Real Mi Scale V1 advertisements from
 # https://github.com/custom-components/ble_monitor/issues/366
@@ -49,6 +54,17 @@ class TestMiscale:
         assert sensor_msg["weight removed"] == 1
         assert sensor_msg["stabilized"] == 1
         assert sensor_msg["rssi"] == -59
+
+        weight_removed_sensor = BaseBinarySensor.__new__(BaseBinarySensor)
+        weight_removed_sensor._type = "mac"
+        weight_removed_sensor._device_type = "Mi Scale V1"
+        weight_removed_sensor.entity_description = SimpleNamespace(
+            key="weight removed"
+        )
+        weight_removed_sensor._extra_state_attributes = {}
+        weight_removed_sensor.collect(sensor_msg)
+        assert weight_removed_sensor._newstate == 1
+        assert weight_removed_sensor._extra_state_attributes["weight"] == 87.2
 
     def test_miscale_v1_ext(self):
         """Test Mi Scale v1 parser (extended advertisement)."""
@@ -129,8 +145,36 @@ class TestMiscale:
         assert sensor_msg["weight unit"] == "kg"
         assert sensor_msg["weight removed"] == 0
         assert sensor_msg["stabilized"] == 1
+        assert sensor_msg["stabilized weight"] == 85.15
+        assert sensor_msg["weight"] == 85.15
         assert sensor_msg["impedance"] == 428
         assert sensor_msg["rssi"] == -66
+
+        weight_sensor = WeightSensor.__new__(WeightSensor)
+        weight_sensor._type = "mac"
+        weight_sensor.entity_description = SimpleNamespace(
+            key="non-stabilized weight"
+        )
+        weight_sensor._extra_state_attributes = {}
+        weight_sensor.pending_update = False
+        weight_sensor.collect(sensor_msg, period_cnt=0)
+        assert weight_sensor._extra_state_attributes["stabilized"] is True
+
+    def test_miscale_stabilized_binary_sensor_mapping(self):
+        """Test Mi Scale V1 and V2 expose the parsed stabilization flag."""
+        for device_type in ("Mi Scale V1", "Mi Scale V2"):
+            assert MEASUREMENT_DICT[device_type][2] == [
+                "weight removed",
+                "stabilized",
+            ]
+
+        description = next(
+            item for item in BINARY_SENSOR_TYPES if item.key == "stabilized"
+        )
+        assert description.sensor_class == "BaseBinarySensor"
+        assert description.update_behavior == "Instantly"
+        assert description.unique_id == "stabilized_"
+        assert description.device_class is None
 
     def test_miscale_v1_stale_first_packet(self):
         """Test that the stale first packet from issue 366 remains suppressed."""

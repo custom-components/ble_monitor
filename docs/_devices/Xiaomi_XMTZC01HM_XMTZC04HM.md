@@ -7,6 +7,7 @@ physical_description:
 broadcasted_properties:
   - weight
   - non-stabilized weight
+  - stabilized
   - weight removed
   - rssi
 broadcasted_property_notes:
@@ -14,6 +15,8 @@ broadcasted_property_notes:
     note: is only reported after the scale is stabilized
   - property: non-stabilized weight
     note: is reporting all weight measurements
+  - property: stabilized
+    note: reports the stabilization flag transmitted by the scale
 broadcast_rate:
 active_scan:
 encryption_key:
