@@ -69,7 +69,7 @@ async def async_setup_entry(hass, config_entry, add_entities):
     """Set up the measuring sensor entry."""
     _LOGGER.debug("Starting measuring sensor entry startup")
     blemonitor = hass.data[DOMAIN]["blemonitor"]
-    bleupdater = BLEupdater(blemonitor, add_entities)
+    bleupdater = BLEupdater(blemonitor, add_entities, config_entry.entry_id)
     hass.loop.create_task(bleupdater.async_run(hass))
     _LOGGER.debug("Measuring sensor entry setup finished")
     # Return successful setup
@@ -80,12 +80,13 @@ async def async_setup_entry(hass, config_entry, add_entities):
 class BLEupdater:
     """BLE monitor entities updater."""
 
-    def __init__(self, blemonitor, add_entities):
+    def __init__(self, blemonitor, add_entities, config_entry_id):
         """Initiate BLE updater."""
         _LOGGER.debug("BLE sensors updater initialization")
         self.monitor = blemonitor
         self.dataqueue = blemonitor.dataqueue["measuring"].async_q
         self.config = blemonitor.config
+        self.config_entry_id = config_entry_id
         self.period = self.config[CONF_PERIOD]
         self.add_entities = add_entities
         _LOGGER.debug("BLE sensors updater initialized")
@@ -159,7 +160,9 @@ class BLEupdater:
             for device in self.config[CONF_DEVICES]:
                 # get device_model and firmware from device registry to setup sensor
                 key = dict_get_or(device)
-                dev = dev_registry.async_get_device({(DOMAIN, key.upper())}, set())
+                dev = dev_registry.async_get_device_by_identifier(
+                    (DOMAIN, key.upper()), self.config_entry_id
+                )
                 auto_sensors = set()
                 if dev:
                     key = identifier_clean(key)

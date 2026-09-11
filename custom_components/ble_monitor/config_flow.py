@@ -282,7 +282,9 @@ class BLEMonitorFlow(FlowHandler):
 
                 conf_key = dict_get_key_or(self._sel_device)
                 key = dict_get_or(self._sel_device).upper()
-                device = devreg.async_get_device({(DOMAIN, key)}, set())
+                device = devreg.async_get_device_by_identifier(
+                    (DOMAIN, key), self.config_entry.entry_id
+                )
                 if device is None:
                     errors[conf_key] = "cannot_delete_device"
                 else:
