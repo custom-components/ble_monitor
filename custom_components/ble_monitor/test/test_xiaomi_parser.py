@@ -6,10 +6,10 @@ import time
 from ble_monitor.binary_sensor import BaseBinarySensor
 from ble_monitor.ble_parser import BleParser
 from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
-                                           obj4e17, obj5a16, obj560c, obj560d,
-                                           obj560e, obj1001, obj1017, obj3003,
-                                           obj4810, obj4850, obj4851, obj4852,
-                                           obj5010)
+                                           obj4e17, obj5a16, obj0010, obj560c,
+                                           obj560d, obj560e, obj1001, obj1017,
+                                           obj3003, obj4810, obj4850, obj4851,
+                                           obj4852, obj5010)
 from ble_monitor.const import (BINARY_SENSOR_TYPES, MEASUREMENT_DICT,
                                SENSOR_TYPES)
 from ble_monitor.sensor import StateChangedSensor
@@ -19,6 +19,20 @@ from homeassistant.const import UnitOfTime
 
 class TestXiaomi:
     """Tests for the Xiaomi parser"""
+
+    def test_obj0010_toothbrush_events(self):
+        """Only documented start and end events produce toothbrush data."""
+        assert obj0010(b"\x00") == {"toothbrush": 1}
+        assert obj0010(b"\x00\x03") == {"toothbrush": 1, "counter": 3}
+        assert obj0010(b"\x01") == {"toothbrush": 0}
+        assert obj0010(b"\x01\x63") == {"toothbrush": 0, "score": 99}
+        assert obj0010(b"\x02") == {}
+        assert obj0010(b"\x02\x63") == {}
+        assert obj0010(b"\xff\x63") == {}
+
+        # Additional bytes remain tolerated for valid events.
+        assert obj0010(b"\x00\x03\xaa") == {"toothbrush": 1, "counter": 3}
+        assert obj0010(b"\x01\x63\xaa") == {"toothbrush": 0, "score": 99}
 
     def test_obj4e0c_ptx_f1_display_click(self):
         """obj4e0c PTX-F1-Display: unrecognized click is {}; recognized clicks are unchanged."""

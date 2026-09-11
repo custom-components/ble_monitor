@@ -265,11 +265,13 @@ def obj0010(xobj):
             return {'toothbrush': 1}
         else:
             return {'toothbrush': 1, 'counter': xobj[1]}
-    else:
+    elif xobj[0] == 1:
         if len(xobj) == 1:
             return {'toothbrush': 0}
         else:
             return {'toothbrush': 0, 'score': xobj[1]}
+    else:
+        return {}
 
 
 def obj000a(xobj):
