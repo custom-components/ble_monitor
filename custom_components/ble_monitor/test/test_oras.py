@@ -1,5 +1,12 @@
 """The tests for the Oras ble_parser."""
+import pytest
 from ble_monitor.ble_parser import BleParser
+from ble_monitor.ble_parser.oras import parse_oras
+
+GARNET_PAYLOAD = bytes.fromhex("11ff31010c464e0120373130303030303030")
+GARNET_MAC = bytes.fromhex("a4c138a5b9ad")
+ORAS_PAYLOAD = bytes.fromhex("15ff3101006400323131313030373933350020202020")
+ORAS_MAC = bytes.fromhex("a4c1380f06da")
 
 
 class TestOras:
@@ -19,6 +26,23 @@ class TestOras:
         assert sensor_msg["data"]
         assert sensor_msg["battery"] == 100
         assert sensor_msg["rssi"] == -52
+
+    def test_oras_empty_battery(self):
+        """Test Oras parser accepts an empty battery."""
+        data = bytearray(ORAS_PAYLOAD)
+        data[5] = 0
+
+        sensor_msg = parse_oras(BleParser(), bytes(data), ORAS_MAC)
+
+        assert sensor_msg["battery"] == 0
+
+    @pytest.mark.parametrize("battery", [101, 255])
+    def test_oras_invalid_battery(self, battery):
+        """Test invalid Oras battery percentages are ignored."""
+        data = bytearray(ORAS_PAYLOAD)
+        data[5] = battery
+
+        assert parse_oras(BleParser(), bytes(data), ORAS_MAC) is None
 
     def test_garnet_battery(self):
         """Test Oras parser for Garnet 709BT battery sensor."""
@@ -53,3 +77,20 @@ class TestOras:
         assert sensor_msg["black tank"] == 71
         assert sensor_msg["problem"] == 0
         assert sensor_msg["rssi"] == -52
+
+    @pytest.mark.parametrize(
+        ("index", "value"),
+        [
+            (7, 14),
+            (8, 0xFF),
+            (11, 0xFF),
+            (14, 0xFF),
+            (17, ord("X")),
+        ],
+    )
+    def test_garnet_invalid_fields(self, index, value):
+        """Test malformed Garnet fields are ignored."""
+        data = bytearray(GARNET_PAYLOAD)
+        data[index] = value
+
+        assert parse_oras(BleParser(), bytes(data), GARNET_MAC) is None

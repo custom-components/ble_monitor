@@ -144,6 +144,7 @@ def decrypt_atc(self, data, atc_mac):
         key = self.aeskeys[atc_mac]
         if len(key) != 16:
             _LOGGER.error("Encryption key should be 16 bytes (32 characters) long")
+            return None
     except KeyError:
         # no encryption key found
         _LOGGER.error("No encryption key found for ATC device with MAC: %s", to_mac(atc_mac))

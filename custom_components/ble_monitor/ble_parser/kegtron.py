@@ -56,7 +56,7 @@ def parse_kegtron(self, data: bytes, mac: bytes):
         else:
             port_count = "Single port device"
 
-        port_name = str(port_name.decode("utf-8").rstrip('\x00'))
+        port_name = str(port_name.decode("utf-8", errors="replace").rstrip('\x00'))
 
         result = {
             "keg size": keg_size,
