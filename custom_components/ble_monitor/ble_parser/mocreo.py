@@ -100,7 +100,8 @@ def _get_value(source, pos):
 
 def parse_mocreo(self, data: bytes, local_name: str, mac: bytes):
     """Parser for MOCREO sensors"""
-    if data[0] == 0x11 and data[1] == 0xff and data[2] == 0x4a:
+    st7_format = data[0] == 0x11 and data[1] == 0xff and data[2] == 0x4a
+    if st7_format:
         common_data = data[9:]  #Mocreo's oddball ST7 format
     else:
         common_data = data[2:] #Mocreo's "normal" format
@@ -108,6 +109,8 @@ def parse_mocreo(self, data: bytes, local_name: str, mac: bytes):
     result = {"firmware": firmware}
 
     device_type = _get_value(common_data, COMMON_DATA_PARSING_FORMAT["device_type"])
+    if st7_format and device_type != 0x10:
+        return None
     version = _get_value(common_data, COMMON_DATA_PARSING_FORMAT["version"])
     battery = _get_value(common_data, COMMON_DATA_PARSING_FORMAT["battery_percentage"])
 

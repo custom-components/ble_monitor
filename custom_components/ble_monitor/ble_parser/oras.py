@@ -33,15 +33,16 @@ def parse_oras(self, data: bytes, mac: bytes):
         device_type = "SeeLevel II 709-BTP3"
 
         sensor_id = data[7]
-        try:
-            sensor_type = SENSOR_TYPE[sensor_id]
-        except ValueError:
+        sensor_type = SENSOR_TYPE.get(sensor_id)
+        if sensor_type is None:
             return None
 
         try:
-            sensor_data = int(data[8:11].decode("ASCII"))
-        except ValueError:
             error_code = data[8:11].decode("ASCII")
+            sensor_data = int(error_code)
+        except UnicodeDecodeError:
+            return None
+        except ValueError:
             _LOGGER.error(
                 "Garnet SeeLevel II 709-BTP3 is reporting error %s for sensor %s",
                 error_code,
@@ -52,9 +53,12 @@ def parse_oras(self, data: bytes, mac: bytes):
         if sensor_id == 13:
             sensor_data /= 10
 
-        sensor_volume = data[11:14].decode("ASCII")
-        sensor_total = data[14:17].decode("ASCII")
-        sensor_alarm = int(chr(data[17]))
+        try:
+            sensor_volume = data[11:14].decode("ASCII")
+            sensor_total = data[14:17].decode("ASCII")
+            sensor_alarm = int(chr(data[17]))
+        except (UnicodeDecodeError, ValueError):
+            return None
 
         result.update({
             sensor_type: sensor_data,
@@ -71,6 +75,8 @@ def parse_oras(self, data: bytes, mac: bytes):
         firmware = "Oras"
         device_type = "Electra Washbasin Faucet"
         battery = data[5]
+        if battery > 100:
+            return None
         result.update({"battery": battery})
     else:
         if self.report_unknown in ["Oras", "Garnet"]:
