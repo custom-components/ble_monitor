@@ -2,10 +2,37 @@
 import datetime
 
 from ble_monitor.ble_parser import BleParser
+from ble_monitor.ble_parser.mocreo import parse_mocreo
 
 
 class TestMOCREO:
     """Tests for the MOCREO parser"""
+
+    def test_MOCREO_ST7(self):
+        """Test the special MOCREO ST7 layout with a synthetic valid payload."""
+        data = bytes.fromhex("11ff4a000000000000001000006492090000")
+
+        sensor_msg = parse_mocreo(
+            None, data, "ST7", bytes.fromhex("30aea400aabb")
+        )
+
+        assert sensor_msg == {
+            "firmware": "MOCREO",
+            "temperature": 24.5,
+            "battery": 100,
+            "data": True,
+            "mac": "30AEA400AABB",
+            "type": "ST7",
+            "packet": "no packet id",
+        }
+
+    def test_MOCREO_ST7_rejects_cross_format_device_type(self):
+        """A short ST7-layout payload cannot be interpreted as an SD1 packet."""
+        data = bytes.fromhex("11ff4a000000000000009500000000000000")
+
+        assert parse_mocreo(
+            None, data, "ST7", bytes.fromhex("30aea400aabb")
+        ) is None
 
     def test_MOCREO_ST5(self):
         """Test MOCREO parser for ST5."""

@@ -100,10 +100,14 @@ def parse_miscale(self, data: bytes, mac: bytes):
         if self.filter_duplicates is True:
             return None
     self.lpacket_ids[mac] = packet_id
-    if prev_packet is None:
-        if self.filter_duplicates is True:
-            # ignore first message after a restart
-            return None
+    if (
+        prev_packet is None
+        and self.filter_duplicates is True
+        and is_stabilized
+        and weight_removed
+    ):
+        # Ignore a stale, removed measurement when the scale wakes after a restart
+        return None
 
     result.update({
         "type": device_type,

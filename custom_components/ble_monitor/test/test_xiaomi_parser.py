@@ -1,12 +1,20 @@
 """The tests for the Xiaomi ble_parser."""
 import datetime
+import os
+import time
 
+from ble_monitor.binary_sensor import BaseBinarySensor
 from ble_monitor.ble_parser import BleParser
 from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
                                            obj4e17, obj5a16, obj0010, obj560c,
-                                           obj560d, obj560e, obj1001, obj3003,
-                                           obj4810, obj4850, obj4851, obj4852,
-                                           obj5010)
+                                           obj560d, obj560e, obj1001, obj1017,
+                                           obj3003, obj4810, obj4850, obj4851,
+                                           obj4852, obj5010)
+from ble_monitor.const import (BINARY_SENSOR_TYPES, MEASUREMENT_DICT,
+                               SENSOR_TYPES)
+from ble_monitor.sensor import StateChangedSensor
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+from homeassistant.const import UnitOfTime
 
 
 class TestXiaomi:
@@ -139,6 +147,33 @@ class TestXiaomi:
         """Test obj3003 parser does not crash on a truncated brushing payload."""
         assert obj3003(bytes.fromhex("00")) == {}
         assert obj3003(bytes.fromhex("0102030405")[:4]) == {}
+
+    def test_obj3003_timestamps_are_utc(self):
+        """Test obj3003 timestamps are stable across host timezones."""
+        original_tz = os.environ.get("TZ")
+        expected_time = datetime.datetime(2023, 6, 29, 10, 50, 43)
+
+        try:
+            for timezone_name in ("UTC", "Europe/Brussels"):
+                os.environ["TZ"] = timezone_name
+                time.tzset()
+
+                assert obj3003(bytes.fromhex("0003629d6453")) == {
+                    "toothbrush": 1,
+                    "start time": expected_time,
+                    "score": 83,
+                }
+                assert obj3003(bytes.fromhex("0103629d6453")) == {
+                    "toothbrush": 0,
+                    "end time": expected_time,
+                    "score": 83,
+                }
+        finally:
+            if original_tz is None:
+                os.environ.pop("TZ", None)
+            else:
+                os.environ["TZ"] = original_tz
+            time.tzset()
 
     def test_obj1001_invalid_input(self):
         """obj1001: invalid length and unrecognized device_type return {} instead of None."""
@@ -581,6 +616,24 @@ class TestXiaomi:
 
     def test_Xiaomi_MJYD02YL(self):
         """Test Xiaomi parser for MJYD02YL."""
+        assert obj1017(bytes.fromhex("00000000")) == {
+            "motion": 1,
+            "no motion time": 0,
+        }
+        assert obj1017(bytes.fromhex("78000000")) == {
+            "motion": 0,
+            "no motion time": 120,
+        }
+
+        assert "no motion time" in MEASUREMENT_DICT["MJYD02YL"][1]
+        assert MEASUREMENT_DICT["MJYD02YL"][2] == ["light", "motion"]
+
+        sensor_description = next(
+            sensor for sensor in SENSOR_TYPES if sensor.key == "no motion time"
+        )
+        assert sensor_description.native_unit_of_measurement == UnitOfTime.SECONDS
+        assert sensor_description.device_class == SensorDeviceClass.DURATION
+        assert sensor_description.state_class == SensorStateClass.MEASUREMENT
 
     def test_Xiaomi_MJWSD06MMC(self):
         """Test Xiaomi parser for MJWSD06MMC with encryption."""
@@ -706,6 +759,78 @@ class TestXiaomi:
         assert sensor_msg["toothbrush"] == 1
         assert sensor_msg["counter"] == 3
         assert sensor_msg["rssi"] == -36
+
+        # A subsequent real start advertisement from issue #319 increments the counter.
+        data_string = "043e2402010001115b174371e618020106141695fe7130890439115b174371e6091000020004cd"
+        data = bytes(bytearray.fromhex(data_string))
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["packet"] == 57
+        assert sensor_msg["toothbrush"] == 1
+        assert sensor_msg["counter"] == 4
+        assert sensor_msg["rssi"] == -51
+
+    def test_Xiaomi_M1S_T500_counter_entity(self):
+        """Test M1S-T500 standalone counter and legacy toothbrush attribute."""
+        assert "counter" in MEASUREMENT_DICT["M1S-T500"][1]
+
+        counter_description = next(
+            item for item in SENSOR_TYPES if item.key == "counter"
+        )
+        assert counter_description.sensor_class == "StateChangedSensor"
+        assert counter_description.native_unit_of_measurement is None
+
+        counter_sensor = StateChangedSensor.__new__(StateChangedSensor)
+        counter_sensor.entity_description = counter_description
+        counter_sensor._extra_state_attributes = {}
+        counter_sensor._state = None
+        counter_sensor._type = "mac"
+        counter_sensor.pending_update = False
+
+        toothbrush = BaseBinarySensor.__new__(BaseBinarySensor)
+        toothbrush.entity_description = next(
+            item for item in BINARY_SENSOR_TYPES if item.key == "toothbrush"
+        )
+        toothbrush._device_type = "M1S-T500"
+        toothbrush._extra_state_attributes = {}
+        toothbrush._newstate = None
+        toothbrush._type = "mac"
+
+        for packet, counter in ((55, 3), (57, 4)):
+            sensor_msg = {
+                "toothbrush": 1,
+                "counter": counter,
+                "packet": packet,
+                "rssi": -36,
+                "firmware": "Xiaomi (MiBeacon V3)",
+                "mac": "E67143175B11",
+                "type": "M1S-T500",
+            }
+            counter_sensor.collect(sensor_msg, period_cnt=0)
+            toothbrush.collect(sensor_msg)
+            assert counter_sensor._state == counter
+            assert counter_sensor.pending_update is True
+            assert toothbrush._extra_state_attributes["counter"] == counter
+
+    def test_Xiaomi_M1S_T500_consumable(self):
+        """Test a synthetic M1S-T500 consumable advertisement."""
+        # Synthetic MiBeacon V3 object 0x1013, length 1, value 90.
+        data_string = "043e2302010001115b174371e617020106131695fe713089043a115b174371e6091310015adc"
+        data = bytes(bytearray.fromhex(data_string))
+
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert "consumable" in MEASUREMENT_DICT["M1S-T500"][0]
+        assert any(sensor.key == "consumable" for sensor in SENSOR_TYPES)
+        assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V3)"
+        assert sensor_msg["type"] == "M1S-T500"
+        assert sensor_msg["mac"] == "E67143175B11"
+        assert sensor_msg["packet"] == 58
+        assert sensor_msg["data"]
+        assert sensor_msg["consumable"] == 90
+        assert sensor_msg["rssi"] == -36
+        assert tracker_msg is None
 
     def test_Xiaomi_T700(self):
         """Test Xiaomi parser for T700."""

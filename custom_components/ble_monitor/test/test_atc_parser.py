@@ -1,5 +1,11 @@
 """The tests for the ATC ble_parser."""
+import pytest
 from ble_monitor.ble_parser import BleParser
+from ble_monitor.ble_parser.atc import decrypt_atc
+
+ATC_ENCRYPTED_DATA = bytes.fromhex("0e161a1811d603fbfa7b6dfb1e26fd")
+ATC_MAC = bytes.fromhex("a4c1388d18b2")
+ATC_KEY = bytes.fromhex("b9ea895fac7eea6d30532432a516f3a3")
 
 
 class TestATC:
@@ -148,3 +154,28 @@ class TestATC:
         assert sensor_msg["voltage"] == 2.749
         assert sensor_msg["battery"] == 61
         assert sensor_msg["rssi"] == -30
+
+    def test_decrypt_atc_valid_key(self):
+        """Test valid ATC encryption key decrypts as before."""
+        ble_parser = BleParser(aeskeys={ATC_MAC: ATC_KEY})
+
+        assert decrypt_atc(ble_parser, ATC_ENCRYPTED_DATA, ATC_MAC) == b")\tM\x10=\x04"
+
+    @pytest.mark.parametrize("key_length", [0, 12, 15, 17])
+    def test_decrypt_atc_invalid_key_length(self, key_length):
+        """Test invalid ATC encryption key lengths are rejected."""
+        ble_parser = BleParser(aeskeys={ATC_MAC: bytes(key_length)})
+
+        assert decrypt_atc(ble_parser, ATC_ENCRYPTED_DATA, ATC_MAC) is None
+
+    def test_atc_invalid_key_length(self):
+        """Test an invalid key produces no decrypted ATC measurement."""
+        data = bytes.fromhex(
+            "043e1b02010000b2188d38c1a40f0e161a1811d603fbfa7b6dfb1e26fde2"
+        )
+        ble_parser = BleParser(aeskeys={ATC_MAC: bytes(12)})
+
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["data"] is False
+        assert "temperature" not in sensor_msg
