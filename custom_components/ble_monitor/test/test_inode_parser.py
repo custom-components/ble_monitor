@@ -1,5 +1,8 @@
 """The tests for the iNode ble_parser."""
+from struct import pack
+
 from ble_monitor.ble_parser import BleParser
+from ble_monitor.ble_parser.inode import parse_inode
 
 
 class TestInode:
@@ -73,3 +76,24 @@ class TestInode:
         assert sensor_msg["battery"] == 90
         assert sensor_msg["voltage"] == 2.76
         assert sensor_msg["rssi"] == -59
+
+    def test_inode_care_sensor_2_temperature(self):
+        """Test iNode Care Sensor 2 temperature decoding."""
+        sensor_msg = self._parse_care_sensor(0x92)
+
+        assert sensor_msg["type"] == "iNode Care Sensor 2"
+        assert sensor_msg["temperature"] == 35.25
+
+    def test_inode_care_sensor_t_temperature(self):
+        """Test iNode Care Sensor T temperature decoding."""
+        sensor_msg = self._parse_care_sensor(0x9A)
+
+        assert sensor_msg["type"] == "iNode Care Sensor T"
+        assert sensor_msg["temperature"] == 35.25
+
+    @staticmethod
+    def _parse_care_sensor(device_id):
+        """Build a minimal Care Sensor packet for the temperature variants."""
+        payload = pack("<HHHHHHHQ", 0x1000, 0, 0, 0x0234, 0, 0, 0, 0)
+        ble_parser = BleParser()
+        return parse_inode(ble_parser, bytes((0, 0, 0, device_id)) + payload, b"\x01\x02\x03\x04\x05\x06")
