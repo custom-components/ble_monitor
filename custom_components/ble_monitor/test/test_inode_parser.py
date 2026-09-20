@@ -94,6 +94,6 @@ class TestInode:
     @staticmethod
     def _parse_care_sensor(device_id):
         """Build a minimal Care Sensor packet for the temperature variants."""
-        payload = pack("<HHHHHHHQ", 0x1000, 0, 0, 0x1234, 0, 0, 0, 0)
+        payload = pack("<HHHHHHHQ", 0x1000, 0, 0, 0x0234, 0, 0, 0, 0)
         ble_parser = BleParser()
         return parse_inode(ble_parser, bytes((0, 0, 0, device_id)) + payload, b"\x01\x02\x03\x04\x05\x06")
