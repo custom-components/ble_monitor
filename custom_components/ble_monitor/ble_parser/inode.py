@@ -120,10 +120,10 @@ def parse_inode(self, data: bytes, mac: bytes):
                     temp = temp - 8192
                 temp = max(min(temp, 70), -30)
             elif device_id in [0x92, 0x9A]:
-                msb = raw_t[0]
-                lsb = raw_t[1]
-                temp = msb * 0.0625 + 16 * (lsb & 0x0F)
-                if lsb & 0x10:
+                low_byte = raw_t & 0xFF
+                high_byte = (raw_t >> 8) & 0xFF
+                temp = low_byte * 0.0625 + 16 * (high_byte & 0x0F)
+                if high_byte & 0x10:
                     temp = temp - 256
                 temp = max(min(temp, 70), -30)
             elif device_id in [0x93, 0x9B, 0x9D]:
