@@ -2458,6 +2458,7 @@ AUTO_MANUFACTURER_DICT = {
     'BeckettLinkPro'          : 'Beckett',
     'GenisysGas'              : 'Beckett',
     'HHCCJCY10'               : 'HHCC',
+    'HolyIOT Beacon'          : 'HolyIOT',
     'HolyIOT BLE tracker'     : 'HolyIOT',
     'JTYJGD03MI'              : 'Honeywell',
     'Supramatic E4 BS'        : 'Hörmann',
