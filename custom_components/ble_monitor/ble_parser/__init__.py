@@ -286,6 +286,10 @@ class BleParser:
                         # UUID16 = HolyIOT
                         sensor_data = parse_holyiot(self, service_data, mac)
                         break
+                    elif uuid16 == 0x180A and len(service_data) == 13:
+                        # UUID16 = Device Information service (used by HolyIOT B1)
+                        sensor_data = parse_holyiot(self, service_data, mac)
+                        break
                     elif uuid16 in [0xAA20, 0xAA21, 0xAA22] and local_name == "ECo":
                         # UUID16 = Relsib
                         sensor_data = parse_relsib(self, service_data, mac)

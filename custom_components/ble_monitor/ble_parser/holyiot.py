@@ -63,6 +63,25 @@ def parse_holyiot(self, data: str, mac: bytes):
                 "battery": batt
             }
         )
+    elif msg_length == 13:
+        # HolyIOT B1 (B1-B, B1-S, holyiot-25055 board) status frame on
+        # 0x180A service data: <frame type> <MAC> <settings byte> <battery %>
+        # frame type: 0x01 = beacon mode, 0x02 = iBeacon mode (observed);
+        # the settings byte changes with adv interval/tx power config (0x04 -> 0xf8),
+        # meaning not fully reverse-engineered - not parsed.
+        device_type = "HolyIOT Beacon"
+        if data[4] not in (0x01, 0x02):
+            return None
+        holyiot_mac = data[5:11]
+        if holyiot_mac != mac:
+            _LOGGER.debug(
+                "HolyIOT MAC address doesn't match data MAC address. Data: %s with source mac: %s and HolyIOT mac: %s",
+                data.hex(),
+                mac,
+                holyiot_mac,
+            )
+            return None
+        result.update({"battery": data[12]})
     else:
         if self.report_unknown == "HolyIOT":
             _LOGGER.info(

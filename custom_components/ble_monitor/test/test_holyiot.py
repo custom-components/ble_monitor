@@ -105,3 +105,61 @@ class TestHolyIOT:
         assert sensor_msg["battery"] == 100
         assert sensor_msg["button"] == "toggle"
         assert sensor_msg["rssi"] == -52
+
+    def test_holyiot_b1_b_battery(self):
+        """Test HolyIOT parser for B1-B beacon (real capture)."""
+        data_string = "043e49020102016eee4ce590e13d0201061affffff0215fda50693a4e24fb1afcfc6eb07647825271b4cb9c9110942312d420000000000000000000000000c160a1801e190e54cee6e0461b9"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "HolyIOT"
+        assert sensor_msg["type"] == "HolyIOT Beacon"
+        assert sensor_msg["mac"] == "E190E54CEE6E"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["battery"] == 97
+        assert sensor_msg["rssi"] == -71
+
+    def test_holyiot_b1_s_battery(self):
+        """Test HolyIOT parser for B1-S beacon (real capture)."""
+        data_string = "043e4902010201bd483e2817fb3d0201061affffff0215fda50693a4e24fb1afcfc6eb07647825271b4cb9c9110942312d530000000000000000000000000c160a1801fb17283e48bd0462b9"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "HolyIOT"
+        assert sensor_msg["type"] == "HolyIOT Beacon"
+        assert sensor_msg["mac"] == "FB17283E48BD"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["battery"] == 98
+        assert sensor_msg["rssi"] == -71
+
+    def test_holyiot_beacon_ibeacon_mode(self):
+        """Test HolyIOT parser for the iBeacon-mode frame (type byte 0x02, real capture)."""
+        data_string = "043e49020102016eee4ce590e13d0201061affffff02156b1e44d99f274c8eb3f10a5d82e49c7300010001c9110942312d420000000000000000000000000c160a1802e190e54cee6ef85fb0"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg["firmware"] == "HolyIOT"
+        assert sensor_msg["type"] == "HolyIOT Beacon"
+        assert sensor_msg["mac"] == "E190E54CEE6E"
+        assert sensor_msg["packet"] == "no packet id"
+        assert sensor_msg["data"]
+        assert sensor_msg["battery"] == 95
+        assert sensor_msg["rssi"] == -80
+
+    def test_holyiot_b1_mac_mismatch(self):
+        """Test HolyIOT parser drops B1 frames with a foreign MAC in payload."""
+        data_string = "043e49020102016eee4ce590e13d0201061affffff0215fda50693a4e24fb1afcfc6eb07647825271b4cb9c9110942312d420000000000000000000000000c160a1801e090e54cee6e0461b9"
+        data = bytes(bytearray.fromhex(data_string))
+        # pylint: disable=unused-variable
+        ble_parser = BleParser()
+        sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+        assert sensor_msg is None
