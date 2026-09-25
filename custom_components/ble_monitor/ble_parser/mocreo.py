@@ -8,6 +8,7 @@ _LOGGER = logging.getLogger(__name__)
 
 MOCREO_TYPE_DICT = {
     0x10: "ST7",
+    0x85: "ST7-CL",
     0x81: "ST5",
     0x82: "SW2",
     0x83: "ST6",
@@ -30,6 +31,9 @@ COMMON_DATA_PARSING_FORMAT = {
 
 MOCREO_TYPE_DATA_PARSING_FORMAT = {
     0x10: {
+        "temperature": (5, 0, -16, True, lambda x: x / 100),
+    },
+    0x85: {
         "temperature": (5, 0, -16, True, lambda x: x / 100),
     },
     0x81: {

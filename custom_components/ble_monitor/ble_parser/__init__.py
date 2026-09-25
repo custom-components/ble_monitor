@@ -554,8 +554,8 @@ class BleParser:
                             # Inkbird
                             sensor_data = parse_inkbird(self, man_spec_data, local_name, mac)
                             break
-                        elif comp_id == 0x004A and local_name == "ST7" and data_len == 0x11:
-                            # Mocreo ST7, see below under local_name checks for the other Mocreo models
+                        elif comp_id == 0x004A and local_name in ["ST7", "ST7-CL"] and data_len == 0x11:
+                            # Mocreo ST7/ST7-CL, see below under local_name checks for the other Mocreo models
                             sensor_data = parse_mocreo(self, man_spec_data, local_name, mac)
                             break
                         else:
