@@ -19,6 +19,8 @@ def parse_qingping(self, data: bytes, mac: bytes):
             device_type = "CGG1"
         elif device_id == 0x09:
             device_type = "CGP1W"
+        elif device_id == 0x10:
+            device_type = "CGDK2"
         elif device_id == 0x12:
             device_type = "CGPR1"
         elif device_id == 0x18:
