@@ -3,15 +3,16 @@ import datetime
 import os
 import time
 
+import pytest
 from ble_monitor.binary_sensor import BaseBinarySensor
 from ble_monitor.ble_parser import BleParser
 from ble_monitor.ble_parser.xiaomi import (obj4e0c, obj4e0d, obj4e0e, obj4e16,
                                            obj4e17, obj5a16, obj0010, obj560c,
                                            obj560d, obj560e, obj1001, obj1017,
                                            obj1019, obj3003, obj4810, obj4850,
-                                           obj4851, obj4852, obj5010)
-from ble_monitor.const import (BINARY_SENSOR_TYPES, MEASUREMENT_DICT,
-                               SENSOR_TYPES)
+                                           obj4851, obj4852, obj5003, obj5010)
+from ble_monitor.const import (BINARY_SENSOR_TYPES, MANUFACTURER_DICT,
+                               MEASUREMENT_DICT, SENSOR_TYPES)
 from ble_monitor.sensor import StateChangedSensor
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import UnitOfTime
@@ -33,6 +34,12 @@ class TestXiaomi:
         # Additional bytes remain tolerated for valid events.
         assert obj0010(b"\x00\x03\xaa") == {"toothbrush": 1, "counter": 3}
         assert obj0010(b"\x01\x63\xaa") == {"toothbrush": 0, "score": 99}
+
+    def test_obj5003_battery(self):
+        """Test MJWSD07MMC battery parsing."""
+        assert obj5003(b"\x64") == {"battery": 100}
+        assert obj5003(b"\x3d") == {"battery": 61}
+        assert obj5003(b"\x3d\x00") == {"battery": 61}
 
     def test_obj4e0c_ptx_f1_display_click(self):
         """obj4e0c PTX-F1-Display: unrecognized click is {}; recognized clicks are unchanged."""
@@ -672,6 +679,63 @@ class TestXiaomi:
         assert sensor_msg["data"]
         assert sensor_msg["humidity"] == 39
         assert sensor_msg["rssi"] == -58
+
+    def test_Xiaomi_MJWSD07MMC(self):
+        """Test Xiaomi parser for MJWSD07MMC with encryption."""
+        self.aeskeys = {}
+        aeskey = "d779248e0d41c08dc2eeed4e22e95881"
+        p_mac = bytes.fromhex("A4C138094463")
+        p_key = bytes.fromhex(aeskey)
+        self.aeskeys[p_mac] = p_key
+
+        test_cases = [
+            (
+                "043E290201000163440938C1A41D020106191695FE5859B99ACF63440938C1A4"
+                "96A9C0A8020000ECB05864C6",
+                207,
+                {"humidity": 61},
+            ),
+            (
+                "043E260201000163440938C1A41A020106161695FE4859B99ADD9DEBB0E417E2"
+                "B5020000C2C4B47EC6",
+                221,
+                {"temperature": 26.2},
+            ),
+            (
+                "043E2A0201000163440938C1A41E0201061A1695FE5859B99ADC63440938C1A4"
+                "4F51577A52020000F1FF18DEC6",
+                220,
+                {"co2": 532},
+            ),
+            (
+                "043E290201000163440938C1A41D020106191695FE5859B99A0163440938C1A4"
+                "3A721004040000DAACEDC3C6",
+                1,
+                {"battery": 100},
+            ),
+        ]
+
+        for data_string, packet, expected in test_cases:
+            data = bytes(bytearray.fromhex(data_string))
+            # pylint: disable=unused-variable
+            ble_parser = BleParser(aeskeys=self.aeskeys)
+            sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
+
+            assert sensor_msg["firmware"] == "Xiaomi (MiBeacon V5 encrypted)"
+            assert sensor_msg["type"] == "MJWSD07MMC"
+            assert sensor_msg["mac"] == "A4C138094463"
+            assert sensor_msg["packet"] == packet
+            assert sensor_msg["data"]
+            assert sensor_msg["rssi"] == -58
+            for key, value in expected.items():
+                if isinstance(value, float):
+                    assert sensor_msg[key] == pytest.approx(value)
+                else:
+                    assert sensor_msg[key] == value
+        assert MANUFACTURER_DICT["MJWSD07MMC"] == "Xiaomi"
+        assert MEASUREMENT_DICT["MJWSD07MMC"][0] == [
+            "temperature", "humidity", "co2", "battery", "rssi"
+        ]
 
     def test_Xiaomi_MUE4094RT(self):
         """Test Xiaomi parser for MUE4094RT."""

@@ -47,6 +47,7 @@ XIAOMI_TYPE_DICT = {
     0x2832: "MJWSD05MMC",
     0x5BEA: "MJWSD06MMC",
     0x55B5: "MJWSD06MMC",
+    0x9AB9: "MJWSD07MMC",
     0x00DB: "MMC-T201-1",
     0x0391: "MMC-W505",
     0x03DD: "MUE4094RT",
@@ -1276,6 +1277,23 @@ def obj5414(xobj):
     return {"mode": mode}
 
 
+def obj5c01(xobj):
+    """Temperature"""
+    if len(xobj) == 4:
+        temp = FLOAT_STRUCT.unpack(xobj)[0]
+        return {"temperature": temp}
+    else:
+        return {}
+
+
+def obj5c02(xobj):
+    """Humidity"""
+    if len(xobj) == 1:
+        return {"humidity": xobj[0]}
+    else:
+        return {}
+
+
 def obj5601(xobj):
     """Low Battery"""
     low_batt = xobj[0]
@@ -1384,6 +1402,15 @@ def obj5a16(xobj):
         return {"bed occupancy": 0}
     elif event == 3:
         return {"button": "double press"}
+    else:
+        return {}
+
+
+def obj601d(xobj):
+    """CO2"""
+    if len(xobj) == 2:
+        (co2,) = H_STRUCT.unpack(xobj)
+        return {"co2": co2}
     else:
         return {}
 
@@ -1506,11 +1533,14 @@ xiaomi_dataobject_dict = {
     0x5011: obj5011,
     0x5403: obj5403,
     0x5414: obj5414,
+    0x5c01: obj5c01,
+    0x5c02: obj5c02,
     0x5601: obj5601,
     0x560c: obj560c,
     0x560d: obj560d,
     0x560e: obj560e,
     0x5a16: obj5a16,
+    0x601d: obj601d,
     0x6012: obj6012,
     0x605d: obj605d,
     0x6e16: obj6e16
