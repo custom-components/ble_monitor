@@ -2229,6 +2229,7 @@ MEASUREMENT_DICT = {
     'BEC07-5'                 : [["temperature", "humidity", "rssi"], [], []],
     'iBeacon'                 : [["rssi", "measured power", "cypress temperature", "cypress humidity"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
     'AltBeacon'               : [["rssi", "measured power"], ["uuid", "mac", "major", "minor"], []],  # mac can be dynamic
+    'Eddystone-TLM'           : [["temperature", "voltage", "battery", "rssi"], [], []],
     'Air Mentor Pro 2'        : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "aqi", "air quality", "pm2.5", "pm10", "rssi"], [], []],
     'Air Mentor 2S'           : [["temperature", "temperature calibrated", "humidity", "co2", "tvoc", "aqi", "formaldehyde", "air quality", "pm2.5", "pm10", "rssi"], [], []],
     'bluSensor Mini'          : [["temperature", "humidity", "co2", "tvoc", "aqi", "rssi"], [], []],
@@ -2389,6 +2390,7 @@ MANUFACTURER_DICT = {
     'BEC07-5'                 : 'Jinou',
     'iBeacon'                 : 'Apple',
     'AltBeacon'               : 'Radius Networks',
+    'Eddystone-TLM'           : 'Google',
     'Air Mentor Pro 2'        : 'Air Mentor',
     'Air Mentor 2S'           : 'Air Mentor',
     'bluSensor Mini'          : 'Almendo',
@@ -2629,6 +2631,7 @@ REPORT_UNKNOWN_LIST = [
     "Blustream",
     "BTHome",
     'Chef iQ',
+    "Eddystone",
     "Garnet",
     "Govee",
     "Grundfos",
