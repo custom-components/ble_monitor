@@ -71,10 +71,8 @@ broadcasted_property_notes:
   - property: timestamp
     note: The timestamp of the latest lock change (displayed as an attribute of the lock sensor)
   - property: door
-    note: The door entity has one extra attributes `door action`.
-    - property: door action
     note: >
-      `door action` shows the last change in of the door state (displayed as an attribute of the door sensor) and can have the following values:
+      The door entity has one extra attribute, `door action`, which shows the last change in the door state and can have the following values:
         * open the door
         * close the door
         * timeout, not closed

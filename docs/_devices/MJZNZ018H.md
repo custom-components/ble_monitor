@@ -14,13 +14,13 @@ broadcasted_properties:
 broadcasted_property_notes:
   - property: sleeping
     note: >
-    True means sleeping, False means Awake
+      True means sleeping, False means Awake
   - property: bed occupancy
     note: >
-    True means in bed, False means out of bed
+      True means in bed, False means out of bed
   - property: button
     note: >
-    The button sensor will report report "double click" when double clicking on the controller.
+      The button sensor will report report "double click" when double clicking on the controller.
 broadcast_rate: See Notes
 active_scan:
 encryption_key: true
