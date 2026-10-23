@@ -34,6 +34,7 @@ This custom component for [Home Assistant](https://www.home-assistant.io) passiv
 - BTHome
 - b-parasite
 - Chef iQ
+- Eddystone (TLM)
 - Ela
 - Govee
 - Grundfos
