@@ -81,22 +81,27 @@ class MGMTBluetoothCtl:
 
 
 # Bluetooth interfaces available on the system
-def hci_get_mac(iface_list=None):
-    """Get dict of available bluetooth interfaces, returns hci and mac."""
+def hci_get_all_mac():
+    """Get dict of all available bluetooth interfaces, returns hci and mac."""
     # Result example: {0: 'F2:67:F3:5B:4D:FC', 1: '00:1A:7D:DA:71:11'}
     try:
         btctl = MGMTBluetoothCtl()
     except BluetoothSocketError as error:
         _LOGGER.debug("BluetoothSocketError: %s", error)
         return {}
+    return btctl.presented_list
+
+
+def hci_get_mac(iface_list=None):
+    """Get dict of available bluetooth interfaces, returns hci and mac."""
+    # Result example: {0: 'F2:67:F3:5B:4D:FC', 1: '00:1A:7D:DA:71:11'}
+    presented_list = hci_get_all_mac()
     q_iface_list = iface_list or [0]
-    btaddress_dict = {}
-    for hci_idx in q_iface_list:
-        try:
-            btaddress_dict[hci_idx] = btctl.presented_list[hci_idx]
-        except KeyError:
-            pass
-    return btaddress_dict
+    return {
+        hci_idx: presented_list[hci_idx]
+        for hci_idx in q_iface_list
+        if hci_idx in presented_list
+    }
 
 
 def reset_bluetooth(hci):
