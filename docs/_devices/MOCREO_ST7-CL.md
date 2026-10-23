@@ -21,7 +21,7 @@ notes: >
     - local name "ST7-CL"
     - manufacturer payload length 0x11
     - device type byte at offset 1 in the common payload
-    - temperature extracted from the signed 16-bit field at byte 5, bit 0, with a scale of 0.01 °C
+    - temperature extracted from the signed 16-bit field at byte 6, bit 0, with a scale of 0.01 °C
     - battery is not treated as a valid advertised entity for this AC-powered controller
 
   Thermostat bounds and relay state are not available in BLE advertisements.

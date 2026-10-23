@@ -34,7 +34,7 @@ MOCREO_TYPE_DATA_PARSING_FORMAT = {
         "temperature": (5, 0, -16, True, lambda x: x / 100),
     },
     0x85: {
-        "temperature": (5, 0, -16, True, lambda x: x / 100),
+        "temperature": (6, 0, -16, True, lambda x: x / 100),
     },
     0x81: {
         "temperature": (6, 0, -16, True, lambda x: x / 100),
