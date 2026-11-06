@@ -1,6 +1,5 @@
 """Regression tests for discovery-disabled beacon sensor filtering."""
 import pytest
-
 from ble_monitor.ble_parser import BleParser
 
 IBEACON = bytes.fromhex(
