@@ -628,8 +628,9 @@ class BleParser:
                 )
             break
 
-        # Ignore sensor data for MAC addresses not in sensor whitelist, when discovery is disabled
-        if self.discovery is False and mac not in self.sensor_whitelist:
+        # A whitelisted beacon UUID is sufficient even if its MAC address changes.
+        if (self.discovery is False and mac not in self.sensor_whitelist
+                and not (uuid and uuid in self.sensor_whitelist)):
             _LOGGER.debug("Discovery is disabled. MAC: %s is not whitelisted!", to_mac(mac))
             sensor_data = None
         # Ignore sensor data for UUID not in sensor whitelist, when discovery is disabled
