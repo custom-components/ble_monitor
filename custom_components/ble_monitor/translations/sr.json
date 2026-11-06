@@ -107,18 +107,18 @@
   "services": {
     "cleanup_entries": {
       "name": "Очисти уносе",
-      "description": "Чишћење преосталих (dangling) уређаја из интеграције BLE Monitor."
+      "description": "Чишћење преосталих уређаја из интеграције BLE Monitor."
     },
     "parse_data": {
-      "name": "Анализирај податке (Parse)",
-      "description": "Пошаљи сирове (RAW) HCI податке пакета у интеграцију BLE Monitor.",
+      "name": "Анализирај податке",
+      "description": "Пошаљи сирове HCI податке пакета у интеграцију BLE Monitor.",
       "fields": {
         "packet": {
           "name": "Пакет",
-          "description": "Хексадецимални сирови (RAW) HCI подаци пакета."
+          "description": "Хексадецимални сирови HCI подаци пакета."
         },
         "gateway_id": {
-          "name": "ID мрежног пролаза (Gateway ID)",
+          "name": "ID мрежног пролаза",
           "description": "Идентификатор мрежног пролаза који преноси сирове HCI податке пакета (само за пратиоце уређаја)."
         }
       }
