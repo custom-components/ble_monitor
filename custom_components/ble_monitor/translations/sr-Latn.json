@@ -1,0 +1,127 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Passive BLE Monitor",
+        "description": "Podešavanje konfiguracije vašeg BLE monitora",
+        "data": {
+          "bt_interface": "MAC adresa Bluetooth interfejsa/adaptera",
+          "devices": "Uređaji",
+          "discovery": "Automatski otkrij uređaje i senzore",
+          "period": "Period koji se koristi za prosek",
+          "log_spikes": "Zabeleži nagle skokove vrednosti (spikes)",
+          "use_median": "Koristi medijanu umesto srednje vrednosti",
+          "measurement_update": "Politika ažuriranja merenja",
+          "active_scan": "Koristi aktivno skeniranje umesto pasivnog (utiče na bateriju)",
+          "restore_state": "Povrati stanje nakon ponovnog pokretanja",
+          "report_unknown": "Prijavi nepoznata BLE oglašavanja u HA log",
+          "bt_auto_restart": "Automatski ponovo pokreni Bluetooth adapter u slučaju kvara",
+          "hci_inactivity_timeout": "Vreme isteka sirove HCI neaktivnosti (sekunde, 0 = isključeno)"
+        }
+      },
+      "add_remove_device": {
+        "title": "Dodaj uređaj",
+        "data": {
+          "mac": "MAC adresa",
+          "uuid": "Beacon UUID",
+          "encryption_key": "Ključ za šifrovanje",
+          "temperature_unit": "Jedinica temperature [kako je šalje uređaj]",
+          "use_median": "Koristi medijanu umesto srednje vrednosti",
+          "measurement_update": "Politika ažuriranja merenja",
+          "restore_state": "Povrati stanje nakon ponovnog pokretanja",
+          "reset_timer": "Tajmer za resetovanje (u sekundama, 0 = isključeno)",
+          "report_unknown": "Prijavi nepoznata BLE oglašavanja u HA log",
+          "track_device": "Prati uređaj",
+          "tracker_scan_interval": "Interval skeniranja pratioca uređaja (u sekundama)",
+          "consider_home": "Interval nakon kojeg pratilac smatra da je uređaj kod kuće (u sekundama)",
+          "delete device": "Obriši uređaj"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "MAC adresa mora biti u formatu 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_uuid": "Beacon UUID mora biti u formatu '00000000-0000-0000-0000-000000000000'.",
+      "invalid_key": "Ključ za šifrovanje mora imati 32 heksadecimalna znaka (24 za Yeelight senzore).",
+      "cannot_change_mac": "MAC adresa se ne može promeniti.",
+      "cannot_change_uuid": "Beacon UUID se ne može promeniti.",
+      "cannot_delete_device": "Uređaj se ne može obrisati.",
+      "cannot_disable_bt_interface": "Ne može se onemogućiti BT interfejs dok je jedan ili više BT interfejsa još uvek izabrano. Deselektujte sve BT interfejse."
+    },
+    "abort": {
+      "single_instance_allowed": "Dozvoljena je samo jedna konfiguracija BLE monitora."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcije za Passive BLE Monitor",
+        "description": "Skeniranje će se ponovo pokrenuti nakon što pritisnete 'POŠALJI'",
+        "data": {
+          "bt_interface": "MAC adresa Bluetooth interfejsa/adaptera",
+          "devices": "Uređaji",
+          "discovery": "Automatski otkrij uređaje i senzore",
+          "period": "Period koji se koristi za prosek",
+          "log_spikes": "Zabeleži nagle skokove vrednosti (spikes)",
+          "use_median": "Koristi medijanu umesto srednje vrednosti",
+          "measurement_update": "Politika ažuriranja merenja",
+          "active_scan": "Koristi aktivno skeniranje umesto pasivnog (utiče na bateriju)",
+          "report_unknown": "Prijavi nepoznata BLE oglašavanja u HA log",
+          "bt_auto_restart": "Automatski ponovo pokreni Bluetooth adapter u slučaju kvara",
+          "hci_inactivity_timeout": "Vreme isteka sirove HCI neaktivnosti (sekunde, 0 = isključeno)",
+          "restore_state": "Povrati stanje nakon ponovnog pokretanja",
+          "not_in_use": "Koristi se YAML, promenite opcije u YAML fajlu"
+        }
+      },
+      "add_remove_device": {
+        "title": "Konfiguriši uređaj",
+        "data": {
+          "mac": "MAC adresa",
+          "uuid": "Beacon UUID",
+          "encryption_key": "Ključ za šifrovanje (postavite na '-' za uklanjanje)",
+          "temperature_unit": "Jedinica temperature [kako je šalje uređaj]",
+          "use_median": "Koristi medijanu umesto srednje vrednosti",
+          "measurement_update": "Politika ažuriranja merenja",
+          "restore_state": "Povrati stanje nakon ponovnog pokretanja",
+          "reset_timer": "Tajmer za resetovanje (u sekundama, 0 = isključeno)",
+          "report_unknown": "Prijavi nepoznata BLE oglašavanja u HA log",
+          "track_device": "Prati uređaj",
+          "tracker_scan_interval": "Interval skeniranja pratioca uređaja (u sekundama)",
+          "consider_home": "Interval nakon kojeg pratilac smatra da je uređaj kod kuće (u sekundama)",
+          "delete device": "Obriši uređaj"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "MAC adresa mora biti u formatu 'AA:BB:CC:DD:EE:FF'.",
+      "invalid_uuid": "Beacon UUID mora biti u formatu '00000000-0000-0000-0000-000000000000'.",
+      "invalid_key": "Ključ za šifrovanje mora imati 32 heksadecimalna znaka (24 za Yeelight senzore).",
+      "cannot_change_mac": "MAC adresa se ne može promeniti.",
+      "cannot_change_uuid": "Beacon UUID se ne može promeniti.",
+      "cannot_delete_device": "Uređaj se ne može obrisati.",
+      "cannot_disable_bt_interface": "Ne može se onemogućiti BT interfejs dok je jedan ili više BT interfejsa još uvek izabrano. Deselektujte sve BT interfejse."
+    },
+    "abort": {
+      "not_in_use": "Konfigurisali ste BLE monitor u YAML-u. Molimo promenite svoje opcije u YAML fajlu."
+    }
+  },
+  "services": {
+    "cleanup_entries": {
+      "name": "Očisti unose",
+      "description": "Čišćenje preostalih uređaja iz integracije BLE Monitor."
+    },
+    "parse_data": {
+      "name": "Analiziraj podatke",
+      "description": "Pošalji sirove HCI podatke paketa u integraciju BLE Monitor.",
+      "fields": {
+        "packet": {
+          "name": "Paket",
+          "description": "Heksadecimalni sirovi HCI podaci paketa."
+        },
+        "gateway_id": {
+          "name": "ID mrežnog prolaza",
+          "description": "Identifikator mrežnog prolaza koji prenosi sirove HCI podatke paketa (samo za pratioce uređaja)."
+        }
+      }
+    }
+  }
+}
