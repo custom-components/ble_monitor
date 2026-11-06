@@ -1,36 +1,34 @@
 """Tests for BLE Monitor device registry lookups."""
 
-from unittest.mock import Mock
-
 from ble_monitor.const import DOMAIN
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
+from pytest_homeassistant.common import MockConfigEntry, async_capture_events
 
 
-def test_identifier_lookup_is_scoped_to_config_entry():
+async def test_identifier_lookup_is_scoped_to_config_entry(
+    hass: HomeAssistant, device_registry: dr.DeviceRegistry
+) -> None:
     """An identifier lookup selects only the BLE Monitor entry's device."""
-    hass = Mock()
-    hass.config_entries.async_get_entry.return_value = Mock(domain=DOMAIN)
-    registry = object.__new__(dr.DeviceRegistry)
-    registry.hass = hass
-    registry.devices = dr.ActiveDeviceRegistryItems()
-    registry.deleted_devices = dr.DeletedDeviceRegistryItems()
-    registry.async_schedule_save = Mock()
-
-    ble_entry_id = "ble-monitor-entry"
-    other_entry_id = "other-entry"
+    registry = device_registry
+    ble_entry = MockConfigEntry(domain=DOMAIN)
+    other_entry = MockConfigEntry(domain=DOMAIN)
+    ble_entry.add_to_hass(hass)
+    other_entry.add_to_hass(hass)
+    ble_entry_id = ble_entry.entry_id
+    other_entry_id = other_entry.entry_id
     identifier = (DOMAIN, "A4C138000001")
-    ble_device = dr.DeviceEntry(
+    ble_device = registry.async_get_or_create(
         config_entry_id=ble_entry_id,
         identifiers={identifier},
         name="BLE Monitor device",
     )
-    other_device = dr.DeviceEntry(
+    other_device = registry.async_get_or_create(
         config_entry_id=other_entry_id,
         identifiers={identifier},
         name="Other config entry device",
     )
-    registry.devices[ble_device.id] = ble_device
-    registry.devices[other_device.id] = other_device
+    events = async_capture_events(hass, dr.EVENT_DEVICE_REGISTRY_UPDATED)
 
     selected = registry.async_get_device_by_identifier(
         identifier, ble_entry_id
@@ -47,4 +45,7 @@ def test_identifier_lookup_is_scoped_to_config_entry():
     assert registry.async_get_device_by_identifier(
         identifier, other_entry_id
     ) == other_device
-    hass.bus.async_fire_internal.assert_called_once()
+    await hass.async_block_till_done()
+    assert len(events) == 1
+    assert events[0].data["action"] == "remove"
+    assert events[0].data["device_id"] == ble_device.id
