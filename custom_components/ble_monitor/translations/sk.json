@@ -11,10 +11,12 @@
           "period": "Obdobie, ktoré sa má použiť na spriemerovanie",
           "log_spikes": "Log spikes",
           "use_median": "Namiesto priemeru použite medián",
+          "measurement_update": "Zásady aktualizácie meraní",
           "active_scan": "Použiť aktívne skenovanie namiesto pasívneho skenovania (ovplyvňuje batériu)",
           "restore_state": "Po reštarte obnoviť stav",
           "report_unknown": "Nahláste neznáme reklamy BLE do denníka HA",
-          "bt_auto_restart": "Automaticky reštartovať adaptér Bluetooth pri zlyhaní"
+          "bt_auto_restart": "Automaticky reštartovať adaptér Bluetooth pri zlyhaní",
+          "hci_inactivity_timeout": "Časový limit nečinnosti HCI (v sekundách, 0 = vypnuté)"
         }
       },
       "add_remove_device": {
@@ -25,6 +27,7 @@
           "encryption_key": "Šifrovací kľúč",
           "temperature_unit": "Jednotka teploty [iba snímače teploty]",
           "use_median": "Namiesto priemeru použite medián",
+          "measurement_update": "Zásady aktualizácie meraní",
           "restore_state": "Po reštarte obnoviť stav",
           "reset_timer": "Resetovať časovač (v sekundách, 0 = vypnuté)",
           "report_unknown": "Nahláste neznáme reklamy BLE do denníka HA",
@@ -60,9 +63,11 @@
           "period": "Obdobie, ktoré sa má použiť na spriemerovanie",
           "log_spikes": "Log spikes",
           "use_median": "Namiesto priemeru použite medián",
+          "measurement_update": "Zásady aktualizácie meraní",
           "active_scan": "Použiť aktívne skenovanie namiesto pasívneho skenovania (ovplyvňuje batériu)",
           "report_unknown": "Nahláste neznáme reklamy BLE do denníka HA",
           "bt_auto_restart": "Automaticky reštartovať adaptér Bluetooth pri zlyhaní",
+          "hci_inactivity_timeout": "Časový limit nečinnosti HCI (v sekundách, 0 = vypnuté)",
           "restore_state": "Po reštarte obnoviť stav",
           "not_in_use": "Používa sa YAML, zmeňte možnosti v YAML"
         }
@@ -75,6 +80,7 @@
           "encryption_key": "Šifrovací kľúč (na odstránenie nastavte na '-')",
           "temperature_unit": "Jednotka teploty",
           "use_median": "Namiesto priemeru použite medián",
+          "measurement_update": "Zásady aktualizácie meraní",
           "restore_state": "Po reštarte obnoviť stav",
           "reset_timer": "Resetovať časovač (v sekundách, 0 = vypnuté)",
           "report_unknown": "Nahláste neznáme reklamy BLE do denníka HA",
