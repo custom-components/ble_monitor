@@ -50,6 +50,7 @@ from .switchbot import parse_switchbot
 from .teltonika import parse_teltonika
 from .thermobeacon import parse_thermobeacon
 from .thermopro import parse_thermopro
+from .thermosafer import parse_thermosafer
 from .tilt import parse_tilt
 from .xiaogui import parse_xiaogui
 from .xiaomi import parse_xiaomi
@@ -487,6 +488,10 @@ class BleParser:
                     elif comp_id == 0xAA55 and data_len == 0x14:
                         # Thermobeacon
                         sensor_data = parse_thermobeacon(self, man_spec_data, mac)
+                        break
+                    elif comp_id == 0xBC0E and data_len == 0x17:
+                        # Thermosafer
+                        sensor_data = parse_thermosafer(self, man_spec_data, mac)
                         break
                     elif comp_id == 0xAC63 and data_len in [0x17, 0x2D]:
                         # Govee H5191
