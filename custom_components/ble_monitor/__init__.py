@@ -10,14 +10,33 @@ from threading import Thread
 import aioblescan as aiobs
 import janus
 import voluptuous as vol
+from awesomeversion import AwesomeVersion
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (CONF_DEVICES, CONF_DISCOVERY, CONF_MAC,
                                  CONF_NAME, CONF_TEMPERATURE_UNIT,
                                  CONF_UNIQUE_ID, EVENT_HOMEASSISTANT_STOP)
+from homeassistant.const import __version__ as HA_VERSION
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.device_registry import DeviceEntry
+
+# Keep in sync with hacs.json. Checked before the local imports below, which
+# need Home Assistant APIs that older versions do not have.
+MIN_HA_VERSION = "2026.8.0"
+
+
+def _require_min_ha_version(running_version):
+    """Refuse to load on a Home Assistant version older than MIN_HA_VERSION."""
+    if AwesomeVersion(running_version) < AwesomeVersion(MIN_HA_VERSION):
+        raise ImportError(
+            f"Passive BLE Monitor requires Home Assistant {MIN_HA_VERSION} or newer, "
+            f"but this instance runs {running_version}. Update Home Assistant, or "
+            f"install a ble_monitor release that supports {running_version}."
+        )
+
+
+_require_min_ha_version(HA_VERSION)
 
 from .ble_parser import BleParser
 from .bt_helpers import (BT_INTERFACES, BT_MULTI_SELECT, DEFAULT_BT_INTERFACE,
