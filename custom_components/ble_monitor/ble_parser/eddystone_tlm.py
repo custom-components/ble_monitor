@@ -13,10 +13,12 @@ TLM_TEMPERATURE_UNSUPPORTED = -128.0
 
 def parse_eddystone_tlm(self, data: bytes, mac: bytes):
     """Parser for Eddystone-TLM beacons"""
+    firmware = "Eddystone"
     device_type = "Eddystone-TLM"
     result = {
         "mac": to_unformatted_mac(mac),
         "type": device_type,
+        "firmware": firmware,
         "data": False,
     }
     (frame_type, version, volt, temp_int, temp_frac, adv_cnt) = unpack(

@@ -12,6 +12,7 @@ class TestEddystoneTlm:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
+        assert sensor_msg["firmware"] == "Eddystone"
         assert sensor_msg["type"] == "Eddystone-TLM"
         assert sensor_msg["mac"] == "DEADBEEF4B49"
         assert sensor_msg["packet"] == 131181
@@ -29,6 +30,7 @@ class TestEddystoneTlm:
         ble_parser = BleParser()
         sensor_msg, tracker_msg = ble_parser.parse_raw_data(data)
 
+        assert sensor_msg["firmware"] == "Eddystone"
         assert sensor_msg["type"] == "Eddystone-TLM"
         assert sensor_msg["mac"] == "DEADBEEF4B49"
         assert sensor_msg["packet"] == 131181
