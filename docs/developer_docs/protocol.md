@@ -121,7 +121,7 @@ type code    evt rep type addr                             flag         type  UU
 Some advertisements are encrypted. The following python script shows the decryption of these messages
 
 ```python
-from Cryptodome.Cipher import AES
+from Crypto.Cipher import AES
 
 data_string = "043e2b020103000fc4e044ef541f0201061b1695fe58598d0a170fc4e044ef547cc27a5c03a1000000790df258bb"
 aeskey = "FDD8CE9C08AE7533A79BDAF0BB755E96"

@@ -4,7 +4,7 @@ import math
 import struct
 from datetime import timezone
 
-from Cryptodome.Cipher import AES
+from Crypto.Cipher import AES
 from homeassistant.util import datetime
 
 from .helpers import to_mac, to_unformatted_mac

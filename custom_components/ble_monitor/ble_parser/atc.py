@@ -2,7 +2,7 @@
 import logging
 from struct import unpack
 
-from Cryptodome.Cipher import AES
+from Crypto.Cipher import AES
 
 from .helpers import to_mac, to_unformatted_mac
 
