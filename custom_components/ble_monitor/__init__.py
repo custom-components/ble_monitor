@@ -21,7 +21,7 @@ from homeassistant.helpers.device_registry import DeviceEntry
 
 from .ble_parser import BleParser
 from .bt_helpers import (BT_INTERFACES, BT_MULTI_SELECT, DEFAULT_BT_INTERFACE,
-                         reset_bluetooth)
+                         hci_get_all_mac, reset_bluetooth)
 from .const import (AES128KEY24_REGEX, AES128KEY32_REGEX,
                     AUTO_BINARY_SENSOR_LIST, AUTO_MANUFACTURER_DICT,
                     AUTO_SENSOR_LIST, CONF_ACTIVE_SCAN, CONF_BATT_ENTITIES,
@@ -534,6 +534,15 @@ class HCIdump(Thread):
         self.evt_cnt = {}
         self.config = config
         self._interfaces = list(set(config[CONF_HCI_INTERFACE]))
+        # hci index of each configured adapter by MAC address, to follow an adapter
+        # that the kernel re-enumerates under another index (e.g. after a USB reset)
+        self._hci_by_mac = {}
+        if len(config[CONF_HCI_INTERFACE]) == len(config[CONF_BT_INTERFACE]):
+            self._hci_by_mac = {
+                bt_mac: hci
+                for hci, bt_mac in zip(config[CONF_HCI_INTERFACE], config[CONF_BT_INTERFACE])
+                if bt_mac != "disable"
+            }
         self._active = int(config[CONF_ACTIVE_SCAN] is True)
         self._inactivity_timeout = config.get(
             CONF_HCI_INACTIVITY_TIMEOUT, DEFAULT_HCI_INACTIVITY_TIMEOUT
@@ -705,6 +714,35 @@ class HCIdump(Thread):
             self.SCAN_RETRY_INTERVAL, self._event_loop.stop
         )
 
+    def _follow_renumbered_interfaces(self):
+        """Look up the current hci index of the configured adapters by MAC address.
+
+        The kernel can re-enumerate an adapter under another hci index, e.g. after
+        a USB reset of a Bluetooth dongle. Without this, the scanner keeps using the
+        old index until Home Assistant is restarted.
+        """
+        if not self._hci_by_mac:
+            return
+        available = {bt_mac: hci for hci, bt_mac in hci_get_all_mac().items()}
+        for bt_mac, hci in self._hci_by_mac.items():
+            new_hci = available.get(bt_mac)
+            if new_hci is not None and new_hci != hci:
+                _LOGGER.warning(
+                    "HCIdump thread: Bluetooth adapter %s moved from hci%i to hci%i",
+                    bt_mac,
+                    hci,
+                    new_hci,
+                )
+                self._hci_by_mac[bt_mac] = new_hci
+        self._interfaces = list(dict.fromkeys(self._hci_by_mac.values()))
+
+    def _interface_mac(self, hci):
+        """Return the MAC address of the adapter at an hci index."""
+        for bt_mac, bt_hci in self._hci_by_mac.items():
+            if bt_hci == hci:
+                return bt_mac
+        return BT_INTERFACES.get(hci)
+
     def run(self):
         """Run HCIdump thread."""
         while True:
@@ -721,6 +759,7 @@ class HCIdump(Thread):
                 self._event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self._event_loop)
             if "disable" not in self.config[CONF_BT_INTERFACE]:
+                self._follow_renumbered_interfaces()
                 for hci in self._interfaces:
                     interface_is_ok[hci] = False
                     try:
@@ -792,7 +831,7 @@ class HCIdump(Thread):
                                 "HCIdump thread: Trying to power cycle Bluetooth adapter hci%i %s,"
                                 " will try to use it next scan period.",
                                 iface,
-                                BT_INTERFACES[iface],
+                                self._interface_mac(iface),
                             )
                             reset_bluetooth(iface)
                         self.last_bt_reset = ts_now
