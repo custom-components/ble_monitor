@@ -224,23 +224,22 @@ def parse_beckett(self, data: str, mac: bytes):
     """RW Beckett Corp parser: MyTechnician, BeckettLink Pro 7652a, Genisys"""
     try:
         mfg_data: BeckettMfgData = parse_mfg_data(data)
-        _LOGGER.debug(f"Parsed Beckett Genisys ADV: {mfg_data}")
-        result = _cast_hass_output(mfg_data)
-        result.update(
-            {
-                "mac": to_unformatted_mac(mac),
-            }
-        )
-    except Exception:
-        _LOGGER.warning("Error parsing Beckett manufacturer data:", exc_info=True)
-        #raise
+    except (IndexError, ValueError):
+        # Unknown product key, device name key or state (ValueError),
+        # or a payload that is too short (IndexError)
+        if self.report_unknown == "Beckett":
+            _LOGGER.info(
+                "BLE ADV from UNKNOWN Beckett DEVICE: MAC: %s, ADV: %s",
+                to_mac(mac),
+                data.hex(),
+            )
         return None
 
-    #### BOILERPLATE
-    if self.report_unknown == "Beckett":
-        _LOGGER.info(
-            f"BLE ADV from UNKNOWN Beckett DEVICE: MAC: {to_mac(mac)}, ADV: {data.hex()}",
-        )
-        return None
-
+    _LOGGER.debug(f"Parsed Beckett Genisys ADV: {mfg_data}")
+    result = _cast_hass_output(mfg_data)
+    result.update(
+        {
+            "mac": to_unformatted_mac(mac),
+        }
+    )
     return result
