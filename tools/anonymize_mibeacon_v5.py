@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 
-from Cryptodome.Cipher import AES
+from Crypto.Cipher import AES
 
 
 @dataclass

@@ -4,7 +4,7 @@ import struct
 from datetime import datetime, timezone
 from typing import Any
 
-from Cryptodome.Cipher import AES
+from Crypto.Cipher import AES
 
 from .bthome_const import BUTTON_EVENTS, DIMMER_EVENTS, MEAS_TYPES
 from .helpers import to_mac, to_unformatted_mac
